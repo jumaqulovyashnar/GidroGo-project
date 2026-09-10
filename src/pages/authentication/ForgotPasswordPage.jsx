@@ -49,7 +49,7 @@ function ForgotPasswordPage() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="misol@gmail.com"
+            placeholder="email@gmail.com"
             required
             autoFocus
           />
