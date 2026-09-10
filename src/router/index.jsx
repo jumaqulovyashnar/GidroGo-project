@@ -1,9 +1,17 @@
-import React from 'react'
+import {  createBrowserRouter } from "react-router-dom"
+import LoginPage from "../pages/LoginPage";
+import AuthLayout from "../layout/AuthLayout";
 
-function index() {
-  return (
-    <div>index</div>
-  )
-}
+const router = createBrowserRouter([
 
-export default index
+  {
+    element: <AuthLayout />,
+    children: [
+      {
+        path: '/login',
+        element: <LoginPage />,
+      }
+    ]
+  }
+])
+export default router;  
