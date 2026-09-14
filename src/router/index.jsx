@@ -1,11 +1,6 @@
 import { createBrowserRouter, Navigate } from "react-router-dom"
 import AuthLayout from "../layout/AuthLayout"
-import {
-  LoginPage,
-  ForgotPasswordPage,
-  OtpVerificationPage,
-  ResetPasswordPage,
-} from "@/pages/authentication"
+import { LoginPage } from "@/pages/authentication"
 
 const router = createBrowserRouter([
   {
@@ -18,18 +13,6 @@ const router = createBrowserRouter([
       {
         path: "/login",
         element: <LoginPage />,
-      },
-      {
-        path: "/forgot-password",
-        element: <ForgotPasswordPage />,
-      },
-      {
-        path: "/verify-otp",
-        element: <OtpVerificationPage />,
-      },
-      {
-        path: "/reset-password",
-        element: <ResetPasswordPage />,
       },
     ],
   },

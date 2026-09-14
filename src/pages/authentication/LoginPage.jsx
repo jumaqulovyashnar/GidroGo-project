@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { Button, Field, Input, Label } from "@/ui";
 
 function LoginPage() {
+  const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -10,6 +10,11 @@ function LoginPage() {
   const handleSubmit = (event) => {
     event.preventDefault(); // refresh bo'lib ketmasligi uchun
     setError("");
+
+    if (!name.trim()) {
+      setError("Iltimos, ismingizni kiriting.");
+      return;
+    }
 
     if (!phone.trim()) {
       setError("Iltimos, telefon raqamingizni kiriting.");
@@ -21,7 +26,7 @@ function LoginPage() {
       return;
     }
 
-    console.log("Login yuborilmoqda:", { phone, password });
+    console.log("Login yuborilmoqda:", { name, phone, password });
   };
 
   return (
@@ -36,6 +41,25 @@ function LoginPage() {
       </div>
 
       <form noValidate onSubmit={handleSubmit} className="space-y-4 border-none">
+        {/* 1-qator: Ism */}
+        <Field>
+          <Label htmlFor="name" className="font-medium text-sm">
+            Ismingizni kiriting.
+          </Label>
+          <Input
+            id="name"
+            type="text"
+            value={name}
+            onChange={(e) => {
+              setName(e.target.value);
+              if (error) setError("");
+            }}
+            placeholder="Ismingizni kiriting"
+            autoFocus
+          />
+        </Field>
+
+        {/* 2-qator: Telefon */}
         <Field>
           <Label htmlFor="phone" className="font-medium text-sm">
             Telefon raqamingizni kiriting.
@@ -52,18 +76,11 @@ function LoginPage() {
           />
         </Field>
 
+        {/* 3-qator: Parol */}
         <Field>
-          <div className="flex items-center justify-between">
-            <Label htmlFor="password" className="font-medium text-sm">
-              Parol
-            </Label>
-            <Link
-              to="/forgot-password"
-              className="text-sm text-[#2563EB] hover:underline font-medium"
-            >
-              Parolni unutdingizmi?
-            </Link>
-          </div>
+          <Label htmlFor="password" className="font-medium text-sm">
+            Parol
+          </Label>
           <Input
             id="password"
             type="password"
