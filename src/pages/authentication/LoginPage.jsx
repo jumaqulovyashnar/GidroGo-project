@@ -8,7 +8,7 @@ function LoginPage() {
   const [error, setError] = useState("");
 
   const handleSubmit = (event) => {
-    event.preventDefault(); // refresh bo'lib ketmasligi uchun
+    event.preventDefault();               // refresh bo'lib ketmasligi uchun
     setError("");
 
     if (!name.trim()) {
