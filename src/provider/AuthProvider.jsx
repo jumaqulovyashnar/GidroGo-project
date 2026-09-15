@@ -31,7 +31,7 @@ const decodeJwt = (token) => {
       )
     )
   } catch {
-    return null ;
+    return null
   }
 }
 
@@ -39,17 +39,28 @@ const decodeJwt = (token) => {
 const createUser = (userData, token) => {
   const decodedToken = decodeJwt(token)
 
-  const roleName =
-    userData?.roleName || decodedToken?.roleName || "ROLE_ADMIN"
+  const rawRole =
+    userData?.roleName ||
+    userData?.rawRole ||
+    userData?.role ||
+    decodedToken?.roleName ||
+    decodedToken?.role ||
+    "ROLE_ADMIN"
 
   const isSuperAdmin =
-    roleName === "ROLE_SUPER_ADMIN" || roleName === "SUPER_ADMIN"
+    rawRole === "ROLE_SUPER_ADMIN" ||
+    rawRole === "SUPER_ADMIN" ||
+    userData?.role === "SUPER_ADMIN"
 
   const isManager =
-    roleName === "ROLE_MANAGER" || roleName === "MANAGER"
+    rawRole === "ROLE_MANAGER" ||
+    rawRole === "MANAGER" ||
+    userData?.role === "MANAGER"
 
   const isBoss =
-    roleName === "ROLE_BOSS" || roleName === "BOSS"
+    rawRole === "ROLE_BOSS" ||
+    rawRole === "BOSS" ||
+    userData?.role === "BOSS"
 
   let role = "VILOYAT_ADMIN"
   let roleLabel = "Viloyat Admin"
@@ -69,9 +80,9 @@ const createUser = (userData, token) => {
   const lastName = userData?.lastName || ""
 
   const fullName =
+    userData?.name ||
     [firstName, lastName].filter(Boolean).join(" ").trim() ||
     userData?.fullname ||
-    userData?.name ||
     roleLabel
 
   return {
@@ -88,7 +99,7 @@ const createUser = (userData, token) => {
     firstName: firstName || undefined,
     lastName: lastName || undefined,
     role,
-    rawRole: roleName,
+    rawRole,
     roleLabel,
     email: userData?.email || `${userData?.phone || "admin"}@gidrogo.uz`,
     region: userData?.regionName || userData?.region || undefined,
@@ -132,7 +143,7 @@ export const AuthProvider = ({ children }) => {
           useUserStore.getState().actions.setUserInfo(formattedUser)
           return formattedUser
         } catch {
-          // Token asosida davom etadi
+          // ignore
         }
       }
 
@@ -144,23 +155,20 @@ export const AuthProvider = ({ children }) => {
 
   // LOGIN
   const login = useCallback(
-    async (username, password) => {
+    async (phoneInput, passwordInput) => {
       try {
-        const cleanUsername = username.trim().replace(/[\s()-]/g, "")
-        const phone = cleanUsername.startsWith("+")
-          ? cleanUsername
-          : `+${cleanUsername}`
-        const cleanPassword = password.trim()
+        const cleanPhone = (phoneInput || "").trim()
+        const cleanPassword = (passwordInput || "").trim()
 
-        if (!cleanUsername || !cleanPassword) {
+        if (!cleanPhone || !cleanPassword) {
           return {
             success: false,
-            error: "Foydalanuvchi nomi va parolni kiriting!",
+            error: "Telefon raqami va parolni kiriting!",
           }
         }
 
         const response = await authService.login({
-          phone,
+          phone: cleanPhone,
           password: cleanPassword,
         })
 
@@ -182,7 +190,7 @@ export const AuthProvider = ({ children }) => {
           }
         }
 
-        const initialUser = createUser(data, accessToken)
+        const initialUser = createUser(data?.user || data, accessToken)
 
         useUserStore.getState().actions.setUserInfoAndToken(initialUser, {
           accessToken,

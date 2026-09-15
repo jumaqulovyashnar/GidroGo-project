@@ -1,12 +1,13 @@
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/provider/AuthProvider"
 import { Button, Field, Input, Label } from "@/ui"
 
 function LoginPage() {
-  const [name, setName] = useState("")
-  const [phone, setPhone] = useState("")
-  const [password, setPassword] = useState("")
+  const nameRef = useRef(null)
+  const phoneRef = useRef(null)
+  const passwordRef = useRef(null)
+
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
 
@@ -17,40 +18,45 @@ function LoginPage() {
     event.preventDefault()
     setError("")
 
-    if (!name.trim()) {
-      setError("Iltimos, ismingizni kiriting.")
-      return
-    }
+    const phone = phoneRef.current?.value || ""
+    const password = passwordRef.current?.value || ""
 
     if (!phone.trim()) {
       setError("Iltimos, telefon raqamingizni kiriting.")
+      phoneRef.current?.focus()
       return
     }
 
     if (!password.trim()) {
       setError("Iltimos, parolingizni kiriting.")
+      passwordRef.current?.focus()
       return
     }
 
     setIsLoading(true)
 
-    const result = await login(phone, password)
+    try {
+      const result = await login(phone, password)
 
-    setIsLoading(false)
+      setIsLoading(false)
 
-    if (result.success) {
-      const userRole = result.user?.role
-      if (userRole === "SUPER_ADMIN") {
-        navigate("/super-admin")
-      } else if (userRole === "MANAGER") {
-        navigate("/manager")
-      } else if (userRole === "BOSS") {
-        navigate("/boss")
+      if (result.success) {
+        const userRole = result.user?.role
+        if (userRole === "SUPER_ADMIN") {
+          navigate("/super-admin", { replace: true })
+        } else if (userRole === "MANAGER") {
+          navigate("/manager", { replace: true })
+        } else if (userRole === "BOSS") {
+          navigate("/boss", { replace: true })
+        } else {
+          navigate("/super-admin", { replace: true })
+        }
       } else {
-        navigate("/super-admin")
+        setError(result.error || "Login yoki parol xato.")
       }
-    } else {
-      setError(result.error || "Login yoki parol xato.")
+    } catch (err) {
+      setIsLoading(false)
+      setError(err?.message || "Kutilmagan xatolik yuz berdi!")
     }
   }
 
@@ -66,54 +72,44 @@ function LoginPage() {
       </div>
 
       <form noValidate onSubmit={handleSubmit} className="space-y-4 border-none">
-        {/* 1-qator: Ism */}
+        {/* 1-qator: Ism (useRef bilan) */}
         <Field>
           <Label htmlFor="name" className="font-medium text-sm">
-            Ismingizni kiriting.
+            Ismingiz (ixtiyoriy)
           </Label>
           <Input
             id="name"
+            ref={nameRef}
             type="text"
-            value={name}
-            onChange={(e) => {
-              setName(e.target.value)
-              if (error) setError("")
-            }}
             placeholder="Ismingizni kiriting"
+          />
+        </Field>
+
+        {/* 2-qator: Telefon (useRef bilan) */}
+        <Field>
+          <Label htmlFor="phone" className="font-medium text-sm">
+            Telefon raqamingiz
+          </Label>
+          <Input
+            id="phone"
+            ref={phoneRef}
+            type="tel"
+            defaultValue="+998 90 123 45 67"
+            placeholder="+998 90 123 45 67"
             autoFocus
           />
         </Field>
 
-        {/* 2-qator: Telefon */}
-        <Field>
-          <Label htmlFor="phone" className="font-medium text-sm">
-            Telefon raqamingizni kiriting.
-          </Label>
-          <Input
-            id="phone"
-            type="tel"
-            value={phone}
-            onChange={(e) => {
-              setPhone(e.target.value)
-              if (error) setError("")
-            }}
-            placeholder="+998 90 123 45 67"
-          />
-        </Field>
-
-        {/* 3-qator: Parol */}
+        {/* 3-qator: Parol (useRef bilan) */}
         <Field>
           <Label htmlFor="password" className="font-medium text-sm">
             Parol
           </Label>
           <Input
             id="password"
+            ref={passwordRef}
             type="password"
-            value={password}
-            onChange={(e) => {
-              setPassword(e.target.value)
-              if (error) setError("")
-            }}
+            defaultValue="admin123"
             placeholder="Parolingizni kiriting"
           />
         </Field>
@@ -127,7 +123,7 @@ function LoginPage() {
         <Button
           type="submit"
           disabled={isLoading}
-          className="w-full h-10 font-medium text-white bg-[#2563EB] hover:bg-blue-700 disabled:opacity-50"
+          className="w-full h-10 font-medium text-white bg-[#2563EB] hover:bg-blue-700 disabled:opacity-50 cursor-pointer"
         >
           {isLoading ? "Kirilmoqda..." : "Tizimga kirish"}
         </Button>

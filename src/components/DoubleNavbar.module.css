@@ -1,0 +1,103 @@
+.navbar {
+  height: 100%;
+  min-height: 100vh;
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #e2e8f0;
+  background-color: #ffffff;
+}
+
+.wrapper {
+  display: flex;
+  flex: 1;
+  height: 100%;
+}
+
+.aside {
+  flex: 0 0 64px;
+  background-color: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-right: 1px solid #e2e8f0;
+  padding-top: 16px;
+  gap: 8px;
+}
+
+.logo {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  background-color: #eff6ff;
+  border: 1px solid #dbeafe;
+}
+
+.main {
+  flex: 1;
+  background-color: #ffffff;
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title {
+  padding: 8px 12px 16px 12px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #000000;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 8px;
+}
+
+/* Chap tomondagi Ikonkalar (Ko'k rangda) */
+.mainLink {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2563eb;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.mainLink:hover {
+  background-color: #eff6ff;
+  color: #1d4ed8;
+}
+
+.mainLink[data-active] {
+  background-color: #2563eb;
+  color: #ffffff;
+}
+
+/* O'ng tomondagi Textlar (Qora rangda) */
+.link {
+  display: block;
+  text-decoration: none;
+  font-size: 14px;
+  color: #000000;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.link:hover {
+  background-color: #f1f5f9;
+  color: #000000;
+  font-weight: 600;
+}
+
+.link[data-active] {
+  background-color: #eff6ff;
+  color: #2563eb;
+  font-weight: 700;
+}

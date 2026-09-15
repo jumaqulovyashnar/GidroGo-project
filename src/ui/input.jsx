@@ -2,14 +2,17 @@ import * as React from "react"
 import { Input as InputPrimitive } from "@base-ui/react/input"
 import { cn } from "@/lib/utils"
 
-function Input({
-  className,
-  type,
-  onInvalid,
-  onInput,
-  requiredMessage = "Iltimos, ushbu maydonni toʻldiring.",
-  ...props
-}) {
+const Input = React.forwardRef(function Input(
+  {
+    className,
+    type,
+    onInvalid,
+    onInput,
+    requiredMessage = "Iltimos, ushbu maydonni toʻldiring.",
+    ...props
+  },
+  ref
+) {
   const handleInvalid = (e) => {
     if (e.target.validity.valueMissing) {
       e.target.setCustomValidity(requiredMessage)
@@ -26,6 +29,7 @@ function Input({
 
   return (
     <InputPrimitive
+      ref={ref}
       type={type}
       data-slot="input"
       onInvalid={handleInvalid}
@@ -37,6 +41,6 @@ function Input({
       {...props}
     />
   )
-}
+})
 
 export { Input }
