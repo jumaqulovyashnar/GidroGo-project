@@ -25,16 +25,20 @@
   gap: 8px;
 }
 
+/* Yumaloq va Kattaroq ko'rinadigan Logo konteyneri */
 .logo {
-  width: 44px;
-  height: 44px;
+  width: 46px;
+  height: 46px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
+  border-radius: 9999px;
   margin-bottom: 12px;
-  background-color: #eff6ff;
-  border: 1px solid #dbeafe;
+  background-color: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  padding: 2px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  overflow: hidden;
 }
 
 .main {

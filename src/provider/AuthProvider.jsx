@@ -39,13 +39,7 @@ const decodeJwt = (token) => {
 const createUser = (userData, token) => {
   const decodedToken = decodeJwt(token)
 
-  const rawRole =
-    userData?.roleName ||
-    userData?.rawRole ||
-    userData?.role ||
-    decodedToken?.roleName ||
-    decodedToken?.role ||
-    "ROLE_ADMIN"
+  const rawRole = userData?.roleName || userData?.rawRole || userData?.role || decodedToken?.roleName ||  decodedToken?.role || "ROLE_ADMIN"
 
   const isSuperAdmin =
     rawRole === "ROLE_SUPER_ADMIN" ||

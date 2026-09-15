@@ -1,10 +1,5 @@
 import { useAuth } from "@/provider/AuthProvider"
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@/components/ui/card"
+import {Card,CardHeader,CardTitle,CardContent,} from "@/components/ui/card"
 import {
   Building2,
   Users,
@@ -95,13 +90,11 @@ export function SuperAdminDashboardPage() {
                   <Icon className="size-4.5 text-blue-500" strokeWidth={1.75} />
                 </div>
               </CardHeader>
-
               {/* Card Content: Aniq qora raqam va foiz ko'rsatkichi */}
               <CardContent>
                 <div className="text-2xl xl:text-3xl font-medium tracking-tight text-black">
                   {item.value}
                 </div>
-
                 <div className="flex items-center gap-1.5 mt-2">
                   <span
                     className={`inline-flex items-center gap-0.5 text-xs font-medium ${

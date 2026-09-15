@@ -7,9 +7,9 @@ import {
   User,
   ShieldCheck,
   Settings,
-  Droplets,
 } from "lucide-react"
 import { Title, Tooltip, UnstyledButton } from "@mantine/core"
+import LogoImg from "@/assets/Logo.png"
 import classes from "./DoubleNavbar.module.css"
 
 const mainLinksMockdata = [
@@ -77,8 +77,13 @@ export function DoubleNavbar() {
     <nav className={classes.navbar}>
       <div className={classes.wrapper}>
         <div className={classes.aside}>
+          {/* 1-chi icon o'rniga Logo.png rasmi */}
           <div className={classes.logo} title="GidroGo">
-            <Droplets size={26} className="text-blue-600" />
+            <img
+              src={LogoImg}
+              alt="GidroGo Logo"
+              className="w-full h-full object-contain rounded-full"
+            />
           </div>
           {mainLinks}
         </div>
