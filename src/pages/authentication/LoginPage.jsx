@@ -1,33 +1,58 @@
-import { useState } from "react";
-import { Button, Field, Input, Label } from "@/ui";
+import { useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { useAuth } from "@/provider/AuthProvider"
+import { Button, Field, Input, Label } from "@/ui"
 
 function LoginPage() {
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [name, setName] = useState("")
+  const [phone, setPhone] = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
 
-  const handleSubmit = (event) => {
-    event.preventDefault();               // refresh bo'lib ketmasligi uchun
-    setError("");
+  const { login } = useAuth()
+  const navigate = useNavigate()
+
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+    setError("")
 
     if (!name.trim()) {
-      setError("Iltimos, ismingizni kiriting.");
-      return;
+      setError("Iltimos, ismingizni kiriting.")
+      return
     }
 
     if (!phone.trim()) {
-      setError("Iltimos, telefon raqamingizni kiriting.");
-      return;
+      setError("Iltimos, telefon raqamingizni kiriting.")
+      return
     }
 
     if (!password.trim()) {
-      setError("Iltimos, parolingizni kiriting.");
-      return;
+      setError("Iltimos, parolingizni kiriting.")
+      return
     }
 
-    console.log("Login yuborilmoqda:", { name, phone, password });
-  };
+    setIsLoading(true)
+
+    const result = await login(phone, password)
+
+    setIsLoading(false)
+
+    if (result.success) {
+      const userRole = result.user?.role
+      if (userRole === "SUPER_ADMIN") {
+        navigate("/super-admin")
+      } else if (userRole === "MANAGER") {
+        navigate("/manager")
+      } else if (userRole === "BOSS") {
+        navigate("/boss")
+      } else {
+        navigate("/super-admin")
+      }
+    } else {
+      setError(result.error || "Login yoki parol xato.")
+    }
+  }
 
   return (
     <section className="w-full h-full">
@@ -51,8 +76,8 @@ function LoginPage() {
             type="text"
             value={name}
             onChange={(e) => {
-              setName(e.target.value);
-              if (error) setError("");
+              setName(e.target.value)
+              if (error) setError("")
             }}
             placeholder="Ismingizni kiriting"
             autoFocus
@@ -69,8 +94,8 @@ function LoginPage() {
             type="tel"
             value={phone}
             onChange={(e) => {
-              setPhone(e.target.value);
-              if (error) setError("");
+              setPhone(e.target.value)
+              if (error) setError("")
             }}
             placeholder="+998 90 123 45 67"
           />
@@ -86,8 +111,8 @@ function LoginPage() {
             type="password"
             value={password}
             onChange={(e) => {
-              setPassword(e.target.value);
-              if (error) setError("");
+              setPassword(e.target.value)
+              if (error) setError("")
             }}
             placeholder="Parolingizni kiriting"
           />
@@ -101,13 +126,14 @@ function LoginPage() {
 
         <Button
           type="submit"
-          className="w-full h-10 font-medium text-white bg-[#2563EB] hover:bg-blue-700"
+          disabled={isLoading}
+          className="w-full h-10 font-medium text-white bg-[#2563EB] hover:bg-blue-700 disabled:opacity-50"
         >
-          Tizimga kirish
+          {isLoading ? "Kirilmoqda..." : "Tizimga kirish"}
         </Button>
       </form>
     </section>
-  );
+  )
 }
 
-export default LoginPage;
+export default LoginPage
