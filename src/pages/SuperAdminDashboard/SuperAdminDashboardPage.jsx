@@ -87,7 +87,7 @@ export function SuperAdminDashboardPage() {
               className="border border-slate-200 bg-white hover:border-slate-300 hover:shadow-xs transition-all duration-200"
             >
               {/* Card Header: Toza sarlavha va Yumaloq Blue-500 Ikonka */}
-              <CardHeader className="flex flex-row items-center justify-between pb-1 space-y-0 min-h-[50px]">
+              <CardHeader className="flex flex-row items-center justify-between pb-1 space-y-0 min-h-12.5">
                 <CardTitle className="text-xs sm:text-sm font-medium text-neutral-900 leading-snug">
                   {item.title}
                 </CardTitle>
