@@ -14,7 +14,7 @@ const metrics = [
   {
     title: "Jami fermalar",
     value: "24",
-    change: "+12.5%",
+    change: "12.5%",
     trend: "up",
     period: "o'tgan oyga nisbatan",
     icon: Building2,
@@ -22,7 +22,7 @@ const metrics = [
   {
     title: "Jami mijozlar",
     value: "48,620",
-    change: "+8.2%",
+    change: "8.2%",
     trend: "up",
     period: "o'tgan oyga nisbatan",
     icon: Users,
@@ -30,7 +30,7 @@ const metrics = [
   {
     title: "Jami buyurtmalar",
     value: "14,850",
-    change: "+18.4%",
+    change: "18.4%",
     trend: "up",
     period: "o'tgan oyga nisbatan",
     icon: ShoppingCart,
@@ -38,7 +38,7 @@ const metrics = [
   {
     title: "Yakunlangan buyurtmalar",
     value: "14,280",
-    change: "+12.1%",
+    change: "12.1%",
     trend: "up",
     period: "o'tgan oyga nisbatan",
     icon: CheckCircle2,
@@ -46,7 +46,7 @@ const metrics = [
   {
     title: "Bekor qilingan buyurtmalar",
     value: "58",
-    change: "-2.4%",
+    change: "2.4%",
     trend: "down",
     period: "o'tgan oyga nisbatan",
     icon: XCircle,

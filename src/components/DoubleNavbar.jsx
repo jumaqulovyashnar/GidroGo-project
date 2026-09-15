@@ -7,8 +7,10 @@ import {
   User,
   ShieldCheck,
   Settings,
+  LogOut,
 } from "lucide-react"
 import { Title, Tooltip, UnstyledButton } from "@mantine/core"
+import { useAuth } from "@/provider/AuthProvider"
 import LogoImg from "@/assets/Logo.png"
 import classes from "./DoubleNavbar.module.css"
 
@@ -38,6 +40,7 @@ const linksMockdata = [
 export function DoubleNavbar() {
   const [active, setActive] = useState("Dashboard")
   const [activeLink, setActiveLink] = useState("Boshqaruv paneli")
+  const { logout } = useAuth()
 
   const mainLinks = mainLinksMockdata.map((link) => (
     <Tooltip
@@ -76,8 +79,9 @@ export function DoubleNavbar() {
   return (
     <nav className={classes.navbar}>
       <div className={classes.wrapper}>
+        {/* Chapdagi tor ikonka paneli */}
         <div className={classes.aside}>
-          {/* 1-chi icon o'rniga Logo.png rasmi */}
+          {/* Logo */}
           <div className={classes.logo} title="GidroGo">
             <img
               src={LogoImg}
@@ -87,12 +91,27 @@ export function DoubleNavbar() {
           </div>
           {mainLinks}
         </div>
-        <div className={classes.main}>
-          <Title order={4} className={classes.title}>
-            {active}
-          </Title>
 
-          {links}
+        {/* O'ngdagi keng menyu paneli */}
+        <div className={classes.main}>
+          <div className={classes.mainTop}>
+            <Title order={4} className={classes.title}>
+              {active}
+            </Title>
+            {links}
+          </div>
+
+          {/* O'ng pastdagi yagona toza Chiqish tugmasi */}
+          <div className={classes.footer}>
+            <button
+              type="button"
+              onClick={logout}
+              className={classes.logoutLink}
+            >
+              <LogOut size={18} strokeWidth={1.75} />
+              <span>Chiqish</span>
+            </button>
+          </div>
         </div>
       </div>
     </nav>
