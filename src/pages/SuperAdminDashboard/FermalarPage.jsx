@@ -359,7 +359,7 @@ const FermalarPage = () => {
                                             }}
                                             className={`cursor-pointer rounded-xl font-medium ${
                                                 currentPage === pageItem
-                                                    ? "!bg-[#1670FF] !text-white !border-transparent shadow-xs"
+                                                    ? "bg-[#1670FF]! text-white! border-transparent! shadow-xs"
                                                     : "hover:bg-slate-100 text-slate-700"
                                             }`}
                                         >
