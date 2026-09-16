@@ -1,4 +1,4 @@
-import React, { useMemo } from "react"
+import { useMemo } from "react"
 import Chart from "react-apexcharts"
 
 function mulberry32(seed) {
@@ -243,4 +243,4 @@ export function BrushAnalyticsChart() {
   )
 }
 
-export default BrushAnalyticsChart
+export default BrushAnalyticsChart;

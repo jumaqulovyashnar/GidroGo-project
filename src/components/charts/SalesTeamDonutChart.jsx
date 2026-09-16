@@ -1,4 +1,3 @@
-import React from "react"
 import Chart from "react-apexcharts"
 
 export function SalesTeamDonutChart() {
@@ -107,4 +106,4 @@ export function SalesTeamDonutChart() {
   )
 }
 
-export default SalesTeamDonutChart
+export default SalesTeamDonutChart;
