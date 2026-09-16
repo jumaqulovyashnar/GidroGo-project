@@ -8,6 +8,7 @@ import SuperAdminDashboardPage from "@/pages/SuperAdminDashboard/SuperAdminDashb
 import ManagerDashboardPage from "@/pages/ManagerDashboard/ManagerDashboardPage"
 import BossDashboardPage from "@/pages/BossDashboard/BossDashboardPage"
 import FermalarPage from "@/pages/SuperAdminDashboard/FermalarPage"
+import FermaDetailPage from "@/pages/SuperAdminDashboard/FermaDetailPage"
 
 const router = createBrowserRouter([
   {
@@ -42,6 +43,11 @@ const router = createBrowserRouter([
                 // fermalar uchun route qoshildi. 
                 path: "/super-admin/fermalar",
                 element: <FermalarPage />,
+              },
+              {
+                // ferma detail sahifasi
+                path: "/super-admin/fermalar/:id",
+                element: <FermaDetailPage />,
               }
             ],
           },
