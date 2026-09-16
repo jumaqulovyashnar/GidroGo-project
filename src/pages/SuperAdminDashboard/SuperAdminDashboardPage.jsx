@@ -131,7 +131,7 @@ export function SuperAdminDashboardPage() {
                   Kunlik Buyurtmalar va Daromad
                 </CardTitle>
                 <p className="text-xs text-neutral-600 mt-0.5">
-                  Interaktiv sana oralig'ini tanlab tahlil qilish (Brush Chart)
+                  Sotuvlar va daromad dinamikasi hisoboti
                 </p>
               </div>
             </div>
