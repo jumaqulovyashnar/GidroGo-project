@@ -25,16 +25,15 @@ const mainLinksMockdata = [
 ]
 
 const linksMockdata = [
+  "Dashboard",
+  "Fermalar",
+  "Ferma Egalari",
+  "Mijozlar",
+  "Buyrutmalar",
+  "Tizim Jurnali",
   "Statistika",
   "Sozlamalar",
-  "Boshqaruv paneli",
-  "Hisobotlar",
-  "Foydalanuvchilar",
-  "Buyurtmalar",
-  "Mijozlar",
-  "Ma'lumotlar bazasi",
-  "Xabarlar",
-  "Tizim jurnali",
+  "Tasdiqlash So'rovlari",
 ]
 
 export function DoubleNavbar() {
@@ -82,7 +81,7 @@ export function DoubleNavbar() {
         {/* Chapdagi tor ikonka paneli */}
         <div className={classes.aside}>
           {/* Logo */}
-          <div className={classes.logo} title="GidroGo">
+          <div className={classes.logo}>
             <img
               src={LogoImg}
               alt="GidroGo Logo"

@@ -1,5 +1,5 @@
 import { useAuth } from "@/provider/AuthProvider"
-import {Card,CardHeader,CardTitle,CardContent,} from "@/components/ui/card"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import {
   Building2,
   Users,
@@ -9,6 +9,8 @@ import {
   TrendingUp,
   TrendingDown,
 } from "lucide-react"
+import { BrushAnalyticsChart } from "@/components/charts/BrushAnalyticsChart"
+import { SalesTeamDonutChart } from "@/components/charts/SalesTeamDonutChart"
 
 const metrics = [
   {
@@ -65,7 +67,7 @@ export function SuperAdminDashboardPage() {
             Boshqaruv Paneli
           </h1>
           <p className="text-sm font-normal text-neutral-700 mt-1">
-            Xush kelibsiz, <span className="text-black font-medium">{user?.name || "Yashnarbek Jumaqulov"}</span>. Tizimning umumiy ko'rsatkichlari va faollik hisoboti.
+            Tizimning umumiy ko'rsatkichlari va faollik hisoboti.
           </p>
         </div>
       </div>
@@ -118,19 +120,42 @@ export function SuperAdminDashboardPage() {
         })}
       </div>
 
-      {/* Asosiy kontent maydoni */}
-      <Card className="border border-slate-200 bg-white shadow-xs">
-        <CardHeader>
-          <CardTitle className="text-base font-semibold text-black">
-            Asosiy boshqaruv va hisobotlar
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-80 rounded-2xl border border-dashed border-slate-200 flex items-center justify-center text-neutral-600 text-sm font-normal bg-slate-50">
-            Ushbu qismda grafiklar (Charts), jadval va asosiy boshqaruv modullari joylashadi.
-          </div>
-        </CardContent>
-      </Card>
+      {/* Asosiy grafiklar maydoni (Brush Chart + Donut Chart) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Chap qism: Katta Brush Area/Line Chart (Orders & Revenue) */}
+        <Card className="lg:col-span-8 border border-slate-200 bg-white shadow-xs">
+          <CardHeader className="pb-2">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div>
+                <CardTitle className="text-base font-semibold text-black">
+                  Kunlik Buyurtmalar va Daromad
+                </CardTitle>
+                <p className="text-xs text-neutral-600 mt-0.5">
+                  Interaktiv sana oralig'ini tanlab tahlil qilish (Brush Chart)
+                </p>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-2">
+            <BrushAnalyticsChart />
+          </CardContent>
+        </Card>
+
+        {/* O'ng qism: Donut Chart (Sales Team Ulushi) */}
+        <Card className="lg:col-span-4 border border-slate-200 bg-white shadow-xs flex flex-col justify-between">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold text-black">
+              Sotuvchilar bo'yicha ulush
+            </CardTitle>
+            <p className="text-xs text-neutral-600 mt-0.5">
+              Jamoa a'zolarining buyurtmalardagi taqsimoti
+            </p>
+          </CardHeader>
+          <CardContent className="pt-4 flex-1 flex items-center justify-center">
+            <SalesTeamDonutChart />
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }
