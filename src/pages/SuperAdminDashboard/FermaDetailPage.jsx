@@ -156,7 +156,7 @@ export function FermaDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Chap tomon: Yagona Katta Ferma Rasmi */}
           <div className="lg:col-span-5">
-            <div className="w-full h-80 sm:h-96 lg:h-[380px] rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 shadow-xs relative">
+            <div className="w-full h-80 sm:h-96 lg:h-95 rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 shadow-xs relative">
               <img
                 src={farm.logoUrl || farm.bannerUrl}
                 alt={farm.name}
