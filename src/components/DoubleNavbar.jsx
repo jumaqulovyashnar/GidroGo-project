@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { useNavigate, useLocation } from "react-router-dom"
 import {
   Home,
   LayoutDashboard,
@@ -24,21 +25,23 @@ const mainLinksMockdata = [
   { icon: Settings, label: "Sozlamalar" },
 ]
 
+// Har bir menyuga mos URL yo'llari (path) biriktirish .
 const linksMockdata = [
-  "Dashboard",
-  "Fermalar",
-  "Ferma Egalari",
-  "Mijozlar",
-  "Buyrutmalar",
-  "Tizim Jurnali",
-  "Statistika",
-  "Sozlamalar",
-  "Tasdiqlash So'rovlari",
+  { label: "Dashboard", path: "/super-admin" },
+  { label: "Fermalar", path: "/super-admin/fermalar" },
+  { label: "Ferma Egalari", path: "/super-admin/bosslar" },
+  { label: "Mijozlar", path: "/super-admin/mijozlar" },
+  { label: "Buyrutmalar", path: "/super-admin/buyurtmalar" },
+  { label: "Tizim Jurnali", path: "/super-admin/audit-log" },
+  { label: "Statistika", path: "/super-admin/statistika" },
+  { label: "Sozlamalar", path: "/super-admin/sozlamalar" },
+  { label: "Tasdiqlash So'rovlari", path: "/super-admin/requests" },
 ]
 
 export function DoubleNavbar() {
+  const navigate = useNavigate()
+  const location = useLocation()
   const [active, setActive] = useState("Dashboard")
-  const [activeLink, setActiveLink] = useState("Boshqaruv paneli")
   const { logout } = useAuth()
 
   const mainLinks = mainLinksMockdata.map((link) => (
@@ -60,20 +63,25 @@ export function DoubleNavbar() {
     </Tooltip>
   ))
 
-  const links = linksMockdata.map((link) => (
-    <a
-      className={classes.link}
-      data-active={activeLink === link || undefined}
-      href="#"
-      onClick={(event) => {
-        event.preventDefault()
-        setActiveLink(link)
-      }}
-      key={link}
-    >
-      {link}
-    </a>
-  ))
+  const links = linksMockdata.map((item) => {
+    // Hozirgi kirib turilgan sahifani avtomatik aktiv ko'rsatish
+    const isActive = location.pathname === item.path
+
+    return (
+      <a
+        className={classes.link}
+        data-active={isActive || undefined}
+        href={item.path}
+        onClick={(event) => {
+          event.preventDefault()
+          navigate(item.path) // React Router orqali marshrutni o'zgartirish
+        }}
+        key={item.label}
+      >
+        {item.label}
+      </a>
+    )
+  })
 
   return (
     <nav className={classes.navbar}>

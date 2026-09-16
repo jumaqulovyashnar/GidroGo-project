@@ -7,6 +7,7 @@ import RoleGuard from "@/pages/authentication/guards/RoleGuard"
 import SuperAdminDashboardPage from "@/pages/SuperAdminDashboard/SuperAdminDashboardPage"
 import ManagerDashboardPage from "@/pages/ManagerDashboard/ManagerDashboardPage"
 import BossDashboardPage from "@/pages/BossDashboard/BossDashboardPage"
+import FermalarPage from "@/pages/SuperAdminDashboard/FermalarPage"
 
 const router = createBrowserRouter([
   {
@@ -37,7 +38,11 @@ const router = createBrowserRouter([
               {
                 path: "/super-admin",
                 element: <SuperAdminDashboardPage />,
-              },
+              }, {
+                // fermalar uchun route qoshildi. 
+                path: "/super-admin/fermalar",
+                element: <FermalarPage />,
+              }
             ],
           },
           // Manager
