@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react"
+import { useState, useMemo } from "react"
 import Chart from "react-apexcharts"
 
 function generateData(days, startLevel, seed) {
@@ -200,11 +200,10 @@ export function BrushAnalyticsChart() {
               key={item.value}
               type="button"
               onClick={() => setTimeRange(item.value)}
-              className={`px-2 py-0.5 rounded-md text-[11px] font-medium transition-all cursor-pointer ${
-                timeRange === item.value
-                  ? "bg-[#1670FF] text-white shadow-xs"
-                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/60"
-              }`}
+              className={`px-2 py-0.5 rounded-md text-[11px] font-medium transition-all cursor-pointer ${timeRange === item.value
+                ? "bg-[#1670FF] text-white shadow-xs"
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/60"
+                }`}
             >
               {item.label}
             </button>
