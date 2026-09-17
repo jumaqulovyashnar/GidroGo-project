@@ -127,8 +127,8 @@ export function SuperAdminDashboardPage() {
           <CardHeader className="pb-2">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div>
-                <CardTitle className="text-base font-semibold text-black">
-                  Kunlik Buyurtmalar va Daromad
+                <CardTitle className="text-base font-medium text-black">
+                  Kunlik Buyurtmalar va Daromad.
                 </CardTitle>
                 <p className="text-xs text-neutral-600 mt-0.5">
                   Sotuvlar va daromad dinamikasi hisoboti
@@ -160,4 +160,4 @@ export function SuperAdminDashboardPage() {
   )
 }
 
-export default SuperAdminDashboardPage
+export default SuperAdminDashboardPage;

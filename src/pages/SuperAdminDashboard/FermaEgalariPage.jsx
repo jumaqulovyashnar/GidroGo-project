@@ -34,10 +34,33 @@ const stats = [
     },
 ];
 
+const statusOptions = [
+    { value: "all", label: "Barcha statuslar" },
+    { value: "active", label: "Faol" },
+    { value: "pending", label: "Tekshiruvda" },
+    { value: "blocked", label: "Bloklangan" },
+];
+
+const farmOptions = [
+    { value: "all", label: "Barcha fermalar" },
+    { value: "qarshi", label: "Qarshi Markaziy" },
+    { value: "oazis", label: "Oazis Toshkent" },
+    { value: "zilol", label: "Zilol Aqua" },
+    { value: "sano", label: "Sano Crystal" },
+    { value: "kristall", label: "Kristall Buxoro" },
+    { value: "tog", label: "Tog' Chashmasi" },
+];
+
 const FermaEgalariPage = () => {
     const [search, setSearch] = useState("");
     const [status, setStatus] = useState("all");
-    const [sort, setSort] = useState("newest");
+    const [farm, setFarm] = useState("all");
+
+    const handleReset = () => {
+        setSearch("");
+        setStatus("all");
+        setFarm("all");
+    };
 
     return (
         <section>
@@ -96,8 +119,16 @@ const FermaEgalariPage = () => {
                         setSearch={setSearch}
                         status={status}
                         setStatus={setStatus}
-                        sort={sort}
-                        setSort={setSort}
+                        statusOptions={statusOptions}
+                        farm={farm}
+                        setFarm={setFarm}
+                        farmOptions={farmOptions}
+                        onReset={handleReset}
+                        showStatus={true}
+                        showFarm={true}
+                        showReset={true}
+                        showSort={false}
+                        showFilterButton={false}
                         placeholder="Rahbar yoki ferma qidirish..."
                     />
                 </div>

@@ -30,18 +30,6 @@ const FermalarPage = () => {
         { value: "name_desc", label: "Nomi bo'yicha (Z-A)" },
     ]
 
-    const handleToggleStatus = (e, farmId) => {
-        e.stopPropagation()
-        e.preventDefault()
-        setFarms((prev) =>
-            prev.map((farm) =>
-                farm.id === farmId
-                    ? { ...farm, status: farm.status === "active" ? "inactive" : "active" }
-                    : farm
-            )
-        )
-    }
-
     const handleEdit = (e, farmId) => {
         e.stopPropagation()
         e.preventDefault()
@@ -51,7 +39,7 @@ const FermalarPage = () => {
     const handleDelete = (e, farmId) => {
         e.stopPropagation()
         e.preventDefault()
-        console.log("O'chirish bosildi:", farmId)
+        setFarms((prev) => prev.filter((farm) => farm.id !== farmId))
     }
 
     const [currentPage, setCurrentPage] = useState(1)
