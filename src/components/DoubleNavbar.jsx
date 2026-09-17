@@ -29,7 +29,7 @@ const mainLinksMockdata = [
 const linksMockdata = [
   { label: "Dashboard", path: "/super-admin" },
   { label: "Fermalar", path: "/super-admin/fermalar" },
-  { label: "Ferma Egalari", path: "/super-admin/bosslar" },
+  { label: "Ferma Egalari", path: "/super-admin/fermaEgalari" },
   { label: "Mijozlar", path: "/super-admin/mijozlar" },
   { label: "Buyrutmalar", path: "/super-admin/buyurtmalar" },
   { label: "Tizim Jurnali", path: "/super-admin/audit-log" },
