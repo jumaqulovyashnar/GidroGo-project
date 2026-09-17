@@ -1,5 +1,7 @@
+import { useState } from "react";
+import FilterBar from "@/components/FilterBar";
 import { Button, Card, CardHeader } from "@/ui";
-import { Plus, User, ShieldCheck, TrendingUpIcon, Hammer, } from "lucide-react";
+import { Plus, User, ShieldCheck, TrendingUpIcon, Hammer } from "lucide-react";
 
 const stats = [
     {
@@ -33,6 +35,10 @@ const stats = [
 ];
 
 const FermaEgalariPage = () => {
+    const [search, setSearch] = useState("");
+    const [status, setStatus] = useState("all");
+    const [sort, setSort] = useState("newest");
+
     return (
         <section>
             <div>
@@ -53,7 +59,7 @@ const FermaEgalariPage = () => {
                     </Button>
                 </div>
 
-                {/* Stats */}
+                {/* cardlar qismi  */}
                 <div className="grid grid-cols-4 gap-4 pt-6">
                     {stats.map((e) => {
                         const Icon = e.icon;
@@ -82,6 +88,18 @@ const FermaEgalariPage = () => {
                             </Card>
                         );
                     })}
+                </div>
+                {/* filter section  */}
+                <div className="pt-6">
+                    <FilterBar
+                        search={search}
+                        setSearch={setSearch}
+                        status={status}
+                        setStatus={setStatus}
+                        sort={sort}
+                        setSort={setSort}
+                        placeholder="Rahbar yoki ferma qidirish..."
+                    />
                 </div>
             </div>
         </section>

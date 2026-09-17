@@ -1,14 +1,13 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import { Plus, Search, SlidersHorizontal, ChevronDown, MapPin, Phone, User, Pencil, Trash2, Building2 } from "lucide-react"
+import { Plus, MapPin, Phone, User, Pencil, Trash2, Building2 } from "lucide-react"
 import { Button } from "@base-ui/react"
-import { Input } from "@/ui"
-import { Select } from "@mantine/core"
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/ui/breadcrumb"
 import { MOCK_FARMS } from "@/mock/farms.mock"
 import { useFermaModalStore } from "@/store/modalStore"
 import { CreateFermaModal } from "@/components/modal"
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext, PaginationEllipsis } from "@/ui"
+import FilterBar from "@/components/FilterBar"
 
 const FermalarPage = () => {
     const navigate = useNavigate()
@@ -143,78 +142,20 @@ const FermalarPage = () => {
             </div>
 
             {/* Filtr va Qidiruv Toolbar */}
-            <div className="w-full bg-white px-5 py-6 rounded-[12px] border border-slate-200 shadow-xs flex flex-col md:flex-row items-center justify-between gap-3">
-                {/* Chap tomon: Qidiruv inputi */}
-                <div className="relative w-full sm:w-72 md:w-80 shrink-0">
-                    <Search
-                        className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400 pointer-events-none"
-                        strokeWidth={1.75}
-                    />
-                    <Input
-                        value={search}
-                        onChange={(e) => {
-                            setSearch(e.target.value)
-                            setCurrentPage(1)
-                        }}
-                        placeholder="Ferma nomi yoki manzil..."
-                        className="pl-9 h-10 w-full rounded-[10px] border-slate-200 bg-white placeholder:text-slate-400 text-sm focus-visible:border-blue-500 focus-visible:ring-blue-100"
-                    />
-                </div>
-
-                {/* O'ng tomon: Status, Saralash va Filtrlar */}
-                <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto justify-start md:justify-end">
-                    {/* Status select */}
-                    <Select
-                        value={status}
-                        onChange={(val) => {
-                            setStatus(val || "all")
-                            setCurrentPage(1)
-                        }}
-                        data={statusOptions}
-                        allowDeselect={false}
-                        rightSection={<ChevronDown className="size-4 text-slate-400 pointer-events-none" />}
-                        classNames={{
-                            root: "w-full sm:w-44",
-                            input:
-                                "!h-10 !rounded-[10px] !border-slate-200 !text-slate-800 !text-sm !font-medium !cursor-pointer hover:!bg-slate-50 transition-colors focus:!border-blue-500",
-                            dropdown: "!rounded-[12px] !border-slate-200 !shadow-lg !p-1.5 !bg-white",
-                            option:
-                                "!rounded-[8px] !text-sm !font-medium !py-2 !px-3 !cursor-pointer hover:!bg-slate-100 data-[checked=true]:!bg-blue-50 data-[checked=true]:!text-blue-600",
-                        }}
-                    />
-
-                    {/* Saralash (Sort) select */}
-                    <Select
-                        value={sort}
-                        onChange={(val) => {
-                            setSort(val || "newest")
-                            setCurrentPage(1)
-                        }}
-                        data={sortOptions}
-                        allowDeselect={false}
-                        rightSection={<ChevronDown className="size-4 text-slate-400 pointer-events-none" />}
-                        classNames={{
-                            root: "w-full sm:w-48",
-                            input:
-                                "!h-10 !rounded-[10px] !border-slate-200 !text-slate-800 !text-sm !font-medium !cursor-pointer hover:!bg-slate-50 transition-colors focus:!border-blue-500",
-                            dropdown: "!rounded-[12px] !border-slate-200 !shadow-lg !p-1.5 !bg-white",
-                            option:
-                                "!rounded-[8px] !text-sm !font-medium !py-2 !px-3 !cursor-pointer hover:!bg-slate-100 data-[checked=true]:!bg-blue-50 data-[checked=true]:!text-blue-600",
-                        }}
-                    />
-
-                    {/* Filtrlar tugmasi */}
-                    <button
-                        type="button"
-                        className="flex items-center gap-2 px-4 h-10 text-sm font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-[10px] transition-colors cursor-pointer shrink-0"
-                    >
-                        <SlidersHorizontal className="h-4 w-4 text-slate-500" />
-                        <span>Filtrlar</span>
-                    </button>
-                </div>
+            <div>
+                <FilterBar
+                    search={search}
+                    setSearch={setSearch}
+                    status={status}
+                    setStatus={setStatus}
+                    statusOptions={statusOptions}
+                    sort={sort}
+                    setSort={setSort}
+                    sortOptions={sortOptions}
+                    setCurrentPage={setCurrentPage}
+                />
             </div>
 
-            {/* Qidiruv yoki filter o'zgarganda sahifani 1-ga tushirish */}
             {/* Kartochkalar yoki Bo'sh holat (Empty State) */}
             {filteredFarms.length === 0 ? (
                 <div className="bg-white border border-slate-200/80 rounded-2xl p-12 text-center space-y-4 shadow-xs my-4">
