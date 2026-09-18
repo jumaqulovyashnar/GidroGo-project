@@ -56,7 +56,7 @@ const metrics = [
 ]
 
 export function SuperAdminDashboardPage() {
-  const { user } = useAuth()
+  const { user: _user } = useAuth()
 
   return (
     <div className="space-y-6">

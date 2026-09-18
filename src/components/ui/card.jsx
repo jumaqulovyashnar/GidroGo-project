@@ -1,1 +1,1 @@
-export * from "@/ui/card"
+export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent } from "@/ui/card"

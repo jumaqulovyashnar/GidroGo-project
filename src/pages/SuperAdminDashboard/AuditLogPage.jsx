@@ -1,30 +1,7 @@
 import { useState, useRef, useEffect } from "react"
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-    Input,
-    Pagination,
-    PaginationContent,
-    PaginationItem,
-    PaginationLink,
-    PaginationPrevious,
-    PaginationNext,
-    PaginationEllipsis,
-} from "@/ui"
+import { Card, CardContent, CardHeader, CardTitle, Input, Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext, PaginationEllipsis } from "@/ui"
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/ui/table"
-import {
-    ChevronDown,
-    Upload,
-    RotateCw,
-    Calendar,
-    History,
-    ShieldCheck,
-    ListFilter,
-    ShieldAlert,
-    Search,
-} from "lucide-react"
+import { ChevronDown, Upload, RotateCw, Calendar, History, ShieldCheck, ListFilter, ShieldAlert, Search } from "lucide-react"
 
 const ACTION_OPTIONS = [
     { value: "all", label: "Amal turi: Barchasi" },
@@ -72,7 +49,7 @@ const CustomDropdown = ({ value, onChange, options }) => {
             <button
                 type="button"
                 onClick={() => setOpen((prev) => !prev)}
-                className="h-10 px-3.5 rounded-xl border border-slate-200 bg-white text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center justify-between gap-2.5 shadow-xs transition-colors cursor-pointer w-full md:w-auto min-w-[170px]"
+                className="h-10 px-3.5 rounded-xl border border-slate-200 bg-white text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center justify-between gap-2.5 shadow-xs transition-colors cursor-pointer w-full md:w-auto min-w-42.5"
             >
                 <span className="truncate">{selectedOption.label}</span>
                 <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform duration-200 ${open ? "rotate-180 text-blue-600" : ""}`} />
@@ -419,9 +396,9 @@ const AuditLogPage = () => {
                 </div>
 
                 {/* Filter Bar */}
-                <div className="mt-6 bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs flex flex-col md:flex-row items-stretch md:items-center gap-3">
-                    {/* Qidiruv input */}
-                    <div className="relative flex-1">
+                <div className="mt-6 bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+                    {/* Chap tomon: Qidiruv input */}
+                    <div className="relative w-full md:w-80 shrink-0">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
                         <Input
                             value={searchTerm}
@@ -429,68 +406,65 @@ const AuditLogPage = () => {
                                 setSearchTerm(e.target.value)
                                 setCurrentPage(1)
                             }}
-                            placeholder="Amal, obyekt yoki IP-manzil bo'yicha qidirish..."
-                            className="pl-9 h-10 w-full rounded-xl border-slate-200 bg-white placeholder:text-slate-400 text-sm focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-100"
+                            placeholder="obyekt yoki IP-manzil bo'yicha..."
+                            className="pl-9 h-10 w-full rounded-xl border-slate-200 bg-white placeholder:text-slate-400 text-xs font-medium focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-100"
                         />
                     </div>
 
-                    {/* Amal turi filter */}
-                    <CustomDropdown
-                        value={selectedAction}
-                        onChange={(val) => {
-                            setSelectedAction(val)
-                            setCurrentPage(1)
-                        }}
-                        options={ACTION_OPTIONS}
-                    />
+                    {/* O'ng tomon: Dropdown filtrlar guruhi */}
+                    <div className="flex flex-wrap md:flex-nowrap items-center gap-2.5">
+                        {/* Amal turi filter */}
+                        <CustomDropdown
+                            value={selectedAction}
+                            onChange={(val) => {
+                                setSelectedAction(val)
+                                setCurrentPage(1)
+                            }}
+                            options={ACTION_OPTIONS}
+                        />
 
-                    {/* Obyekt filter */}
-                    <CustomDropdown
-                        value={selectedObject}
-                        onChange={(val) => {
-                            setSelectedObject(val)
-                            setCurrentPage(1)
-                        }}
-                        options={OBJECT_OPTIONS}
-                    />
+                        {/* Obyekt filter */}
+                        <CustomDropdown
+                            value={selectedObject}
+                            onChange={(val) => {
+                                setSelectedObject(val)
+                                setCurrentPage(1)
+                            }}
+                            options={OBJECT_OPTIONS}
+                        />
 
-                    {/* SuperAdmin filter */}
-                    <CustomDropdown
-                        value={selectedAdmin}
-                        onChange={(val) => {
-                            setSelectedAdmin(val)
-                            setCurrentPage(1)
-                        }}
-                        options={ADMIN_OPTIONS}
-                    />
+                        {/* SuperAdmin filter */}
+                        <CustomDropdown
+                            value={selectedAdmin}
+                            onChange={(val) => {
+                                setSelectedAdmin(val)
+                                setCurrentPage(1)
+                            }}
+                            options={ADMIN_OPTIONS}
+                        />
+                    </div>
                 </div>
 
                 {/* Table */}
-                <div className="mt-4 bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden">
+                <div className="mt-4 bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden min-h-96">
                     <div className="overflow-x-auto w-full">
-                        <Table className="w-full text-left min-w-[1100px]">
+                        <Table className="w-full text-left">
                             <TableHeader className="bg-slate-50 border-b border-slate-100">
                                 <TableRow className="hover:bg-transparent">
-                                    <TableHead className="py-3.5 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap w-[150px]">
+                                    <TableHead className="py-3.5 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap w-36">
                                         Sana va vaqt
                                     </TableHead>
-                                    <TableHead className="py-3.5 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap w-[180px]">
+                                    <TableHead className="py-3.5 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap w-44">
                                         SuperAdmin
                                     </TableHead>
-                                    <TableHead className="py-3.5 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap w-[180px]">
-                                        Amal
-                                    </TableHead>
-                                    <TableHead className="py-3.5 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap w-[220px]">
+                                    <TableHead className="py-3.5 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap w-48">
                                         Ta'sir etilgan obyekt
                                     </TableHead>
-                                    <TableHead className="py-3.5 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap w-[150px]">
+                                    <TableHead className="py-3.5 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap w-40">
                                         IP & Qurilma
                                     </TableHead>
-                                    <TableHead className="py-3.5 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider min-w-[220px]">
+                                    <TableHead className="py-3.5 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap w-48">
                                         Tavsif va sabab
-                                    </TableHead>
-                                    <TableHead className="py-3.5 px-4 pr-6 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap w-[110px]">
-                                        Amal
                                     </TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -501,7 +475,7 @@ const AuditLogPage = () => {
                                         className="hover:bg-slate-50/70 transition-colors border-b border-slate-100 last:border-b-0"
                                     >
                                         {/* 1. Sana va vaqt */}
-                                        <TableCell className="py-3.5 px-4 whitespace-nowrap w-[150px]">
+                                        <TableCell className="py-3.5 px-4 whitespace-nowrap w-36">
                                             <div className="text-xs font-semibold text-slate-800">
                                                 {log.dayLabel}, {log.time}
                                             </div>
@@ -511,7 +485,7 @@ const AuditLogPage = () => {
                                         </TableCell>
 
                                         {/* 2. SuperAdmin */}
-                                        <TableCell className="py-3.5 px-4 whitespace-nowrap w-[180px]">
+                                        <TableCell className="py-3.5 px-4 whitespace-nowrap w-44">
                                             <div className="flex items-center gap-2.5">
                                                 <div className="w-8 h-8 rounded-full bg-blue-700 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-xs">
                                                     {log.admin.avatarText}
@@ -522,17 +496,8 @@ const AuditLogPage = () => {
                                             </div>
                                         </TableCell>
 
-                                        {/* 3. Amal */}
-                                        <TableCell className="py-3.5 px-4 whitespace-nowrap w-[180px]">
-                                            <span
-                                                className={`inline-block text-[11px] font-semibold px-2.5 py-1 rounded shadow-2xs ${log.action.badgeClass}`}
-                                            >
-                                                {log.action.label}
-                                            </span>
-                                        </TableCell>
-
-                                        {/* 4. Ta'sir etilgan obyekt */}
-                                        <TableCell className="py-3.5 px-4 whitespace-nowrap w-[220px]">
+                                        {/* 3. Ta'sir etilgan obyekt */}
+                                        <TableCell className="py-3.5 px-4 whitespace-nowrap w-48">
                                             <div className="text-xs font-semibold text-slate-900">
                                                 {log.target.name}
                                             </div>
@@ -541,8 +506,8 @@ const AuditLogPage = () => {
                                             </div>
                                         </TableCell>
 
-                                        {/* 5. IP & Qurilma */}
-                                        <TableCell className="py-3.5 px-4 whitespace-nowrap w-[150px]">
+                                        {/* 4. IP & Qurilma */}
+                                        <TableCell className="py-3.5 px-4 whitespace-nowrap w-40">
                                             <div className="text-xs font-medium text-slate-700 font-mono">
                                                 {log.clientInfo.ip}
                                             </div>
@@ -551,102 +516,92 @@ const AuditLogPage = () => {
                                             </div>
                                         </TableCell>
 
-                                        {/* 6. Tavsif va sabab */}
-                                        <TableCell className="py-3.5 px-4 min-w-[220px]">
-                                            <p className="text-xs text-slate-600 line-clamp-1" title={log.description}>
+                                        {/* 5. Tavsif va sabab */}
+                                        <TableCell className="py-3.5 px-4 w-48 max-w-48">
+                                            <p className="text-xs text-slate-600 truncate" title={log.description}>
                                                 {log.description}
                                             </p>
-                                        </TableCell>
-
-                                        {/* 7. Tafsilotlar tugmasi */}
-                                        <TableCell className="py-3.5 px-4 pr-6 text-right whitespace-nowrap w-[110px]">
-                                            <button
-                                                type="button"
-                                                className="text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline cursor-pointer"
-                                            >
-                                                Tafsilotlar
-                                            </button>
                                         </TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
                         </Table>
                     </div>
+                </div>
 
-                    {/* Pagination (FermalarPage dagi kabi Pagination komponenti) */}
-                    <div className="p-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
-                        <div>
-                            Jami <span className="font-semibold text-slate-800">{filteredLogs.length}</span> ta yozuvdan{" "}
-                            <span className="font-semibold text-slate-800">
-                                {filteredLogs.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1} -{" "}
-                                {Math.min(currentPage * itemsPerPage, filteredLogs.length)}
-                            </span> ko'rsatilmoqda
-                        </div>
+                {/* Pagination (Table dan tashqarida alohida) */}
+                <div className="pt-4 pb-2 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+                    <div>
+                        Jami <span className="font-semibold text-slate-800">{filteredLogs.length}</span> ta yozuvdan{" "}
+                        <span className="font-semibold text-slate-800">
+                            {filteredLogs.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1} -{" "}
+                            {Math.min(currentPage * itemsPerPage, filteredLogs.length)}
+                        </span> ko'rsatilmoqda
+                    </div>
 
-                        {totalPages > 1 && (
-                            <Pagination className="mx-0 w-auto justify-end">
-                                <PaginationContent className="bg-white p-1 rounded-2xl border border-slate-200/80 shadow-xs">
-                                    <PaginationItem>
-                                        <PaginationPrevious
-                                            text="Oldingi"
-                                            onClick={(e) => {
-                                                e.preventDefault()
-                                                if (currentPage > 1) setCurrentPage((p) => p - 1)
-                                            }}
-                                            className={`cursor-pointer ${
-                                                currentPage === 1 ? "pointer-events-none opacity-40" : "hover:bg-slate-100"
-                                            }`}
-                                        />
-                                    </PaginationItem>
+                    {totalPages > 1 && (
+                        <Pagination className="mx-0 w-auto justify-end">
+                            <PaginationContent className="bg-white p-1 rounded-2xl border border-slate-200/80 shadow-xs">
+                                <PaginationItem>
+                                    <PaginationPrevious
+                                        text="Oldingi"
+                                        onClick={(e) => {
+                                            e.preventDefault()
+                                            if (currentPage > 1) setCurrentPage((p) => p - 1)
+                                        }}
+                                        className={`cursor-pointer ${
+                                            currentPage === 1 ? "pointer-events-none opacity-40" : "hover:bg-slate-100"
+                                        }`}
+                                    />
+                                </PaginationItem>
 
-                                    {getPageNumbers().map((pageItem, index) => {
-                                        if (pageItem === "ellipsis-start" || pageItem === "ellipsis-end") {
-                                            return (
-                                                <PaginationItem key={`${pageItem}-${index}`}>
-                                                    <PaginationEllipsis />
-                                                </PaginationItem>
-                                            )
-                                        }
+                                {getPageNumbers().map((pageItem, index) => {
+                                    if (pageItem === "ellipsis-start" || pageItem === "ellipsis-end") {
                                         return (
-                                            <PaginationItem key={pageItem}>
-                                                <PaginationLink
-                                                    isActive={currentPage === pageItem}
-                                                    onClick={(e) => {
-                                                        e.preventDefault()
-                                                        setCurrentPage(pageItem)
-                                                    }}
-                                                    className={`cursor-pointer rounded-xl font-medium ${
-                                                        currentPage === pageItem
-                                                            ? "bg-[#1670FF]! text-white! border-transparent! shadow-xs"
-                                                            : "hover:bg-slate-100 text-slate-700"
-                                                    }`}
-                                                >
-                                                    {pageItem}
-                                                </PaginationLink>
+                                            <PaginationItem key={`${pageItem}-${index}`}>
+                                                <PaginationEllipsis />
                                             </PaginationItem>
                                         )
-                                    })}
+                                    }
+                                    return (
+                                        <PaginationItem key={pageItem}>
+                                            <PaginationLink
+                                                isActive={currentPage === pageItem}
+                                                onClick={(e) => {
+                                                    e.preventDefault()
+                                                    setCurrentPage(pageItem)
+                                                }}
+                                                className={`cursor-pointer rounded-xl font-medium ${
+                                                    currentPage === pageItem
+                                                        ? "bg-[#1670FF]! text-white! border-transparent! shadow-xs"
+                                                        : "hover:bg-slate-100 text-slate-700"
+                                                }`}
+                                            >
+                                                {pageItem}
+                                            </PaginationLink>
+                                        </PaginationItem>
+                                    )
+                                })}
 
-                                    <PaginationItem>
-                                        <PaginationNext
-                                            text="Keyingi"
-                                            onClick={(e) => {
-                                                e.preventDefault()
-                                                if (currentPage < totalPages) setCurrentPage((p) => p + 1)
-                                            }}
-                                            className={`cursor-pointer ${
-                                                currentPage === totalPages ? "pointer-events-none opacity-40" : "hover:bg-slate-100"
-                                            }`}
-                                        />
-                                    </PaginationItem>
-                                </PaginationContent>
-                            </Pagination>
-                        )}
-                    </div>
+                                <PaginationItem>
+                                    <PaginationNext
+                                        text="Keyingi"
+                                        onClick={(e) => {
+                                            e.preventDefault()
+                                            if (currentPage < totalPages) setCurrentPage((p) => p + 1)
+                                        }}
+                                        className={`cursor-pointer ${
+                                            currentPage === totalPages ? "pointer-events-none opacity-40" : "hover:bg-slate-100"
+                                        }`}
+                                    />
+                                </PaginationItem>
+                            </PaginationContent>
+                        </Pagination>
+                    )}
                 </div>
             </div>
         </section>
     )
 }
 
-export default AuditLogPage
+export default AuditLogPage;

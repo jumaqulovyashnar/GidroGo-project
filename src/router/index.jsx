@@ -11,6 +11,7 @@ import FermalarPage from "@/pages/SuperAdminDashboard/FermalarPage"
 import FermaDetailPage from "@/pages/SuperAdminDashboard/FermaDetailPage"
 import FermaEgalariPage from "@/pages/SuperAdminDashboard/FermaEgalariPage"
 import AuditLogPage from "@/pages/SuperAdminDashboard/AuditLogPage"
+import StatistikaPage from "@/pages/SuperAdminDashboard/StatistikaPage"
 
 const router = createBrowserRouter([
   {
@@ -56,6 +57,9 @@ const router = createBrowserRouter([
               }, {
                 path: '/super-admin/auditlog',
                 element: <AuditLogPage />,
+              },{
+                path:'/super-admin/statistika',
+                element:<StatistikaPage/>,
               }
             ],
           },

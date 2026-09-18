@@ -1,11 +1,9 @@
 import React, { useMemo } from "react"
-import { useParams, useNavigate, Link } from "react-router-dom"
+import { useParams, Link } from "react-router-dom"
 import {
-  ArrowLeft,
   Pencil,
   MapPin,
   Calendar,
-  Clock,
   Layers,
   CheckCircle2,
   DollarSign,
@@ -13,7 +11,6 @@ import {
   Activity,
 } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent, Switch } from "@/ui"
-import { Badge } from "@mantine/core"
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -27,7 +24,6 @@ import { MOCK_FARMS } from "@/mock/farms.mock"
 
 export function FermaDetailPage() {
   const { id } = useParams()
-  const navigate = useNavigate()
 
   // URL dagi ID orqali mos fermani topish
   const farm = useMemo(() => {
@@ -36,12 +32,12 @@ export function FermaDetailPage() {
 
   // Ferma holati (Faol / Nofaol)
   const [status, setStatus] = React.useState(farm?.status || "active")
+  const [prevFarmId, setPrevFarmId] = React.useState(farm?.id)
 
-  React.useEffect(() => {
-    if (farm?.status) {
-      setStatus(farm.status)
-    }
-  }, [farm])
+  if (farm?.id !== prevFarmId) {
+    setPrevFarmId(farm?.id)
+    setStatus(farm?.status || "active")
+  }
 
   // Analitika grafigi (ApexCharts)
   const chartOptions = {

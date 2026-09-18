@@ -1,7 +1,7 @@
 import { useState } from "react";
 import FilterBar from "@/components/FilterBar";
-import { Button, Card, CardHeader, Switch } from "@/ui";
-import { Plus, User, ShieldCheck, TrendingUpIcon, Hammer, Pencil, Ban } from "lucide-react";
+import { Card, CardHeader, Switch } from "@/ui";
+import { User, ShieldCheck, TrendingUpIcon, Hammer } from "lucide-react";
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/ui/table";
 import { MOCK_BOSS_DETAILS } from "@/mock/boss.mock";
 const stats = [

@@ -29,18 +29,18 @@ function generateData(days, startLevel, seed) {
   return { data1, data2 }
 }
 
+const DAYS_MAP = {
+  "1W": 7,
+  "1M": 30,
+  "6M": 180,
+  "1Y": 365,
+}
+
 export function BrushAnalyticsChart() {
   const [timeRange, setTimeRange] = useState("1M")
 
-  const daysMap = {
-    "1W": 7,
-    "1M": 30,
-    "6M": 180,
-    "1Y": 365,
-  }
-
   const { series, options } = useMemo(() => {
-    const days = daysMap[timeRange] || 30
+    const days = DAYS_MAP[timeRange] || 30
     const { data1, data2 } = generateData(days, 320, 42)
 
     const seriesData = [
