@@ -33,7 +33,7 @@ const linksMockdata = [
   { label: "Tizim Jurnali", path: "/super-admin/auditlog" },
   { label: "Statistika", path: "/super-admin/statistika" },
   { label: "Sozlamalar", path: "/super-admin/sozlamalar" },
-  { label: "Tasdiqlash So'rovlari", path: "/super-admin/requests" },
+  { label: "Tasdiqlash So'rovlari", path: "/super-admin/tasdiqlash" },
 ]
 
 export function DoubleNavbar() {

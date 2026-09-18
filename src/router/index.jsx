@@ -13,6 +13,7 @@ import FermaEgalariPage from "@/pages/SuperAdminDashboard/FermaEgalariPage"
 import AuditLogPage from "@/pages/SuperAdminDashboard/AuditLogPage"
 import StatistikaPage from "@/pages/SuperAdminDashboard/StatistikaPage"
 import SozlamalarPage from "@/pages/SuperAdminDashboard/SozlamalarPage"
+import TasdiqlashPage from "@/pages/SuperAdminDashboard/TasdiqlashPage"
 
 const router = createBrowserRouter([
   {
@@ -64,6 +65,9 @@ const router = createBrowserRouter([
               }, {
                 path: '/super-admin/sozlamalar',
                 element: <SozlamalarPage />,
+              }, {
+                path: '/super-admin/tasdiqlash',
+                element: <TasdiqlashPage />,
               }
             ],
           },
