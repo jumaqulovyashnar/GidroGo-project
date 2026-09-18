@@ -2,10 +2,11 @@ import { cn } from "cn"
 
 function Table({
   className,
+  containerClassName,
   ...props
 }) {
   return (
-    <div data-slot="table-container" className="relative w-full overflow-x-auto">
+    <div data-slot="table-container" className={cn("relative w-full overflow-x-auto scrollbar-none [&::-webkit-scrollbar]:hidden", containerClassName)}>
       <table
         data-slot="table"
         className={cn("w-full caption-bottom text-sm", className)}
@@ -88,7 +89,7 @@ function TableCell({
     <td
       data-slot="table-cell"
       className={cn(
-        "p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0",
+        "p-2 align-middle whitespace-nowrap has-[[role=checkbox]]:pr-0",
         className
       )}
       {...props} />
