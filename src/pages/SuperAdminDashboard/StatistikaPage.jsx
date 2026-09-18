@@ -80,8 +80,6 @@ const StatistikaPage = () => {
                                             </span>
                                         )}
                                     </div>
-
-                                    {/* Izoh */}
                                     <p className="mt-1 text-xs text-gray-500">
                                         {audit.description}
                                     </p>
@@ -90,6 +88,8 @@ const StatistikaPage = () => {
                         );
                     })}
                 </div>
+                {/*diagramma section */}
+                
             </div>
         </section>
     )
