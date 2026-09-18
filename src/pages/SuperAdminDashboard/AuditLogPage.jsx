@@ -377,7 +377,7 @@ const AuditLogPage = () => {
                                     </div>
                                 </CardHeader>
                                 <CardContent className="p-5 pt-0">
-                                    <div className="flex items-baseline gap-1.5">
+                                    <div className="flex items-center gap-1.5">
                                         <span className="text-2xl font-bold text-slate-900">{audit.value}</span>
                                         <span className="text-xs font-medium text-blue-600">{audit.unit}</span>
                                     </div>
