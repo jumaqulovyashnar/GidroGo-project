@@ -380,4 +380,4 @@ const SozlamalarPage = () => {
     )
 }
 
-export default SozlamalarPage
+export default SozlamalarPage;
