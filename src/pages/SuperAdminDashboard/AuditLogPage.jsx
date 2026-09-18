@@ -1,0 +1,652 @@
+import { useState, useRef, useEffect } from "react"
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+    Input,
+    Pagination,
+    PaginationContent,
+    PaginationItem,
+    PaginationLink,
+    PaginationPrevious,
+    PaginationNext,
+    PaginationEllipsis,
+} from "@/ui"
+import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/ui/table"
+import {
+    ChevronDown,
+    Upload,
+    RotateCw,
+    Calendar,
+    History,
+    ShieldCheck,
+    ListFilter,
+    ShieldAlert,
+    Search,
+} from "lucide-react"
+
+const ACTION_OPTIONS = [
+    { value: "all", label: "Amal turi: Barchasi" },
+    { value: "tasdiqlash", label: "Fermani tasdiqlash" },
+    { value: "bloklash", label: "Fermani bloklash" },
+    { value: "boss tasdiqlash", label: "Bossni tasdiqlash" },
+    { value: "rad etish", label: "Bossni rad etish" },
+    { value: "sozlama", label: "Sozlamani o'zgartirish" },
+    { value: "api", label: "API kalit yangilash" },
+]
+
+const OBJECT_OPTIONS = [
+    { value: "all", label: "Obyekt: Barchasi" },
+    { value: "ferma", label: "Ferma" },
+    { value: "boss", label: "Boss" },
+    { value: "tizim", label: "Tizim" },
+    { value: "xavfsizlik", label: "Xavfsizlik" },
+]
+
+const ADMIN_OPTIONS = [
+    { value: "all", label: "SuperAdmin: Barchasi" },
+    { value: "azizbek", label: "Azizbek Rahimov (ROOT)" },
+    { value: "sardor", label: "Sardor Aliyev (Security)" },
+]
+
+// Chiroyli zamonaviy dizayndagi ochiladigan Dropdown komponenti
+const CustomDropdown = ({ value, onChange, options }) => {
+    const [open, setOpen] = useState(false)
+    const ref = useRef(null)
+
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (ref.current && !ref.current.contains(e.target)) {
+                setOpen(false)
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside)
+        return () => document.removeEventListener("mousedown", handleClickOutside)
+    }, [])
+
+    const selectedOption = options.find((o) => o.value === value) || options[0]
+
+    return (
+        <div className="relative" ref={ref}>
+            <button
+                type="button"
+                onClick={() => setOpen((prev) => !prev)}
+                className="h-10 px-3.5 rounded-xl border border-slate-200 bg-white text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center justify-between gap-2.5 shadow-xs transition-colors cursor-pointer w-full md:w-auto min-w-[170px]"
+            >
+                <span className="truncate">{selectedOption.label}</span>
+                <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform duration-200 ${open ? "rotate-180 text-blue-600" : ""}`} />
+            </button>
+
+            {open && (
+                <div className="absolute right-0 md:left-0 mt-1.5 w-56 bg-white rounded-xl border border-slate-200 shadow-xl p-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
+                    {options.map((opt) => (
+                        <div
+                            key={opt.value}
+                            onClick={() => {
+                                onChange(opt.value)
+                                setOpen(false)
+                            }}
+                            className={`px-3 py-2 text-xs font-medium rounded-lg cursor-pointer transition-colors flex items-center justify-between ${
+                                value === opt.value
+                                    ? "bg-blue-50 text-blue-600 font-semibold"
+                                    : "text-slate-700 hover:bg-slate-100"
+                            }`}
+                        >
+                            <span>{opt.label}</span>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    )
+}
+
+const MOCK_AUDIT_METRICS_CARDS = [
+    {
+        id: "total-actions",
+        title: "JAMI AMALLAR",
+        value: "1,428",
+        unit: "ta qayd",
+        badge: "+8.4%",
+        subtitle: "oxirgi 30 kunda",
+        icon: History,
+    },
+    {
+        id: "security-risks",
+        title: "XAVFSIZLIK XAVFI",
+        value: "0",
+        unit: "kritik hodisa",
+        badge: "STABLE",
+        subtitle: "Tizim holati barqaror",
+        icon: ShieldCheck,
+    },
+    {
+        id: "approvals",
+        title: "TASDIQLASHLAR",
+        value: "14",
+        unit: "amaliyot",
+        badge: null,
+        subtitle: "Farm & Boss verifikatsiyalari",
+        icon: ListFilter,
+    },
+    {
+        id: "settings-permissions",
+        title: "SOZLAMALAR & HUQUQ",
+        value: "6",
+        unit: "o'zgarish",
+        badge: null,
+        subtitle: "SMS Gateway & API rotatsiyasi",
+        icon: ShieldAlert,
+    },
+]
+
+const MOCK_AUDIT_LOGS = [
+    {
+        id: "log-001",
+        time: "15:42:10",
+        date: "24-Apr-2025",
+        dayLabel: "Bugun",
+        admin: {
+            name: "Azizbek Rahimov",
+            role: "ROOT",
+            avatarText: "AR",
+        },
+        action: {
+            label: "Ferma tasdiqlandi",
+            badgeClass: "bg-blue-600 text-white",
+        },
+        target: {
+            name: "Chashma Pure Water MCHJ",
+            code: "#FRM-9021",
+            codeClass: "text-blue-600",
+        },
+        clientInfo: {
+            ip: "195.158.24.12",
+            device: "Chrome / macOS",
+        },
+        description: "Sanitariya litsenziyasi to'liq tekshirildi va tasdiqlandi",
+    },
+    {
+        id: "log-002",
+        time: "11:20:05",
+        date: "24-Apr-2025",
+        dayLabel: "Bugun",
+        admin: {
+            name: "Azizbek Rahimov",
+            role: "ROOT",
+            avatarText: "AR",
+        },
+        action: {
+            label: "Ferma bloklandi",
+            badgeClass: "bg-red-600 text-white",
+        },
+        target: {
+            name: "Andijon Vodiy Bulog'i",
+            code: "#FRM-7704",
+            codeClass: "text-red-600",
+        },
+        clientInfo: {
+            ip: "195.158.24.12",
+            device: "Chrome / macOS",
+        },
+        description: "Mijoz shikoyatlari 5% dan oshgani sababli bloklandi",
+    },
+    {
+        id: "log-003",
+        time: "18:04:12",
+        date: "23-Apr-2025",
+        dayLabel: "Kecha",
+        admin: {
+            name: "Sardor Aliyev",
+            role: "SECURITY",
+            avatarText: "SA",
+        },
+        action: {
+            label: "Boss arizasi rad etildi",
+            badgeClass: "bg-red-600 text-white",
+        },
+        target: {
+            name: "Ilhom Karimov",
+            code: "#BOS-104",
+            codeClass: "text-blue-600",
+        },
+        clientInfo: {
+            ip: "84.54.72.10",
+            device: "Firefox / Linux",
+        },
+        description: "STIR va shartnoma ma'lumotlarida nomuvofiqlik aniqlandi",
+    },
+    {
+        id: "log-004",
+        time: "09:15:30",
+        date: "18-Apr-2025",
+        dayLabel: "18-Apr",
+        admin: {
+            name: "Azizbek Rahimov",
+            role: "ROOT",
+            avatarText: "AR",
+        },
+        action: {
+            label: "Tizim sozlamasi yangilandi",
+            badgeClass: "bg-blue-600 text-white",
+        },
+        target: {
+            name: "SMS Gateway konfiguratsiyasi",
+            code: "#SYS-SMS-CONF",
+            codeClass: "text-blue-600",
+        },
+        clientInfo: {
+            ip: "195.158.24.12",
+            device: "Chrome / macOS",
+        },
+        description: "Kesh tozalash va zaxira nusxa yaratildi",
+    },
+    {
+        id: "log-005",
+        time: "22:40:11",
+        date: "17-Apr-2025",
+        dayLabel: "17-Apr",
+        admin: {
+            name: "Sardor Aliyev",
+            role: "SECURITY",
+            avatarText: "SA",
+        },
+        action: {
+            label: "API kaliti yangilandi",
+            badgeClass: "bg-blue-600 text-white",
+        },
+        target: {
+            name: "To'lov Klasteri Payme / Click",
+            code: "#SEC-API-ROT",
+            codeClass: "text-blue-600",
+        },
+        clientInfo: {
+            ip: "84.54.72.10",
+            device: "Firefox / Linux",
+        },
+        description: "90 kunlik rejaviy kalitlar rotatsiyasi",
+    },
+    {
+        id: "log-006",
+        time: "14:10:48",
+        date: "15-Apr-2025",
+        dayLabel: "15-Apr",
+        admin: {
+            name: "Azizbek Rahimov",
+            role: "ROOT",
+            avatarText: "AR",
+        },
+        action: {
+            label: "Boss tasdiqlandi",
+            badgeClass: "bg-blue-600 text-white",
+        },
+        target: {
+            name: "Farrux Saidov",
+            code: "#BOS-089",
+            codeClass: "text-blue-600",
+        },
+        clientInfo: {
+            ip: "195.158.24.12",
+            device: "Chrome / macOS",
+        },
+        description: "Barcha rasmiy litsenziya va shartnomalar tasdiqlandi",
+    },
+]
+
+const AuditLogPage = () => {
+    const [searchTerm, setSearchTerm] = useState("")
+    const [selectedAction, setSelectedAction] = useState("all")
+    const [selectedObject, setSelectedObject] = useState("all")
+    const [selectedAdmin, setSelectedAdmin] = useState("all")
+
+    const [currentPage, setCurrentPage] = useState(1)
+    const itemsPerPage = 5
+
+    // Filterlash mantiqi
+    const filteredLogs = MOCK_AUDIT_LOGS.filter((log) => {
+        const matchesSearch =
+            log.target.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            log.target.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            log.clientInfo.ip.includes(searchTerm) ||
+            log.action.label.toLowerCase().includes(searchTerm.toLowerCase())
+
+        const matchesAction = selectedAction === "all" || log.action.label.toLowerCase().includes(selectedAction.toLowerCase())
+        const matchesAdmin = selectedAdmin === "all" || log.admin.name.toLowerCase().includes(selectedAdmin.toLowerCase())
+
+        return matchesSearch && matchesAction && matchesAdmin
+    })
+
+    const totalPages = Math.ceil(filteredLogs.length / itemsPerPage) || 1
+    const paginatedLogs = filteredLogs.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    )
+
+    const getPageNumbers = () => {
+        const pages = []
+        if (totalPages <= 5) {
+            for (let i = 1; i <= totalPages; i++) {
+                pages.push(i)
+            }
+        } else {
+            if (currentPage <= 3) {
+                pages.push(1, 2, 3, "ellipsis-end", totalPages)
+            } else if (currentPage >= totalPages - 2) {
+                pages.push(1, "ellipsis-start", totalPages - 2, totalPages - 1, totalPages)
+            } else {
+                pages.push(1, "ellipsis-start", currentPage, "ellipsis-end", totalPages)
+            }
+        }
+        return pages
+    }
+
+    return (
+        <section className="space-y-6">
+            <div>
+                {/* Header */}
+                <div className="flex flex-col md:flex-row md:justify-between md:items-center pt-3 gap-4">
+                    <div>
+                        <h2 className="text-2xl font-bold text-slate-900">Audit Log va Xavfsizlik Jurnali</h2>
+                        <p className="text-sm text-slate-500 mt-1">
+                            Faqat SuperAdmin amallari va tizim darajasidagi xavfsizlik hodisalari qaydnomasi.
+                        </p>
+                    </div>
+
+                    <div className="flex items-center gap-2.5 flex-nowrap">
+                        {/* 1. Sana filtri tugmasi */}
+                        <button
+                            type="button"
+                            className="h-10 px-4 flex items-center gap-2 rounded-xl border border-slate-200 bg-white text-sm font-medium text-slate-700 shadow-xs hover:bg-slate-50 transition-colors whitespace-nowrap cursor-pointer"
+                        >
+                            <Calendar className="h-4 w-4 text-blue-600" />
+                            <span>So'nggi 30 kun</span>
+                            <ChevronDown className="h-4 w-4 text-slate-400" />
+                        </button>
+
+                        {/* 2. Eksport tugmasi */}
+                        <button
+                            type="button"
+                            className="h-10 px-4 flex items-center gap-2 rounded-xl border border-slate-200 bg-white text-sm font-medium text-slate-700 shadow-xs hover:bg-slate-50 transition-colors whitespace-nowrap cursor-pointer"
+                        >
+                            <Upload className="h-4 w-4 text-slate-500" />
+                            <span>Eksport</span>
+                            <ChevronDown className="h-4 w-4 text-slate-400" />
+                        </button>
+
+                        {/* 3. Qayta yangilash tugmasi */}
+                        <button
+                            type="button"
+                            className="h-10 px-4 flex items-center gap-2 rounded-xl bg-blue-600 text-white text-sm font-medium shadow-xs hover:bg-blue-700 transition-colors whitespace-nowrap cursor-pointer"
+                        >
+                            <RotateCw className="h-4 w-4" />
+                            <span>Qayta yangilash</span>
+                        </button>
+                    </div>
+                </div>
+
+                {/* 4 ta Metrika Card */}
+                <div className="pt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {MOCK_AUDIT_METRICS_CARDS.map((audit) => {
+                        const Icon = audit.icon
+                        return (
+                            <Card key={audit.id} className="bg-white border border-slate-200/80 shadow-xs rounded-xl">
+                                <CardHeader className="flex flex-row items-center justify-between p-5 pb-2 space-y-0">
+                                    <CardTitle className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
+                                        {audit.title}
+                                    </CardTitle>
+                                    <div className="p-2 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                                        <Icon className="h-4 w-4" />
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="p-5 pt-0">
+                                    <div className="flex items-baseline gap-1.5">
+                                        <span className="text-2xl font-bold text-slate-900">{audit.value}</span>
+                                        <span className="text-xs font-medium text-blue-600">{audit.unit}</span>
+                                    </div>
+                                    <div className="mt-2 flex items-center gap-1.5 text-xs text-slate-500">
+                                        {audit.badge && (
+                                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-semibold bg-blue-50 text-blue-600 border border-blue-100">
+                                                {audit.badge}
+                                            </span>
+                                        )}
+                                        <span>{audit.subtitle}</span>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )
+                    })}
+                </div>
+
+                {/* Filter Bar */}
+                <div className="mt-6 bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs flex flex-col md:flex-row items-stretch md:items-center gap-3">
+                    {/* Qidiruv input */}
+                    <div className="relative flex-1">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                        <Input
+                            value={searchTerm}
+                            onChange={(e) => {
+                                setSearchTerm(e.target.value)
+                                setCurrentPage(1)
+                            }}
+                            placeholder="Amal, obyekt yoki IP-manzil bo'yicha qidirish..."
+                            className="pl-9 h-10 w-full rounded-xl border-slate-200 bg-white placeholder:text-slate-400 text-sm focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-100"
+                        />
+                    </div>
+
+                    {/* Amal turi filter */}
+                    <CustomDropdown
+                        value={selectedAction}
+                        onChange={(val) => {
+                            setSelectedAction(val)
+                            setCurrentPage(1)
+                        }}
+                        options={ACTION_OPTIONS}
+                    />
+
+                    {/* Obyekt filter */}
+                    <CustomDropdown
+                        value={selectedObject}
+                        onChange={(val) => {
+                            setSelectedObject(val)
+                            setCurrentPage(1)
+                        }}
+                        options={OBJECT_OPTIONS}
+                    />
+
+                    {/* SuperAdmin filter */}
+                    <CustomDropdown
+                        value={selectedAdmin}
+                        onChange={(val) => {
+                            setSelectedAdmin(val)
+                            setCurrentPage(1)
+                        }}
+                        options={ADMIN_OPTIONS}
+                    />
+                </div>
+
+                {/* Table */}
+                <div className="mt-4 bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden">
+                    <div className="overflow-x-auto w-full">
+                        <Table className="w-full text-left min-w-[1100px]">
+                            <TableHeader className="bg-slate-50 border-b border-slate-100">
+                                <TableRow className="hover:bg-transparent">
+                                    <TableHead className="py-3.5 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap w-[150px]">
+                                        Sana va vaqt
+                                    </TableHead>
+                                    <TableHead className="py-3.5 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap w-[180px]">
+                                        SuperAdmin
+                                    </TableHead>
+                                    <TableHead className="py-3.5 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap w-[180px]">
+                                        Amal
+                                    </TableHead>
+                                    <TableHead className="py-3.5 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap w-[220px]">
+                                        Ta'sir etilgan obyekt
+                                    </TableHead>
+                                    <TableHead className="py-3.5 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap w-[150px]">
+                                        IP & Qurilma
+                                    </TableHead>
+                                    <TableHead className="py-3.5 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider min-w-[220px]">
+                                        Tavsif va sabab
+                                    </TableHead>
+                                    <TableHead className="py-3.5 px-4 pr-6 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap w-[110px]">
+                                        Amal
+                                    </TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {paginatedLogs.map((log) => (
+                                    <TableRow
+                                        key={log.id}
+                                        className="hover:bg-slate-50/70 transition-colors border-b border-slate-100 last:border-b-0"
+                                    >
+                                        {/* 1. Sana va vaqt */}
+                                        <TableCell className="py-3.5 px-4 whitespace-nowrap w-[150px]">
+                                            <div className="text-xs font-semibold text-slate-800">
+                                                {log.dayLabel}, {log.time}
+                                            </div>
+                                            <div className="text-[11px] text-slate-400 mt-0.5">
+                                                {log.date}
+                                            </div>
+                                        </TableCell>
+
+                                        {/* 2. SuperAdmin */}
+                                        <TableCell className="py-3.5 px-4 whitespace-nowrap w-[180px]">
+                                            <div className="flex items-center gap-2.5">
+                                                <div className="w-8 h-8 rounded-full bg-blue-700 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-xs">
+                                                    {log.admin.avatarText}
+                                                </div>
+                                                <span className="text-xs font-semibold text-slate-800">
+                                                    {log.admin.name}
+                                                </span>
+                                            </div>
+                                        </TableCell>
+
+                                        {/* 3. Amal */}
+                                        <TableCell className="py-3.5 px-4 whitespace-nowrap w-[180px]">
+                                            <span
+                                                className={`inline-block text-[11px] font-semibold px-2.5 py-1 rounded shadow-2xs ${log.action.badgeClass}`}
+                                            >
+                                                {log.action.label}
+                                            </span>
+                                        </TableCell>
+
+                                        {/* 4. Ta'sir etilgan obyekt */}
+                                        <TableCell className="py-3.5 px-4 whitespace-nowrap w-[220px]">
+                                            <div className="text-xs font-semibold text-slate-900">
+                                                {log.target.name}
+                                            </div>
+                                            <div className={`text-[11px] font-medium mt-0.5 ${log.target.codeClass}`}>
+                                                {log.target.code}
+                                            </div>
+                                        </TableCell>
+
+                                        {/* 5. IP & Qurilma */}
+                                        <TableCell className="py-3.5 px-4 whitespace-nowrap w-[150px]">
+                                            <div className="text-xs font-medium text-slate-700 font-mono">
+                                                {log.clientInfo.ip}
+                                            </div>
+                                            <div className="text-[11px] text-slate-400 mt-0.5">
+                                                {log.clientInfo.device}
+                                            </div>
+                                        </TableCell>
+
+                                        {/* 6. Tavsif va sabab */}
+                                        <TableCell className="py-3.5 px-4 min-w-[220px]">
+                                            <p className="text-xs text-slate-600 line-clamp-1" title={log.description}>
+                                                {log.description}
+                                            </p>
+                                        </TableCell>
+
+                                        {/* 7. Tafsilotlar tugmasi */}
+                                        <TableCell className="py-3.5 px-4 pr-6 text-right whitespace-nowrap w-[110px]">
+                                            <button
+                                                type="button"
+                                                className="text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline cursor-pointer"
+                                            >
+                                                Tafsilotlar
+                                            </button>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
+
+                    {/* Pagination (FermalarPage dagi kabi Pagination komponenti) */}
+                    <div className="p-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+                        <div>
+                            Jami <span className="font-semibold text-slate-800">{filteredLogs.length}</span> ta yozuvdan{" "}
+                            <span className="font-semibold text-slate-800">
+                                {filteredLogs.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1} -{" "}
+                                {Math.min(currentPage * itemsPerPage, filteredLogs.length)}
+                            </span> ko'rsatilmoqda
+                        </div>
+
+                        {totalPages > 1 && (
+                            <Pagination className="mx-0 w-auto justify-end">
+                                <PaginationContent className="bg-white p-1 rounded-2xl border border-slate-200/80 shadow-xs">
+                                    <PaginationItem>
+                                        <PaginationPrevious
+                                            text="Oldingi"
+                                            onClick={(e) => {
+                                                e.preventDefault()
+                                                if (currentPage > 1) setCurrentPage((p) => p - 1)
+                                            }}
+                                            className={`cursor-pointer ${
+                                                currentPage === 1 ? "pointer-events-none opacity-40" : "hover:bg-slate-100"
+                                            }`}
+                                        />
+                                    </PaginationItem>
+
+                                    {getPageNumbers().map((pageItem, index) => {
+                                        if (pageItem === "ellipsis-start" || pageItem === "ellipsis-end") {
+                                            return (
+                                                <PaginationItem key={`${pageItem}-${index}`}>
+                                                    <PaginationEllipsis />
+                                                </PaginationItem>
+                                            )
+                                        }
+                                        return (
+                                            <PaginationItem key={pageItem}>
+                                                <PaginationLink
+                                                    isActive={currentPage === pageItem}
+                                                    onClick={(e) => {
+                                                        e.preventDefault()
+                                                        setCurrentPage(pageItem)
+                                                    }}
+                                                    className={`cursor-pointer rounded-xl font-medium ${
+                                                        currentPage === pageItem
+                                                            ? "bg-[#1670FF]! text-white! border-transparent! shadow-xs"
+                                                            : "hover:bg-slate-100 text-slate-700"
+                                                    }`}
+                                                >
+                                                    {pageItem}
+                                                </PaginationLink>
+                                            </PaginationItem>
+                                        )
+                                    })}
+
+                                    <PaginationItem>
+                                        <PaginationNext
+                                            text="Keyingi"
+                                            onClick={(e) => {
+                                                e.preventDefault()
+                                                if (currentPage < totalPages) setCurrentPage((p) => p + 1)
+                                            }}
+                                            className={`cursor-pointer ${
+                                                currentPage === totalPages ? "pointer-events-none opacity-40" : "hover:bg-slate-100"
+                                            }`}
+                                        />
+                                    </PaginationItem>
+                                </PaginationContent>
+                            </Pagination>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </section>
+    )
+}
+
+export default AuditLogPage

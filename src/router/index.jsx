@@ -10,13 +10,14 @@ import BossDashboardPage from "@/pages/BossDashboard/BossDashboardPage"
 import FermalarPage from "@/pages/SuperAdminDashboard/FermalarPage"
 import FermaDetailPage from "@/pages/SuperAdminDashboard/FermaDetailPage"
 import FermaEgalariPage from "@/pages/SuperAdminDashboard/FermaEgalariPage"
+import AuditLogPage from "@/pages/SuperAdminDashboard/AuditLogPage"
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Navigate to="/login" replace />,
   },
-  // Ochiq marshrutlar (Login)
+  // auth section uchun route
   {
     element: <AuthLayout />,
     children: [
@@ -52,6 +53,9 @@ const router = createBrowserRouter([
               }, {
                 path: "/super-admin/fermaEgalari",
                 element: <FermaEgalariPage />,
+              }, {
+                path: '/super-admin/auditlog',
+                element: <AuditLogPage />,
               }
             ],
           },
