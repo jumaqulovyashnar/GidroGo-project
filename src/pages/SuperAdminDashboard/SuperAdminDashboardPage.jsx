@@ -98,17 +98,13 @@ export function SuperAdminDashboardPage() {
                   {item.value}
                 </div>
                 <div className="flex items-center gap-1.5 mt-2">
-                  <span
-                    className={`inline-flex items-center gap-0.5 text-xs font-medium ${
-                      isPositive ? "text-emerald-600" : "text-rose-600"
-                    }`}
-                  >
+                  <span className={`inline-flex items-center gap-0.5 text-xs font-medium ${ isPositive ? "text-emerald-600" : "text-rose-600"}`} >
                     {isPositive ? (
                       <TrendingUp className="size-3.5" strokeWidth={1.75} />
                     ) : (
                       <TrendingDown className="size-3.5" strokeWidth={1.75} />
                     )}
-                    {item.change}
+                    {item.change},
                   </span>
                   <span className="text-[11px] font-normal text-neutral-600 truncate">
                     {item.period}
