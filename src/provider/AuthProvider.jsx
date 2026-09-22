@@ -64,7 +64,7 @@ const createUser = (userData, token) => {
     roleLabel = "Super Admin"
   } else if (isBoss) {
     role = "BOSS"
-    roleLabel = "Rahbariyat"
+    roleLabel = "Ferma boshlig'i"
   } else if (isManager) {
     role = "MANAGER"
     roleLabel = "Menejer"

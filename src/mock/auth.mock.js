@@ -40,7 +40,7 @@ export const MOCK_USERS = [
     role: "BOSS",
     roleName: "ROLE_BOSS",
     rawRole: "ROLE_BOSS",
-    roleLabel: "Rahbariyat",
+    roleLabel: "Ferma boshlig'i",
     email: "boss@gidrogo.uz",
     region: "Bosh ofis",
     permissions: ["VIEW_ALL_REPORTS"],

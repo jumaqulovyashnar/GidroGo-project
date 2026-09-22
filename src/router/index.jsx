@@ -7,6 +7,11 @@ import RoleGuard from "@/pages/authentication/guards/RoleGuard"
 import SuperAdminDashboardPage from "@/pages/SuperAdminDashboard/SuperAdminDashboardPage"
 import ManagerDashboardPage from "@/pages/ManagerDashboard/ManagerDashboardPage"
 import BossDashboardPage from "@/pages/BossDashboard/BossDashboardPage"
+import BossMoliyaPage from "@/pages/BossDashboard/BossMoliyaPage"
+import BossSavdoPage from "@/pages/BossDashboard/BossSavdoPage"
+import BossOsishPage from "@/pages/BossDashboard/BossOsishPage"
+import BossFermaPage from "@/pages/BossDashboard/BossFermaPage"
+import BossXodimlarPage from "@/pages/BossDashboard/BossXodimlarPage"
 import FermalarPage from "@/pages/SuperAdminDashboard/FermalarPage"
 import FermaDetailPage from "@/pages/SuperAdminDashboard/FermaDetailPage"
 import FermaEgalariPage from "@/pages/SuperAdminDashboard/FermaEgalariPage"
@@ -79,6 +84,14 @@ const router = createBrowserRouter([
                 path: "/manager",
                 element: <ManagerDashboardPage />,
               },
+              {
+                path: "/manager/buyurtmalar",
+                element: <ManagerDashboardPage />,
+              },
+              {
+                path: "/manager/xodimlar",
+                element: <ManagerDashboardPage />,
+              },
             ],
           },
           // Boss
@@ -88,6 +101,26 @@ const router = createBrowserRouter([
               {
                 path: "/boss",
                 element: <BossDashboardPage />,
+              },
+              {
+                path: "/boss/moliya",
+                element: <BossMoliyaPage />,
+              },
+              {
+                path: "/boss/savdo",
+                element: <BossSavdoPage />,
+              },
+              {
+                path: "/boss/osish",
+                element: <BossOsishPage />,
+              },
+              {
+                path: "/boss/ferma",
+                element: <BossFermaPage />,
+              },
+              {
+                path: "/boss/xodimlar",
+                element: <BossXodimlarPage />,
               },
             ],
           },

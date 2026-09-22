@@ -12,6 +12,7 @@ import {
 } from "lucide-react"
 import { Title, Tooltip, UnstyledButton } from "@mantine/core"
 import { useAuth } from "@/provider/AuthProvider"
+import { getSidebarMenu } from "@/config/sidebarConfig"
 import LogoImg from "@/assets/Logo.png"
 import classes from "./DoubleNavbar.module.css"
 
@@ -25,22 +26,36 @@ const mainLinksMockdata = [
   { icon: Settings, label: "Sozlamalar" },
 ]
 
-// Har bir menyuga mos URL yo'llari (path) biriktirish .
-const linksMockdata = [
-  { label: "Dashboard", path: "/super-admin" },
-  { label: "Fermalar", path: "/super-admin/fermalar" },
-  { label: "Ferma Egalari", path: "/super-admin/fermaEgalari" },
-  { label: "Tizim Jurnali", path: "/super-admin/auditlog" },
-  { label: "Statistika", path: "/super-admin/statistika" },
-  { label: "Sozlamalar", path: "/super-admin/sozlamalar" },
-  { label: "Tasdiqlash So'rovlari", path: "/super-admin/tasdiqlash" },
-]
+const ROLE_TITLES = {
+  SUPER_ADMIN: "Boshqaruv",
+  BOSS: "Ferma boshlig'i",
+  MANAGER: "Menejer",
+  DRIVER: "Yetkazib beruvchi",
+}
 
-export function DoubleNavbar() {
+export function DoubleNavbar({ role }) {
   const navigate = useNavigate()
   const location = useLocation()
-  const [active, setActive] = useState("Dashboard")
-  const { logout } = useAuth()
+  const { user, logout } = useAuth()
+  const [activeTab, setActiveTab] = useState("Dashboard")
+
+  // Foydalanuvchi roli: 1) prop 'role', 2) URL prefiksi, 3) user?.role, 4) default 'SUPER_ADMIN'
+  const currentRole = (
+    role ||
+    (location.pathname.startsWith("/boss")
+      ? "BOSS"
+      : location.pathname.startsWith("/manager")
+      ? "MANAGER"
+      : location.pathname.startsWith("/driver")
+      ? "DRIVER"
+      : location.pathname.startsWith("/super-admin")
+      ? "SUPER_ADMIN"
+      : user?.role || "SUPER_ADMIN")
+  ).toUpperCase()
+
+  // Rolga mos menyu ro'yxati (config-driven)
+  const menuItems = getSidebarMenu(currentRole)
+  const roleTitle = ROLE_TITLES[currentRole] || "Dashboard"
 
   const mainLinks = mainLinksMockdata.map((link) => (
     <Tooltip
@@ -51,35 +66,15 @@ export function DoubleNavbar() {
       key={link.label}
     >
       <UnstyledButton
-        onClick={() => setActive(link.label)}
+        onClick={() => setActiveTab(link.label)}
         className={classes.mainLink}
-        data-active={link.label === active || undefined}
+        data-active={link.label === activeTab || undefined}
         aria-label={link.label}
       >
         <link.icon size={20} strokeWidth={1.75} />
       </UnstyledButton>
     </Tooltip>
   ))
-
-  const links = linksMockdata.map((item) => {
-    // Hozirgi kirib turilgan sahifani avtomatik aktiv ko'rsatish
-    const isActive = location.pathname === item.path
-
-    return (
-      <a
-        className={classes.link}
-        data-active={isActive || undefined}
-        href={item.path}
-        onClick={(event) => {
-          event.preventDefault()
-          navigate(item.path) // React Router orqali marshrutni o'zgartirish
-        }}
-        key={item.label}
-      >
-        {item.label}
-      </a>
-    )
-  })
 
   return (
     <nav className={classes.navbar}>
@@ -101,9 +96,43 @@ export function DoubleNavbar() {
         <div className={classes.main}>
           <div className={classes.mainTop}>
             <Title order={4} className={classes.title}>
-              {active}
+              {roleTitle}
             </Title>
-            {links}
+
+            <nav className="space-y-1 mt-1">
+              {menuItems.map((item) => {
+                const Icon = item.icon
+                const isActive =
+                  location.pathname === item.path ||
+                  (item.path !== "/" && location.pathname.startsWith(item.path + "/"))
+
+                return (
+                  <a
+                    key={item.path}
+                    href={item.path}
+                    onClick={(event) => {
+                      event.preventDefault()
+                      navigate(item.path)
+                    }}
+                    className={`group flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm transition-all cursor-pointer ${
+                      isActive
+                        ? "bg-[#EEF2FF] text-[#065F46] font-bold border-l-4 border-l-[#059669] rounded-l-none shadow-2xs"
+                        : "text-slate-700 hover:bg-slate-50 font-medium hover:text-slate-900"
+                    }`}
+                  >
+                    <Icon
+                      className={`size-5 transition-colors shrink-0 ${
+                        isActive
+                          ? "text-[#065F46]"
+                          : "text-slate-600 group-hover:text-slate-900"
+                      }`}
+                      strokeWidth={isActive ? 2.2 : 1.75}
+                    />
+                    <span className="truncate">{item.title}</span>
+                  </a>
+                )
+              })}
+            </nav>
           </div>
 
           {/* O'ng pastdagi yagona toza Chiqish tugmasi */}

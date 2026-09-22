@@ -1,6 +1,6 @@
 import { Input } from "@/ui";
 import { Select } from "@mantine/core";
-import { Search, ChevronDown, SlidersHorizontal, Tractor, RotateCcw } from "lucide-react";
+import { Search, ChevronDown, SlidersHorizontal, Tractor, RotateCcw, Calendar } from "lucide-react";
 
 const defaultStatusOptions = [
     { value: "all", label: "Barcha statuslar" },
@@ -16,6 +16,15 @@ const defaultSortOptions = [
 
 const defaultFarmOptions = [
     { value: "all", label: "Barcha fermalar" },
+];
+
+
+const defaultDateOptions = [
+    { value: 'today', label: 'Bugun' },
+    { value: 'yesterday', label: 'Kecha' },
+    { value: 'this_week', label: 'Shu hafta' },
+    { value: 'this_month', label: 'Shu oy' },
+    { value: 'this_year', label: 'Shu yil' },
 ];
 const FilterBar = ({
     search = "",
@@ -39,6 +48,10 @@ const FilterBar = ({
     onReset = () => { },
     showFarm = false,
     showReset = false,
+    date = 'today',
+    dateOptions = defaultDateOptions,
+    setDate = () => { },
+    showDate = false
 }) => {
     return (
         <section>
@@ -62,7 +75,7 @@ const FilterBar = ({
                     </div>
                 )}
 
-                {/* O'ng tomon: Status, Saralash va Filtrlar */}
+                {/* O'ng tomon: Status, Ferma, Sana, Saralash va Filtrlar */}
                 <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto justify-start md:justify-end">
                     {/* 1. Status select */}
                     {showStatus && (
@@ -103,6 +116,30 @@ const FilterBar = ({
                             rightSection={<ChevronDown className="size-4 text-slate-400 pointer-events-none" />}
                             classNames={{
                                 root: "w-full sm:w-48",
+                                input:
+                                    "!h-10 !rounded-[10px] !border-slate-200/80 !bg-[#F4F8FF] hover:!bg-[#EBF3FF] !text-slate-700 !text-sm !font-medium !cursor-pointer transition-colors focus:!border-blue-500",
+                                dropdown: "!rounded-[12px] !border-slate-200 !shadow-lg !p-1.5 !bg-white [&_.mantine-ScrollArea-scrollbar]:!hidden",
+                                option:
+                                    "!rounded-[8px] !text-sm !font-medium !py-2 !px-3 !cursor-pointer hover:!bg-slate-100 data-[checked=true]:!bg-blue-50 data-[checked=true]:!text-blue-600",
+                            }}
+                        />
+                    )}
+
+                    {/* Sana (Date) select */}
+                    {showDate && (
+                        <Select
+                            value={date}
+                            onChange={(val) => {
+                                setDate(val || "today");
+                                setCurrentPage(1);
+                            }}
+                            data={dateOptions}
+                            allowDeselect={false}
+                            maxDropdownHeight={450}
+                            leftSection={<Calendar className="size-4 text-slate-400 pointer-events-none" />}
+                            rightSection={<ChevronDown className="size-4 text-slate-400 pointer-events-none" />}
+                            classNames={{
+                                root: "w-full sm:w-40",
                                 input:
                                     "!h-10 !rounded-[10px] !border-slate-200/80 !bg-[#F4F8FF] hover:!bg-[#EBF3FF] !text-slate-700 !text-sm !font-medium !cursor-pointer transition-colors focus:!border-blue-500",
                                 dropdown: "!rounded-[12px] !border-slate-200 !shadow-lg !p-1.5 !bg-white [&_.mantine-ScrollArea-scrollbar]:!hidden",
