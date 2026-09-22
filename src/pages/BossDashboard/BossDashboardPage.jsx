@@ -260,4 +260,4 @@ const BossDashboardPage = () => {
   )
 }
 
-export default BossDashboardPage
+export default BossDashboardPage;
