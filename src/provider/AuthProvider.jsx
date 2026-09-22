@@ -84,8 +84,7 @@ const createUser = (userData, token) => {
     username:
       userData?.phone ||
       userData?.username ||
-      decodedToken?.sub ||
-      "",
+      decodedToken?.sub ||  "",
     phone: userData?.phone,
     name: fullName,
     firstName: firstName || undefined,
@@ -296,4 +295,4 @@ export const useAuth = () => {
   return context
 }
 
-export default AuthProvider
+export default AuthProvider;
