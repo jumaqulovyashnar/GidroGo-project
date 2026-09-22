@@ -1,4 +1,4 @@
-import { BusinessMetricsSummary } from "@/components/charts/BusinessMetricsSummary"
+import { BusinessMetricsSummary } from "@/widgets"
 
 export function BossOsishPage() {
   return (

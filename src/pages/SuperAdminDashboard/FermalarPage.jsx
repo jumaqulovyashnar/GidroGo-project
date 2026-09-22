@@ -2,12 +2,12 @@ import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { Plus, MapPin, Phone, User, Pencil, Trash2, Building2 } from "lucide-react"
 import { Button } from "@base-ui/react"
-import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/ui/breadcrumb"
+import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/shared/ui/breadcrumb"
 import { MOCK_FARMS } from "@/mock/farms.mock"
-import { useFermaModalStore } from "@/store/modalStore"
-import { CreateFermaModal } from "@/components/modal"
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext, PaginationEllipsis } from "@/ui"
-import FilterBar from "@/components/FilterBar"
+import { useFermaModalStore } from "@/entities/farm"
+import { CreateFermaModal } from "@/shared/ui"
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext, PaginationEllipsis } from "@/shared/ui"
+import { FilterBar } from "@/widgets"
 
 const FermalarPage = () => {
     const navigate = useNavigate()

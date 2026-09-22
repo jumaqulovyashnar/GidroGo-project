@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { Card, CardHeader, CardTitle, CardContent } from "@/shared/ui"
 import { Building2, Droplet, ShieldCheck, Gauge } from "lucide-react"
 
 export function BossFermaPage() {

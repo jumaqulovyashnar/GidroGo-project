@@ -1,5 +1,5 @@
 import { useAuth } from "@/provider/AuthProvider"
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { Card, CardHeader, CardTitle, CardContent } from "@/shared/ui"
 import {
   Building2,
   Users,
@@ -9,8 +9,7 @@ import {
   TrendingUp,
   TrendingDown,
 } from "lucide-react"
-import { BrushAnalyticsChart } from "@/components/charts/BrushAnalyticsChart"
-import { SalesTeamDonutChart } from "@/components/charts/SalesTeamDonutChart"
+import { BrushAnalyticsChart, SalesTeamDonutChart } from "@/widgets"
 
 const metrics = [
   {

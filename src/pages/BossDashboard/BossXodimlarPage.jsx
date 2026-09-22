@@ -1,6 +1,6 @@
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { Card, CardHeader, CardTitle, CardContent } from "@/shared/ui"
 import { Truck, Users } from "lucide-react"
-import { CouriersPerformanceCard } from "@/components/charts/CouriersPerformanceCard"
+import { CouriersPerformanceCard } from "@/widgets"
 
 export function BossXodimlarPage() {
   return (

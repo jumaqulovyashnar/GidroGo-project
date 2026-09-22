@@ -1,7 +1,7 @@
 import { useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/provider/AuthProvider"
-import { Button, Field, Input, Label } from "@/ui"
+import { Button, Field, Input, Label } from "@/shared/ui"
 
 function LoginPage() {
   const nameRef = useRef(null)

@@ -1,5 +1,5 @@
 import { useAuth } from "@/provider/AuthProvider"
-import { Button } from "@/ui"
+import { Button } from "@/shared/ui"
 
 function ManagerDashboardPage() {
   const { user, logout } = useAuth()

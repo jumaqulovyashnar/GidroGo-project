@@ -10,7 +10,7 @@ import {
   TrendingUp,
   Activity,
 } from "lucide-react"
-import { Card, CardHeader, CardTitle, CardContent, Switch } from "@/ui"
+import { Card, CardHeader, CardTitle, CardContent, Switch } from "@/shared/ui"
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -18,7 +18,7 @@ import {
   BreadcrumbLink,
   BreadcrumbSeparator,
   BreadcrumbPage,
-} from "@/ui/breadcrumb"
+} from "@/shared/ui/breadcrumb"
 import Chart from "react-apexcharts"
 import { MOCK_FARMS } from "@/mock/farms.mock"
 

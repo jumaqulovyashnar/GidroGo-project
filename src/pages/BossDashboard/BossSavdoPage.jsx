@@ -1,9 +1,8 @@
 import { useState } from "react"
 import { Select } from "@mantine/core"
 import { Calendar, ChevronDown, Droplet, ShoppingBag, TrendingUp } from "lucide-react"
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { OrdersWeeklyChart } from "@/components/charts/OrdersWeeklyChart"
-import { WaterSalesVolumeChart } from "@/components/charts/WaterSalesVolumeChart"
+import { Card, CardHeader, CardTitle, CardContent } from "@/shared/ui"
+import { OrdersWeeklyChart, WaterSalesVolumeChart } from "@/widgets"
 
 const dateOptions = [
   { value: "today", label: "Bugun" },

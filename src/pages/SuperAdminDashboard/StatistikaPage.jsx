@@ -1,8 +1,8 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
-import LineColumn from "@/components/charts/LineColumn"
-import { Button, Card, CardContent, CardHeader, CardTitle, Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext, PaginationEllipsis } from "@/ui"
-import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/ui/table"
+import { LineColumn } from "@/widgets"
+import { Button, Card, CardContent, CardHeader, CardTitle, Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext, PaginationEllipsis } from "@/shared/ui"
+import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/shared/ui/table"
 import { Download, Tractor, Users, BadgeCheck, Gauge, Filter, Star, ChevronRight } from "lucide-react"
 
 

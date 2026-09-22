@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle, Input, Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext, PaginationEllipsis } from "@/ui"
-import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/ui/table"
+import { Card, CardContent, CardHeader, CardTitle, Input, Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext, PaginationEllipsis } from "@/shared/ui"
+import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/shared/ui/table"
 import { ChevronDown, Upload, RotateCw, Calendar, History, ShieldCheck, ListFilter, ShieldAlert, Search } from "lucide-react"
 
 const ACTION_OPTIONS = [

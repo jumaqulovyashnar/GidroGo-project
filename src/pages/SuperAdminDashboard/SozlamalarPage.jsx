@@ -1,5 +1,5 @@
 import { useState, useRef } from "react"
-import { Button, Input, Label } from "@/ui"
+import { Button, Input, Label } from "@/shared/ui"
 import {
     UserRound,
     Contact,

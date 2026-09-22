@@ -1,7 +1,5 @@
 import React, { useState, useMemo } from "react"
-import { Button, Card, CardContent, CardHeader, CardTitle } from "@/ui"
-import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/ui/table"
-import { TablePagination } from "@/components/TablePagination"
+import { Button, Card, CardContent, CardHeader, CardTitle, TablePagination, Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/shared/ui"
 import { ClipboardClock, Download, RefreshCw, ShieldCheck, SquareExclamationPointIcon, TrendingUp, TrendingDown, Clock, MapPin, CheckCheck, X, FolderArchive, Milk, Activity, Archive, Share2, } from "lucide-react"
 // 3 ta Metrika kartochkasi uchun mock ma'lumotlar
 const MOCK_CARD_DATA = [

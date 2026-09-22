@@ -12,12 +12,14 @@ import {
   Truck,
   Users,
 } from "lucide-react"
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import SyncingChart from "@/components/charts/SyncingChart"
-import { OrdersWeeklyChart } from "@/components/charts/OrdersWeeklyChart"
-import { WaterSalesVolumeChart } from "@/components/charts/WaterSalesVolumeChart"
-import { BusinessMetricsSummary } from "@/components/charts/BusinessMetricsSummary"
-import { CouriersPerformanceCard } from "@/components/charts/CouriersPerformanceCard"
+import { Card, CardHeader, CardTitle, CardContent } from "@/shared/ui"
+import {
+  SyncingChart,
+  OrdersWeeklyChart,
+  WaterSalesVolumeChart,
+  BusinessMetricsSummary,
+  CouriersPerformanceCard,
+} from "@/widgets"
 
 const dateOptions = [
   { value: "today", label: "Bugun" },

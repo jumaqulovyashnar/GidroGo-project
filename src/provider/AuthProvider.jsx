@@ -8,10 +8,8 @@ import {
   useRef,
 } from "react"
 
-import { authService } from "@/services/auth.service"
-import { userService } from "@/services/user.service"
+import { authService, userService, useUserStore } from "@/entities/user"
 import { queryClient } from "@/provider/QueryProvider"
-import useUserStore from "@/store/userStore"
 
 const AuthContext = createContext(null)
 
