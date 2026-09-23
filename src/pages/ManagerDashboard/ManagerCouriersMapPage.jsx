@@ -1,17 +1,5 @@
 import { useState } from "react"
-import {
-  Truck,
-  Users,
-  Clock,
-  Banknote,
-  Search,
-  Copy,
-  Navigation,
-  CheckCircle2,
-  Package,
-  Car,
-  ChevronRight,
-} from "lucide-react"
+import { Truck, Users, Clock, Banknote, Search, Copy, Navigation, CheckCircle2, Package, Car, ChevronRight } from "lucide-react"
 import { GoogleMap } from "@/widgets"
 import { MOCK_COURIERS } from "@/mock"
 import { toast } from "sonner"
@@ -281,7 +269,7 @@ export default function ManagerCouriersMapPage() {
 
                     {/* Delivery & Destination info */}
                     <div className="mt-2.5 pt-2 border-t border-slate-100/80 flex items-center justify-between text-[11px]">
-                      <div className="truncate max-w-[200px]">
+                      <div className="truncate max-w-50">
                         <span className="text-slate-400">Manzil: </span>
                         <span className="font-medium text-slate-700 truncate">
                           {courier.currentDestination}

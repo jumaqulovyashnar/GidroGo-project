@@ -1,24 +1,8 @@
 import React, { useMemo } from "react"
 import { useParams, Link } from "react-router-dom"
-import {
-  Pencil,
-  MapPin,
-  Calendar,
-  Layers,
-  CheckCircle2,
-  DollarSign,
-  TrendingUp,
-  Activity,
-} from "lucide-react"
+import { Pencil, MapPin, Calendar, Layers, CheckCircle2, DollarSign, TrendingUp, Activity } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent, Switch } from "@/shared/ui"
-import {
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbSeparator,
-  BreadcrumbPage,
-} from "@/shared/ui/breadcrumb"
+import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/shared/ui/breadcrumb"
 import Chart from "react-apexcharts"
 import { MOCK_FARMS } from "@/mock/farms.mock"
 

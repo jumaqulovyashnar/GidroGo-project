@@ -1,13 +1,6 @@
 import { useState, useRef } from "react"
 import { Button, Input, Label } from "@/shared/ui"
-import {
-    UserRound,
-    Contact,
-    KeyRound,
-    Eye,
-    EyeOff,
-    Upload,
-} from "lucide-react"
+import { UserRound, Contact, KeyRound, Eye, EyeOff, Upload } from "lucide-react"
 import { toast } from "sonner"
 
 const INITIAL_PROFILE = {

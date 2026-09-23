@@ -1,26 +1,9 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
 import { Select } from "@mantine/core"
-import {
-  CreditCard,
-  Receipt,
-  Landmark,
-  ShoppingBag,
-  Wallet,
-  Download,
-  Plus,
-  TrendingUp,
-  TrendingDown,
-  ChevronRight,
-  Calendar,
-  ChevronDown,
-} from "lucide-react"
+import { CreditCard, Receipt, Landmark, ShoppingBag, Wallet, Download, Plus, TrendingUp, TrendingDown, ChevronRight, Calendar, ChevronDown } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent, Button } from "@/shared/ui"
-import {
-  FinanceDynamicChart,
-  ExpensesBreakdownCard,
-  PaymentMethodsDonutChart,
-} from "@/widgets"
+import { FinanceDynamicChart, ExpensesBreakdownCard, PaymentMethodsDonutChart } from "@/widgets"
 
 const periodOptions = [
   { value: "today", label: "Bugun" },

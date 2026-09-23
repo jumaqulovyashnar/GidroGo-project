@@ -1,15 +1,6 @@
 import { useState } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
-import {
-  Home,
-  LayoutDashboard,
-  BarChart3,
-  Calendar,
-  User,
-  ShieldCheck,
-  Settings,
-  LogOut,
-} from "lucide-react"
+import { Home, LayoutDashboard, BarChart3, Calendar, User, ShieldCheck, Settings, LogOut } from "lucide-react"
 import { Title, Tooltip, UnstyledButton } from "@mantine/core"
 import { useAuth } from "@/provider/AuthProvider"
 import { getSidebarMenu } from "./sidebarConfig"

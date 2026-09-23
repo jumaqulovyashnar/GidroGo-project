@@ -1,18 +1,7 @@
 import { useState } from "react"
 import { Select } from "@mantine/core"
 import { toast } from "sonner"
-import {
-  Droplet,
-  CheckCircle2,
-  Truck,
-  TrendingUp,
-  FileSpreadsheet,
-  ChevronDown,
-  Calendar,
-  Package,
-  Layers,
-  Zap,
-} from "lucide-react"
+import { Droplet, CheckCircle2, Truck, TrendingUp, FileSpreadsheet, ChevronDown, Calendar, Package, Layers, Zap } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent, Button } from "@/shared/ui"
 import { WeeklySalesDynamicsChart, CustomerSegmentDonutChart } from "@/widgets"
 
