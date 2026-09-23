@@ -1,28 +1,9 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import {
-  Banknote,
-  Package,
-  CheckCircle2,
-  Truck,
-  TrendingUp,
-  ExternalLink,
-  ChevronRight,
-  ChevronDown,
-  Calendar,
-  Filter,
-  Home,
-  Copy,
-} from "lucide-react"
+import { Banknote, Package, CheckCircle2, Truck, TrendingUp, ExternalLink, ChevronRight, ChevronDown, Calendar, Filter, Copy } from "lucide-react"
 import { MOCK_ORDERS, MOCK_COURIERS, MOCK_MANAGER_STATS } from "@/mock"
 import { Select } from "@mantine/core"
-import {
-  TablePagination,
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbPage,
-} from "@/shared/ui"
+import { TablePagination } from "@/shared/ui"
 import { toast } from "sonner"
 
 // Props-driven reusable Select filter component using Mantine UI
@@ -321,7 +302,7 @@ export default function ManagerDashboardPage() {
                         </button>
                       </div>
                     </td>
-                    <td className="py-3 px-3 max-w-[180px]">
+                    <td className="py-3 px-3 max-w-45">
                       <div className="truncate text-slate-800">{order.address}</div>
                       <div className="text-[10px] text-slate-400">{order.sector}</div>
                     </td>
@@ -562,7 +543,6 @@ export default function ManagerDashboardPage() {
                   Yoqilg'i
                 </span>
               </div>
-
               <div className="p-2.5 rounded-lg bg-blue-50/70 border border-blue-200 flex items-center justify-between">
                 <div>
                   <span className="text-[10px] font-medium text-blue-800">Sof foyda</span>
