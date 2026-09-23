@@ -26,3 +26,12 @@ export * from "./LineColumn"
 
 export { default as SalesTeamDonutChart } from "./SalesTeamDonutChart"
 export * from "./SalesTeamDonutChart"
+
+export { default as WeeklySalesDynamicsChart } from "./WeeklySalesDynamicsChart"
+export * from "./WeeklySalesDynamicsChart"
+
+export { default as CustomerSegmentDonutChart } from "./CustomerSegmentDonutChart"
+export * from "./CustomerSegmentDonutChart"
+
+export { default as CustomerGrowthAreaChart } from "./CustomerGrowthAreaChart"
+export * from "./CustomerGrowthAreaChart"

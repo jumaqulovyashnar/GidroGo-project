@@ -243,4 +243,4 @@ export function BossMoliyaPage() {
   )
 }
 
-export default BossMoliyaPage
+export default BossMoliyaPage;

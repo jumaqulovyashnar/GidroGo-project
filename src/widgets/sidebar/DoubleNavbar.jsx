@@ -102,9 +102,16 @@ export function DoubleNavbar({ role }) {
             <nav className="space-y-1 mt-1">
               {menuItems.map((item) => {
                 const Icon = item.icon
-                const isActive =
-                  location.pathname === item.path ||
-                  (item.path !== "/" && location.pathname.startsWith(item.path + "/"))
+                const isRootPath =
+                  item.path === "/boss" ||
+                  item.path === "/manager" ||
+                  item.path === "/super-admin" ||
+                  item.path === "/driver" ||
+                  item.path === "/"
+
+                const isActive = isRootPath
+                  ? location.pathname === item.path
+                  : location.pathname === item.path || location.pathname.startsWith(item.path + "/")
 
                 return (
                   <a

@@ -12,14 +12,8 @@ import {
   Tractor,
   Contact,
   Truck,
-  PackageCheck,
-  User,
 } from "lucide-react"
 
-/**
- * Rollar bo'yicha markazlashtirilgan yon menyu (Sidebar) konfiguratsiyasi.
- * Har bir rol uchun endpoint'lar to'liq o'zbekcha va semantik nomlangan.
- */
 export const SIDEBAR_MENU = {
   // 1. Super Admin (Tizim administratori) menyusi
   SUPER_ADMIN: [
@@ -48,13 +42,6 @@ export const SIDEBAR_MENU = {
     { title: "Buyurtmalar", path: "/manager/buyurtmalar", icon: Truck },
     { title: "Xodimlar", path: "/manager/xodimlar", icon: Users },
   ],
-
-  // 4. Driver (Yetkazib beruvchi / Haydovchi) menyusi
-  DRIVER: [
-    { title: "Buyurtmalar", path: "/driver/buyurtmalar", icon: PackageCheck },
-    { title: "Yetkazishlar tarixi", path: "/driver/tarix", icon: Calendar },
-    { title: "Mening profilim", path: "/driver/profil", icon: User },
-  ],
 }
 
 // Kichik harflar bilan kelsa ham xatosiz ishlashi uchun alias'lar
@@ -62,13 +49,8 @@ SIDEBAR_MENU.admin = SIDEBAR_MENU.SUPER_ADMIN
 SIDEBAR_MENU.super_admin = SIDEBAR_MENU.SUPER_ADMIN
 SIDEBAR_MENU.boss = SIDEBAR_MENU.BOSS
 SIDEBAR_MENU.manager = SIDEBAR_MENU.MANAGER
-SIDEBAR_MENU.driver = SIDEBAR_MENU.DRIVER
 
-/**
- * Rol bo'yicha mos menyu ro'yxatini qaytaruvchi yordamchi funksiya
- * @param {string} role - Foydalanuvchi roli (masalan: 'BOSS', 'MANAGER', 'admin', 'DRIVER')
- * @returns {Array} Menyular massivi
- */
+
 export const getSidebarMenu = (role) => {
   if (!role) return SIDEBAR_MENU.SUPER_ADMIN
   const normalized = String(role).trim().toUpperCase()
