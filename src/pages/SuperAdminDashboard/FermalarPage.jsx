@@ -122,7 +122,7 @@ const FermalarPage = () => {
                 </div>
                 <Button
                     onClick={openModal}
-                    className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-[10px] bg-[#1670FF] hover:bg-blue-700 text-white font-medium text-sm transition-colors cursor-pointer shrink-0"
+                    className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-[10px] bg-[#2563EB] hover:bg-blue-700 text-white font-medium text-sm transition-colors cursor-pointer shrink-0"
                 >
                     <Plus className="h-4 w-4" aria-hidden="true" />
                     <span>Ferma qo'shish</span>
@@ -147,7 +147,7 @@ const FermalarPage = () => {
             {/* Kartochkalar yoki Bo'sh holat (Empty State) */}
             {filteredFarms.length === 0 ? (
                 <div className="bg-white border border-slate-200/80 rounded-2xl p-12 text-center space-y-4 shadow-xs my-4">
-                    <div className="size-16 rounded-2xl bg-blue-50 text-[#1670FF] flex items-center justify-center mx-auto border border-blue-100">
+                    <div className="size-16 rounded-2xl bg-blue-50 text-[#2563EB] flex items-center justify-center mx-auto border border-blue-100">
                         <Building2 className="size-8" />
                     </div>
                     <div className="space-y-1">
@@ -173,7 +173,7 @@ const FermalarPage = () => {
                         <button
                             type="button"
                             onClick={openModal}
-                            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1670FF] hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold transition-colors cursor-pointer shadow-xs"
+                            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold transition-colors cursor-pointer shadow-xs"
                         >
                             <Plus className="size-4" />
                             <span>Ferma qo'shish</span>
@@ -232,7 +232,7 @@ const FermalarPage = () => {
                                     <button
                                         type="button"
                                         onClick={(e) => handleEdit(e, farm.id)}
-                                        className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-[10px] bg-[#1670FF] hover:bg-blue-700 text-white text-sm font-medium transition-colors cursor-pointer shadow-xs"
+                                        className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-[10px] bg-[#2563EB] hover:bg-blue-700 text-white text-sm font-medium transition-colors cursor-pointer shadow-xs"
                                     >
                                         <Pencil className="size-3.5" />
                                         <span>Tahrirlash</span>
@@ -288,7 +288,7 @@ const FermalarPage = () => {
                                             }}
                                             className={`cursor-pointer rounded-xl font-medium ${
                                                 currentPage === pageItem
-                                                    ? "bg-[#1670FF]! text-white! border-transparent! shadow-xs"
+                                                    ? "bg-[#2563EB]! text-white! border-transparent! shadow-xs"
                                                     : "hover:bg-slate-100 text-slate-700"
                                             }`}
                                         >

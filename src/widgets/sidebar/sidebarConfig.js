@@ -12,6 +12,7 @@ import {
   Tractor,
   Contact,
   Truck,
+  ClipboardList,
 } from "lucide-react"
 
 export const SIDEBAR_MENU = {
@@ -40,6 +41,7 @@ export const SIDEBAR_MENU = {
   MANAGER: [
     { title: "Bosh sahifa", path: "/manager", icon: LayoutDashboard },
     { title: "Buyurtmalar", path: "/manager/buyurtmalar", icon: Truck },
+    { title: "Barcha buyurtmalar", path: "/manager/barcha-buyurtmalar", icon: ClipboardList },
     { title: "Xodimlar", path: "/manager/xodimlar", icon: Users },
   ],
 }

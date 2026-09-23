@@ -142,7 +142,7 @@ export function CreateFermaModal() {
               }`}
             >
               <div className="flex flex-col items-center justify-center space-y-2">
-                <div className="size-12 rounded-2xl bg-blue-50 text-[#1670FF] flex items-center justify-center transition-transform group-hover:scale-110">
+                <div className="size-12 rounded-2xl bg-blue-50 text-[#2563EB] flex items-center justify-center transition-transform group-hover:scale-110">
                   <Inbox className="size-7" />
                 </div>
                 <div>
@@ -338,7 +338,7 @@ export function CreateFermaModal() {
           </button>
           <button
             type="submit"
-            className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#1670FF] hover:bg-blue-700 text-white text-sm font-semibold transition-colors cursor-pointer shadow-xs"
+            className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white text-sm font-semibold transition-colors cursor-pointer shadow-xs"
           >
             <Plus className="size-4" />
             <span>Saqlash</span>

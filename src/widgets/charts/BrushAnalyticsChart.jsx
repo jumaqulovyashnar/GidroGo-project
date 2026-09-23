@@ -65,7 +65,7 @@ export function BrushAnalyticsChart() {
         },
         fontFamily: "'Google Sans', 'Plus Jakarta Sans', sans-serif",
       },
-      colors: ["#1670FF", "#10B981"],
+      colors: ["#2563EB", "#10B981"],
       dataLabels: {
         enabled: false,
       },
@@ -138,7 +138,7 @@ export function BrushAnalyticsChart() {
           seriesName: "Buyurtmalar",
           labels: {
             style: {
-              colors: "#1670FF",
+              colors: "#2563EB",
               fontFamily: "'Google Sans', sans-serif",
               fontSize: "12px",
             },
@@ -147,7 +147,7 @@ export function BrushAnalyticsChart() {
           title: {
             text: "Buyurtmalar soni",
             style: {
-              color: "#1670FF",
+              color: "#2563EB",
               fontSize: "11px",
               fontWeight: 500,
             },
@@ -202,7 +202,7 @@ export function BrushAnalyticsChart() {
               onClick={() => setTimeRange(item.value)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
                 timeRange === item.value
-                  ? "bg-[#1670FF] text-white shadow-xs"
+                  ? "bg-[#2563EB] text-white shadow-xs"
                   : "bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200/80 border border-slate-200/60"
               }`}
             >

@@ -76,7 +76,7 @@ export const TablePagination = ({
                 className={cn(
                   "size-7 sm:size-7.5 rounded-full flex items-center justify-center text-xs transition-all cursor-pointer select-none",
                   isActive
-                    ? "bg-[#1670FF] text-white font-semibold shadow-xs"
+                    ? "bg-[#2563EB] text-white font-semibold shadow-xs"
                     : "text-slate-700 hover:text-slate-900 hover:bg-slate-100 font-medium"
                 )}
               >
