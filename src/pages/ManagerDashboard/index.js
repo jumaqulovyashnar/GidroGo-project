@@ -1,0 +1,6 @@
+export { default as ManagerDashboardPage } from "./ManagerDashboardPage"
+export { default as ManagerOrdersPage } from "./ManagerOrdersPage"
+export { default as ManagerCouriersMapPage } from "./ManagerCouriersMapPage"
+export { default as ManagerXodimlarPage } from "./ManagerXodimlarPage"
+export { default as ManagerOrderDetailPage } from "./ManagerOrderDetailPage"
+export { default as ManagerAllOrdersPage } from "./ManagerAllOrdersPage"

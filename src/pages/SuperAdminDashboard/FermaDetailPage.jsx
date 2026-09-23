@@ -139,7 +139,7 @@ export function FermaDetailPage() {
         <div className="flex items-center">
           <button
             type="button"
-            className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-[10px] bg-[#1670FF] hover:bg-blue-700 text-white font-medium text-sm transition-colors cursor-pointer shrink-0 shadow-xs"
+            className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-[10px] bg-[#2563EB] hover:bg-blue-700 text-white font-medium text-sm transition-colors cursor-pointer shrink-0 shadow-xs"
           >
             <Pencil className="size-4 text-white" />
             <span>Tahrirlash</span>

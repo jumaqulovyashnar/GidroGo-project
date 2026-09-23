@@ -390,7 +390,7 @@ const TasdiqlashPage = () => {
             setCurrentPage(1)
           }}
           className={`h-10 px-4 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer shadow-xs ${activeTab === "barcha"
-              ? "bg-[#1670FF] text-white shadow-blue-500/20"
+              ? "bg-[#2563EB] text-white shadow-blue-500/20"
               : "bg-white text-slate-700 hover:bg-slate-50 border border-slate-200/80"
             }`}
         >
@@ -414,7 +414,7 @@ const TasdiqlashPage = () => {
             setCurrentPage(1)
           }}
           className={`h-10 px-4 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer shadow-xs ${activeTab === "arxiv"
-              ? "bg-[#1670FF] text-white shadow-blue-500/20"
+              ? "bg-[#2563EB] text-white shadow-blue-500/20"
               : "bg-white text-slate-700 hover:bg-slate-50 border border-slate-200/80"
             }`}
         >
@@ -537,7 +537,7 @@ const TasdiqlashPage = () => {
                       <Button
                         size="sm"
                         onClick={() => handleApprove(app.id)}
-                        className="h-7.5 px-2.5 rounded-lg bg-[#1670FF] hover:bg-blue-700 text-white text-[11px] font-medium gap-1 shadow-xs cursor-pointer whitespace-nowrap shrink-0"
+                        className="h-7.5 px-2.5 rounded-lg bg-[#2563EB] hover:bg-blue-700 text-white text-[11px] font-medium gap-1 shadow-xs cursor-pointer whitespace-nowrap shrink-0"
                       >
                         <CheckCheck className="size-3" />
                         <span>Tasdiqlash</span>

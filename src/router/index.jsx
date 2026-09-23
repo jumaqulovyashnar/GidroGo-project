@@ -4,7 +4,14 @@ import MainLayout from "../layout/MainLayout"
 import { LoginPage } from "@/pages/authentication"
 import { AuthGuard, RoleGuard } from "./guards"
 import SuperAdminDashboardPage from "@/pages/SuperAdminDashboard/SuperAdminDashboardPage"
-import ManagerDashboardPage from "@/pages/ManagerDashboard/ManagerDashboardPage"
+import {
+  ManagerDashboardPage,
+  ManagerOrdersPage,
+  ManagerCouriersMapPage,
+  ManagerXodimlarPage,
+  ManagerOrderDetailPage,
+  ManagerAllOrdersPage,
+} from "@/pages/ManagerDashboard"
 import BossDashboardPage from "@/pages/BossDashboard/BossDashboardPage"
 import BossMoliyaPage from "@/pages/BossDashboard/BossMoliyaPage"
 import BossSavdoPage from "@/pages/BossDashboard/BossSavdoPage"
@@ -85,11 +92,23 @@ const router = createBrowserRouter([
               },
               {
                 path: "/manager/buyurtmalar",
-                element: <ManagerDashboardPage />,
+                element: <ManagerOrdersPage />,
+              },
+              {
+                path: "/manager/barcha-buyurtmalar",
+                element: <ManagerAllOrdersPage />,
+              },
+              {
+                path: "/manager/buyurtmalar/:id",
+                element: <ManagerOrderDetailPage />,
+              },
+              {
+                path: "/manager/dastavkachilar-xarita",
+                element: <ManagerCouriersMapPage />,
               },
               {
                 path: "/manager/xodimlar",
-                element: <ManagerDashboardPage />,
+                element: <ManagerXodimlarPage />,
               },
             ],
           },

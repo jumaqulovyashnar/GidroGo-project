@@ -573,7 +573,7 @@ const AuditLogPage = () => {
                                                 }}
                                                 className={`cursor-pointer rounded-xl font-medium ${
                                                     currentPage === pageItem
-                                                        ? "bg-[#1670FF]! text-white! border-transparent! shadow-xs"
+                                                        ? "bg-[#2563EB]! text-white! border-transparent! shadow-xs"
                                                         : "hover:bg-slate-100 text-slate-700"
                                                 }`}
                                             >

@@ -1,0 +1,458 @@
+import { useState } from "react"
+import { useParams, useNavigate, Link } from "react-router-dom"
+import {
+  ArrowLeft,
+  Copy,
+  MapPin,
+  Package,
+  Clock,
+  CheckCircle2,
+  CreditCard,
+  UserCheck,
+  AlertCircle,
+  Truck,
+  Home,
+} from "lucide-react"
+import { Modal as MantineModal } from "@mantine/core"
+import { MOCK_ORDERS, MOCK_COURIERS } from "@/mock"
+import { GoogleMap } from "@/widgets"
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/shared/ui"
+import { toast } from "sonner"
+
+export default function ManagerOrderDetailPage() {
+  const { id } = useParams()
+  const navigate = useNavigate()
+
+  // Find order by ID from URL params, or fallback to first order
+  const order = MOCK_ORDERS.find((o) => o.id === id) || MOCK_ORDERS[0]
+
+  const [currentOrder, setCurrentOrder] = useState(order)
+  const [isReassignModalOpen, setIsReassignModalOpen] = useState(false)
+  const [selectedCourierId, setSelectedCourierId] = useState(currentOrder.courierId || 1)
+
+  const handleCopyPhone = (phone) => {
+    navigator.clipboard?.writeText(phone)
+    toast.success(`Telefon raqami nusxalandi: ${phone}`)
+  }
+
+  const handleReassign = () => {
+    const courier = MOCK_COURIERS.find((c) => c.id === Number(selectedCourierId))
+    if (!courier) return
+
+    setCurrentOrder((prev) => ({
+      ...prev,
+      courier: courier.name,
+      courierId: courier.id,
+      vehicle: `${courier.vehicle} (${courier.plate})`,
+      status: "delivering",
+      statusText: "Yetkazilmoqda",
+    }))
+
+    setIsReassignModalOpen(false)
+    toast.success(`Buyurtma ${courier.name}ga muvaffaqiyatli biriktirildi!`)
+  }
+
+  return (
+    <div className="space-y-4 max-w-7xl mx-auto">
+      {/* Breadcrumb Navigation */}
+      <Breadcrumb>
+        <BreadcrumbList className="text-xs">
+          <BreadcrumbItem>
+            <Link to="/manager" className="text-slate-500 hover:text-blue-600 transition-colors flex items-center gap-1">
+              <Home className="w-3.5 h-3.5" />
+              <span>Bosh sahifa</span>
+            </Link>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <Link to="/manager/buyurtmalar" className="text-slate-500 hover:text-blue-600 transition-colors">
+              Buyurtmalar
+            </Link>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage className="font-semibold text-slate-800">
+              {currentOrder.id}
+            </BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
+      {/* Top Navigation & Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="p-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-colors shadow-xs"
+            title="Orqaga qaytish"
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </button>
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-bold text-slate-900">{currentOrder.id}</h1>
+              <span
+                className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${
+                  currentOrder.status === "completed"
+                    ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                    : currentOrder.status === "delivering"
+                    ? "bg-blue-50 text-blue-700 border border-blue-200"
+                    : "bg-amber-50 text-amber-800 border border-amber-200"
+                }`}
+              >
+                {currentOrder.statusText}
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Buyurtma tafsilotlari va yetkazish marshruti monitoringi
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => handleCopyPhone(currentOrder.phone)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-xs"
+            title="Telefon raqamini nusxalash"
+          >
+            <Copy className="w-3.5 h-3.5 text-blue-600" />
+            <span>Raqamni nusxalash</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsReassignModalOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-xs"
+          >
+            <UserCheck className="w-3.5 h-3.5" />
+            <span>Kuryerni biriktirish</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Main Grid: Details (8 cols) + Courier & Summary (4 cols) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+        {/* Left Column (8 cols) */}
+        <div className="lg:col-span-8 space-y-4">
+          {/* Card 1: Buyurtmachi & Yetkazish Manzili */}
+          <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs space-y-4">
+            <h2 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2.5 flex items-center gap-2">
+              <MapPin className="w-4 h-4 text-blue-600" />
+              <span>Mijoz va Yetkazish Manzili</span>
+            </h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              <div className="p-3 bg-slate-50 rounded-lg border border-slate-100 space-y-1">
+                <span className="text-[10px] uppercase font-semibold text-slate-400">Buyurtmachi</span>
+                <p className="text-sm font-bold text-slate-900">{currentOrder.customer}</p>
+                <p className="font-mono text-slate-600">{currentOrder.phone}</p>
+              </div>
+
+              <div className="p-3 bg-slate-50 rounded-lg border border-slate-100 space-y-1">
+                <span className="text-[10px] uppercase font-semibold text-slate-400">Hudud / Sektor</span>
+                <p className="text-sm font-bold text-slate-900">{currentOrder.sector}</p>
+                <p className="text-slate-500">Qashqadaryo viloyati, Qarshi shahri</p>
+              </div>
+            </div>
+
+            <div className="p-3 bg-slate-50 rounded-lg border border-slate-100 space-y-1 text-xs">
+              <span className="text-[10px] uppercase font-semibold text-slate-400">Aniq Manzil</span>
+              <p className="font-semibold text-slate-800 text-sm">{currentOrder.address}</p>
+              <p className="text-[11px] text-slate-500 font-mono">
+                GPS Koordinatalar: 38.8912° N, 66.0592° E
+              </p>
+            </div>
+
+            {/* Interactive Map Preview for this order */}
+            <div className="rounded-lg overflow-hidden border border-slate-200 h-64">
+              <GoogleMap
+                center={{ lat: currentOrder.coords?.[0] || 38.8986231, lng: currentOrder.coords?.[1] || 66.0463534 }}
+                zoom={14}
+                couriers={MOCK_COURIERS}
+                selectedCourierId={currentOrder.courierId}
+                className="w-full h-full min-h-[250px]"
+              />
+            </div>
+          </div>
+
+          {/* Card 2: Mahsulot va To'lov Tafsilotlari */}
+          <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs space-y-3">
+            <h2 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2.5 flex items-center gap-2">
+              <Package className="w-4 h-4 text-blue-600" />
+              <span>Mahsulotlar va To'lov Holati</span>
+            </h2>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase text-[10px]">
+                    <th className="py-2.5 px-3">Mahsulot nomi</th>
+                    <th className="py-2.5 px-3">Miqdor</th>
+                    <th className="py-2.5 px-3">Narxi</th>
+                    <th className="py-2.5 px-3 text-right">Jami summa</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  <tr>
+                    <td className="py-3 px-3">
+                      <div className="font-semibold text-slate-900">{currentOrder.product}</div>
+                      <div className="text-[11px] text-slate-400">18.9 Litr toza filtrlangan tog' suvi</div>
+                    </td>
+                    <td className="py-3 px-3 font-semibold text-slate-800">
+                      {currentOrder.qty} dona
+                    </td>
+                    <td className="py-3 px-3 text-slate-700">
+                      {(currentOrder.total / currentOrder.qty).toLocaleString()} so'm
+                    </td>
+                    <td className="py-3 px-3 text-right font-bold text-blue-600">
+                      {currentOrder.total.toLocaleString()} so'm
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-2">
+                <CreditCard className="w-4 h-4 text-slate-400" />
+                <span className="text-slate-500">To'lov usuli:</span>
+                <span className="font-semibold text-slate-800">{currentOrder.paymentType}</span>
+                <span className="text-emerald-700 font-medium bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 text-[10px]">
+                  {currentOrder.paymentStatus}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-slate-500">Jami to'lov:</span>
+                <span className="text-base font-bold text-slate-900">
+                  {currentOrder.total.toLocaleString()} so'm
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 3: Yetkazish Bosqichlari (Timeline) */}
+          <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs space-y-3">
+            <h2 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2.5 flex items-center gap-2">
+              <Clock className="w-4 h-4 text-blue-600" />
+              <span>Yetkazish Jarayoni Xronologiyasi</span>
+            </h2>
+
+            <div className="space-y-3 text-xs pt-1">
+              <div className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                </div>
+                <div>
+                  <p className="font-bold text-slate-900">Buyurtma tizimga qabul qilindi</p>
+                  <p className="text-[11px] text-slate-500 font-mono">Bugun, {currentOrder.createdAt || "10:15"}</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                </div>
+                <div>
+                  <p className="font-bold text-slate-900">Ombor zaxirasidan ajratildi va qadoqlandi</p>
+                  <p className="text-[11px] text-slate-500">Qarshi markaziy bazasi (10:20)</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${
+                  currentOrder.courier ? "bg-blue-600 text-white" : "bg-slate-200 text-slate-500"
+                }`}>
+                  <Truck className="w-3.5 h-3.5" />
+                </div>
+                <div>
+                  <p className="font-bold text-slate-900">
+                    {currentOrder.courier ? `Kuryerga yuklandi: ${currentOrder.courier}` : "Kuryer kutilmoqda"}
+                  </p>
+                  <p className="text-[11px] text-slate-500">
+                    {currentOrder.vehicle || "Transport biriktirilmagan"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${
+                  currentOrder.status === "completed" ? "bg-emerald-500 text-white" : "bg-slate-200 text-slate-500"
+                }`}>
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                </div>
+                <div>
+                  <p className="font-bold text-slate-900">Mijozga yetkazib berish</p>
+                  <p className="text-[11px] text-slate-500">
+                    {currentOrder.status === "completed" ? "Muvaffaqiyatli yetkazildi" : "Kutilayotgan vaqt: 8-15 daqiqa"}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column (4 cols): Courier & Actions */}
+        <div className="lg:col-span-4 space-y-4">
+          {/* Courier Card */}
+          <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs space-y-3">
+            <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider text-slate-400">
+              Biriktirilgan Kuryer
+            </h3>
+
+            {currentOrder.courier ? (
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-xl bg-blue-600 text-white font-bold text-base flex items-center justify-center shadow-xs">
+                    {currentOrder.courier.slice(0, 2).toUpperCase()}
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-900 text-sm">{currentOrder.courier}</h4>
+                    <p className="text-xs text-slate-500">{currentOrder.vehicle}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5 text-xs bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                  <div className="flex justify-between text-slate-600">
+                    <span>Holat:</span>
+                    <span className="font-semibold text-blue-600">Yo'nalishda</span>
+                  </div>
+                  <div className="flex justify-between text-slate-600">
+                    <span>Taxminiy yetib borish:</span>
+                    <span className="font-semibold text-slate-800">{currentOrder.eta || "10 daqiqa"}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleCopyPhone("+998 90 412-12-88")}
+                    className="flex-1 py-2 rounded-lg text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors flex items-center justify-center gap-1.5 shadow-xs"
+                    title="Kuryer raqamini nusxalash"
+                  >
+                    <Copy className="w-3.5 h-3.5 text-blue-600" />
+                    <span>Raqam nusxalash</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsReassignModalOpen(true)}
+                    className="flex-1 py-2 rounded-lg text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors flex items-center justify-center gap-1.5 shadow-xs"
+                  >
+                    <UserCheck className="w-3.5 h-3.5" />
+                    <span>O'zgartirish</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-4 space-y-2">
+                <AlertCircle className="w-8 h-8 text-amber-500 mx-auto" />
+                <p className="text-xs font-semibold text-slate-800">Kuryer biriktirilmagan</p>
+                <button
+                  type="button"
+                  onClick={() => setIsReassignModalOpen(true)}
+                  className="w-full py-2 rounded-lg text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                >
+                  Kuryer tanlash
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Quick Summary Card */}
+          <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs space-y-3 text-xs">
+            <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">
+              Buyurtma Xulosasi
+            </h3>
+            <div className="space-y-2">
+              <div className="flex justify-between text-slate-600">
+                <span>Mahsulot narxi:</span>
+                <span>{currentOrder.total.toLocaleString()} so'm</span>
+              </div>
+              <div className="flex justify-between text-slate-600">
+                <span>Yetkazish narxi:</span>
+                <span className="text-emerald-600 font-semibold">0 so'm (Bepul)</span>
+              </div>
+              <div className="flex justify-between text-slate-600">
+                <span>Qaytariladigan idish:</span>
+                <span>{currentOrder.qty} dona kapsula</span>
+              </div>
+              <div className="pt-2 border-t border-slate-100 flex justify-between font-bold text-slate-900 text-sm">
+                <span>Jami:</span>
+                <span className="text-blue-600">{currentOrder.total.toLocaleString()} so'm</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Reassign Modal */}
+      <MantineModal
+        opened={isReassignModalOpen}
+        onClose={() => setIsReassignModalOpen(false)}
+        title={
+          <div className="flex items-center gap-2 font-bold text-slate-900 text-sm">
+            <UserCheck className="w-4 h-4 text-blue-600" />
+            <span>Kuryerni biriktirish ({currentOrder.id})</span>
+          </div>
+        }
+        centered
+        size="md"
+      >
+        <div className="space-y-3 py-2 text-xs">
+          <p className="text-slate-600">Qashqadaryo bo'yicha faol kuryerni tanlang:</p>
+          <div className="space-y-2 max-h-60 overflow-y-auto">
+            {MOCK_COURIERS.map((c) => (
+              <label
+                key={c.id}
+                className={`flex items-center justify-between p-2.5 rounded-lg border cursor-pointer ${
+                  Number(selectedCourierId) === c.id ? "bg-blue-50 border-blue-300" : "bg-white border-slate-200 hover:bg-slate-50"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="courierModal"
+                    checked={Number(selectedCourierId) === c.id}
+                    onChange={() => setSelectedCourierId(c.id)}
+                    className="text-blue-600"
+                  />
+                  <div>
+                    <span className="font-bold text-slate-900 block">{c.name}</span>
+                    <span className="text-[11px] text-slate-500">{c.vehicle} • {c.load}</span>
+                  </div>
+                </div>
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700">
+                  {c.statusText}
+                </span>
+              </label>
+            ))}
+          </div>
+
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+            <button
+              type="button"
+              onClick={() => setIsReassignModalOpen(false)}
+              className="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200"
+            >
+              Bekor qilish
+            </button>
+            <button
+              type="button"
+              onClick={handleReassign}
+              className="px-4 py-1.5 rounded-lg text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-xs"
+            >
+              Biriktirish
+            </button>
+          </div>
+        </div>
+      </MantineModal>
+    </div>
+  )
+}
