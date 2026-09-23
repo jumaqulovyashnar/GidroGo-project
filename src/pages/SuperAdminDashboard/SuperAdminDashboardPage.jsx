@@ -1,14 +1,6 @@
 import { useAuth } from "@/provider/AuthProvider"
 import { Card, CardHeader, CardTitle, CardContent } from "@/shared/ui"
-import {
-  Building2,
-  Users,
-  ShoppingCart,
-  CheckCircle2,
-  XCircle,
-  TrendingUp,
-  TrendingDown,
-} from "lucide-react"
+import { Building2, Users, ShoppingCart, CheckCircle2, XCircle, TrendingUp, TrendingDown } from "lucide-react"
 import { BrushAnalyticsChart, SalesTeamDonutChart } from "@/widgets"
 
 const metrics = [

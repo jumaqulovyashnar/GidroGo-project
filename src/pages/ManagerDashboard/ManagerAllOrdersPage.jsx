@@ -1,25 +1,9 @@
 import { useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
-import {Package, Search,Download,AlertCircle,ChevronRight,
-  Home,
-  Copy,
-  LayoutDashboard,
-  Truck,
-  MapPin,
-  Users,
-  CheckCircle2,
-  Clock,
-  ChevronDown,
-  Calendar,
-  Filter,
-} from "lucide-react"
+import { Package, Search, Download, AlertCircle, ChevronRight, Home, Copy, LayoutDashboard, Truck, MapPin, Users, CheckCircle2, Clock, ChevronDown, Calendar, Filter } from "lucide-react"
 import { Select } from "@mantine/core"
 import { MOCK_ORDERS } from "@/mock"
-import { TablePagination,Breadcrumb,BreadcrumbList,
-BreadcrumbItem,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/shared/ui"
+import { TablePagination, Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbPage, BreadcrumbSeparator } from "@/shared/ui"
 import { toast } from "sonner"
 
 const PAYMENT_OPTIONS = [
@@ -40,7 +24,7 @@ const TIME_PERIOD_OPTIONS = [
 export default function ManagerAllOrdersPage() {
   const navigate = useNavigate()
   const [orders] = useState(MOCK_ORDERS)
-  const [activeTab, setActiveTab] = useState("all") // all, new, processing, delivering, completed
+  const [activeTab, setActiveTab] = useState("all") 
   const [searchQuery, setSearchQuery] = useState("")
   const [timeFilter, setTimeFilter] = useState("all")
   const [paymentFilter, setPaymentFilter] = useState("all")

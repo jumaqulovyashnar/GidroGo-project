@@ -1,19 +1,4 @@
-import {
-  LayoutDashboard,
-  Building2,
-  Users,
-  ShieldCheck,
-  BarChart3,
-  Settings,
-  Calendar,
-  LayoutGrid,
-  Banknote,
-  TrendingUp,
-  Tractor,
-  Contact,
-  Truck,
-  ClipboardList,
-} from "lucide-react"
+import { LayoutDashboard, Building2, Users, ShieldCheck, BarChart3, Settings, Calendar, LayoutGrid, Banknote, TrendingUp, Tractor, Contact, Truck, ClipboardList } from "lucide-react"
 
 export const SIDEBAR_MENU = {
   // 1. Super Admin (Tizim administratori) menyusi

@@ -1,22 +1,7 @@
 import { useState, useMemo } from "react"
 import { toast } from "sonner"
 import { Modal as MantineModal } from "@mantine/core"
-import {
-  Users,
-  Truck,
-  CheckCircle2,
-  UserPlus,
-  Plus,
-  Download,
-  Search,
-  MapPin,
-  Pencil,
-  Eye,
-  EyeOff,
-  Phone,
-  KeyRound,
-  Briefcase,
-} from "lucide-react"
+import { Users, Truck, CheckCircle2, UserPlus, Plus, Download, Search, MapPin, Pencil, Eye, EyeOff, Phone, KeyRound, Briefcase } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent, Button, TablePagination } from "@/shared/ui"
 
 // Boshlang'ich xodimlar ro'yxati (Figma ma'lumotlariga to'liq mos)

@@ -1,20 +1,12 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import {
-  Users,
-  Truck,
-  Copy,
-  Search,
-  MapPin,
-  CheckCircle2,
-  Star,
-} from "lucide-react"
+import { Users, Truck, Copy, Search, CheckCircle2, Star } from "lucide-react"
 import { MOCK_COURIERS } from "@/mock"
 import { toast } from "sonner"
 
 export default function ManagerXodimlarPage() {
   const navigate = useNavigate()
-  const [couriers] = useState(MOCK_COURIERS)
+  const couriers = MOCK_COURIERS
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
 
@@ -48,15 +40,6 @@ export default function ManagerXodimlarPage() {
             Qarshi filiali kuryerlar shtati, transport vositalari, sektorlar va kunlik yetkazish monitoringi.
           </p>
         </div>
-
-        <button
-          type="button"
-          onClick={() => navigate("/manager/dastavkachilar-xarita")}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-xs"
-        >
-          <MapPin className="w-3.5 h-3.5" />
-          <span>Jonli Xaritada ko'rish</span>
-        </button>
       </div>
 
       {/* Top 4 Summary Cards */}
@@ -227,8 +210,8 @@ export default function ManagerXodimlarPage() {
                           courier.status === "on_way"
                             ? "bg-blue-50 text-blue-700 border border-blue-200"
                             : courier.status === "free"
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                            : "bg-amber-50 text-amber-800 border border-amber-200"
+                            ? "bg-slate-100 text-slate-700 border border-slate-200"
+                            : "bg-slate-50 text-slate-600 border border-slate-200"
                         }`}
                       >
                         {courier.statusText}

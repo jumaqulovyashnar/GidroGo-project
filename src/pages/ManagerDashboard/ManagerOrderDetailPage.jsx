@@ -1,28 +1,10 @@
 import { useState } from "react"
 import { useParams, useNavigate, Link } from "react-router-dom"
-import {
-  ArrowLeft,
-  Copy,
-  MapPin,
-  Package,
-  Clock,
-  CheckCircle2,
-  CreditCard,
-  UserCheck,
-  AlertCircle,
-  Truck,
-  Home,
-} from "lucide-react"
+import { ArrowLeft, Copy, MapPin, Package, Clock, CheckCircle2, CreditCard, UserCheck, AlertCircle, Truck, Home } from "lucide-react"
 import { Modal as MantineModal } from "@mantine/core"
 import { MOCK_ORDERS, MOCK_COURIERS } from "@/mock"
 import { GoogleMap } from "@/widgets"
-import {
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/shared/ui"
+import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbPage, BreadcrumbSeparator } from "@/shared/ui"
 import { toast } from "sonner"
 
 export default function ManagerOrderDetailPage() {
