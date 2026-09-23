@@ -1,12 +1,6 @@
 import { useState } from "react"
 import { toast } from "sonner"
-import {
-  Warehouse,
-  RefreshCw,
-  Droplet,
-  Filter,
-  FileText,
-} from "lucide-react"
+import { Warehouse, RefreshCw, Droplet, Filter, FileText } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent, Button } from "@/shared/ui"
 
 export function BossFermaPage() {
@@ -170,7 +164,7 @@ export function BossFermaPage() {
 
       {/* 3. Yuridik va Tashkiliy Ma'lumotlar */}
       <Card className="border border-slate-200/90 bg-white shadow-xs rounded-2xl">
-        <CardHeader className="p-5 pb-3 !flex-col !items-stretch gap-1">
+        <CardHeader className="p-5 pb-3 flex-col items-stretch gap-1">
           <div className="flex items-center justify-between gap-2">
             <CardTitle className="text-base sm:text-lg font-bold text-slate-900">
               Yuridik va Tashkiliy Ma'lumotlar

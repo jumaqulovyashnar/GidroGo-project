@@ -1,22 +1,8 @@
 import { useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
-import {
-  Truck,
-  Package,
-  Clock,
-  Banknote,
-  Search,
-  Plus,
-  Download,
-  AlertCircle,
-  ChevronRight,
-  Home,
-  Copy,
-  ChevronDown,
-  Filter,
-} from "lucide-react"
-import { Modal as MantineModal, Select } from "@mantine/core"
-import { MOCK_ORDERS, MOCK_COURIERS } from "@/mock"
+import { Truck, Package, Clock, Banknote, Search, Download, AlertCircle, ChevronRight, Home, Copy, ChevronDown, Filter } from "lucide-react"
+import { Select } from "@mantine/core"
+import { MOCK_ORDERS } from "@/mock"
 import {
   TablePagination,
   Breadcrumb,
@@ -27,33 +13,11 @@ import {
 } from "@/shared/ui"
 import { toast } from "sonner"
 
-const PAYMENT_OPTIONS = [
-  { value: "all", label: "To'lov: Barchasi" },
-  { value: "card", label: "Karta (Payme/Click)" },
-  { value: "cash", label: "Naqd pul" },
-  { value: "transfer", label: "Hisob-raqam" },
-]
-
 export default function ManagerOrdersPage() {
   const navigate = useNavigate()
-  const [orders, setOrders] = useState(MOCK_ORDERS)
+  const orders = MOCK_ORDERS
   const [activeTab, setActiveTab] = useState("all") // all, new, processing, delivering, completed
   const [searchQuery, setSearchQuery] = useState("")
-  const [paymentFilter, setPaymentFilter] = useState("all")
-
-  // Modal for new order
-  const [isNewOrderModalOpen, setIsNewOrderModalOpen] = useState(false)
-  const [newOrderForm, setNewOrderForm] = useState({
-    customer: "",
-    phone: "",
-    address: "",
-    sector: "Markaziy sektor",
-    product: "18.9L Kapsula",
-    qty: 2,
-    price: 45000,
-    paymentType: "Payme",
-    courierId: "",
-  })
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1)
@@ -82,66 +46,11 @@ export default function ManagerOrdersPage() {
     if (activeTab === "delivering") return order.status === "delivering"
     if (activeTab === "completed") return order.status === "completed"
 
-    if (paymentFilter !== "all") {
-      if (paymentFilter === "cash" && !order.paymentType.includes("Naqd")) return false
-      if (paymentFilter === "card" && (order.paymentType.includes("Naqd") || order.paymentType.includes("Hisob"))) return false
-      if (paymentFilter === "transfer" && !order.paymentType.includes("Hisob")) return false
-    }
-
     return true
   })
 
   const totalPages = Math.ceil(filteredOrders.length / pageSize) || 1
   const paginatedOrders = filteredOrders.slice((currentPage - 1) * pageSize, currentPage * pageSize)
-
-  const handleCreateOrder = (e) => {
-    e.preventDefault()
-    if (!newOrderForm.customer || !newOrderForm.phone || !newOrderForm.address) {
-      toast.error("Iltimos, barcha maydonlarni to'ldiring")
-      return
-    }
-
-    const assignedCourier = MOCK_COURIERS.find((c) => c.id === Number(newOrderForm.courierId))
-    const totalSum = newOrderForm.qty * newOrderForm.price
-
-    const newOrder = {
-      id: `ORD-${Math.floor(9103 + Math.random() * 899)}`,
-      customer: newOrderForm.customer,
-      phone: newOrderForm.phone,
-      address: newOrderForm.address,
-      sector: newOrderForm.sector,
-      coords: [38.8612, 65.7847],
-      product: newOrderForm.product,
-      qty: Number(newOrderForm.qty),
-      total: totalSum,
-      courier: assignedCourier ? assignedCourier.name : null,
-      courierId: assignedCourier ? assignedCourier.id : null,
-      vehicle: assignedCourier ? `${assignedCourier.vehicle} (${assignedCourier.plate})` : null,
-      status: assignedCourier ? "delivering" : "new",
-      statusText: assignedCourier ? "Yetkazilmoqda" : "Yangi",
-      paymentType: newOrderForm.paymentType,
-      paymentStatus: newOrderForm.paymentType === "Naqd pul" ? "Kutilmoqda" : "To'langan",
-      createdAt: "Hozir",
-      eta: assignedCourier ? "20 daqiqa" : "Taqsimlanmagan",
-    }
-
-    MOCK_ORDERS.unshift(newOrder)
-    setOrders([newOrder, ...orders])
-    setIsNewOrderModalOpen(false)
-    toast.success("Yangi buyurtma muvaffaqiyatli saqlandi!")
-
-    setNewOrderForm({
-      customer: "",
-      phone: "",
-      address: "",
-      sector: "Markaziy sektor",
-      product: "18.9L Kapsula",
-      qty: 2,
-      price: 45000,
-      paymentType: "Payme",
-      courierId: "",
-    })
-  }
 
   return (
     <div className="space-y-4">
@@ -187,14 +96,6 @@ export default function ManagerOrdersPage() {
           >
             <Download className="w-3.5 h-3.5 text-slate-500" />
             <span>Eksport (Excel)</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setIsNewOrderModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-xs"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Yangi buyurtma</span>
           </button>
         </div>
       </div>
@@ -264,66 +165,42 @@ export default function ManagerOrdersPage() {
       <div className="space-y-4">
           <div className="bg-white rounded-xl border border-slate-200 shadow-xs flex flex-col overflow-hidden">
             {/* Controls Bar */}
-            <div className="p-4 border-b border-slate-200 space-y-3">
-            <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="p-4 border-b border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
               <div className="flex items-center gap-1.5">
                 <span className="text-sm font-bold text-slate-900">Buyurtmalar</span>
                 <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">
-                  {orders.length} ta
+                  {filteredOrders.length} ta
                 </span>
               </div>
 
-              {/* Status Select Filter */}
-              <Select
-                value={activeTab}
-                onChange={(val) => {
-                  setActiveTab(val || "all")
-                  setCurrentPage(1)
-                }}
-                data={statusOptions}
-                allowDeselect={false}
-                leftSection={<Filter className="w-3.5 h-3.5 text-slate-400 pointer-events-none" />}
-                rightSection={<ChevronDown className="w-3.5 h-3.5 text-slate-400 pointer-events-none" />}
-                classNames={{
-                  root: "w-52",
-                  input:
-                    "!h-9 !rounded-xl !border-slate-200 !bg-slate-50 hover:!bg-slate-100/80 focus:!bg-white !text-slate-700 !text-xs !font-semibold !cursor-pointer transition-colors focus:!border-blue-500 shadow-2xs",
-                  dropdown:
-                    "!rounded-xl !border-slate-200 !shadow-lg !p-1.5 !bg-white z-50",
-                  option:
-                    "!rounded-lg !text-xs !font-medium !py-2 !px-3 !cursor-pointer hover:!bg-slate-100 data-[checked=true]:!bg-blue-50 data-[checked=true]:!text-blue-600 data-[checked=true]:!font-semibold",
-                }}
-              />
-            </div>
+              <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full sm:w-auto">
+                <div className="relative w-full sm:w-72 md:w-80">
+                  <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    placeholder="Buyurtma ID, mijoz ismi, telefon..."
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value)
+                      setCurrentPage(1)
+                    }}
+                    className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 focus:bg-white transition-colors"
+                  />
+                </div>
 
-            {/* Search and Filters */}
-            <div className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center justify-between">
-              <div className="relative w-full sm:w-72 md:w-80">
-                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  placeholder="Buyurtma ID, mijoz ismi, telefon..."
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value)
-                    setCurrentPage(1)
-                  }}
-                  className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 focus:bg-white transition-colors"
-                />
-              </div>
-
-              <div className="flex items-center gap-2 w-full sm:w-auto">
+                {/* Status Select Filter */}
                 <Select
-                  value={paymentFilter}
+                  value={activeTab}
                   onChange={(val) => {
-                    setPaymentFilter(val || "all")
+                    setActiveTab(val || "all")
                     setCurrentPage(1)
                   }}
-                  data={PAYMENT_OPTIONS}
+                  data={statusOptions}
                   allowDeselect={false}
+                  leftSection={<Filter className="w-3.5 h-3.5 text-slate-400 pointer-events-none" />}
                   rightSection={<ChevronDown className="w-3.5 h-3.5 text-slate-400 pointer-events-none" />}
                   classNames={{
-                    root: "w-44",
+                    root: "w-full sm:w-52",
                     input:
                       "!h-9 !rounded-xl !border-slate-200 !bg-slate-50 hover:!bg-slate-100/80 focus:!bg-white !text-slate-700 !text-xs !font-semibold !cursor-pointer transition-colors focus:!border-blue-500 shadow-2xs",
                     dropdown:
@@ -334,7 +211,6 @@ export default function ManagerOrdersPage() {
                 />
               </div>
             </div>
-          </div>
 
           {/* Orders Table */}
           <div className="overflow-x-auto">
@@ -384,7 +260,7 @@ export default function ManagerOrdersPage() {
                           </button>
                         </div>
                       </td>
-                      <td className="py-3 px-4 max-w-[200px]">
+                      <td className="py-3 px-4 max-w-50">
                         <div className="truncate text-slate-800 font-medium">{order.address}</div>
                         <div className="text-[11px] text-slate-400">{order.sector}</div>
                       </td>
@@ -459,153 +335,6 @@ export default function ManagerOrdersPage() {
           />
         </div>
       </div>
-
-      {/* New Order Modal */}
-      <MantineModal
-        opened={isNewOrderModalOpen}
-        onClose={() => setIsNewOrderModalOpen(false)}
-        title={
-          <div className="flex items-center gap-2 font-bold text-slate-900 text-sm">
-            <Package className="w-4 h-4 text-blue-600" />
-            <span>Yangi buyurtma qo'shish</span>
-          </div>
-        }
-        centered
-        size="md"
-      >
-        <form onSubmit={handleCreateOrder} className="space-y-3.5 py-1 text-xs">
-          <div>
-            <label className="block text-slate-700 font-medium mb-1">Mijoz to'liq ismi *</label>
-            <input
-              type="text"
-              required
-              placeholder="Masalan: Jamshid Mahmudov"
-              value={newOrderForm.customer}
-              onChange={(e) => setNewOrderForm({ ...newOrderForm, customer: e.target.value })}
-              className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 focus:bg-white"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="block text-slate-700 font-medium mb-1">Telefon raqam *</label>
-              <input
-                type="text"
-                required
-                placeholder="+998 (90) 000-00-00"
-                value={newOrderForm.phone}
-                onChange={(e) => setNewOrderForm({ ...newOrderForm, phone: e.target.value })}
-                className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 focus:bg-white"
-              />
-            </div>
-            <div>
-              <label className="block text-slate-700 font-medium mb-1">Hudud / Sektor</label>
-              <select
-                value={newOrderForm.sector}
-                onChange={(e) => setNewOrderForm({ ...newOrderForm, sector: e.target.value })}
-                className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 focus:bg-white"
-              >
-                <option value="Markaziy sektor">Markaziy sektor</option>
-                <option value="Shimoliy sektor">Shimoliy sektor</option>
-                <option value="Sanoat sektori">Sanoat sektori</option>
-                <option value="G'arbiy sektor">G'arbiy sektor</option>
-                <option value="Janubiy sektor">Janubiy sektor</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-slate-700 font-medium mb-1">Yetkazish manzili *</label>
-            <input
-              type="text"
-              required
-              placeholder="Qarshi sh., ko'cha, uy/xonadon raqami"
-              value={newOrderForm.address}
-              onChange={(e) => setNewOrderForm({ ...newOrderForm, address: e.target.value })}
-              className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 focus:bg-white"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="block text-slate-700 font-medium mb-1">Mahsulot turi</label>
-              <select
-                value={newOrderForm.product}
-                onChange={(e) => setNewOrderForm({ ...newOrderForm, product: e.target.value })}
-                className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 focus:bg-white"
-              >
-                <option value="18.9L Kapsula">18.9L Kapsula</option>
-                <option value="10L Idish">10L Idish</option>
-                <option value="5L Qadoq">5L Qadoq (Blok)</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-slate-700 font-medium mb-1">Miqdor (dona)</label>
-              <input
-                type="number"
-                min="1"
-                value={newOrderForm.qty}
-                onChange={(e) => setNewOrderForm({ ...newOrderForm, qty: Math.max(1, Number(e.target.value)) })}
-                className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 focus:bg-white"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="block text-slate-700 font-medium mb-1">To'lov turi</label>
-              <select
-                value={newOrderForm.paymentType}
-                onChange={(e) => setNewOrderForm({ ...newOrderForm, paymentType: e.target.value })}
-                className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 focus:bg-white"
-              >
-                <option value="Payme">Payme</option>
-                <option value="Click">Click</option>
-                <option value="Naqd pul">Naqd pul</option>
-                <option value="Hisob-raqam">Hisob-raqam</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-slate-700 font-medium mb-1">Kuryer biriktirish</label>
-              <select
-                value={newOrderForm.courierId}
-                onChange={(e) => setNewOrderForm({ ...newOrderForm, courierId: e.target.value })}
-                className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 focus:bg-white"
-              >
-                <option value="">Keyinroq taqsimlash</option>
-                {MOCK_COURIERS.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name} ({c.vehicle})
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className="p-2.5 bg-blue-50 rounded-lg border border-blue-200 flex items-center justify-between text-xs">
-            <span className="text-blue-900 font-semibold">Jami hisob:</span>
-            <span className="font-bold text-blue-700 text-sm">
-              {(newOrderForm.qty * newOrderForm.price).toLocaleString()} so'm
-            </span>
-          </div>
-
-          <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
-            <button
-              type="button"
-              onClick={() => setIsNewOrderModalOpen(false)}
-              className="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200"
-            >
-              Bekor qilish
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-1.5 rounded-lg text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-xs"
-            >
-              Saqlash va Yuborish
-            </button>
-          </div>
-        </form>
-      </MantineModal>
     </div>
   )
 }

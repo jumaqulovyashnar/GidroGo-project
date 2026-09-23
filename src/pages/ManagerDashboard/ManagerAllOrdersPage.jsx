@@ -175,7 +175,7 @@ export default function ManagerAllOrdersPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <Link
           to="/manager"
-          className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between hover:border-blue-300 hover:shadow-sm transition-all group min-h-[90px]"
+          className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between hover:border-blue-300 hover:shadow-sm transition-all group min-h-22.5"
         >
           <div>
             <span className="text-xs font-medium text-slate-500">Bo'lim</span>
@@ -191,7 +191,7 @@ export default function ManagerAllOrdersPage() {
 
         <Link
           to="/manager/buyurtmalar"
-          className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between hover:border-blue-300 hover:shadow-sm transition-all group min-h-[90px]"
+          className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between hover:border-blue-300 hover:shadow-sm transition-all group min-h-22.5"
         >
           <div>
             <span className="text-xs font-medium text-slate-500">Bo'lim</span>
@@ -207,7 +207,7 @@ export default function ManagerAllOrdersPage() {
 
         <Link
           to="/manager/dastavkachilar-xarita"
-          className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between hover:border-blue-300 hover:shadow-sm transition-all group min-h-[90px]"
+          className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between hover:border-blue-300 hover:shadow-sm transition-all group min-h-22.5"
         >
           <div>
             <span className="text-xs font-medium text-slate-500">Bo'lim</span>
@@ -223,7 +223,7 @@ export default function ManagerAllOrdersPage() {
 
         <Link
           to="/manager/xodimlar"
-          className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between hover:border-blue-300 hover:shadow-sm transition-all group min-h-[90px]"
+          className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between hover:border-blue-300 hover:shadow-sm transition-all group min-h-22.5"
         >
           <div>
             <span className="text-xs font-medium text-slate-500">Bo'lim</span>
@@ -240,7 +240,7 @@ export default function ManagerAllOrdersPage() {
 
       {/* 2-Qator: Buyurtmalar statistikasi kartalari (4 ta bir xil karta) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between min-h-[90px]">
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between min-h-22.5">
           <div>
             <span className="text-xs font-medium text-slate-500">Jami buyurtmalar</span>
             <div className="text-xl font-bold text-slate-900 mt-0.5">{orders.length} ta</div>
@@ -251,7 +251,7 @@ export default function ManagerAllOrdersPage() {
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between min-h-[90px]">
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between min-h-22.5">
           <div>
             <span className="text-xs font-medium text-slate-500">Yetkazilgan</span>
             <div className="text-xl font-bold text-slate-900 mt-0.5">
@@ -264,7 +264,7 @@ export default function ManagerAllOrdersPage() {
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between min-h-[90px]">
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between min-h-22.5">
           <div>
             <span className="text-xs font-medium text-slate-500">Yetkazilmoqda</span>
             <div className="text-xl font-bold text-slate-900 mt-0.5">
@@ -277,7 +277,7 @@ export default function ManagerAllOrdersPage() {
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between min-h-[90px]">
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between min-h-22.5">
           <div>
             <span className="text-xs font-medium text-slate-500">Yangi buyurtmalar</span>
             <div className="text-xl font-bold text-slate-900 mt-0.5">
@@ -438,7 +438,7 @@ export default function ManagerAllOrdersPage() {
                           </button>
                         </div>
                       </td>
-                      <td className="py-3.5 px-4 max-w-[200px]">
+                      <td className="py-3.5 px-4 max-w-50">
                         <div className="truncate text-slate-800 font-medium">{order.address}</div>
                         <div className="text-[11px] text-slate-400">{order.sector}</div>
                       </td>
