@@ -1,214 +1,426 @@
-import { useEffect, useRef, useState, useMemo } from "react"
-import { MapPin, Navigation, Car, ZoomIn, ZoomOut, Compass } from "lucide-react"
+import { useEffect, useRef, useState, useCallback } from "react"
+import {
+  ChevronUp,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  RefreshCw,
+} from "lucide-react"
 
-const GOOGLE_API_KEY = "your_yandex_maps_api_key_placeholder_for_security_reasons_000000"
-const QASHQADARYO_CENTER = { lat: 38.8986231, lng: 66.0463534 }
+const YANDEX_API_KEY = import.meta.env.VITE_YANDEX_MAPS_KEY
 
 /**
- * Google Maps Component for GidroGo Manager dispatching
- * Centered on Qashqadaryo (lat: 38.8986231, lng: 66.0463534)
- * Supports Google Maps JS API with seamless Google Embed engine
+ * Aniq Geografik Koordinatalar (Yandex Maps v2.1 standarti: [Latitude, Longitude])
+ * Reference:
+ *   Xarita markazi (Qashqadaryo viloyati): Latitude 38.8986, Longitude 66.0464
+ *   Qarshi shahri markeri: Latitude 38.8612, Longitude 65.7847
  */
+const QASHQADARYO_CENTER = [38.8986, 66.0464]
+const QARSHI_MARKER_COORDS = [38.8612, 65.7847]
+
+/**
+ * Qashqadaryo viloyati Bounding Box (restrictMapArea uchun)
+ * SW (Janubiy-G'arb): [38.0000, 64.3000]
+ * NE (Shimoliy-Sharq): [39.8000, 67.5000]
+ */
+const QASHQADARYO_RESTRICT_BOUNDS = [
+  [38.0000, 64.3000],
+  [39.8000, 67.5000],
+]
+
+/**
+ * Koordinatalarni to'g'ri [Latitude, Longitude] formatiga o'tkazish
+ * Inversion xatosini oldini oladi (agar adashib [lon, lat] kelib qolsa ham to'g'rilaydi)
+ */
+function toLatLong(coords) {
+  if (!coords) return QASHQADARYO_CENTER
+
+  if (Array.isArray(coords)) {
+    if (coords.length < 2) return QASHQADARYO_CENTER
+    const first = Number(coords[0])
+    const second = Number(coords[1])
+    if (Number.isNaN(first) || Number.isNaN(second)) return QASHQADARYO_CENTER
+
+    // Agar [lon, lat] bo'lsa (lon ~ 64-68, lat ~ 38-40) -> [lat, lon] qilamiz
+    if (first > 50 && second < 50) {
+      return [second, first]
+    }
+    return [first, second]
+  }
+
+  if (typeof coords === "object") {
+    const lat = Number(coords.lat ?? coords.latitude)
+    const lon = Number(coords.lng ?? coords.lon ?? coords.longitude)
+    if (!Number.isNaN(lon) && !Number.isNaN(lat)) {
+      return [lat, lon]
+    }
+  }
+
+  return QASHQADARYO_CENTER
+}
+
 export default function GoogleMap({
   center = QASHQADARYO_CENTER,
-  zoom = 14,
+  zoom = 8.5,
   couriers = [],
-  _orders = [],
   selectedCourierId = null,
   onSelectCourier = () => {},
-  className = "w-full h-full min-h-[500px]",
+  className = "w-full h-full min-h-125",
 }) {
   const mapContainerRef = useRef(null)
   const mapInstanceRef = useRef(null)
-  const markersRef = useRef([])
-
-  const [loadMode, setLoadMode] = useState(() =>
-    typeof window !== "undefined" && window.google?.maps ? "js_api" : "embed"
-  )
-  const [mapType, setMapType] = useState("roadmap") // "roadmap" | "satellite"
-  const [currentZoom, setCurrentZoom] = useState(zoom)
-  const [baseCenter, setBaseCenter] = useState(center)
-
-  // Derive active center from selected courier
-  const selectedCourier = useMemo(
-    () => couriers.find((c) => c.id === selectedCourierId),
-    [couriers, selectedCourierId]
-  )
-
-  const activeCenter = useMemo(() => {
-    if (selectedCourier?.coords) {
-      return { lat: selectedCourier.coords[0], lng: selectedCourier.coords[1] }
-    }
-    return baseCenter
-  }, [selectedCourier, baseCenter])
-
-  // Initialize Google Maps JavaScript SDK
+  const onSelectCourierRef = useRef(onSelectCourier)
   useEffect(() => {
+    onSelectCourierRef.current = onSelectCourier
+  }, [onSelectCourier])
+
+  const [mapType, setMapType] = useState("roadmap") // "roadmap" | "satellite"
+  const [loadStatus, setLoadStatus] = useState(() => {
+    if (!YANDEX_API_KEY) return "error"
+    if (typeof window !== "undefined" && window.ymaps?.Map) return "ready"
+    return "loading"
+  })
+  const [errorDetail, setErrorDetail] = useState(() => {
+    if (!YANDEX_API_KEY) {
+      return "API kalit .env faylida topilmadi (VITE_YANDEX_MAPS_KEY)"
+    }
+    return null
+  })
+
+  // Yandex Maps JavaScript SDK yuklash (standart [Latitude, Longitude] formati)
+  useEffect(() => {
+    if (!YANDEX_API_KEY) return
+
     let isMounted = true
 
-    window.gm_authFailure = () => {
-      console.warn("Google Maps API auth warning, continuing with Google Embed engine.")
-      if (isMounted) setLoadMode("embed")
-    }
+    const loadYandexMaps = () => {
+      if (window.ymaps?.Map) {
+        if (isMounted) setLoadStatus("ready")
+        return
+      }
 
-    if (window.google?.maps) return
+      const scriptId = "yandex-maps-sdk"
+      let script = document.getElementById(scriptId)
 
-    const scriptId = "google-maps-sdk"
-    if (!document.getElementById(scriptId)) {
-      const script = document.createElement("script")
-      script.id = scriptId
-      script.type = "text/javascript"
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_API_KEY}&libraries=places,geometry`
-      script.async = true
-
-      script.onload = () => {
-        if (isMounted && window.google?.maps) {
-          setLoadMode("js_api")
+      // Agar oldingi skriptda coordorder=longlat bo'lgan bo'lsa, uni tozalaymiz
+      if (script && (script.src.includes("coordorder=longlat") || !script.src.includes(YANDEX_API_KEY))) {
+        script.remove()
+        script = null
+        if (window.ymaps) {
+          try {
+            delete window.ymaps
+          } catch {
+            window.ymaps = undefined
+          }
         }
       }
 
-      script.onerror = () => {
-        if (isMounted) setLoadMode("embed")
+      if (!script) {
+        script = document.createElement("script")
+        script.id = scriptId
+        script.type = "text/javascript"
+        script.src = `https://api-maps.yandex.ru/2.1/?apikey=${YANDEX_API_KEY}&lang=uz_UZ`
+        script.async = true
+        document.head.appendChild(script)
       }
 
-      document.head.appendChild(script)
+      const handleLoad = () => {
+        if (window.ymaps) {
+          window.ymaps.ready(() => {
+            if (isMounted) setLoadStatus("ready")
+          })
+        }
+      }
+
+      const handleError = () => {
+        if (isMounted) {
+          setErrorDetail("Yandex Maps skripti yuklanmadi (tarmoq xatosi)")
+          setLoadStatus("error")
+        }
+      }
+
+      script.addEventListener("load", handleLoad)
+      script.addEventListener("error", handleError)
     }
+
+    loadYandexMaps()
 
     return () => {
       isMounted = false
     }
   }, [])
 
-  // Mount Google Maps JS instance when available
+  // Placemarklarni chizish funksiyasi
+  const renderPlacemarks = useCallback(
+    (map) => {
+      if (!map || !window.ymaps) return
+
+      map.geoObjects.removeAll()
+
+      // Qarshi markaziy pin (Placemark) - Latitude 38.8612, Longitude 65.7847
+      const basePlacemark = new window.ymaps.Placemark(
+        QARSHI_MARKER_COORDS,
+        {
+          iconContent: "Qarshi",
+          hintContent: "Qashqadaryo viloyati (Qarshi shahri)",
+        },
+        {
+          preset: "islands#blueStretchyIcon",
+          hasBalloon: false,
+          openBalloonOnClick: false,
+        }
+      )
+      map.geoObjects.add(basePlacemark)
+
+      // Kuryerlar markerlari (agar mavjud bo'lsa)
+      if (Array.isArray(couriers) && couriers.length > 0) {
+        couriers.forEach((courier) => {
+          const courierCoord = toLatLong(courier.coords)
+          if (!courierCoord) return
+
+          const isSelected = selectedCourierId === courier.id
+          const placemark = new window.ymaps.Placemark(
+            courierCoord,
+            {
+              hintContent: `${courier.name} (${courier.vehicle || "Kuryer"})`,
+            },
+            {
+              preset: isSelected ? "islands#redAutoIcon" : "islands#blueAutoIcon",
+              iconColor: isSelected ? "#ef4444" : "#2563EB",
+            }
+          )
+
+          placemark.events.add("click", () => {
+            onSelectCourierRef.current?.(courier.id)
+          })
+
+          map.geoObjects.add(placemark)
+
+          // Tanlangan kuryer uchun yo'nalish chizig'i va mijoz manzili
+          if (isSelected && courier.targetCoords) {
+            const targetCoord = toLatLong(courier.targetCoords)
+            if (targetCoord) {
+              const routeLine = new window.ymaps.Polyline(
+                [courierCoord, targetCoord],
+                {
+                  hintContent: `Yo'nalish: ${courier.currentDestination || ""}`,
+                },
+                {
+                  strokeColor: "#2563EB",
+                  strokeWidth: 4,
+                  strokeOpacity: 0.8,
+                  strokeStyle: "shortdash",
+                }
+              )
+              map.geoObjects.add(routeLine)
+
+              const targetPlacemark = new window.ymaps.Placemark(
+                targetCoord,
+                {
+                  hintContent: "Mijoz yetkazish manzili",
+                },
+                {
+                  preset: "islands#darkOrangeDotIcon",
+                  iconColor: "#f97316",
+                }
+              )
+              map.geoObjects.add(targetPlacemark)
+            }
+          }
+        })
+      }
+    },
+    [couriers, selectedCourierId]
+  )
+
+  // Map instance yaratish
   useEffect(() => {
-    if (loadMode !== "js_api" || !mapContainerRef.current || !window.google?.maps) return
+    if (loadStatus !== "ready" || !mapContainerRef.current || !window.ymaps) return
+    if (mapInstanceRef.current) return
+
+    window.ymaps.ready(() => {
+      if (!mapContainerRef.current || mapInstanceRef.current) return
+
+      try {
+        const initialCenter = toLatLong(center)
+
+        const map = new window.ymaps.Map(
+          mapContainerRef.current,
+          {
+            center: initialCenter, // [Latitude, Longitude] = [38.8986, 66.0464]
+            zoom: zoom || 8.5,
+            type: mapType === "satellite" ? "yandex#hybrid" : "yandex#map",
+            controls: ["zoomControl"],
+          },
+          {
+            restrictMapArea: QASHQADARYO_RESTRICT_BOUNDS,
+            minZoom: 7,
+            maxZoom: 18,
+            suppressMapOpenBlock: true,
+          }
+        )
+
+        mapInstanceRef.current = map
+        renderPlacemarks(map)
+      } catch (err) {
+        console.error("[YandexMap] Xarita init xatosi:", err)
+        setErrorDetail(err?.message || "Nomaʼlum xato")
+        setLoadStatus("error")
+      }
+    })
+
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.destroy()
+        mapInstanceRef.current = null
+      }
+    }
+  }, [loadStatus, center, zoom, renderPlacemarks, mapType])
+
+  // Placemarklarni sinxronlashtirish
+  useEffect(() => {
+    if (mapInstanceRef.current) {
+      renderPlacemarks(mapInstanceRef.current)
+    }
+  }, [renderPlacemarks])
+
+  // Tanlangan kuryerga silliq o'tish
+  useEffect(() => {
+    if (mapInstanceRef.current && selectedCourierId && Array.isArray(couriers)) {
+      const selected = couriers.find((c) => c.id === selectedCourierId)
+      if (selected?.coords) {
+        const coords = toLatLong(selected.coords)
+        mapInstanceRef.current.panTo(coords, { flying: true, duration: 600 })
+      }
+    }
+  }, [selectedCourierId, couriers])
+
+  // Xarita turini almashtirish (Sxema vs Sun'iy yo'ldosh)
+  useEffect(() => {
+    if (mapInstanceRef.current && window.ymaps) {
+      mapInstanceRef.current.setType(
+        mapType === "satellite" ? "yandex#hybrid" : "yandex#map"
+      )
+    }
+  }, [mapType])
+
+  /**
+   * Arrow navigation buttons (↑ ↓ ← →)
+   * Viewportning 25% qismi miqdorida siljitadi, zoom saqlanadi
+   */
+  const handlePan = useCallback((direction) => {
+    const map = mapInstanceRef.current
+    if (!map) return
 
     try {
-      const map = new window.google.maps.Map(mapContainerRef.current, {
-        center: activeCenter,
-        zoom: currentZoom,
-        mapTypeId: mapType === "satellite" ? "hybrid" : "roadmap",
-        disableDefaultUI: true,
-        zoomControl: false,
-      })
+      const currentCenter = map.getCenter() // [Latitude, Longitude]
+      if (!currentCenter || currentCenter.length < 2) return
 
-      mapInstanceRef.current = map
+      let stepLat = 0.04
+      let stepLon = 0.05
 
-      markersRef.current.forEach((m) => m.setMap(null))
-      markersRef.current = []
+      // Viewport o'lchami asosida 25% siljish hisoblash
+      const bounds = map.getBounds() // [[SW_lat, SW_lon], [NE_lat, NE_lon]]
+      if (bounds && bounds.length === 2) {
+        const spanLat = Math.abs(bounds[1][0] - bounds[0][0])
+        const spanLon = Math.abs(bounds[1][1] - bounds[0][1])
+        stepLat = spanLat * 0.25
+        stepLon = spanLon * 0.25
+      } else {
+        const currentZoom = map.getZoom() || 8.5
+        stepLat = (180 / Math.pow(2, currentZoom)) * 0.25
+        stepLon = (360 / Math.pow(2, currentZoom)) * 0.25
+      }
 
-      // Base marker (Qashqadaryo Hub)
-      const baseMarker = new window.google.maps.Marker({
-        position: QASHQADARYO_CENTER,
-        map,
-        title: "Oazis Water — Qashqadaryo Markaziy Baza",
-        icon: {
-          path: window.google.maps.SymbolPath.CIRCLE,
-          scale: 8,
-          fillColor: "#2563EB",
-          fillOpacity: 1,
-          strokeColor: "#ffffff",
-          strokeWeight: 2,
-        },
-      })
-      markersRef.current.push(baseMarker)
+      const [curLat, curLon] = currentCenter
+      let newLat = curLat
+      let newLon = curLon
 
-      // Courier markers
-      couriers.forEach((courier) => {
-        if (!courier.coords) return
-        const isSelected = selectedCourierId === courier.id
-        const courierPos = { lat: courier.coords[0], lng: courier.coords[1] }
+      switch (direction) {
+        case "up":
+          // Yuqoriga (Shimoliy yo'nalish: kenglik/latitude ortadi)
+          newLat = curLat + stepLat
+          break
+        case "down":
+          // Pastga (Janubiy yo'nalish: kenglik/latitude kamayadi)
+          newLat = curLat - stepLat
+          break
+        case "left":
+          // Chapga (G'arbiy yo'nalish: uzunlik/longitude kamayadi)
+          newLon = curLon - stepLon
+          break
+        case "right":
+          // O'ngga (Sharqiy yo'nalish: uzunlik/longitude ortadi)
+          newLon = curLon + stepLon
+          break
+        default:
+          return
+      }
 
-        const marker = new window.google.maps.Marker({
-          position: courierPos,
-          map,
-          title: `${courier.name} (${courier.vehicle})`,
-          icon: {
-            path: window.google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-            scale: isSelected ? 6 : 5,
-            fillColor: isSelected ? "#ef4444" : "#2563EB",
-            fillOpacity: 1,
-            strokeColor: "#ffffff",
-            strokeWeight: 2,
-            rotation: 45,
-          },
-        })
-
-        marker.addListener("click", () => {
-          onSelectCourier(courier.id)
-        })
-
-        markersRef.current.push(marker)
+      map.panTo([newLat, newLon], {
+        duration: 300,
+        flying: false,
+        checkZoomRange: true,
       })
     } catch (err) {
-      console.error("Google Maps JS init error:", err)
+      console.error("[YandexMap] Navigatsiyada xatolik:", err)
     }
-  }, [loadMode, couriers, activeCenter, currentZoom, mapType, onSelectCourier, selectedCourierId])
-
-  // Pan to active center if map is ready
-  useEffect(() => {
-    if (mapInstanceRef.current && activeCenter) {
-      mapInstanceRef.current.panTo(activeCenter)
-    }
-  }, [activeCenter])
-
-  const handleZoomIn = () => {
-    setCurrentZoom((prev) => Math.min(prev + 1, 19))
-    if (mapInstanceRef.current) {
-      mapInstanceRef.current.setZoom(mapInstanceRef.current.getZoom() + 1)
-    }
-  }
-
-  const handleZoomOut = () => {
-    setCurrentZoom((prev) => Math.max(prev - 1, 10))
-    if (mapInstanceRef.current) {
-      mapInstanceRef.current.setZoom(mapInstanceRef.current.getZoom() - 1)
-    }
-  }
-
-  const handleResetCenter = () => {
-    setBaseCenter(QASHQADARYO_CENTER)
-    setCurrentZoom(14)
-    if (mapInstanceRef.current) {
-      mapInstanceRef.current.panTo(QASHQADARYO_CENTER)
-      mapInstanceRef.current.setZoom(14)
-    }
-  }
-
-  const handleToggleMapType = (type) => {
-    setMapType(type)
-    if (mapInstanceRef.current && window.google?.maps) {
-      mapInstanceRef.current.setMapTypeId(type === "satellite" ? "hybrid" : "roadmap")
-    }
-  }
-
-  // Google Maps Embed URL (Official Google Maps engine)
-  const embedUrl = `https://maps.google.com/maps?q=${activeCenter.lat},${activeCenter.lng}&z=${currentZoom}&output=embed&t=${
-    mapType === "satellite" ? "k" : "m"
-  }`
+  }, [])
 
   return (
     <div className={`relative rounded-xl overflow-hidden border border-slate-200 bg-slate-100 ${className}`}>
-      {/* Top Map Action Bar */}
-      <div className="absolute top-3 left-3 z-20 flex items-center gap-2 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-lg shadow-sm border border-slate-200">
-        <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-800">
-          <MapPin className="w-3.5 h-3.5 text-blue-600" />
-          <span>Google Xarita — Qashqadaryo</span>
-        </div>
-        <span className="text-slate-300">|</span>
-        <span className="text-[11px] text-slate-500 font-mono">38.8986° N, 66.0464° E</span>
-        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          Google GPS Jonli
-        </span>
-      </div>
-
-      {/* Layer Toggle (Roadmap vs Satellite) */}
-      <div className="absolute top-3 right-3 z-20 flex items-center gap-1.5 bg-white/95 backdrop-blur-md p-1 rounded-lg shadow-sm border border-slate-200">
+      {/* 4 ta Arrow Navigation Buttons: [ ↑ ] / [ ← ][ → ] / [ ↓ ] */}
+      <div
+        className="absolute bottom-8 right-3 z-10 flex flex-col items-center bg-white/95 backdrop-blur-md p-1.5 rounded-xl shadow-md border border-slate-200 pointer-events-auto select-none"
+        role="group"
+        aria-label="Xarita navigatsiyasi"
+      >
         <button
           type="button"
-          onClick={() => handleToggleMapType("roadmap")}
-          className={`px-2.5 py-1 text-xs font-medium rounded transition-colors ${
+          onClick={() => handlePan("up")}
+          aria-label="Xaritani yuqoriga surish"
+          title="Yuqoriga surish"
+          className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-700 hover:text-blue-600 hover:bg-slate-100 active:bg-blue-50 active:scale-95 transition-all cursor-pointer shadow-xs border border-transparent hover:border-slate-200"
+        >
+          <ChevronUp className="w-4 h-4" />
+        </button>
+        <div className="flex items-center gap-1 my-0.5">
+          <button
+            type="button"
+            onClick={() => handlePan("left")}
+            aria-label="Xaritani chapga surish"
+            title="Chapga surish"
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-700 hover:text-blue-600 hover:bg-slate-100 active:bg-blue-50 active:scale-95 transition-all cursor-pointer shadow-xs border border-transparent hover:border-slate-200"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => handlePan("right")}
+            aria-label="Xaritani o‘ngga surish"
+            title="O'ngga surish"
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-700 hover:text-blue-600 hover:bg-slate-100 active:bg-blue-50 active:scale-95 transition-all cursor-pointer shadow-xs border border-transparent hover:border-slate-200"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+        <button
+          type="button"
+          onClick={() => handlePan("down")}
+          aria-label="Xaritani pastga surish"
+          title="Pastga surish"
+          className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-700 hover:text-blue-600 hover:bg-slate-100 active:bg-blue-50 active:scale-95 transition-all cursor-pointer shadow-xs border border-transparent hover:border-slate-200"
+        >
+          <ChevronDown className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Layer Toggle (Xarita vs Sun'iy yo'ldosh) */}
+      <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5 bg-white/95 backdrop-blur-md p-1 rounded-lg shadow-sm border border-slate-200 pointer-events-auto">
+        <button
+          type="button"
+          onClick={() => setMapType("roadmap")}
+          className={`px-2.5 py-1 text-xs font-medium rounded transition-colors cursor-pointer ${
             mapType === "roadmap"
               ? "bg-blue-600 text-white shadow-xs"
               : "text-slate-600 hover:bg-slate-100"
@@ -218,8 +430,8 @@ export default function GoogleMap({
         </button>
         <button
           type="button"
-          onClick={() => handleToggleMapType("satellite")}
-          className={`px-2.5 py-1 text-xs font-medium rounded transition-colors ${
+          onClick={() => setMapType("satellite")}
+          className={`px-2.5 py-1 text-xs font-medium rounded transition-colors cursor-pointer ${
             mapType === "satellite"
               ? "bg-blue-600 text-white shadow-xs"
               : "text-slate-600 hover:bg-slate-100"
@@ -229,101 +441,28 @@ export default function GoogleMap({
         </button>
       </div>
 
-      {/* Quick Zoom & Navigation Controls */}
-      <div className="absolute bottom-6 right-3 z-20 flex flex-col gap-1.5">
-        <button
-          type="button"
-          onClick={handleZoomIn}
-          className="w-8 h-8 rounded-lg bg-white shadow-md border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-50 transition-colors"
-          title="Yaqinlashtirish"
-        >
-          <ZoomIn className="w-4 h-4" />
-        </button>
-        <button
-          type="button"
-          onClick={handleZoomOut}
-          className="w-8 h-8 rounded-lg bg-white shadow-md border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-50 transition-colors"
-          title="Uzoqlashtirish"
-        >
-          <ZoomOut className="w-4 h-4" />
-        </button>
-        <button
-          type="button"
-          onClick={handleResetCenter}
-          className="w-8 h-8 rounded-lg bg-white shadow-md border border-slate-200 flex items-center justify-center text-blue-600 hover:bg-blue-50 transition-colors"
-          title="Qashqadaryo markaziga qaytish"
-        >
-          <Compass className="w-4 h-4" />
-        </button>
-      </div>
+      {/* Yandex Map Canvas */}
+      <div ref={mapContainerRef} className="w-full h-full min-h-[31.25rem]" />
 
-      {/* Mode 1: Google Maps JS API Canvas */}
-      {loadMode === "js_api" && (
-        <div ref={mapContainerRef} className="w-full h-full min-h-[500px]" />
+      {/* Loading State */}
+      {loadStatus === "loading" && (
+        <div className="absolute inset-0 bg-slate-50/80 backdrop-blur-xs flex flex-col items-center justify-center gap-2.5 z-20">
+          <RefreshCw className="w-7 h-7 text-blue-600 animate-spin" />
+          <p className="text-xs font-medium text-slate-600">Yandex Xarita yuklanmoqda...</p>
+        </div>
       )}
 
-      {/* Mode 2: Official Google Maps Live Embed with Interactive Couriers Overlay */}
-      {loadMode !== "js_api" && (
-        <div className="relative w-full h-full min-h-[500px]">
-          <iframe
-            title="Google Map Qashqadaryo"
-            src={embedUrl}
-            className="w-full h-full min-h-[500px] border-0"
-            allowFullScreen=""
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-          />
-
-          {/* Interactive Live Couriers Overlay on Top of Google Maps */}
-          <div className="absolute inset-0 pointer-events-none">
-            {/* Center Base Hub */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center pointer-events-auto">
-              <div className="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-lg ring-4 ring-blue-200">
-                <Navigation className="w-4 h-4 fill-white" />
-              </div>
-              <span className="mt-1 text-[11px] font-bold text-blue-900 bg-white/95 px-2 py-0.5 rounded shadow-sm border border-blue-200 whitespace-nowrap">
-                Oazis Qashqadaryo Bazasi
-              </span>
-            </div>
-
-            {/* Courier Markers */}
-            {couriers.map((courier, idx) => {
-              const isSelected = selectedCourierId === courier.id
-              const diffLon = (courier.coords?.[1] || 66.0463534) - 66.0463534
-              const diffLat = (courier.coords?.[0] || 38.8986231) - 38.8986231
-              const leftPercent = 50 + diffLon * 1600
-              const topPercent = 50 - diffLat * 1600
-              const clampedLeft = Math.max(12, Math.min(88, leftPercent))
-              const clampedTop = Math.max(14, Math.min(86, topPercent))
-
-              return (
-                <button
-                  key={courier.id || idx}
-                  type="button"
-                  onClick={() => onSelectCourier(courier.id)}
-                  style={{ left: `${clampedLeft}%`, top: `${clampedTop}%` }}
-                  className={`absolute -translate-x-1/2 -translate-y-1/2 group cursor-pointer transition-all duration-300 pointer-events-auto ${
-                    isSelected ? "scale-125 z-30" : "hover:scale-110 z-10"
-                  }`}
-                >
-                  <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center shadow-md transition-all ${
-                      isSelected
-                        ? "bg-red-600 text-white ring-4 ring-red-200 shadow-lg"
-                        : courier.status === "on_way"
-                        ? "bg-blue-600 text-white ring-2 ring-blue-200 shadow-md"
-                        : "bg-slate-700 text-white ring-2 ring-slate-200"
-                    }`}
-                  >
-                    <Car className="w-4 h-4" />
-                  </div>
-                  <div className="mt-1 bg-white/95 px-2 py-0.5 rounded text-[10px] font-semibold text-slate-800 shadow-sm border border-slate-200 whitespace-nowrap flex items-center gap-1">
-                    <span>{courier.name}</span>
-                    <span className="text-[9px] text-blue-600">({courier.vehicle})</span>
-                  </div>
-                </button>
-              )
-            })}
+      {/* Error State */}
+      {loadStatus === "error" && (
+        <div className="absolute inset-0 bg-slate-100 flex flex-col items-center justify-center p-6 text-center z-20">
+          <div className="bg-white p-6 rounded-2xl border border-red-200 shadow-sm max-w-md">
+            <p className="text-sm font-bold text-red-600 mb-2">Yandex Maps yuklanmadi</p>
+            <p className="text-xs text-slate-600 mb-2">
+              .env faylingizda kalit kiritilganini tekshiring va dev-serverni qayta yoqing.
+            </p>
+            {errorDetail && (
+              <p className="text-[11px] text-slate-400 font-mono">{errorDetail}</p>
+            )}
           </div>
         </div>
       )}

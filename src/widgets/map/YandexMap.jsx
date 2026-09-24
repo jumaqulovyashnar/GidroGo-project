@@ -1,60 +1,133 @@
-import { useEffect, useRef, useState } from "react"
-import { MapPin, Navigation, Car, AlertCircle, RefreshCw, ZoomIn, ZoomOut, Compass } from "lucide-react"
+import { useEffect, useRef, useState, useCallback } from "react"
+import {
+  Navigation,
+  Car,
+  AlertCircle,
+  RefreshCw,
+  ChevronUp,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react"
 
-const YANDEX_API_KEY = "your_yandex_maps_api_key_placeholder_for_security_reasons_000000"
-const QASHQADARYO_CENTER = [38.8986231, 66.0463534]
+const YANDEX_API_KEY = import.meta.env.VITE_YANDEX_MAPS_KEY
+
+/**
+ * Aniq Geografik Koordinatalar (Yandex Maps v2.1 standarti: [Latitude, Longitude])
+ * Reference:
+ *   Xarita markazi (Qashqadaryo viloyati): Latitude 38.8986, Longitude 66.0464
+ *   Qarshi shahri markeri: Latitude 38.8612, Longitude 65.7847
+ */
+const QASHQADARYO_CENTER = [38.8986, 66.0464]
+const QARSHI_MARKER_COORDS = [38.8612, 65.7847]
+
+/**
+ * Qashqadaryo viloyati Bounding Box (restrictMapArea uchun)
+ * SW (Janubiy-G'arb): [38.0000, 64.3000]
+ * NE (Shimoliy-Sharq): [39.8000, 67.5000]
+ */
+const QASHQADARYO_RESTRICT_BOUNDS = [
+  [38.0000, 64.3000],
+  [39.8000, 67.5000],
+]
+
+/**
+ * Koordinatalarni [Latitude, Longitude] formatiga o'tkazish
+ */
+function toLatLong(coords) {
+  if (!coords) return QASHQADARYO_CENTER
+
+  if (Array.isArray(coords)) {
+    if (coords.length < 2) return QASHQADARYO_CENTER
+    const first = Number(coords[0])
+    const second = Number(coords[1])
+    if (Number.isNaN(first) || Number.isNaN(second)) return QASHQADARYO_CENTER
+
+    // Agar [lon, lat] berilgan bo'lsa (lon ~ 64-68, lat ~ 38-40) -> [lat, lon]
+    if (first > 50 && second < 50) {
+      return [second, first]
+    }
+    return [first, second]
+  }
+
+  if (typeof coords === "object") {
+    const lat = Number(coords.lat ?? coords.latitude)
+    const lon = Number(coords.lng ?? coords.lon ?? coords.longitude)
+    if (!Number.isNaN(lon) && !Number.isNaN(lat)) {
+      return [lat, lon]
+    }
+  }
+
+  return QASHQADARYO_CENTER
+}
 
 /**
  * Yandex Map Component for GidroGo Manager dispatching
- * Dynamically loads Yandex Maps API v2.1 with full Qashqadaryo / Qarshi couriers & routes
  */
 export default function YandexMap({
   center = QASHQADARYO_CENTER,
-  zoom = 13,
+  zoom = 8.5,
   couriers = [],
-  orders = [],
+  _orders = [],
   selectedCourierId = null,
   onSelectCourier = () => {},
   className = "w-full h-full min-h-[500px]",
 }) {
   const mapContainerRef = useRef(null)
   const mapInstanceRef = useRef(null)
-  const [loadStatus, setLoadStatus] = useState("loading") // "loading" | "ready" | "fallback"
+  const onSelectCourierRef = useRef(onSelectCourier)
+  useEffect(() => {
+    onSelectCourierRef.current = onSelectCourier
+  }, [onSelectCourier])
+
+  const [loadStatus, setLoadStatus] = useState(() => {
+    if (!YANDEX_API_KEY) return "fallback"
+    if (typeof window !== "undefined" && window.ymaps?.Map) return "ready"
+    return "loading"
+  })
   const [activeLayer, setActiveLayer] = useState("map") // "map" | "satellite"
 
-  // Load Yandex script
+  // Load Yandex script (standart [Latitude, Longitude])
   useEffect(() => {
+    if (!YANDEX_API_KEY) return
+
     let isMounted = true
 
     const loadYandexScript = () => {
-      if (window.ymaps && window.ymaps.Map) {
+      if (window.ymaps?.Map) {
         if (isMounted) setLoadStatus("ready")
         return
       }
 
-      // Check if script tag already exists
-      const existingScript = document.getElementById("yandex-map-script")
-      if (existingScript) {
+      const scriptId = "yandex-map-script"
+      let script = document.getElementById(scriptId)
+      if (script && (script.src.includes("coordorder=longlat") || !script.src.includes(YANDEX_API_KEY))) {
+        script.remove()
+        script = null
         if (window.ymaps) {
-          window.ymaps.ready(() => {
-            if (isMounted) setLoadStatus("ready")
-          })
+          try {
+            delete window.ymaps
+          } catch {
+            window.ymaps = undefined
+          }
         }
-        return
       }
 
-      const script = document.createElement("script")
-      script.id = "yandex-map-script"
-      script.type = "text/javascript"
-      script.src = `https://api-maps.yandex.ru/2.1/?apikey=${YANDEX_API_KEY}&lang=uz_UZ`
-      script.async = true
+      if (!script) {
+        script = document.createElement("script")
+        script.id = scriptId
+        script.type = "text/javascript"
+        script.src = `https://api-maps.yandex.ru/2.1/?apikey=${YANDEX_API_KEY}&lang=uz_UZ`
+        script.async = true
+        document.head.appendChild(script)
+      }
 
       const timeoutId = setTimeout(() => {
         if (isMounted && loadStatus === "loading") {
           console.warn("Yandex Maps API load timed out, falling back to vector map.")
           setLoadStatus("fallback")
         }
-      }, 7000)
+      }, 5000)
 
       script.onload = () => {
         clearTimeout(timeoutId)
@@ -71,8 +144,6 @@ export default function YandexMap({
         clearTimeout(timeoutId)
         if (isMounted) setLoadStatus("fallback")
       }
-
-      document.head.appendChild(script)
     }
 
     loadYandexScript()
@@ -82,204 +153,275 @@ export default function YandexMap({
     }
   }, [loadStatus])
 
-  // Initialize and update Map instance when API is ready
-  useEffect(() => {
-    if (loadStatus !== "ready" || !mapContainerRef.current || !window.ymaps) return
+  // Helper to populate/refresh markers without destroying the map instance
+  const renderPlacemarks = useCallback((map) => {
+    if (!map || !window.ymaps) return
 
-    window.ymaps.ready(() => {
-      if (!mapContainerRef.current) return
+    map.geoObjects.removeAll()
 
-      try {
-        // Destroy previous instance if needed
-        if (mapInstanceRef.current) {
-          mapInstanceRef.current.destroy()
-          mapInstanceRef.current = null
+    // Central Base placemark (Oazis Water Qarshi Hub) - Latitude 38.8612, Longitude 65.7847
+    const basePlacemark = new window.ymaps.Placemark(
+      QARSHI_MARKER_COORDS,
+      {
+        iconContent: "Qarshi",
+        hintContent: "Qarshi shahri",
+      },
+      {
+        preset: "islands#blueStretchyIcon",
+        hasBalloon: false,
+        openBalloonOnClick: false,
+      }
+    )
+    map.geoObjects.add(basePlacemark)
+
+    // Add Couriers Placemarks
+    couriers.forEach((courier) => {
+      if (!courier.coords) return
+      const courierCoord = toLatLong(courier.coords)
+      if (!courierCoord) return
+
+      const isSelected = selectedCourierId === courier.id
+      const placemark = new window.ymaps.Placemark(
+        courierCoord,
+        {
+          hintContent: `${courier.name} (${courier.vehicle || "Kuryer"})`,
+        },
+        {
+          preset: isSelected ? "islands#redAutoIcon" : "islands#blueAutoIcon",
+          iconColor: isSelected ? "#ef4444" : "#2563EB",
         }
+      )
 
-        const map = new window.ymaps.Map(mapContainerRef.current, {
-          center: center,
-          zoom: zoom,
-          controls: ["zoomControl", "typeSelector", "fullscreenControl"],
-        }, {
-          searchControlProvider: "yandex#search",
-        })
+      placemark.events.add("click", () => {
+        onSelectCourierRef.current?.(courier.id)
+      })
 
-        mapInstanceRef.current = map
+      map.geoObjects.add(placemark)
 
-        // Central Base placemark (Oazis Water Qarshi Hub)
-        const basePlacemark = new window.ymaps.Placemark(
-          QASHQADARYO_CENTER,
-          {
-            balloonContentHeader: `<strong>Oazis Water — Qarshi Markaziy Baza</strong>`,
-            balloonContentBody: `
-              <div style="font-size: 13px; line-height: 1.4; color: #1e293b;">
-                <p>📍 Qarshi shahar, Nasaf ko'chasi 1-A</p>
-                <p>💧 Zaxira: <strong>10,600 litr</strong></p>
-                <p>🚛 Navbatdagi mashinalar: 3 ta</p>
-              </div>
-            `,
-            hintContent: "Oazis Water Qarshi Filiali",
-          },
-          {
-            preset: "islands#blueDotIconWithCaption",
-            iconColor: "#2563EB",
-          }
-        )
-        map.geoObjects.add(basePlacemark)
-
-        // Add Couriers Placemarks
-        couriers.forEach((courier) => {
-          if (!courier.coords) return
-
-          const isSelected = selectedCourierId === courier.id
-          const placemark = new window.ymaps.Placemark(
-            courier.coords,
+      // If this courier is selected and has a delivery target, draw route line
+      if (isSelected && courier.targetCoords) {
+        const targetCoord = toLatLong(courier.targetCoords)
+        if (targetCoord) {
+          const routeLine = new window.ymaps.Polyline(
+            [courierCoord, targetCoord],
             {
-              balloonContentHeader: `
-                <div style="display: flex; align-items: center; gap: 8px;">
-                  <strong style="color: #0f172a; font-size: 14px;">${courier.name}</strong>
-                  <span style="background: ${courier.status === "on_way" ? "#dbeafe" : "#f1f5f9"}; color: ${courier.status === "on_way" ? "#1e40af" : "#475569"}; font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: 600;">
-                    ${courier.statusText || courier.status}
-                  </span>
-                </div>
-              `,
-              balloonContentBody: `
-                <div style="font-size: 12px; line-height: 1.6; color: #334155; margin-top: 6px;">
-                  <div>🚘 <strong>Transport:</strong> ${courier.vehicle || "Labo"} (${courier.plate || ""})</div>
-                  <div>📦 <strong>Yuk holati:</strong> ${courier.load || "22/30"} kapsula</div>
-                  <div>📞 <strong>Telefon:</strong> ${courier.phone || "+998 (90) 000-00-00"}</div>
-                  <div>📍 <strong>Joriy yo'nalish:</strong> ${courier.currentDestination || "Qarshi markazi"}</div>
-                  <div style="margin-top: 8px;">
-                    <a href="tel:${courier.phone}" style="display: inline-block; background: #2563EB; color: white; padding: 4px 10px; border-radius: 6px; text-decoration: none; font-size: 11px; font-weight: 500;">
-                      Qo'ng'iroq qilish
-                    </a>
-                  </div>
-                </div>
-              `,
-              hintContent: `${courier.name} (${courier.vehicle})`,
+              hintContent: `Yo'nalish: ${courier.currentDestination || ""}`,
             },
             {
-              preset: isSelected ? "islands#redAutoIcon" : "islands#blueAutoIcon",
-              iconColor: isSelected ? "#ef4444" : "#2563EB",
+              strokeColor: "#2563EB",
+              strokeWidth: 4,
+              strokeOpacity: 0.8,
+              strokeStyle: "shortdash",
             }
           )
+          map.geoObjects.add(routeLine)
 
-          placemark.events.add("click", () => {
-            onSelectCourier(courier.id)
-          })
-
-          map.geoObjects.add(placemark)
-
-          // If this courier is selected and has a delivery target, draw route line
-          if (isSelected && courier.targetCoords) {
-            const routeLine = new window.ymaps.Polyline(
-              [courier.coords, courier.targetCoords],
-              {
-                hintContent: `Yo'nalish: ${courier.currentDestination}`,
-              },
-              {
-                strokeColor: "#2563EB",
-                strokeWidth: 4,
-                strokeOpacity: 0.8,
-                strokeStyle: "shortdash",
-              }
-            )
-            map.geoObjects.add(routeLine)
-
-            // Add Target delivery point
-            const targetPlacemark = new window.ymaps.Placemark(
-              courier.targetCoords,
-              {
-                balloonContentHeader: `<strong>Mijoz manzili: ${courier.customerName || "Buyurtmachi"}</strong>`,
-                balloonContentBody: `
-                  <div style="font-size: 12px; color: #334155;">
-                    <p>📍 ${courier.currentDestination}</p>
-                    <p>📦 Mahsulot: ${courier.orderProduct || "18.9L Kapsula x 3"}</p>
-                    <p>⏱ Kutilayotgan vaqt: <strong>${courier.eta || "15 daqiqa"}</strong></p>
-                  </div>
-                `,
-                hintContent: "Mijoz yetkazish manzili",
-              },
-              {
-                preset: "islands#darkOrangeDotIcon",
-                iconColor: "#f97316",
-              }
-            )
-            map.geoObjects.add(targetPlacemark)
-          }
-        })
-
-        // Pan to selected courier if available
-        if (selectedCourierId) {
-          const selected = couriers.find((c) => c.id === selectedCourierId)
-          if (selected && selected.coords) {
-            map.panTo(selected.coords, { flying: true, duration: 600 })
-          }
+          // Add Target delivery point
+          const targetPlacemark = new window.ymaps.Placemark(
+            targetCoord,
+            {
+              hintContent: "Mijoz yetkazish manzili",
+            },
+            {
+              preset: "islands#darkOrangeDotIcon",
+              iconColor: "#f97316",
+            }
+          )
+          map.geoObjects.add(targetPlacemark)
         }
+      }
+    })
+  }, [couriers, selectedCourierId])
+
+  // Initialize Map instance once when API is ready
+  useEffect(() => {
+    if (loadStatus !== "ready" || !mapContainerRef.current || !window.ymaps) return
+    if (mapInstanceRef.current) return
+
+    window.ymaps.ready(() => {
+      if (!mapContainerRef.current || mapInstanceRef.current) return
+
+      try {
+        const initialType = activeLayer === "satellite" ? "yandex#hybrid" : "yandex#map"
+
+        const map = new window.ymaps.Map(
+          mapContainerRef.current,
+          {
+            center: toLatLong(center),
+            zoom: zoom || 8.5,
+            type: initialType,
+            controls: ["zoomControl"],
+          },
+          {
+            restrictMapArea: QASHQADARYO_RESTRICT_BOUNDS,
+            minZoom: 7,
+            maxZoom: 18,
+            suppressMapOpenBlock: true,
+          }
+        )
+
+        mapInstanceRef.current = map
+        renderPlacemarks(map)
       } catch (err) {
         console.error("Yandex Map init error:", err)
         setLoadStatus("fallback")
       }
     })
-  }, [loadStatus, couriers, orders, selectedCourierId, center, zoom, onSelectCourier])
+
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.destroy()
+        mapInstanceRef.current = null
+      }
+    }
+  }, [loadStatus, center, zoom, activeLayer, renderPlacemarks])
+
+  // Synchronize placemarks without recreating map
+  useEffect(() => {
+    if (mapInstanceRef.current) {
+      renderPlacemarks(mapInstanceRef.current)
+    }
+  }, [renderPlacemarks])
 
   // Center on selected courier change
   useEffect(() => {
     if (mapInstanceRef.current && selectedCourierId) {
       const selected = couriers.find((c) => c.id === selectedCourierId)
-      if (selected && selected.coords) {
-        mapInstanceRef.current.panTo(selected.coords, { flying: true, duration: 600 })
+      if (selected?.coords) {
+        const coords = toLatLong(selected.coords)
+        mapInstanceRef.current.panTo(coords, { flying: true, duration: 600 })
       }
     }
   }, [selectedCourierId, couriers])
 
-  const handleZoomIn = () => {
+  // Synchronize map type when activeLayer changes
+  useEffect(() => {
     if (mapInstanceRef.current) {
-      mapInstanceRef.current.setZoom(mapInstanceRef.current.getZoom() + 1, { duration: 300 })
+      const targetType = activeLayer === "satellite" ? "yandex#hybrid" : "yandex#map"
+      mapInstanceRef.current.setType(targetType)
     }
-  }
-
-  const handleZoomOut = () => {
-    if (mapInstanceRef.current) {
-      mapInstanceRef.current.setZoom(mapInstanceRef.current.getZoom() - 1, { duration: 300 })
-    }
-  }
-
-  const handleResetCenter = () => {
-    if (mapInstanceRef.current) {
-      mapInstanceRef.current.setCenter(QASHQADARYO_CENTER, 13, { duration: 500 })
-    }
-  }
+  }, [activeLayer])
 
   const handleToggleLayer = (type) => {
     setActiveLayer(type)
     if (mapInstanceRef.current) {
-      mapInstanceRef.current.setType(type === "satellite" ? "yandex#satellite" : "yandex#map")
+      const targetType = type === "satellite" ? "yandex#hybrid" : "yandex#map"
+      mapInstanceRef.current.setType(targetType)
     }
   }
 
+  /**
+   * Arrow navigation buttons (↑ ↓ ← →)
+   * 25% of visible viewport
+   */
+  const handlePan = useCallback((direction) => {
+    const map = mapInstanceRef.current
+    if (!map) return
+
+    try {
+      const currentCenter = map.getCenter() // [Latitude, Longitude]
+      if (!currentCenter || currentCenter.length < 2) return
+
+      let stepLat = 0.04
+      let stepLon = 0.05
+
+      const bounds = map.getBounds()
+      if (bounds && bounds.length === 2) {
+        const spanLat = Math.abs(bounds[1][0] - bounds[0][0])
+        const spanLon = Math.abs(bounds[1][1] - bounds[0][1])
+        stepLat = spanLat * 0.25
+        stepLon = spanLon * 0.25
+      } else {
+        const currentZoom = map.getZoom() || 8.5
+        stepLat = (180 / Math.pow(2, currentZoom)) * 0.25
+        stepLon = (360 / Math.pow(2, currentZoom)) * 0.25
+      }
+
+      const [curLat, curLon] = currentCenter
+      let newLat = curLat
+      let newLon = curLon
+
+      switch (direction) {
+        case "up":
+          newLat = curLat + stepLat
+          break
+        case "down":
+          newLat = curLat - stepLat
+          break
+        case "left":
+          newLon = curLon - stepLon
+          break
+        case "right":
+          newLon = curLon + stepLon
+          break
+        default:
+          return
+      }
+
+      map.panTo([newLat, newLon], {
+        duration: 300,
+        flying: false,
+        checkZoomRange: true,
+      })
+    } catch (err) {
+      console.error("[YandexMap] Navigatsiyada xatolik:", err)
+    }
+  }, [])
+
   return (
     <div className={`relative rounded-xl overflow-hidden border border-slate-200 bg-slate-100 ${className}`}>
-      {/* Top Map Action Bar */}
-      <div className="absolute top-3 left-3 z-10 flex items-center gap-2 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-lg shadow-sm border border-slate-200">
-        <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-700">
-          <MapPin className="w-3.5 h-3.5 text-blue-600" />
-          <span>Qashqadaryo (Qarshi)</span>
+      {/* 4 ta Arrow Navigation Buttons: [ ↑ ] / [ ← ][ → ] / [ ↓ ] */}
+      <div
+        className="absolute bottom-8 right-3 z-10 flex flex-col items-center bg-white/95 backdrop-blur-md p-1.5 rounded-xl shadow-md border border-slate-200 pointer-events-auto select-none"
+        role="group"
+        aria-label="Xarita navigatsiyasi"
+      >
+        <button
+          type="button"
+          onClick={() => handlePan("up")}
+          aria-label="Xaritani yuqoriga surish"
+          title="Yuqoriga surish"
+          className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-700 hover:text-blue-600 hover:bg-slate-100 active:bg-blue-50 active:scale-95 transition-all cursor-pointer shadow-xs border border-transparent hover:border-slate-200"
+        >
+          <ChevronUp className="w-4 h-4" />
+        </button>
+        <div className="flex items-center gap-1 my-0.5">
+          <button
+            type="button"
+            onClick={() => handlePan("left")}
+            aria-label="Xaritani chapga surish"
+            title="Chapga surish"
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-700 hover:text-blue-600 hover:bg-slate-100 active:bg-blue-50 active:scale-95 transition-all cursor-pointer shadow-xs border border-transparent hover:border-slate-200"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => handlePan("right")}
+            aria-label="Xaritani o‘ngga surish"
+            title="O'ngga surish"
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-700 hover:text-blue-600 hover:bg-slate-100 active:bg-blue-50 active:scale-95 transition-all cursor-pointer shadow-xs border border-transparent hover:border-slate-200"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
         </div>
-        <span className="text-slate-300">|</span>
-        <span className="text-[11px] text-slate-500 font-mono">38.8986° N, 66.0464° E</span>
-        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          Jonli GPS
-        </span>
+        <button
+          type="button"
+          onClick={() => handlePan("down")}
+          aria-label="Xaritani pastga surish"
+          title="Pastga surish"
+          className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-700 hover:text-blue-600 hover:bg-slate-100 active:bg-blue-50 active:scale-95 transition-all cursor-pointer shadow-xs border border-transparent hover:border-slate-200"
+        >
+          <ChevronDown className="w-4 h-4" />
+        </button>
       </div>
 
       {/* Layer Toggle & Map Controls */}
-      <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5 bg-white/95 backdrop-blur-md p-1 rounded-lg shadow-sm border border-slate-200">
+      <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5 bg-white/95 backdrop-blur-md p-1 rounded-lg shadow-sm border border-slate-200 pointer-events-auto">
         <button
           type="button"
           onClick={() => handleToggleLayer("map")}
-          className={`px-2.5 py-1 text-xs font-medium rounded transition-colors ${
+          className={`px-2.5 py-1 text-xs font-medium rounded transition-colors cursor-pointer ${
             activeLayer === "map"
               ? "bg-blue-600 text-white shadow-xs"
               : "text-slate-600 hover:bg-slate-100"
@@ -290,41 +432,13 @@ export default function YandexMap({
         <button
           type="button"
           onClick={() => handleToggleLayer("satellite")}
-          className={`px-2.5 py-1 text-xs font-medium rounded transition-colors ${
+          className={`px-2.5 py-1 text-xs font-medium rounded transition-colors cursor-pointer ${
             activeLayer === "satellite"
               ? "bg-blue-600 text-white shadow-xs"
               : "text-slate-600 hover:bg-slate-100"
           }`}
         >
           Sun'iy yo'ldosh
-        </button>
-      </div>
-
-      {/* Quick Zoom & Navigation Controls */}
-      <div className="absolute bottom-6 right-3 z-10 flex flex-col gap-1.5">
-        <button
-          type="button"
-          onClick={handleZoomIn}
-          className="w-8 h-8 rounded-lg bg-white shadow-md border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-50 transition-colors"
-          title="Yaqinlashtirish"
-        >
-          <ZoomIn className="w-4 h-4" />
-        </button>
-        <button
-          type="button"
-          onClick={handleZoomOut}
-          className="w-8 h-8 rounded-lg bg-white shadow-md border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-50 transition-colors"
-          title="Uzoqlashtirish"
-        >
-          <ZoomOut className="w-4 h-4" />
-        </button>
-        <button
-          type="button"
-          onClick={handleResetCenter}
-          className="w-8 h-8 rounded-lg bg-white shadow-md border border-slate-200 flex items-center justify-center text-blue-600 hover:bg-blue-50 transition-colors"
-          title="Qarshi markaziga qaytish"
-        >
-          <Compass className="w-4 h-4" />
         </button>
       </div>
 
@@ -342,15 +456,12 @@ export default function YandexMap({
       {/* Vector Fallback if offline / API restricted */}
       {loadStatus === "fallback" && (
         <div className="absolute inset-0 bg-gradient-to-br from-slate-100 via-sky-50 to-blue-50 p-6 flex flex-col justify-between overflow-hidden">
-          {/* Fallback Notice */}
           <div className="inline-flex items-center gap-2 bg-amber-50 text-amber-800 border border-amber-200 text-xs px-3 py-1.5 rounded-lg w-fit shadow-xs">
             <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
             <span>Yandex xaritasi yuklanmadi (oflayn yoki tarmoq cheklovi). Interaktiv vektor sxemasi ishlamoqda.</span>
           </div>
 
-          {/* Interactive Vector Map Grid of Qarshi */}
           <div className="relative flex-1 my-4 border border-blue-200/60 rounded-xl bg-white/70 backdrop-blur-sm p-4 overflow-hidden shadow-inner">
-            {/* Roads & grid lines */}
             <svg className="absolute inset-0 w-full h-full opacity-35" xmlns="http://www.w3.org/2000/svg">
               <defs>
                 <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
@@ -358,15 +469,11 @@ export default function YandexMap({
                 </pattern>
               </defs>
               <rect width="100%" height="100%" fill="url(#grid)" />
-              {/* Nasaf road */}
               <line x1="10%" y1="20%" x2="90%" y2="80%" stroke="#3b82f6" strokeWidth="4" strokeDasharray="6 3" />
-              {/* Mustaqillik avenue */}
               <line x1="15%" y1="75%" x2="85%" y2="25%" stroke="#2563eb" strokeWidth="5" />
-              {/* Islom Karimov street */}
               <line x1="50%" y1="10%" x2="50%" y2="90%" stroke="#60a5fa" strokeWidth="3" />
             </svg>
 
-            {/* Central Depot Hub */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center z-10">
               <div className="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-lg ring-4 ring-blue-200">
                 <Navigation className="w-4 h-4 fill-white" />
@@ -376,10 +483,8 @@ export default function YandexMap({
               </span>
             </div>
 
-            {/* Couriers scattered across Qashqadaryo / Qarshi */}
             {couriers.map((courier, index) => {
               const isSelected = selectedCourierId === courier.id
-              // Coordinate projections for Qashqadaryo relative to center
               const leftPercent = 50 + ((courier.coords?.[1] || 66.0463534) - 66.0463534) * 900
               const topPercent = 50 - ((courier.coords?.[0] || 38.8986231) - 38.8986231) * 900
               const clampedLeft = Math.max(12, Math.min(88, leftPercent))
