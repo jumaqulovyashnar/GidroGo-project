@@ -1,4 +1,4 @@
-import { LayoutDashboard, Building2, Users, ShieldCheck, BarChart3, Settings, Calendar, LayoutGrid, Banknote, TrendingUp, Tractor, Contact, Truck, ClipboardList } from "lucide-react"
+import { LayoutDashboard, Building2, Users, ShieldCheck, BarChart3, Settings, Calendar, LayoutGrid, Banknote, TrendingUp, Tractor, Contact, Truck, ClipboardList, MapPin } from "lucide-react"
 
 export const SIDEBAR_MENU = {
   // 1. Super Admin (Tizim administratori) menyusi
@@ -28,6 +28,7 @@ export const SIDEBAR_MENU = {
     { title: "Buyurtmalar", path: "/manager/buyurtmalar", icon: Truck },
     { title: "Barcha buyurtmalar", path: "/manager/barcha-buyurtmalar", icon: ClipboardList },
     { title: "Xodimlar", path: "/manager/xodimlar", icon: Users },
+    { title: "Jonli xarita", path: "/manager/dastavkachilar-xarita", icon: MapPin },
   ],
 }
 

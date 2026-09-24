@@ -318,7 +318,7 @@ export default function ManagerAllOrdersPage() {
                 <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
-                  placeholder="Buyurtma ID, mijoz ismi, telefon..."
+                  placeholder="Qidiruv..."
                   value={searchQuery}
                   onChange={(e) => {
                     setSearchQuery(e.target.value)

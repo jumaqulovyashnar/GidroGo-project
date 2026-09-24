@@ -107,6 +107,10 @@ const router = createBrowserRouter([
                 element: <ManagerCouriersMapPage />,
               },
               {
+                path: "/manager/xarita",
+                element: <ManagerCouriersMapPage />,
+              },
+              {
                 path: "/manager/xodimlar",
                 element: <ManagerXodimlarPage />,
               },
