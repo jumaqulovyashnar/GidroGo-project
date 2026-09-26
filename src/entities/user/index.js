@@ -1,2 +1,2 @@
-export { default as useUserStore } from "./userStore"
-export * from "./auth.service"
+export { useUserStore } from "./userStore"
+export { authService } from "./auth.service"
