@@ -75,7 +75,7 @@ function LoginPage() {
         {/* 1-qator: Ism (useRef bilan) */}
         <Field>
           <Label htmlFor="name" className="font-medium text-sm">
-            Ismingiz (ixtiyoriy)
+            Ismingiz.
           </Label>
           <Input
             id="name"

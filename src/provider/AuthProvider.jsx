@@ -5,26 +5,33 @@ import {
   useState,
   useCallback,
   useMemo,
-  useRef,
 } from "react"
 
-import { authService, userService, useUserStore } from "@/entities/user"
-import { queryClient } from "@/provider/QueryProvider"
+import { authService, useUserStore } from "@/entities/user"
 
 const AuthContext = createContext(null)
 
-// JWT ichidan payload olish
-const decodeJwt = (token) => {
+export const decodeJwt = (token) => {
   try {
     const payload = token?.split(".")?.[1]
-    if (!payload) return null
 
-    const base64 = payload.replace(/-/g, "+").replace(/_/g, "/")
+    if (!payload) {
+      return null
+    }
+
+    const base64 = payload
+      .replace(/-/g, "+")
+      .replace(/_/g, "/")
+
     return JSON.parse(
       decodeURIComponent(
         atob(base64)
           .split("")
-          .map((char) => "%" + ("00" + char.charCodeAt(0).toString(16)).slice(-2))
+          .map(
+            (char) =>
+              "%" +
+              ("00" + char.charCodeAt(0).toString(16)).slice(-2)
+          )
           .join("")
       )
     )
@@ -33,39 +40,88 @@ const decodeJwt = (token) => {
   }
 }
 
-// Backend user ma'lumotini frontend formatiga o'tkazish
-const createUser = (userData, token) => {
+export const getResponseData = (response) => {
+  return response?.data ?? response
+}
+
+export const getErrorStatus = (error) => {
+  return (
+    error?.response?.status ||
+    error?.status ||
+    null
+  )
+}
+
+export const getErrorMessage = (error) => {
+  return (
+    error?.response?.data?.message ||
+    error?.message ||
+    null
+  )
+}
+
+export const getUserIdFromToken = (token) => {
   const decodedToken = decodeJwt(token)
 
-  const rawRole = userData?.roleName || userData?.rawRole || userData?.role || decodedToken?.roleName ||  decodedToken?.role || "ROLE_ADMIN"
+  return (
+    decodedToken?.userId ||
+    decodedToken?.sub ||
+    null
+  )
+}
 
-  const isSuperAdmin =
-    rawRole === "ROLE_SUPER_ADMIN" ||
-    rawRole === "SUPER_ADMIN" ||
-    userData?.role === "SUPER_ADMIN"
+export const getAuthTokens = (data) => {
+  return {
+    accessToken:
+      data?.access?.accessToken ||
+      data?.accessToken ||
+      data?.token ||
+      data?.jwt ||
+      null,
 
-  const isManager =
-    rawRole === "ROLE_MANAGER" ||
-    rawRole === "MANAGER" ||
-    userData?.role === "MANAGER"
+    refreshToken:
+      data?.access?.refreshToken ||
+      data?.refreshToken ||
+      null,
+  }
+}
 
-  const isBoss =
-    rawRole === "ROLE_BOSS" ||
-    rawRole === "BOSS" ||
-    userData?.role === "BOSS"
+export const createUser = (userData, token) => {
+  const decodedToken = decodeJwt(token)
 
-  let role = "VILOYAT_ADMIN"
-  let roleLabel = "Viloyat Admin"
+  const rawRole =
+    userData?.roleName ||
+    userData?.rawRole ||
+    userData?.role ||
+    decodedToken?.roleName ||
+    decodedToken?.role ||
+    "ROLE_ADMIN"
 
-  if (isSuperAdmin) {
-    role = "SUPER_ADMIN"
-    roleLabel = "Super Admin"
-  } else if (isBoss) {
-    role = "BOSS"
-    roleLabel = "Ferma boshlig'i"
-  } else if (isManager) {
-    role = "MANAGER"
-    roleLabel = "Menejer"
+  const userId =
+    userData?.id ||
+    decodedToken?.userId ||
+    decodedToken?.sub ||
+    "usr-1"
+
+  const roleMap = {
+    ROLE_SUPER_ADMIN: "SUPER_ADMIN",
+    SUPER_ADMIN: "SUPER_ADMIN",
+
+    ROLE_MANAGER: "MANAGER",
+    MANAGER: "MANAGER",
+
+    ROLE_BOSS: "BOSS",
+    BOSS: "BOSS",
+  }
+
+  const role = roleMap[rawRole] || rawRole || "VILOYAT_ADMIN"
+
+  let roleLabel = userData?.roleLabel
+  if (!roleLabel) {
+    if (role === "SUPER_ADMIN") roleLabel = "Super Admin"
+    else if (role === "BOSS") roleLabel = "Ferma boshlig'i"
+    else if (role === "MANAGER") roleLabel = "Menejer"
+    else roleLabel = "Viloyat Admin"
   }
 
   const firstName = userData?.firstName || ""
@@ -73,30 +129,55 @@ const createUser = (userData, token) => {
 
   const fullName =
     userData?.name ||
-    [firstName, lastName].filter(Boolean).join(" ").trim() ||
+    [firstName, lastName]
+      .filter(Boolean)
+      .join(" ")
+      .trim() ||
     userData?.fullname ||
     roleLabel
 
   return {
-    id: String(
-      userData?.id || decodedToken?.userId || decodedToken?.sub || "usr-1"
-    ),
+    id: String(userId),
+
     username:
       userData?.phone ||
       userData?.username ||
-      decodedToken?.sub ||  "",
+      decodedToken?.sub ||
+      "",
+
     phone: userData?.phone,
+
     name: fullName,
-    firstName: firstName || undefined,
-    lastName: lastName || undefined,
+
+    firstName:
+      firstName || undefined,
+
+    lastName:
+      lastName || undefined,
+
     role,
+
     rawRole,
+
     roleLabel,
-    email: userData?.email || `${userData?.phone || "admin"}@gidrogo.uz`,
-    region: userData?.regionName || userData?.region || undefined,
-    regionId: userData?.regionId,
-    attachmentPath: userData?.attachmentPath || userData?.avatar,
-    permissions: userData?.permissions || [],
+
+    email:
+      userData?.email || `${userData?.phone || "admin"}@gidrogo.uz`,
+
+    region:
+      userData?.regionName ||
+      userData?.region ||
+      undefined,
+
+    regionId:
+      userData?.regionId,
+
+    attachmentPath:
+      userData?.attachmentPath ||
+      userData?.avatar,
+
+    permissions:
+      userData?.permissions || [],
   }
 }
 
@@ -106,43 +187,7 @@ export const AuthProvider = ({ children }) => {
   const token = userToken?.accessToken || null
 
   const isAuthenticated = Boolean(token && user)
-  const [isInitializing, setIsInitializing] = useState(true)
-  const syncInitiatedRef = useRef(false)
-
-  // Backend'dan user ma'lumotlarini olish
-  const fetchUser = useCallback(async (authToken) => {
-    try {
-      const response = await userService.getMe()
-      const userData = response?.data || response
-
-      const formattedUser = createUser(userData, authToken)
-
-      useUserStore.getState().actions.setUserInfo(formattedUser)
-      queryClient.setQueryData(["user", "me", authToken], userData)
-
-      return formattedUser
-    } catch {
-      const decodedToken = decodeJwt(authToken)
-      const userId = decodedToken?.userId || decodedToken?.sub
-
-      if (userId) {
-        try {
-          const response = await userService.getAdminById(userId)
-          const userData = response?.data || response
-
-          const formattedUser = createUser(userData, authToken)
-          useUserStore.getState().actions.setUserInfo(formattedUser)
-          return formattedUser
-        } catch {
-          // ignore
-        }
-      }
-
-      const formattedUser = createUser(null, authToken)
-      useUserStore.getState().actions.setUserInfo(formattedUser)
-      return formattedUser
-    }
-  }, [])
+  const [isInitializing, setIsInitializing] = useState(false)
 
   // LOGIN
   const login = useCallback(
@@ -163,16 +208,10 @@ export const AuthProvider = ({ children }) => {
           password: cleanPassword,
         })
 
-        const data = response?.data || response
-
-        const accessToken =
-          data?.access?.accessToken ||
-          data?.accessToken ||
-          data?.token ||
-          data?.jwt
-
-        const refreshToken =
-          data?.access?.refreshToken || data?.refreshToken || ""
+        const data = getResponseData(response)
+        const tokens = getAuthTokens(data)
+        const accessToken = tokens.accessToken
+        const refreshToken = tokens.refreshToken || ""
 
         if (!accessToken) {
           return {
@@ -181,22 +220,20 @@ export const AuthProvider = ({ children }) => {
           }
         }
 
-        const initialUser = createUser(data?.user || data, accessToken)
+        const userObj = createUser(data?.user || data, accessToken)
 
-        useUserStore.getState().actions.setUserInfoAndToken(initialUser, {
+        useUserStore.getState().actions.setUserInfoAndToken(userObj, {
           accessToken,
           refreshToken,
         })
 
-        const fullUser = await fetchUser(accessToken)
-
         return {
           success: true,
-          user: fullUser,
+          user: userObj,
         }
       } catch (error) {
-        const status = error?.response?.status || error?.status
-        const message = error?.response?.data?.message || error?.message
+        const status = getErrorStatus(error)
+        const message = getErrorMessage(error)
 
         if (status === 400 || status === 401 || status === 403 || status === 404) {
           return {
@@ -211,61 +248,26 @@ export const AuthProvider = ({ children }) => {
         }
       }
     },
-    [fetchUser]
+    []
   )
 
   // LOGOUT
   const logout = useCallback(() => {
     const currentToken = useUserStore.getState().userToken?.accessToken
     if (currentToken) {
-      authService.logout(currentToken).catch(() => {})
+      if (typeof authService.logout === "function") {
+        authService.logout(currentToken).catch(() => {})
+      } else if (typeof authService.logOut === "function") {
+        authService.logOut(currentToken).catch(() => {})
+      }
     }
     useUserStore.getState().actions.clearUserInfoAndToken()
   }, [])
 
-  // User ma'lumotlarini qayta yangilash
+  // User ma'lumotlarini qayta yangilash (agar kerak bo'lsa)
   const refetchUser = useCallback(async () => {
-    const currentToken = useUserStore.getState().userToken?.accessToken
-    if (!currentToken) return
-    await fetchUser(currentToken)
-  }, [fetchUser])
-
-  // Ilova ochilganda mavjud sessiyani tiklash
-  useEffect(() => {
-    let isMounted = true
-
-    const restoreSession = async () => {
-      const currentToken = useUserStore.getState().userToken?.accessToken
-
-      if (!currentToken) {
-        if (isMounted) setIsInitializing(false)
-        return
-      }
-
-      if (syncInitiatedRef.current) {
-        if (isMounted) setIsInitializing(false)
-        return
-      }
-      syncInitiatedRef.current = true
-
-      try {
-        await fetchUser(currentToken)
-      } catch (error) {
-        const status = error?.response?.status || error?.status
-        if (status === 401 || status === 403) {
-          useUserStore.getState().actions.clearUserInfoAndToken()
-        }
-      } finally {
-        if (isMounted) setIsInitializing(false)
-      }
-    }
-
-    restoreSession()
-
-    return () => {
-      isMounted = false
-    }
-  }, [fetchUser])
+    // Backendda /users/me mavjud bo'lmagani uchun hech narsa qilinmaydi
+  }, [])
 
   const contextValue = useMemo(
     () => ({
@@ -295,4 +297,4 @@ export const useAuth = () => {
   return context
 }
 
-export default AuthProvider;
+export default AuthProvider

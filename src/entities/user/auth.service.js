@@ -1,26 +1,30 @@
-import { api } from "@/shared/api"
+import { api } from "@/shared";
 
-export const authService = {
-  login: async ({ phone, password }) => {
-    try {
-      const response = await api.post("/auth/login", {
-        phone,
-        password,
-      })
+class AuthService {
+  async login(payload) {
+    const response = await api.post("auth/login", payload)
+    return response.data;
+  }
 
-      return response.data
-    } catch {
-      throw new Error("Telefon raqam yoki parol noto'g'ri!")
-    }
-  },
-
-  logout: async (token) => {
+  async logout(token) {
     try {
       const response = await api.post("/auth/logout", { token })
-
       return response.data
     } catch {
       return { success: true }
     }
-  },
+  }
+
+  async logOut(payload) {
+    return this.logout(payload)
+  }
+
+  async refreshToken(refreshToken) {
+    const response = await api.post("/auth/refresh", { refreshToken })
+    return response.data
+  }
 }
+
+const authService = new AuthService()
+export { authService }
+export default authService;
