@@ -22,4 +22,4 @@ export const RoleGuard = ({ allowedRoles = [] }) => {
   return <Outlet />
 }
 
-export default RoleGuard
+export default RoleGuard;
