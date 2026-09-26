@@ -1,6 +1,7 @@
 import { api } from "@/shared/api"
 import { MOCK_USERS } from "@/mock"
 
+
 export const authService = {
   login: async ({ phone, password }) => {
     const rawInput = (phone || "").trim().toLowerCase()
