@@ -1,21 +1,48 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import { Plus, MapPin, Phone, User, Pencil, Trash2, Building2 } from "lucide-react"
+import {
+    Plus,
+    MapPin,
+    Phone,
+    User,
+    Pencil,
+    Trash2,
+    Building2,
+} from "lucide-react"
 import { Button } from "@base-ui/react"
-import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/shared/ui/breadcrumb"
-import { MOCK_FARMS } from "@/mock/farms.mock"
+import {
+    Breadcrumb,
+    BreadcrumbList,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbSeparator,
+    BreadcrumbPage,
+} from "@/shared/ui/breadcrumb"
 import { useFermaModalStore } from "@/entities/farm"
 import { CreateFermaModal } from "@/shared/ui"
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext, PaginationEllipsis } from "@/shared/ui"
+import {
+    Pagination,
+    PaginationContent,
+    PaginationItem,
+    PaginationLink,
+    PaginationPrevious,
+    PaginationNext,
+    PaginationEllipsis,
+} from "@/shared/ui"
 import { FilterBar } from "@/widgets"
 
 const FermalarPage = () => {
     const navigate = useNavigate()
     const { openModal } = useFermaModalStore()
+
     const [search, setSearch] = useState("")
     const [status, setStatus] = useState("all")
     const [sort, setSort] = useState("newest")
-    const [farms, setFarms] = useState(MOCK_FARMS)
+
+    const [currentPage, setCurrentPage] = useState(1)
+    const itemsPerPage = 9
+
+    const farms = []
 
     const statusOptions = [
         { value: "all", label: "Barcha statuslar" },
@@ -33,17 +60,16 @@ const FermalarPage = () => {
     const handleEdit = (e, farmId) => {
         e.stopPropagation()
         e.preventDefault()
+
         console.log("Tahrirlash bosildi:", farmId)
     }
 
     const handleDelete = (e, farmId) => {
         e.stopPropagation()
         e.preventDefault()
-        setFarms((prev) => prev.filter((farm) => farm.id !== farmId))
-    }
 
-    const [currentPage, setCurrentPage] = useState(1)
-    const itemsPerPage = 9
+        console.log("O'chirish bosildi:", farmId)
+    }
 
     const filteredFarms = farms
         .filter((f) => {
@@ -51,18 +77,33 @@ const FermalarPage = () => {
                 f.name.toLowerCase().includes(search.toLowerCase()) ||
                 f.address.toLowerCase().includes(search.toLowerCase()) ||
                 f.bossFullName.toLowerCase().includes(search.toLowerCase())
+
             const matchStatus = status === "all" || f.status === status
+
             return matchSearch && matchStatus
         })
         .sort((a, b) => {
-            if (sort === "newest") return new Date(b.createdAt) - new Date(a.createdAt)
-            if (sort === "oldest") return new Date(a.createdAt) - new Date(b.createdAt)
-            if (sort === "name_asc") return a.name.localeCompare(b.name)
-            if (sort === "name_desc") return b.name.localeCompare(a.name)
+            if (sort === "newest") {
+                return new Date(b.createdAt) - new Date(a.createdAt)
+            }
+
+            if (sort === "oldest") {
+                return new Date(a.createdAt) - new Date(b.createdAt)
+            }
+
+            if (sort === "name_asc") {
+                return a.name.localeCompare(b.name)
+            }
+
+            if (sort === "name_desc") {
+                return b.name.localeCompare(a.name)
+            }
+
             return 0
         })
 
     const totalPages = Math.ceil(filteredFarms.length / itemsPerPage) || 1
+
     const paginatedFarms = filteredFarms.slice(
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
@@ -70,6 +111,7 @@ const FermalarPage = () => {
 
     const getPageNumbers = () => {
         const pages = []
+
         if (totalPages <= 5) {
             for (let i = 1; i <= totalPages; i++) {
                 pages.push(i)
@@ -78,17 +120,29 @@ const FermalarPage = () => {
             if (currentPage <= 3) {
                 pages.push(1, 2, 3, "ellipsis-end", totalPages)
             } else if (currentPage >= totalPages - 2) {
-                pages.push(1, "ellipsis-start", totalPages - 2, totalPages - 1, totalPages)
+                pages.push(
+                    1,
+                    "ellipsis-start",
+                    totalPages - 2,
+                    totalPages - 1,
+                    totalPages
+                )
             } else {
-                pages.push(1, "ellipsis-start", currentPage, "ellipsis-end", totalPages)
+                pages.push(
+                    1,
+                    "ellipsis-start",
+                    currentPage,
+                    "ellipsis-end",
+                    totalPages
+                )
             }
         }
+
         return pages
     }
 
     return (
         <section className="space-y-6">
-            {/* Breadcrumb qismi */}
             <div>
                 <Breadcrumb className="mb-4">
                     <BreadcrumbList>
@@ -100,7 +154,9 @@ const FermalarPage = () => {
                                 bosh sahifa
                             </BreadcrumbLink>
                         </BreadcrumbItem>
+
                         <BreadcrumbSeparator />
+
                         <BreadcrumbItem>
                             <BreadcrumbPage className="capitalize text-blue-600">
                                 fermalar
@@ -110,16 +166,17 @@ const FermalarPage = () => {
                 </Breadcrumb>
             </div>
 
-            {/* Sarlavha va Ferma qo'shish tugmasi */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-xl font-bold capitalize tracking-tight text-slate-900">
                         fermalar
                     </h1>
+
                     <p className="text-sm capitalize text-slate-500 mt-1">
                         Barcha fermalar ro'yxati va ularni boshqarish.
                     </p>
                 </div>
+
                 <Button
                     onClick={openModal}
                     className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-[10px] bg-[#2563EB] hover:bg-blue-700 text-white font-medium text-sm transition-colors cursor-pointer shrink-0"
@@ -129,7 +186,6 @@ const FermalarPage = () => {
                 </Button>
             </div>
 
-            {/* Filtr va Qidiruv Toolbar */}
             <div>
                 <FilterBar
                     search={search}
@@ -144,18 +200,24 @@ const FermalarPage = () => {
                 />
             </div>
 
-            {/* Kartochkalar yoki Bo'sh holat (Empty State) */}
             {filteredFarms.length === 0 ? (
                 <div className="bg-white border border-slate-200/80 rounded-2xl p-12 text-center space-y-4 shadow-xs my-4">
-                    <div className="size-16 rounded-2xl bg-blue-50 text-[#2563EB] flex items-center justify-center mx-auto border border-blue-100">
-                        <Building2 className="size-8" />
+                    <div className="size-16 rounded-full bg-blue-50 text-[#2563EB] flex items-center justify-center mx-auto border border-blue-100">
+                        <Building2 className="size-8 " />
                     </div>
+
                     <div className="space-y-1">
-                        <h3 className="text-lg font-bold text-slate-900">Hozircha ferma mavjud emas</h3>
+                        <h3 className="text-lg font-bold text-slate-900">
+                            Hozircha ferma mavjud emas.
+                        </h3>
+
                         <p className="text-sm text-slate-500 max-w-sm mx-auto">
-                            Qidiruv yoki filtr bo'yicha mos fermalar topilmadi. Yangi ferma qo'shishingiz yoki filtrlarni tozalashingiz mumkin.
+                            Qidiruv yoki filtr bo'yicha mos fermalar topilmadi.
+                            Yangi ferma qo'shishingiz yoki filtrlarni
+                            tozalashingiz mumkin.
                         </p>
                     </div>
+
                     <div className="pt-2 flex items-center justify-center gap-3">
                         {(search || status !== "all") && (
                             <button
@@ -170,14 +232,6 @@ const FermalarPage = () => {
                                 Filtrlarni tozalash
                             </button>
                         )}
-                        <button
-                            type="button"
-                            onClick={openModal}
-                            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold transition-colors cursor-pointer shadow-xs"
-                        >
-                            <Plus className="size-4" />
-                            <span>Ferma qo'shish</span>
-                        </button>
                     </div>
                 </div>
             ) : (
@@ -185,10 +239,11 @@ const FermalarPage = () => {
                     {paginatedFarms.map((farm) => (
                         <div
                             key={farm.id}
-                            onClick={() => navigate(`/super-admin/fermalar/${farm.id}`)}
+                            onClick={() =>
+                                navigate(`/super-admin/fermalar/${farm.id}`)
+                            }
                             className="group bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between cursor-pointer"
                         >
-                            {/* 1. Katta Rasm (Cover/Banner Image) */}
                             <div className="relative w-full h-48 sm:h-52 overflow-hidden bg-slate-100">
                                 <img
                                     src={farm.logoUrl || farm.bannerUrl}
@@ -197,7 +252,6 @@ const FermalarPage = () => {
                                 />
                             </div>
 
-                            {/* 2. Kartochka Tanasi: Sarlavha va Ma'lumotlar */}
                             <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
                                 <div className="space-y-3">
                                     <h3 className="text-lg font-bold text-slate-900 line-clamp-1">
@@ -207,7 +261,9 @@ const FermalarPage = () => {
                                     <div className="space-y-2 text-sm text-slate-600">
                                         <div className="flex items-center gap-2">
                                             <MapPin className="size-4 text-slate-400 shrink-0" />
-                                            <span className="truncate">{farm.address}</span>
+                                            <span className="truncate">
+                                                {farm.address}
+                                            </span>
                                         </div>
 
                                         <div className="flex items-center gap-2">
@@ -217,9 +273,11 @@ const FermalarPage = () => {
 
                                         <div className="flex items-center gap-2 pt-2.5 border-t border-slate-100 text-xs sm:text-sm">
                                             <User className="size-4 text-slate-400 shrink-0" />
+
                                             <span className="font-medium text-slate-800 truncate">
                                                 {farm.bossFullName}
                                             </span>
+
                                             <span className="text-slate-400 truncate">
                                                 ({farm.bossPhone})
                                             </span>
@@ -227,19 +285,23 @@ const FermalarPage = () => {
                                     </div>
                                 </div>
 
-                                {/* 3. Pastki Tugmalar (Read o'rniga 2 ta flex tugma: Tahrirlash va O'chirish) */}
                                 <div className="flex items-center gap-2.5 pt-3 border-t border-slate-100">
                                     <button
                                         type="button"
-                                        onClick={(e) => handleEdit(e, farm.id)}
+                                        onClick={(e) =>
+                                            handleEdit(e, farm.id)
+                                        }
                                         className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-[10px] bg-[#2563EB] hover:bg-blue-700 text-white text-sm font-medium transition-colors cursor-pointer shadow-xs"
                                     >
                                         <Pencil className="size-3.5" />
                                         <span>Tahrirlash</span>
                                     </button>
+
                                     <button
                                         type="button"
-                                        onClick={(e) => handleDelete(e, farm.id)}
+                                        onClick={(e) =>
+                                            handleDelete(e, farm.id)
+                                        }
                                         className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-[10px] bg-rose-500 hover:bg-rose-600 text-white text-sm font-medium transition-colors cursor-pointer shadow-xs"
                                     >
                                         <Trash2 className="size-3.5 text-white" />
@@ -252,7 +314,6 @@ const FermalarPage = () => {
                 </div>
             )}
 
-            {/* Pagination Component (Faqat 1 tadan ko'p sahifa bo'lsa chiqadi, o'ng tomonda) */}
             {totalPages > 1 && (
                 <div className="pt-6 pb-2 flex items-center justify-end">
                     <Pagination className="mx-0 w-auto justify-end">
@@ -262,26 +323,39 @@ const FermalarPage = () => {
                                     text="Oldingi"
                                     onClick={(e) => {
                                         e.preventDefault()
-                                        if (currentPage > 1) setCurrentPage((p) => p - 1)
+
+                                        if (currentPage > 1) {
+                                            setCurrentPage((p) => p - 1)
+                                        }
                                     }}
                                     className={`cursor-pointer ${
-                                        currentPage === 1 ? "pointer-events-none opacity-40" : "hover:bg-slate-100"
+                                        currentPage === 1
+                                            ? "pointer-events-none opacity-40"
+                                            : "hover:bg-slate-100"
                                     }`}
                                 />
                             </PaginationItem>
 
                             {getPageNumbers().map((pageItem, index) => {
-                                if (pageItem === "ellipsis-start" || pageItem === "ellipsis-end") {
+                                if (
+                                    pageItem === "ellipsis-start" ||
+                                    pageItem === "ellipsis-end"
+                                ) {
                                     return (
-                                        <PaginationItem key={`${pageItem}-${index}`}>
+                                        <PaginationItem
+                                            key={`${pageItem}-${index}`}
+                                        >
                                             <PaginationEllipsis />
                                         </PaginationItem>
                                     )
                                 }
+
                                 return (
                                     <PaginationItem key={pageItem}>
                                         <PaginationLink
-                                            isActive={currentPage === pageItem}
+                                            isActive={
+                                                currentPage === pageItem
+                                            }
                                             onClick={(e) => {
                                                 e.preventDefault()
                                                 setCurrentPage(pageItem)
@@ -303,10 +377,15 @@ const FermalarPage = () => {
                                     text="Keyingi"
                                     onClick={(e) => {
                                         e.preventDefault()
-                                        if (currentPage < totalPages) setCurrentPage((p) => p + 1)
+
+                                        if (currentPage < totalPages) {
+                                            setCurrentPage((p) => p + 1)
+                                        }
                                     }}
                                     className={`cursor-pointer ${
-                                        currentPage === totalPages ? "pointer-events-none opacity-40" : "hover:bg-slate-100"
+                                        currentPage === totalPages
+                                            ? "pointer-events-none opacity-40"
+                                            : "hover:bg-slate-100"
                                     }`}
                                 />
                             </PaginationItem>
@@ -320,4 +399,4 @@ const FermalarPage = () => {
     )
 }
 
-export default FermalarPage 
+export default FermalarPage;
