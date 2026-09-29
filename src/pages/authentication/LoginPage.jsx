@@ -19,7 +19,7 @@ function LoginPage() {
     const phone = phoneRef.current?.value?.trim() || ""
     const password = passwordRef.current?.value?.trim() || ""
 
-    const loginIdentifier = name || phone
+    const loginIdentifier = name || phone  
 
     if (!loginIdentifier) {
       setError("Iltimos, login yoki telefon raqamingizni kiriting.")

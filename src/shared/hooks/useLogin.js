@@ -1,7 +1,8 @@
 import { useMutation } from "@tanstack/react-query"
 import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
-import { authService, useUserStore } from "@/entities/user"
+import { useUserStore } from "@/entities/user"
+import { authService } from "@/services"
 import { createUser, getAuthTokens, getResponseData } from "@/provider/AuthProvider"
 
 const ROLE_ROUTES = {

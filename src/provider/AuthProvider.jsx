@@ -7,7 +7,8 @@ import {
   useMemo,
 } from "react"
 
-import { authService, useUserStore } from "@/entities/user"
+import { useUserStore } from "@/entities/user"
+import { authService } from "@/services"
 
 const AuthContext = createContext(null)
 
