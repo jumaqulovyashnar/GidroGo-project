@@ -1,14 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react"
-import {
-  Navigation,
-  Car,
-  AlertCircle,
-  RefreshCw,
-  ChevronUp,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react"
+import { Navigation, Car, AlertCircle, RefreshCw, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react"
 
 const YANDEX_API_KEY = import.meta.env.VITE_YANDEX_MAPS_KEY
 

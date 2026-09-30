@@ -1,11 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react"
-import {
-  ChevronUp,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  RefreshCw,
-} from "lucide-react"
+import { ChevronUp, ChevronDown, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react"
 
 const YANDEX_API_KEY = import.meta.env.VITE_YANDEX_MAPS_KEY
 

@@ -1,0 +1,25 @@
+import { api } from "@/shared"
+import handleApiError from "@/shared/lib/handleError"
+
+class FileUploadService {
+    async uploadFile(upload) {
+        try {
+            const response = await api.post("/files/upload", upload)
+            return response.data
+        }
+        catch (error) {
+            throw new Error(handleApiError(error))
+        }
+    }
+    async viewFile(year, month, day, fileName) {
+        try {
+            const response = await api.get(`/files/view/${year}/${month}/${day}/${fileName}`)
+            return response.data
+        }
+        catch (error) {
+            throw new Error(handleApiError(error))
+        }
+    }
+}
+
+export const fileUploadService = new FileUploadService()
