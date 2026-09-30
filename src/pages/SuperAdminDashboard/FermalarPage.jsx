@@ -20,7 +20,6 @@ const FermalarPage = () => {
     const itemsPerPage = 9
 
     const farms = data?.data || []
-    console.log(farms);
 
 
 
