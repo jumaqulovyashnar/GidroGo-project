@@ -28,22 +28,63 @@ import {
     PaginationPrevious,
     PaginationNext,
     PaginationEllipsis,
+    Spinner,
 } from "@/shared/ui"
 import { FilterBar } from "@/widgets"
+import { useFarms } from "@/shared/hooks/useFarms"
 
 const FermalarPage = () => {
+    const {
+        data,
+        isPending,
+        isError,
+        error,
+    } = useFarms()
+
     const navigate = useNavigate()
     const { openModal } = useFermaModalStore()
 
     const [search, setSearch] = useState("")
     const [status, setStatus] = useState("all")
     const [sort, setSort] = useState("newest")
-
     const [currentPage, setCurrentPage] = useState(1)
+
     const itemsPerPage = 9
 
-    const farms = []
+    const farms = data?.data || []
+    console.log(farms);
 
+
+    if (isPending) {
+        return (
+            <section className="space-y-6">
+                <div className="bg-white border border-slate-200/80 rounded-2xl p-16 text-center flex flex-col items-center justify-center gap-3">
+                    <Spinner className="size-8 text-[#2563EB] animate-spin" />
+                    <p className="text-sm font-medium text-slate-500">
+                        Fermalar yuklanmoqda...
+                    </p>
+                </div>
+            </section>
+        )
+    }
+
+    if (isError) {
+        return (
+            <section className="space-y-6">
+                <div className="bg-white border border-rose-200 rounded-2xl p-12 text-center">
+                    <div className="space-y-2">
+                        <h3 className="text-lg font-bold text-slate-900">
+                            Fermalarni yuklashda xatolik
+                        </h3>
+
+                        <p className="text-sm text-rose-500">
+                            {error?.response?.data?.message || error?.message || "Noma'lum xatolik yuz berdi"}
+                        </p>
+                    </div>
+                </div>
+            </section>
+        )
+    }
     const statusOptions = [
         { value: "all", label: "Barcha statuslar" },
         { value: "active", label: "Faol" },
@@ -56,21 +97,17 @@ const FermalarPage = () => {
         { value: "name_asc", label: "Nomi bo'yicha (A-Z)" },
         { value: "name_desc", label: "Nomi bo'yicha (Z-A)" },
     ]
-
     const handleEdit = (e, farmId) => {
         e.stopPropagation()
         e.preventDefault()
 
         console.log("Tahrirlash bosildi:", farmId)
     }
-
     const handleDelete = (e, farmId) => {
         e.stopPropagation()
         e.preventDefault()
-
         console.log("O'chirish bosildi:", farmId)
     }
-
     const filteredFarms = farms
         .filter((f) => {
             const matchSearch =
@@ -78,7 +115,8 @@ const FermalarPage = () => {
                 f.address.toLowerCase().includes(search.toLowerCase()) ||
                 f.bossFullName.toLowerCase().includes(search.toLowerCase())
 
-            const matchStatus = status === "all" || f.status === status
+            const matchStatus =
+                status === "all" || f.status === status
 
             return matchSearch && matchStatus
         })
@@ -102,7 +140,8 @@ const FermalarPage = () => {
             return 0
         })
 
-    const totalPages = Math.ceil(filteredFarms.length / itemsPerPage) || 1
+    const totalPages =
+        Math.ceil(filteredFarms.length / itemsPerPage) || 1
 
     const paginatedFarms = filteredFarms.slice(
         (currentPage - 1) * itemsPerPage,
@@ -199,13 +238,11 @@ const FermalarPage = () => {
                     setCurrentPage={setCurrentPage}
                 />
             </div>
-
             {filteredFarms.length === 0 ? (
                 <div className="bg-white border border-slate-200/80 rounded-2xl p-12 text-center space-y-4 shadow-xs my-4">
                     <div className="size-16 rounded-full bg-blue-50 text-[#2563EB] flex items-center justify-center mx-auto border border-blue-100">
-                        <Building2 className="size-8 " />
+                        <Building2 className="size-8" />
                     </div>
-
                     <div className="space-y-1">
                         <h3 className="text-lg font-bold text-slate-900">
                             Hozircha ferma mavjud emas.
@@ -261,6 +298,7 @@ const FermalarPage = () => {
                                     <div className="space-y-2 text-sm text-slate-600">
                                         <div className="flex items-center gap-2">
                                             <MapPin className="size-4 text-slate-400 shrink-0" />
+
                                             <span className="truncate">
                                                 {farm.address}
                                             </span>
@@ -268,6 +306,7 @@ const FermalarPage = () => {
 
                                         <div className="flex items-center gap-2">
                                             <Phone className="size-4 text-slate-400 shrink-0" />
+
                                             <span>{farm.phone}</span>
                                         </div>
 
@@ -328,11 +367,10 @@ const FermalarPage = () => {
                                             setCurrentPage((p) => p - 1)
                                         }
                                     }}
-                                    className={`cursor-pointer ${
-                                        currentPage === 1
-                                            ? "pointer-events-none opacity-40"
-                                            : "hover:bg-slate-100"
-                                    }`}
+                                    className={`cursor-pointer ${currentPage === 1
+                                        ? "pointer-events-none opacity-40"
+                                        : "hover:bg-slate-100"
+                                        }`}
                                 />
                             </PaginationItem>
 
@@ -360,11 +398,10 @@ const FermalarPage = () => {
                                                 e.preventDefault()
                                                 setCurrentPage(pageItem)
                                             }}
-                                            className={`cursor-pointer rounded-xl font-medium ${
-                                                currentPage === pageItem
-                                                    ? "bg-[#2563EB]! text-white! border-transparent! shadow-xs"
-                                                    : "hover:bg-slate-100 text-slate-700"
-                                            }`}
+                                            className={`cursor-pointer rounded-xl font-medium ${currentPage === pageItem
+                                                ? "bg-[#2563EB]! text-white! border-transparent! shadow-xs"
+                                                : "hover:bg-slate-100 text-slate-700"
+                                                }`}
                                         >
                                             {pageItem}
                                         </PaginationLink>
@@ -382,11 +419,10 @@ const FermalarPage = () => {
                                             setCurrentPage((p) => p + 1)
                                         }
                                     }}
-                                    className={`cursor-pointer ${
-                                        currentPage === totalPages
-                                            ? "pointer-events-none opacity-40"
-                                            : "hover:bg-slate-100"
-                                    }`}
+                                    className={`cursor-pointer ${currentPage === totalPages
+                                        ? "pointer-events-none opacity-40"
+                                        : "hover:bg-slate-100"
+                                        }`}
                                 />
                             </PaginationItem>
                         </PaginationContent>

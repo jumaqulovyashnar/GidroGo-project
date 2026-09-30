@@ -4,7 +4,6 @@ import { Pencil, MapPin, Calendar, Layers, CheckCircle2, DollarSign, TrendingUp,
 import { Card, CardHeader, CardTitle, CardContent, Switch } from "@/shared/ui"
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/shared/ui/breadcrumb"
 import Chart from "react-apexcharts"
-import { MOCK_FARMS } from "@/mock/farms.mock"
 
 export function FermaDetailPage() {
   const { id } = useParams()
