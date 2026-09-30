@@ -3,14 +3,7 @@ import { useNavigate, Link } from "react-router-dom"
 import { Truck, Package, Clock, Banknote, Search, Download, AlertCircle, ChevronRight, Home, Copy, ChevronDown, Filter } from "lucide-react"
 import { Select } from "@mantine/core"
 import { MOCK_ORDERS } from "@/mock"
-import {
-  TablePagination,
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/shared/ui"
+import { TablePagination, Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbPage, BreadcrumbSeparator } from "@/shared/ui"
 import { toast } from "sonner"
 
 export default function ManagerOrdersPage() {

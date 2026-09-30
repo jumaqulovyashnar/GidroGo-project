@@ -1,11 +1,4 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  useCallback,
-  useMemo,
-} from "react"
+import { createContext, useContext, useEffect, useState, useCallback, useMemo } from "react"
 
 import { useUserStore } from "@/entities/user"
 import { authService } from "@/services"

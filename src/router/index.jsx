@@ -4,14 +4,7 @@ import MainLayout from "../layout/MainLayout"
 import { LoginPage } from "@/pages/authentication"
 import { AuthGuard, RoleGuard } from "./guards"
 import SuperAdminDashboardPage from "@/pages/SuperAdminDashboard/SuperAdminDashboardPage"
-import {
-  ManagerDashboardPage,
-  ManagerOrdersPage,
-  ManagerCouriersMapPage,
-  ManagerXodimlarPage,
-  ManagerOrderDetailPage,
-  ManagerAllOrdersPage,
-} from "@/pages/ManagerDashboard"
+import { ManagerDashboardPage, ManagerOrdersPage, ManagerCouriersMapPage, ManagerXodimlarPage, ManagerOrderDetailPage, ManagerAllOrdersPage } from "@/pages/ManagerDashboard"
 import BossDashboardPage from "@/pages/BossDashboard/BossDashboardPage"
 import BossMoliyaPage from "@/pages/BossDashboard/BossMoliyaPage"
 import BossSavdoPage from "@/pages/BossDashboard/BossSavdoPage"

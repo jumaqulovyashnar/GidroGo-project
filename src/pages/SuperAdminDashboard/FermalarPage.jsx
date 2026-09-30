@@ -1,49 +1,17 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import {
-    Plus,
-    MapPin,
-    Phone,
-    User,
-    Pencil,
-    Trash2,
-    Building2,
-} from "lucide-react"
+import { Plus, MapPin, Phone, User, Pencil, Trash2, Building2 } from "lucide-react"
 import { Button } from "@base-ui/react"
-import {
-    Breadcrumb,
-    BreadcrumbList,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    BreadcrumbSeparator,
-    BreadcrumbPage,
-} from "@/shared/ui/breadcrumb"
+import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/shared/ui/breadcrumb"
 import { useFermaModalStore } from "@/entities/farm"
-import { CreateFermaModal } from "@/shared/ui"
-import {
-    Pagination,
-    PaginationContent,
-    PaginationItem,
-    PaginationLink,
-    PaginationPrevious,
-    PaginationNext,
-    PaginationEllipsis,
-    Spinner,
-} from "@/shared/ui"
+import { CreateFermaModal, Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext, PaginationEllipsis, Spinner } from "@/shared/ui"
 import { FilterBar } from "@/widgets"
 import { useFarms } from "@/shared/hooks/useFarms"
 
 const FermalarPage = () => {
-    const {
-        data,
-        isPending,
-        isError,
-        error,
-    } = useFarms()
-
+    const {  data,isPending,isError,error, } = useFarms()
     const navigate = useNavigate()
     const { openModal } = useFermaModalStore()
-
     const [search, setSearch] = useState("")
     const [status, setStatus] = useState("all")
     const [sort, setSort] = useState("newest")

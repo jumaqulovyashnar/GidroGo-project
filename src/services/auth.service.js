@@ -14,11 +14,11 @@ class AuthService {
     const response = await api.post("/auth/refresh", {
       refreshToken,
     })
-    return response.data
+    return response.data;
   }
 }
 
-const authService = new AuthService()
+const authService = new AuthService();
 
 export { authService }
 export default authService;
