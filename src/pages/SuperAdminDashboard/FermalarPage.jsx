@@ -55,36 +55,7 @@ const FermalarPage = () => {
     console.log(farms);
 
 
-    if (isPending) {
-        return (
-            <section className="space-y-6">
-                <div className="bg-white border border-slate-200/80 rounded-2xl p-16 text-center flex flex-col items-center justify-center gap-3">
-                    <Spinner className="size-8 text-[#2563EB] animate-spin" />
-                    <p className="text-sm font-medium text-slate-500">
-                        Fermalar yuklanmoqda...
-                    </p>
-                </div>
-            </section>
-        )
-    }
 
-    if (isError) {
-        return (
-            <section className="space-y-6">
-                <div className="bg-white border border-rose-200 rounded-2xl p-12 text-center">
-                    <div className="space-y-2">
-                        <h3 className="text-lg font-bold text-slate-900">
-                            Fermalarni yuklashda xatolik
-                        </h3>
-
-                        <p className="text-sm text-rose-500">
-                            {error?.response?.data?.message || error?.message || "Noma'lum xatolik yuz berdi"}
-                        </p>
-                    </div>
-                </div>
-            </section>
-        )
-    }
     const statusOptions = [
         { value: "all", label: "Barcha statuslar" },
         { value: "active", label: "Faol" },
@@ -238,7 +209,26 @@ const FermalarPage = () => {
                     setCurrentPage={setCurrentPage}
                 />
             </div>
-            {filteredFarms.length === 0 ? (
+
+            {isPending ? (
+                <div className="bg-white border border-slate-200/80 rounded-2xl py-14 px-6 text-center flex flex-col items-center justify-center gap-3.5 shadow-xs my-4">
+                    <Spinner size="md" />
+                    <p className="text-sm font-medium text-slate-500">
+                        Fermalar yuklanmoqda...
+                    </p>
+                </div>
+            ) : isError ? (
+                <div className="bg-white border border-rose-200 rounded-2xl p-10 text-center my-4">
+                    <div className="space-y-2">
+                        <h3 className="text-base font-bold text-slate-900">
+                            Fermalarni yuklashda xatolik
+                        </h3>
+                        <p className="text-sm text-rose-500">
+                            {error?.response?.data?.message || error?.message || "Noma'lum xatolik yuz berdi"}
+                        </p>
+                    </div>
+                </div>
+            ) : filteredFarms.length === 0 ? (
                 <div className="bg-white border border-slate-200/80 rounded-2xl p-12 text-center space-y-4 shadow-xs my-4">
                     <div className="size-16 rounded-full bg-blue-50 text-[#2563EB] flex items-center justify-center mx-auto border border-blue-100">
                         <Building2 className="size-8" />
@@ -353,7 +343,7 @@ const FermalarPage = () => {
                 </div>
             )}
 
-            {totalPages > 1 && (
+            {!isPending && !isError && totalPages > 1 && (
                 <div className="pt-6 pb-2 flex items-center justify-end">
                     <Pagination className="mx-0 w-auto justify-end">
                         <PaginationContent className="bg-white p-1 rounded-2xl border border-slate-200/80 shadow-xs">

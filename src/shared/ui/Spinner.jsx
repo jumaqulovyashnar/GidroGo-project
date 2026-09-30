@@ -1,11 +1,25 @@
-import { Loader2 } from "lucide-react"
+export const Spinner = ({
+    size = "md",
+    className = "",
+    ...props
+}) => {
+    const sizeClasses = {
+        xs: "size-4 border-2",
+        sm: "size-5 border-2",
+        md: "size-7 border-[3px]",
+        lg: "size-9 border-[3.5px]",
+        xl: "size-12 border-4",
+    }
 
-export const Spinner = ({ className = "size-8 text-blue-600 animate-spin", ...props }) => {
+    const currentSize = sizeClasses[size] || sizeClasses.md
+
     return (
-        <div className="flex items-center justify-center" role="status" {...props}>
-            <Loader2 className={className} />
-            <span className="sr-only">Yuklanmoqda...</span>
-        </div>
+        <div
+            role="status"
+            aria-label="Yuklanmoqda..."
+            className={`inline-block rounded-full border-blue-100 border-t-[#2563EB] animate-spin shrink-0 ${currentSize} ${className}`}
+            {...props}
+        />
     )
 }
 
