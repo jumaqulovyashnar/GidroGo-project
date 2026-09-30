@@ -22,4 +22,4 @@ class FileUploadService {
     }
 }
 
-export const fileUploadService = new FileUploadService()
+export const fileUploadService = new FileUploadService();

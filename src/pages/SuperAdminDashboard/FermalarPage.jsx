@@ -57,8 +57,7 @@ const FermalarPage = () => {
                 status === "all" || f.status === status
 
             return matchSearch && matchStatus
-        })
-        .sort((a, b) => {
+        })  .sort((a, b) => {
             if (sort === "newest") {
                 return new Date(b.createdAt) - new Date(a.createdAt)
             }
