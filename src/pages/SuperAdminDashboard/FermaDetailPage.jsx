@@ -1,24 +1,22 @@
-import React, { useState } from "react"
+import React from "react"
 import { useParams, Link } from "react-router-dom"
 import { Pencil, MapPin, Calendar, Layers, CheckCircle2, DollarSign, TrendingUp, Activity, ArrowLeft, Building2 } from "lucide-react"
-import { toast } from "sonner"
-import { Card, CardHeader, CardTitle, CardContent, Switch, Spinner } from "@/shared/ui"
+import { Card, CardHeader, CardTitle, CardContent, Switch, Spinner, Button } from "@/shared/ui"
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/shared/ui/breadcrumb"
-import { useFarm } from "@/shared/hooks"
+import { useFarm, useUpdateFarmStatus } from "@/shared/hooks"
 import Chart from "react-apexcharts"
 
 export function FermaDetailPage() {
   const { id } = useParams()
   const { data: farm, isPending, isError, error } = useFarm(id)
+  const updateStatusMutation = useUpdateFarmStatus()
 
   // Ferma holati (Faol / Nofaol)
-  const [overrideStatus, setOverrideStatus] = useState(null)
-  const currentStatus = overrideStatus ?? farm?.status ?? "active"
+  const isFarmActive = farm?.status === "ACTIVE" || farm?.status === "active"
 
   const handleStatusChange = (val) => {
-    const newStatus = val ? "active" : "inactive"
-    setOverrideStatus(newStatus)
-    toast.info(`Ferma holati: ${newStatus === "active" ? "Faol" : "Nofaol"}`)
+    const nextStatus = val ? "ACTIVE" : "INACTIVE"
+    updateStatusMutation.mutate({ id, status: nextStatus })
   }
 
   // Analitika grafigi (ApexCharts)
@@ -157,13 +155,13 @@ export function FermaDetailPage() {
             <ArrowLeft className="size-4" />
             <span>Ortga</span>
           </Link>
-          <button
+          <Button
             type="button"
             className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-[10px] bg-[#2563EB] hover:bg-blue-700 text-white font-medium text-sm transition-colors cursor-pointer shrink-0 shadow-xs"
           >
             <Pencil className="size-4 text-white" />
             <span>Tahrirlash</span>
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -255,10 +253,13 @@ export function FermaDetailPage() {
               <div className="flex items-center gap-2.5">
                 <span className="text-xs font-medium text-slate-500">Ferma holati:</span>
                 <Switch
-                  checked={currentStatus === "active"}
+                  checked={Boolean(isFarmActive)}
+                  disabled={updateStatusMutation.isPending}
                   onCheckedChange={handleStatusChange}
-                  title={currentStatus === "active" ? "Faol" : "Nofaol"}
                 />
+                <span className={`text-xs font-semibold select-none ${isFarmActive ? "text-blue-600" : "text-slate-400"}`}>
+                  {updateStatusMutation.isPending ? "O'zgarmoqda..." : isFarmActive ? "Faol" : "Nofaol"}
+                </span>
               </div>
             </div>
           </div>

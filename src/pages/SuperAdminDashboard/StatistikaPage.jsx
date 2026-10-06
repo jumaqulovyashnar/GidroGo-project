@@ -1,9 +1,10 @@
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { Link } from "react-router-dom"
 import { LineColumn } from "@/widgets"
 import { Button, Card, CardContent, CardHeader, CardTitle, Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext, PaginationEllipsis } from "@/shared/ui"
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/shared/ui/table"
-import { Download, Tractor, Users, BadgeCheck, Gauge, Filter, Star, ChevronRight } from "lucide-react"
+import { Filter, Tractor, Users, BadgeCheck, Gauge, Star, ChevronRight, RefreshCw } from "lucide-react"
+import { useRegionalStatistics, useSuperAdminDashboard } from "@/shared/hooks"
 
 
 export const MOCK_AUDIT_METRICS_CARDS = [
@@ -153,8 +154,72 @@ const StatistikaPage = () => {
     const [currentPage, setCurrentPage] = useState(1)
     const itemsPerPage = 4
 
-    const totalPages = Math.ceil(MOCK_HUDUDIY_TAQSIMOT.length / itemsPerPage)
-    const paginatedData = MOCK_HUDUDIY_TAQSIMOT.slice(
+    const { data: regData, isFetching: isFetchingReg, refetch: refetchReg } = useRegionalStatistics()
+    const { data: dashData } = useSuperAdminDashboard()
+
+    const regResponse = regData?.data || regData
+    const dashboard = useMemo(() => dashData?.data || dashData || {}, [dashData])
+
+    const regionsList = useMemo(() => {
+        if (Array.isArray(regResponse?.regions) && regResponse.regions.length > 0) {
+            return regResponse.regions.map((r, idx) => ({
+                id: `reg-${idx}`,
+                code: (r.regionName || r.name || "HUD").slice(0, 3).toUpperCase(),
+                name: r.regionName || r.name || "Hudud",
+                subtitle: r.formattedText || `${r.count ?? r.value ?? 0} ta ferma`,
+                farmsActive: r.count ?? r.value ?? 0,
+                farmsBackup: 0,
+                monthlyOrders: `${r.percentage ?? 0}% ulush`,
+                rating: 4.8,
+                reviewCount: "baho",
+                growthRate: `${r.percentage ?? 0}%`,
+                leadFarm: r.regionName || "Hududiy ferma",
+            }))
+        }
+        return MOCK_HUDUDIY_TAQSIMOT
+    }, [regResponse])
+
+    const auditMetrics = useMemo(() => {
+        return [
+            {
+                id: 1,
+                title: "JAMI FERMALAR",
+                value: regResponse?.totalFarms ?? dashboard?.totalFarms ?? 24,
+                badge: `${dashboard?.activeFarms ?? 0} ta faol`,
+                description: "Viloyatlar kesimida faoliyat yurituvchi",
+                icon: Tractor,
+            },
+            {
+                id: 2,
+                title: "FAOL MIJOZLAR BAZASI",
+                value: dashboard?.totalClients ? Number(dashboard.totalClients).toLocaleString("uz-UZ") : "48,620",
+                unit: "nafar",
+                badge: "+12%",
+                description: "Ro'yxatdan o'tgan iste'molchilar",
+                icon: Users,
+            },
+            {
+                id: 3,
+                title: "UMUMIY BUYURTMALAR",
+                value: dashboard?.totalOrders ? Number(dashboard.totalOrders).toLocaleString("uz-UZ") : "14,850",
+                badge: "Faol",
+                description: "Barcha fermalar bo'yicha",
+                icon: BadgeCheck,
+            },
+            {
+                id: 4,
+                title: "JAMI KURYERLAR",
+                value: dashboard?.totalCouriers ?? 18,
+                unit: "nafar",
+                badge: "Tizimda",
+                description: "Mahsulot yetkazib beruvchilar",
+                icon: Gauge,
+            },
+        ]
+    }, [regResponse, dashboard])
+
+    const totalPages = Math.ceil(regionsList.length / itemsPerPage)
+    const paginatedData = regionsList.slice(
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
     )
@@ -180,40 +245,50 @@ const StatistikaPage = () => {
     return (
         <section>
             <div>
-                <div className="flex items-center  justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
-                        <h2 className="font-bold  leading-normal">Statistika va Platforma Tahlili.</h2>
-                        <p>GidroGo tarmog'idagi fermalar, buyurtmalar oqimi va mijozlar dinamikasining umumiy tahliliy ko'rsatkichlari.</p>
+                        <h2 className="text-xl font-bold tracking-tight text-slate-900 leading-normal">Statistika va Platforma Tahlili</h2>
+                        <p className="text-sm text-slate-500 mt-1">GidroGo tarmog'idagi fermalar, buyurtmalar oqimi va mijozlar dinamikasining umumiy tahliliy ko'rsatkichlari.</p>
                     </div>
-                    <div>
-                        <Button type="button">
-                            <span><Download /></span> hisobotni yuklash
+                    <div className="flex items-center gap-2.5">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => refetchReg()}
+                            disabled={isFetchingReg}
+                            className="h-9 px-3.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold gap-2 cursor-pointer shadow-xs"
+                        >
+                            <RefreshCw className={`size-3.5 text-slate-500 transition-transform ${isFetchingReg ? "animate-spin" : ""}`} />
+                            <span>Yangilash</span>
                         </Button>
                     </div>
                 </div>
-                {/* mock data 4 ta card uchun  */}
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 pt-12">
-                    {MOCK_AUDIT_METRICS_CARDS.map((audit) => {
-                        const Icon = audit.icon;
+
+                {/* 4 ta card */}
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 pt-6">
+                    {auditMetrics.map((audit) => {
+                        const Icon = audit.icon
 
                         return (
-                            <Card key={audit.id} className="shadow-sm">
-                                {/* Sarlavha va ikonkani yonma-yon qilish uchun flex va justify-between */}
-                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-xs font-medium uppercase tracking-wider text-gray-500">
+                            <Card key={audit.id} className="shadow-xs border border-slate-200/80 rounded-2xl p-5 bg-white">
+                                <CardHeader className="flex flex-row items-center justify-between space-y-0 p-0 pb-2">
+                                    <CardTitle className="text-xs font-medium uppercase tracking-wider text-slate-500">
                                         {audit.title}
                                     </CardTitle>
-                                    <div className="flex items-center justify-center rounded-full bg-blue-50 p-2 text-blue-600 shrink-0">
-                                        <Icon className="h-5 w-5" />
+                                    <div className="size-9 flex items-center justify-center rounded-xl bg-slate-50 border border-slate-200/80 text-slate-600 shrink-0">
+                                        <Icon className="size-4.5" />
                                     </div>
                                 </CardHeader>
 
-                                <CardContent className="pt-2">
-                                    {/* Qiymat va Badge */}
+                                <CardContent className="p-0 pt-2">
                                     <div className="flex items-baseline gap-2">
-                                        <span className="text-2xl font-bold text-gray-900">{audit.value}</span>
+                                        <span className="text-2xl font-extrabold text-slate-900">{audit.value}</span>
+                                        {audit.unit && (
+                                            <span className="text-xs font-medium text-slate-500">{audit.unit}</span>
+                                        )}
                                         {audit.badge && (
-                                            <span className="rounded bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-600">
+                                            <span className="rounded-md bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-600 border border-blue-100">
                                                 {audit.badge}
                                             </span>
                                         )}
@@ -372,10 +447,10 @@ const StatistikaPage = () => {
                 {/* Pagination (Table dan tashqarida alohida) */}
                 <div className="pt-4 pb-2 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
                     <div>
-                        Jami <span className="font-semibold text-slate-800">{MOCK_HUDUDIY_TAQSIMOT.length}</span> ta hududdan{" "}
+                        Jami <span className="font-semibold text-slate-800">{regionsList.length}</span> ta hududdan{" "}
                         <span className="font-semibold text-slate-800">
                             {(currentPage - 1) * itemsPerPage + 1} -{" "}
-                            {Math.min(currentPage * itemsPerPage, MOCK_HUDUDIY_TAQSIMOT.length)}
+                            {Math.min(currentPage * itemsPerPage, regionsList.length)}
                         </span> ko'rsatilmoqda
                     </div>
 

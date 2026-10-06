@@ -9,6 +9,14 @@ class FarmService {
       throw new Error(handleApiError(error))
     } 
   }
+  async getFarmById(id) {
+    try {
+      const response = await api.get(`/superadmin/farms/${id}`)
+      return response.data
+    } catch (error) {
+      throw new Error(handleApiError(error))
+    }
+  }
 
   async createFarm(data) {
     try {
@@ -21,4 +29,4 @@ class FarmService {
 }
 
 export const farmService = new FarmService()
-export default farmService;
+export default farmService
