@@ -6,4 +6,4 @@ export const useFarms = () => {
     queryKey: ["farms"],
     queryFn: () => farmService.getFarms(),
   })
-}
+};
