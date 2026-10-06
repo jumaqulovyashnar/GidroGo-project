@@ -1,15 +1,16 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { Plus, MapPin, Phone, User, Pencil, Trash2, Building2 } from "lucide-react"
+import { toast } from "sonner"
 import { Button } from "@base-ui/react"
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/shared/ui/breadcrumb"
 import { useFermaModalStore } from "@/entities/farm"
-import { CreateFermaModal, Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext, PaginationEllipsis, Spinner } from "@/shared/ui"
+import { CreateFermaModal, EditFermaModal, DeleteFermaModal, Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext, PaginationEllipsis, Spinner } from "@/shared/ui"
 import { FilterBar } from "@/widgets"
 import { useFarms } from "@/shared/hooks/useFarms"
 
 const FermalarPage = () => {
-    const {  data,isPending,isError,error, } = useFarms()
+    const { data, isPending, isError, error } = useFarms()
     const navigate = useNavigate()
     const { openModal } = useFermaModalStore()
     const [search, setSearch] = useState("")
@@ -17,8 +18,10 @@ const FermalarPage = () => {
     const [sort, setSort] = useState("newest")
     const [currentPage, setCurrentPage] = useState(1)
 
-    const itemsPerPage = 9
+    const [editingFarm, setEditingFarm] = useState(null)
+    const [deletingFarm, setDeletingFarm] = useState(null)
 
+    const itemsPerPage = 9
     const farms = data?.data || []
 
     const statusOptions = [
@@ -33,16 +36,27 @@ const FermalarPage = () => {
         { value: "name_asc", label: "Nomi bo'yicha (A-Z)" },
         { value: "name_desc", label: "Nomi bo'yicha (Z-A)" },
     ]
-    const handleEdit = (e, farmId) => {
-        e.stopPropagation()
-        e.preventDefault()
 
-        console.log("Tahrirlash bosildi:", farmId)
-    }
-    const handleDelete = (e, farmId) => {
+    const handleEdit = (e, farm) => {
         e.stopPropagation()
         e.preventDefault()
-        console.log("O'chirish bosildi:", farmId)
+        setEditingFarm(farm)
+    }
+
+    const handleDelete = (e, farm) => {
+        e.stopPropagation()
+        e.preventDefault()
+        setDeletingFarm(farm)
+    }
+
+    const handleConfirmDelete = (farmToDelete) => {
+        toast.success(`${farmToDelete.name} fermasi muvaffaqiyatli o'chirildi!`)
+        setDeletingFarm(null)
+    }
+
+    const handleSaveEdit = (updatedFarm) => {
+        toast.success(`${updatedFarm.name} fermasi muvaffaqiyatli yangilandi!`)
+        setEditingFarm(null)
     }
     const filteredFarms = farms
         .filter((f) => {
@@ -282,7 +296,7 @@ const FermalarPage = () => {
                                     <button
                                         type="button"
                                         onClick={(e) =>
-                                            handleEdit(e, farm.id)
+                                            handleEdit(e, farm)
                                         }
                                         className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-[10px] bg-[#2563EB] hover:bg-blue-700 text-white text-sm font-medium transition-colors cursor-pointer shadow-xs"
                                     >
@@ -293,7 +307,7 @@ const FermalarPage = () => {
                                     <button
                                         type="button"
                                         onClick={(e) =>
-                                            handleDelete(e, farm.id)
+                                            handleDelete(e, farm)
                                         }
                                         className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-[10px] bg-rose-500 hover:bg-rose-600 text-white text-sm font-medium transition-colors cursor-pointer shadow-xs"
                                     >
@@ -385,6 +399,18 @@ const FermalarPage = () => {
             )}
 
             <CreateFermaModal />
+            <EditFermaModal
+                opened={Boolean(editingFarm)}
+                onClose={() => setEditingFarm(null)}
+                farm={editingFarm}
+                onSave={handleSaveEdit}
+            />
+            <DeleteFermaModal
+                opened={Boolean(deletingFarm)}
+                onClose={() => setDeletingFarm(null)}
+                farm={deletingFarm}
+                onConfirm={handleConfirmDelete}
+            />
         </section>
     )
 }
