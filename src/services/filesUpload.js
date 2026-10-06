@@ -4,7 +4,13 @@ import handleApiError from "@/shared/lib/handleError"
 class FileUploadService {
     async uploadFile(upload) {
         try {
-            const response = await api.post("/files/upload", upload)
+            let body = upload
+            if (upload instanceof File || upload instanceof Blob) {
+                const formData = new FormData()
+                formData.append("file", upload)
+                body = formData
+            }
+            const response = await api.post("/files/upload", body)
             return response.data
         }
         catch (error) {

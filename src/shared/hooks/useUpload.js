@@ -19,3 +19,6 @@ export const useUploadFile = () => {
         }
     })
 }
+
+export const useUpload = useUploadFile;
+export default useUpload;

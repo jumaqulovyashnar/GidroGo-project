@@ -21,8 +21,6 @@ const FermalarPage = () => {
 
     const farms = data?.data || []
 
-
-
     const statusOptions = [
         { value: "all", label: "Barcha statuslar" },
         { value: "active", label: "Faol" },

@@ -15,7 +15,13 @@ export const useCreateFarm = () => {
         formData.append("file", file)
 
         const uploadRes = await fileUploadService.uploadFile(formData)
-        logoUrl = uploadRes?.data?.url || uploadRes?.url || ""
+        logoUrl =
+          uploadRes?.data?.url ||
+          uploadRes?.url ||
+          uploadRes?.data?.path ||
+          uploadRes?.path ||
+          (typeof uploadRes?.data === "string" ? uploadRes.data : "") ||
+          logoUrl
       }
 
       return await farmService.createFarm({
@@ -30,3 +36,5 @@ export const useCreateFarm = () => {
     },
   })
 }
+
+export default useCreateFarm
