@@ -1,5 +1,4 @@
 import { api, handleApiError } from "@/shared"
-
 class FarmService {
   async getFarms() {
     try {
@@ -7,9 +6,8 @@ class FarmService {
       return response.data
     } catch (error) {
       throw new Error(handleApiError(error))
-    }
+    } 
   }
-
   async createFarm(data) {
     try {
       const response = await api.post("/superadmin/farms", data)
