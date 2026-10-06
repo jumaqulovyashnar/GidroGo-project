@@ -1,31 +1,30 @@
 import { requestService } from "@/services/farms.request.service";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
-// 1. Kutilayotgan so'rovlar ro'yxatini olish (GET)
-export const useActivationRequests = () => {
-    return useQuery({
-        queryKey: ["activation-requests"],
-        queryFn: () => requestService.getActivationRequests(),
-    });
-};
-
-// 2. Boss so'rovini tasdiqlash (APPROVED) yoki rad etish (REJECTED) (POST)
-export const useDecideActivation = () => {
+export const useRequest = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationKey: ["decideActivation"],
-        mutationFn: ({ id, status = "APPROVED", rejectReason = "" }) => {
-            return requestService.decideActivation(id, { status, rejectReason });
-        },
-        onSuccess: () => {
+        mutationFn: ({ id, payload }) =>
+            requestService.decideActivation(id, payload),
+
+        onSuccess: (data, variables) => {
+            const isApproved = variables?.payload?.status === "APPROVED";
+            toast.success(
+                data?.message ||
+                (isApproved
+                    ? "Ariza muvaffaqiyatli tasdiqlandi!"
+                    : "Ariza rad etildi!")
+            );
             queryClient.invalidateQueries({ queryKey: ["activation-requests"] });
             queryClient.invalidateQueries({ queryKey: ["farms"] });
+        },
+
+        onError: (error) => {
+            toast.error(error?.message || "Amalni bajarishda xatolik yuz berdi!");
         },
     });
 };
 
-// Siz yozgan useRequest bilan ham moslik uchun
-export const useRequest = useDecideActivation;
-
-export default useDecideActivation;
+export default useRequest;
