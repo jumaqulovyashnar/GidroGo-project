@@ -13,7 +13,7 @@ class SuperAdminService {
   async getRegionalStatistics() {
     try {
       const response = await api.get("/superadmin/statistics/regions")
-      return response.data
+      return response.data;
     } catch (error) {
       throw new Error(handleApiError(error))
     }
@@ -30,4 +30,4 @@ class SuperAdminService {
 }
 
 export const superAdminService = new SuperAdminService()
-export default superAdminService
+export default superAdminService;
