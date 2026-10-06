@@ -3,7 +3,7 @@ import { Modal as MantineModal } from "@mantine/core"
 import { Building2, User, Plus, Inbox, Trash2, Image as ImageIcon, Pencil } from "lucide-react"
 import { toast } from "sonner"
 import { useFermaModalStore, fermaSchema } from "@/entities/farm"
-import { Input, Spinner } from "@/shared/ui"
+import { Button, Input, Spinner } from "@/shared/ui"
 import { useUpload, useCreateFarm } from "@/shared/hooks"
 
 export function CreateFermaModal() {
@@ -463,18 +463,19 @@ export function CreateFermaModal() {
 
         {/* 4. Action Buttons */}
         <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
-          <button
+          <Button
             type="button"
+            variant="outline"
             onClick={handleClose}
             disabled={createFarmMutation.isPending || uploadMutation.isPending}
-            className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-50 text-sm font-semibold transition-colors cursor-pointer"
+            className="h-10 px-4 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-50 text-sm font-semibold transition-colors cursor-pointer"
           >
             Bekor qilish
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
             disabled={createFarmMutation.isPending || uploadMutation.isPending}
-            className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#2563EB] hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold transition-colors cursor-pointer shadow-xs"
+            className="h-10 px-5 rounded-xl bg-[#2563EB] hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold transition-colors cursor-pointer shadow-xs gap-2"
           >
             {createFarmMutation.isPending ? (
               <>
@@ -492,7 +493,7 @@ export function CreateFermaModal() {
                 <span>Saqlash</span>
               </>
             )}
-          </button>
+          </Button>
         </div>
       </form>
     </MantineModal>
@@ -544,21 +545,22 @@ export function DeleteFermaModal({ opened, onClose, farm, onConfirm }) {
         </p>
 
         <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
-          <button
+          <Button
             type="button"
+            variant="outline"
             onClick={onClose}
-            className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-sm font-semibold transition-colors cursor-pointer"
+            className="h-10 px-4 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-sm font-semibold transition-colors cursor-pointer"
           >
             Bekor qilish
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
             onClick={() => onConfirm(farm)}
-            className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold transition-colors cursor-pointer shadow-xs"
+            className="h-10 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold transition-colors cursor-pointer shadow-xs gap-1.5"
           >
             <Trash2 className="size-4" />
             <span>O'chirish</span>
-          </button>
+          </Button>
         </div>
       </div>
     </MantineModal>
@@ -919,21 +921,22 @@ function EditFermaModalContent({ opened, onClose, farm, onSave }) {
 
         {/* Buttons */}
         <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
-          <button
+          <Button
             type="button"
+            variant="outline"
             onClick={onClose}
-            className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-sm font-semibold transition-colors cursor-pointer"
+            className="h-10 px-4 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-sm font-semibold transition-colors cursor-pointer"
           >
             Bekor qilish
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
             disabled={uploadMutation.isPending}
-            className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#2563EB] hover:bg-blue-700 disabled:opacity-60 text-white text-sm font-semibold transition-colors cursor-pointer shadow-xs"
+            className="h-10 px-5 rounded-xl bg-[#2563EB] hover:bg-blue-700 disabled:opacity-60 text-white text-sm font-semibold transition-colors cursor-pointer shadow-xs gap-2"
           >
             <Pencil className="size-4" />
             <span>Yangilash</span>
-          </button>
+          </Button>
         </div>
       </form>
     </MantineModal>
