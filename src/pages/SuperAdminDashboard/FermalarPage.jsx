@@ -6,10 +6,11 @@ import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbS
 import { useFermaModalStore } from "@/entities/farm"
 import { Button, CreateFermaModal, EditFermaModal, DeleteFermaModal, Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext, PaginationEllipsis, Spinner } from "@/shared/ui"
 import { FilterBar } from "@/widgets"
-import { useFarms } from "@/shared/hooks/useFarms"
+import { useFarms, useUpdateFarmStatus } from "@/shared/hooks"
 
 const FermalarPage = () => {
     const { data, isPending, isError, error } = useFarms()
+    const updateFarmStatusMutation = useUpdateFarmStatus()
     const navigate = useNavigate()
     const { openModal } = useFermaModalStore()
     const [search, setSearch] = useState("")
@@ -54,8 +55,19 @@ const FermalarPage = () => {
     }
 
     const handleSaveEdit = (updatedFarm) => {
-        toast.success(`${updatedFarm.name} fermasi muvaffaqiyatli yangilandi!`)
-        setEditingFarm(null)
+        if (updatedFarm?.id && updatedFarm?.status) {
+            updateFarmStatusMutation.mutate(
+                {
+                    id: updatedFarm.id,
+                    status: updatedFarm.status,
+                },
+                {
+                    onSuccess: () => setEditingFarm(null),
+                }
+            )
+        } else {
+            setEditingFarm(null)
+        }
     }
     const filteredFarms = farms
         .filter((f) => {
@@ -63,7 +75,6 @@ const FermalarPage = () => {
                 f.name.toLowerCase().includes(search.toLowerCase()) ||
                 f.address.toLowerCase().includes(search.toLowerCase()) ||
                 f.bossFullName.toLowerCase().includes(search.toLowerCase())
-
             const matchStatus =
                 status === "all" || f.status === status
 
@@ -404,6 +415,7 @@ const FermalarPage = () => {
                 onClose={() => setEditingFarm(null)}
                 farm={editingFarm}
                 onSave={handleSaveEdit}
+                isPending={updateFarmStatusMutation.isPending}
             />
             <DeleteFermaModal
                 opened={Boolean(deletingFarm)}

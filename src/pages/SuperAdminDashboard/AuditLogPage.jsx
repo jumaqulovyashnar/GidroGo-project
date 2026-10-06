@@ -1,7 +1,8 @@
-import { useState, useRef, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle, Input, Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext, PaginationEllipsis } from "@/shared/ui"
+import { useState, useRef, useEffect, useMemo } from "react"
+import { Button, Card, CardContent, CardHeader, CardTitle, Input, Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext, PaginationEllipsis, Spinner } from "@/shared/ui"
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/shared/ui/table"
 import { ChevronDown, Upload, RotateCw, Calendar, History, ShieldCheck, ListFilter, ShieldAlert, Search } from "lucide-react"
+import { useAuditLogs } from "@/shared/hooks"
 
 const ACTION_OPTIONS = [
     { value: "all", label: "Amal turi: Barchasi" },
@@ -276,23 +277,61 @@ const AuditLogPage = () => {
     const [selectedAction, setSelectedAction] = useState("all")
     const [selectedObject, setSelectedObject] = useState("all")
     const [selectedAdmin, setSelectedAdmin] = useState("all")
-
     const [currentPage, setCurrentPage] = useState(1)
     const itemsPerPage = 5
 
+    const { data: auditData, isPending, isFetching, refetch } = useAuditLogs()
+    const rawLogs = useMemo(() => auditData?.data || (Array.isArray(auditData) ? auditData : []), [auditData])
+
+    const logsList = useMemo(() => {
+        if (Array.isArray(rawLogs) && rawLogs.length > 0) {
+            return rawLogs.map((log, index) => {
+                const dateObj = log.createdAt ? new Date(log.createdAt) : new Date()
+                return {
+                    id: log.id || `log-${index}`,
+                    time: dateObj.toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+                    date: dateObj.toLocaleDateString("ru-RU", { day: "2-digit", month: "short", year: "numeric" }),
+                    dayLabel: dateObj.toLocaleDateString("ru-RU", { day: "2-digit", month: "short" }),
+                    admin: {
+                        name: `SuperAdmin #${log.actorId || 1}`,
+                        role: "ROOT",
+                        avatarText: "SA",
+                    },
+                    action: {
+                        label: log.action || "Amal bajarildi",
+                        badgeClass: "bg-blue-600 text-white",
+                    },
+                    target: {
+                        name: `${log.entityType || "Obyekt"} #${log.entityId || ""}`,
+                        code: `#${log.entityType || "AUD"}-${log.entityId || log.id || ""}`,
+                        codeClass: "text-blue-600",
+                    },
+                    clientInfo: {
+                        ip: "127.0.0.1",
+                        device: log.metadata || "Web Client",
+                    },
+                    description: log.metadata || log.action || "Amal muvaffaqiyatli qayd etildi",
+                }
+            })
+        }
+        return MOCK_AUDIT_LOGS
+    }, [rawLogs])
+
     // Filterlash mantiqi
-    const filteredLogs = MOCK_AUDIT_LOGS.filter((log) => {
-        const matchesSearch =
-            log.target.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            log.target.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            log.clientInfo.ip.includes(searchTerm) ||
-            log.action.label.toLowerCase().includes(searchTerm.toLowerCase())
+    const filteredLogs = useMemo(() => {
+        return logsList.filter((log) => {
+            const matchesSearch =
+                log.target.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                log.target.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                log.clientInfo.ip.includes(searchTerm) ||
+                log.action.label.toLowerCase().includes(searchTerm.toLowerCase())
 
-        const matchesAction = selectedAction === "all" || log.action.label.toLowerCase().includes(selectedAction.toLowerCase())
-        const matchesAdmin = selectedAdmin === "all" || log.admin.name.toLowerCase().includes(selectedAdmin.toLowerCase())
+            const matchesAction = selectedAction === "all" || log.action.label.toLowerCase().includes(selectedAction.toLowerCase())
+            const matchesAdmin = selectedAdmin === "all" || log.admin.name.toLowerCase().includes(selectedAdmin.toLowerCase())
 
-        return matchesSearch && matchesAction && matchesAdmin
-    })
+            return matchesSearch && matchesAction && matchesAdmin
+        })
+    }, [logsList, searchTerm, selectedAction, selectedAdmin])
 
     const totalPages = Math.ceil(filteredLogs.length / itemsPerPage) || 1
     const paginatedLogs = filteredLogs.slice(
@@ -352,13 +391,15 @@ const AuditLogPage = () => {
                         </button>
 
                         {/* 3. Qayta yangilash tugmasi */}
-                        <button
+                        <Button
                             type="button"
+                            onClick={() => refetch()}
+                            disabled={isFetching}
                             className="h-10 px-4 flex items-center gap-2 rounded-xl bg-blue-600 text-white text-sm font-medium shadow-xs hover:bg-blue-700 transition-colors whitespace-nowrap cursor-pointer"
                         >
-                            <RotateCw className="h-4 w-4" />
+                            <RotateCw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
                             <span>Qayta yangilash</span>
-                        </button>
+                        </Button>
                     </div>
                 </div>
 
@@ -469,11 +510,27 @@ const AuditLogPage = () => {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {paginatedLogs.map((log) => (
-                                    <TableRow
-                                        key={log.id}
-                                        className="hover:bg-slate-50/70 transition-colors border-b border-slate-100 last:border-b-0"
-                                    >
+                                {isPending ? (
+                                    <TableRow>
+                                        <TableCell colSpan={5} className="py-14 text-center">
+                                            <div className="flex flex-col items-center justify-center gap-3">
+                                                <Spinner size="md" />
+                                                <p className="text-sm font-medium text-slate-500">Audit loglari yuklanmoqda...</p>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ) : paginatedLogs.length === 0 ? (
+                                    <TableRow>
+                                        <TableCell colSpan={5} className="py-14 text-center text-sm text-slate-500">
+                                            Qaydlar topilmadi
+                                        </TableCell>
+                                    </TableRow>
+                                ) : (
+                                    paginatedLogs.map((log) => (
+                                        <TableRow
+                                            key={log.id}
+                                            className="hover:bg-slate-50/70 transition-colors border-b border-slate-100 last:border-b-0"
+                                        >
                                         {/* 1. Sana va vaqt */}
                                         <TableCell className="py-3.5 px-4 whitespace-nowrap w-36">
                                             <div className="text-xs font-semibold text-slate-800">
@@ -523,7 +580,7 @@ const AuditLogPage = () => {
                                             </p>
                                         </TableCell>
                                     </TableRow>
-                                ))}
+                                )))}
                             </TableBody>
                         </Table>
                     </div>
