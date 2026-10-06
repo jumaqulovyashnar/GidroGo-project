@@ -2,10 +2,9 @@ import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { Plus, MapPin, Phone, User, Pencil, Trash2, Building2 } from "lucide-react"
 import { toast } from "sonner"
-import { Button } from "@base-ui/react"
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/shared/ui/breadcrumb"
 import { useFermaModalStore } from "@/entities/farm"
-import { CreateFermaModal, EditFermaModal, DeleteFermaModal, Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext, PaginationEllipsis, Spinner } from "@/shared/ui"
+import { Button, CreateFermaModal, EditFermaModal, DeleteFermaModal, Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext, PaginationEllipsis, Spinner } from "@/shared/ui"
 import { FilterBar } from "@/widgets"
 import { useFarms } from "@/shared/hooks/useFarms"
 
@@ -225,17 +224,18 @@ const FermalarPage = () => {
 
                     <div className="pt-2 flex items-center justify-center gap-3">
                         {(search || status !== "all") && (
-                            <button
+                            <Button
                                 type="button"
+                                variant="outline"
                                 onClick={() => {
                                     setSearch("")
                                     setStatus("all")
                                     setCurrentPage(1)
                                 }}
-                                className="px-4 py-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs sm:text-sm font-semibold transition-colors cursor-pointer"
+                                className="h-9 px-4 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs sm:text-sm font-semibold transition-colors cursor-pointer"
                             >
                                 Filtrlarni tozalash
-                            </button>
+                            </Button>
                         )}
                     </div>
                 </div>
@@ -293,27 +293,27 @@ const FermalarPage = () => {
                                 </div>
 
                                 <div className="flex items-center gap-2.5 pt-3 border-t border-slate-100">
-                                    <button
+                                    <Button
                                         type="button"
                                         onClick={(e) =>
                                             handleEdit(e, farm)
                                         }
-                                        className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-[10px] bg-[#2563EB] hover:bg-blue-700 text-white text-sm font-medium transition-colors cursor-pointer shadow-xs"
+                                        className="flex-1 h-9 rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white text-sm font-medium transition-colors cursor-pointer shadow-xs gap-1.5"
                                     >
                                         <Pencil className="size-3.5" />
                                         <span>Tahrirlash</span>
-                                    </button>
+                                    </Button>
 
-                                    <button
+                                    <Button
                                         type="button"
                                         onClick={(e) =>
                                             handleDelete(e, farm)
                                         }
-                                        className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-[10px] bg-rose-500 hover:bg-rose-600 text-white text-sm font-medium transition-colors cursor-pointer shadow-xs"
+                                        className="flex-1 h-9 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-sm font-medium transition-colors cursor-pointer shadow-xs gap-1.5"
                                     >
                                         <Trash2 className="size-3.5 text-white" />
                                         <span>O'chirish</span>
-                                    </button>
+                                    </Button>
                                 </div>
                             </div>
                         </div>

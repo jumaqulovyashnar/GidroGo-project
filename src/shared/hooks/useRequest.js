@@ -1,6 +1,13 @@
 import { requestService } from "@/services/farms.request.service";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+
+export const useActivationRequests = () => {
+    return useQuery({
+        queryKey: ["activation-requests"],
+        queryFn: () => requestService.getActivationRequests(),
+    });
+};
 
 export const useRequest = () => {
     const queryClient = useQueryClient();
