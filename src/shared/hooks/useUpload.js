@@ -10,7 +10,6 @@ export const useViewFile = (year, month, day, fileName) => {
         enabled: !!year && !!month && !!day && !!fileName,
     })
 }
-
 export const useUploadFile = () => {
     return useMutation({
         mutationKey: ['upload'],
