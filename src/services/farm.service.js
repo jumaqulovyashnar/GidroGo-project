@@ -1,4 +1,5 @@
 import { api, handleApiError } from "@/shared"
+
 class FarmService {
   async getFarms() {
     try {
@@ -8,36 +9,10 @@ class FarmService {
       throw new Error(handleApiError(error))
     } 
   }
-  async getFarmById(id) {
-    try {
-      const response = await api.get(`/superadmin/farms/${id}`)
-      return response.data
-    } catch (error) {
-      throw new Error(handleApiError(error))
-    }
-  }
 
   async createFarm(data) {
     try {
       const response = await api.post("/superadmin/farms", data)
-      return response.data
-    } catch (error) {
-      throw new Error(handleApiError(error))
-    }
-  }
-
-  async updateFarm(id, data) {
-    try {
-      const response = await api.put(`/superadmin/farms/${id}`, data)
-      return response.data
-    } catch (error) {
-      throw new Error(handleApiError(error))
-    }
-  }
-
-  async deleteFarm(id) {
-    try {
-      const response = await api.delete(`/superadmin/farms/${id}`)
       return response.data
     } catch (error) {
       throw new Error(handleApiError(error))

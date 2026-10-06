@@ -4,34 +4,21 @@ import { Pencil, MapPin, Calendar, Layers, CheckCircle2, DollarSign, TrendingUp,
 import { toast } from "sonner"
 import { Card, CardHeader, CardTitle, CardContent, Switch, Spinner } from "@/shared/ui"
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/shared/ui/breadcrumb"
-import { useFarm, useUpdateFarm } from "@/shared/hooks"
+import { useFarm } from "@/shared/hooks"
 import Chart from "react-apexcharts"
 
 export function FermaDetailPage() {
   const { id } = useParams()
   const { data: farm, isPending, isError, error } = useFarm(id)
-  const updateFarmMutation = useUpdateFarm()
 
   // Ferma holati (Faol / Nofaol)
   const [overrideStatus, setOverrideStatus] = useState(null)
   const currentStatus = overrideStatus ?? farm?.status ?? "active"
 
-  const handleStatusChange = async (val) => {
+  const handleStatusChange = (val) => {
     const newStatus = val ? "active" : "inactive"
     setOverrideStatus(newStatus)
-    try {
-      await updateFarmMutation.mutateAsync({
-        id,
-        data: {
-          ...farm,
-          status: newStatus,
-        },
-      })
-      toast.success(newStatus === "active" ? "Ferma faollashtirildi!" : "Ferma nofaol holatga o'tkazildi.")
-    } catch (err) {
-      setOverrideStatus(null)
-      toast.error(err?.message || "Holatni yangilashda xatolik yuz berdi")
-    }
+    toast.info(`Ferma holati: ${newStatus === "active" ? "Faol" : "Nofaol"}`)
   }
 
   // Analitika grafigi (ApexCharts)
@@ -270,7 +257,6 @@ export function FermaDetailPage() {
                 <Switch
                   checked={currentStatus === "active"}
                   onCheckedChange={handleStatusChange}
-                  disabled={updateFarmMutation.isPending}
                   title={currentStatus === "active" ? "Faol" : "Nofaol"}
                 />
               </div>
