@@ -8,6 +8,11 @@ export const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     // Agar login yoki public auth yo'li bo'lsa, Authorization header yubormaymiz
+    // Agar FormData bo'lsa, Content-Type ni o'chiramiz, brauzer multipart/form-data boundary bilan o'zi to'g'ri o'rnatadi
+    if (config.data instanceof FormData) {
+      delete config.headers["Content-Type"]
+    }
+
     const isAuthRoute =
       config.url?.includes("/auth/login") ||
       config.url?.includes("auth/login") ||

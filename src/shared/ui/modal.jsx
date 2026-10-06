@@ -1,8 +1,10 @@
 import React, { useRef, useState } from "react"
 import { Modal as MantineModal } from "@mantine/core"
 import { Building2, User, Plus, Inbox, Trash2, Image as ImageIcon } from "lucide-react"
-import { useFermaModalStore } from "@/entities/farm"
-import { Input } from "@/shared/ui"
+import { toast } from "sonner"
+import { useFermaModalStore, fermaSchema } from "@/entities/farm"
+import { Input, Spinner } from "@/shared/ui"
+import { useUpload, useCreateFarm } from "@/shared/hooks"
 
 export function CreateFermaModal() {
   const {
@@ -13,24 +15,75 @@ export function CreateFermaModal() {
     resetForm,
     imagePreview,
     setImagePreview,
+    selectedFile,
+    setSelectedFile,
   } = useFermaModalStore()
 
+  const [errors, setErrors] = useState({})
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef(null)
+
+  const uploadMutation = useUpload()
+  const createFarmMutation = useCreateFarm()
+
+  const handleClose = () => {
+    setErrors({})
+    closeModal()
+  }
 
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormField(name, value)
+    if (errors[name]) {
+      setErrors((prev) => {
+        const next = { ...prev }
+        delete next[name]
+        return next
+      })
+    }
   }
 
-  const handleFile = (file) => {
-    if (file && file.type.startsWith("image/")) {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        setImagePreview(e.target.result)
-        setFormField("logoUrl", e.target.result)
+  const handleFile = async (file) => {
+    if (!file) return
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Faqat rasm formatidagi fayllar qabul qilinadi!")
+      return
+    }
+
+    // Maksimal hajm: 5MB
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Rasm hajmi 5MB dan oshmasligi kerak!")
+      return
+    }
+
+    setSelectedFile(file)
+
+    // Mahalliy tezkor preview
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      setImagePreview(e.target.result)
+    }
+    reader.readAsDataURL(file)
+
+    // useUpload orqali serverga yuklash
+    try {
+      const res = await uploadMutation.mutateAsync(file)
+      const uploadedUrl =
+        res?.data?.url ||
+        res?.url ||
+        res?.data?.path ||
+        res?.path ||
+        (typeof res?.data === "string" ? res.data : "") ||
+        ""
+
+      if (uploadedUrl) {
+        setFormField("logoUrl", uploadedUrl)
+        toast.success("Rasm serverga muvaffaqiyatli yuklandi!")
       }
-      reader.readAsDataURL(file)
+    } catch (err) {
+      console.error("Rasm yuklashda xatolik:", err)
+      toast.error(err?.message || "Rasm yuklashda xatolik yuz berdi")
     }
   }
 
@@ -59,21 +112,62 @@ export function CreateFermaModal() {
   const handleRemoveImage = (e) => {
     e.stopPropagation()
     setImagePreview(null)
+    setSelectedFile(null)
     setFormField("logoUrl", "")
     if (fileInputRef.current) fileInputRef.current.value = ""
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    console.log("Yangi ferma ma'lumotlari (Zustand):", formData)
-    resetForm()
-    closeModal()
+
+    if (uploadMutation.isPending) {
+      toast.warning("Iltimos, rasm serverga yuklanishini kuting!")
+      return
+    }
+
+    // Zod orqali validatsiya qilish
+    const validationResult = fermaSchema.safeParse(formData)
+    if (!validationResult.success) {
+      const fieldErrors = {}
+      validationResult.error.issues.forEach((issue) => {
+        const fieldName = issue.path[0]
+        if (fieldName && !fieldErrors[fieldName]) {
+          fieldErrors[fieldName] = issue.message
+        }
+      })
+      setErrors(fieldErrors)
+
+      const firstMessage = validationResult.error.issues[0]?.message
+      if (firstMessage) {
+        toast.error(firstMessage)
+      }
+      return
+    }
+
+    setErrors({})
+
+    try {
+      await createFarmMutation.mutateAsync({
+        ...formData,
+        file: selectedFile,
+        latitude: Number(formData.latitude) || 0,
+        longitude: Number(formData.longitude) || 0,
+      })
+
+      toast.success("Yangi ferma muvaffaqiyatli qo'shildi!")
+      resetForm()
+      setErrors({})
+      closeModal()
+    } catch (err) {
+      console.error("Ferma yaratishda xatolik:", err)
+      toast.error(err?.message || "Ferma yaratishda xatolik yuz berdi")
+    }
   }
 
   return (
     <MantineModal
       opened={isOpen}
-      onClose={closeModal}
+      onClose={handleClose}
       title={
         <div className="flex items-center gap-2.5">
           <div className="size-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100">
@@ -114,7 +208,7 @@ export function CreateFermaModal() {
       }}
       className="[&_.mantine-Modal-body::-webkit-scrollbar]:hidden"
     >
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} noValidate className="space-y-5">
         {/* 1-QATOR: Ant Design uslubidagi Rasm yuklash (Upload Dragger) */}
         <div className="space-y-2">
           <label className="text-xs font-semibold text-slate-700 block">
@@ -162,6 +256,12 @@ export function CreateFermaModal() {
                 alt="Yuklangan rasm"
                 className="w-full h-full object-cover"
               />
+              {uploadMutation.isPending && (
+                <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-[2px] flex flex-col items-center justify-center gap-2 text-white z-10">
+                  <Spinner size="md" className="border-t-white border-blue-300" />
+                  <span className="text-xs font-semibold">Rasm serverga yuklanmoqda...</span>
+                </div>
+              )}
               <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
                 <button
                   type="button"
@@ -202,9 +302,13 @@ export function CreateFermaModal() {
                 value={formData.name}
                 onChange={handleChange}
                 placeholder="Masalan: Oazis Agro"
-                required
-                className="h-10 rounded-xl border-slate-200 focus-visible:border-blue-500 focus-visible:ring-blue-100 text-sm"
+                className={`h-10 rounded-xl text-sm ${
+                  errors.name
+                    ? "border-rose-400 focus-visible:border-rose-500 focus-visible:ring-rose-100"
+                    : "border-slate-200 focus-visible:border-blue-500 focus-visible:ring-blue-100"
+                }`}
               />
+              {errors.name && <p className="text-[11px] font-medium text-rose-500 mt-1">{errors.name}</p>}
             </div>
 
             <div className="space-y-1.5">
@@ -217,9 +321,13 @@ export function CreateFermaModal() {
                 value={formData.phone}
                 onChange={handleChange}
                 placeholder="+998 75 221 40 50"
-                required
-                className="h-10 rounded-xl border-slate-200 focus-visible:border-blue-500 focus-visible:ring-blue-100 text-sm"
+                className={`h-10 rounded-xl text-sm ${
+                  errors.phone
+                    ? "border-rose-400 focus-visible:border-rose-500 focus-visible:ring-rose-100"
+                    : "border-slate-200 focus-visible:border-blue-500 focus-visible:ring-blue-100"
+                }`}
               />
+              {errors.phone && <p className="text-[11px] font-medium text-rose-500 mt-1">{errors.phone}</p>}
             </div>
 
             <div className="space-y-1.5 sm:col-span-2">
@@ -232,9 +340,13 @@ export function CreateFermaModal() {
                 value={formData.address}
                 onChange={handleChange}
                 placeholder="Qarshi sh., Islom Karimov ko'chasi, 45-uy"
-                required
-                className="h-10 rounded-xl border-slate-200 focus-visible:border-blue-500 focus-visible:ring-blue-100 text-sm"
+                className={`h-10 rounded-xl text-sm ${
+                  errors.address
+                    ? "border-rose-400 focus-visible:border-rose-500 focus-visible:ring-rose-100"
+                    : "border-slate-200 focus-visible:border-blue-500 focus-visible:ring-blue-100"
+                }`}
               />
+              {errors.address && <p className="text-[11px] font-medium text-rose-500 mt-1">{errors.address}</p>}
             </div>
 
             <div className="space-y-1.5">
@@ -249,8 +361,13 @@ export function CreateFermaModal() {
                 value={formData.latitude}
                 onChange={handleChange}
                 placeholder="38.8612"
-                className="h-10 rounded-xl border-slate-200 focus-visible:border-blue-500 focus-visible:ring-blue-100 text-sm"
+                className={`h-10 rounded-xl text-sm ${
+                  errors.latitude
+                    ? "border-rose-400 focus-visible:border-rose-500 focus-visible:ring-rose-100"
+                    : "border-slate-200 focus-visible:border-blue-500 focus-visible:ring-blue-100"
+                }`}
               />
+              {errors.latitude && <p className="text-[11px] font-medium text-rose-500 mt-1">{errors.latitude}</p>}
             </div>
 
             <div className="space-y-1.5">
@@ -265,8 +382,13 @@ export function CreateFermaModal() {
                 value={formData.longitude}
                 onChange={handleChange}
                 placeholder="65.7847"
-                className="h-10 rounded-xl border-slate-200 focus-visible:border-blue-500 focus-visible:ring-blue-100 text-sm"
+                className={`h-10 rounded-xl text-sm ${
+                  errors.longitude
+                    ? "border-rose-400 focus-visible:border-rose-500 focus-visible:ring-rose-100"
+                    : "border-slate-200 focus-visible:border-blue-500 focus-visible:ring-blue-100"
+                }`}
               />
+              {errors.longitude && <p className="text-[11px] font-medium text-rose-500 mt-1">{errors.longitude}</p>}
             </div>
           </div>
         </div>
@@ -289,9 +411,13 @@ export function CreateFermaModal() {
                 value={formData.bossFullName}
                 onChange={handleChange}
                 placeholder="Aliyev Bobur Mansurovich"
-                required
-                className="h-10 rounded-xl border-slate-200 focus-visible:border-blue-500 focus-visible:ring-blue-100 text-sm"
+                className={`h-10 rounded-xl text-sm ${
+                  errors.bossFullName
+                    ? "border-rose-400 focus-visible:border-rose-500 focus-visible:ring-rose-100"
+                    : "border-slate-200 focus-visible:border-blue-500 focus-visible:ring-blue-100"
+                }`}
               />
+              {errors.bossFullName && <p className="text-[11px] font-medium text-rose-500 mt-1">{errors.bossFullName}</p>}
             </div>
 
             <div className="space-y-1.5">
@@ -304,9 +430,13 @@ export function CreateFermaModal() {
                 value={formData.bossPhone}
                 onChange={handleChange}
                 placeholder="+998 90 123 45 67"
-                required
-                className="h-10 rounded-xl border-slate-200 focus-visible:border-blue-500 focus-visible:ring-blue-100 text-sm"
+                className={`h-10 rounded-xl text-sm ${
+                  errors.bossPhone
+                    ? "border-rose-400 focus-visible:border-rose-500 focus-visible:ring-rose-100"
+                    : "border-slate-200 focus-visible:border-blue-500 focus-visible:ring-blue-100"
+                }`}
               />
+              {errors.bossPhone && <p className="text-[11px] font-medium text-rose-500 mt-1">{errors.bossPhone}</p>}
             </div>
 
             <div className="space-y-1.5">
@@ -320,9 +450,13 @@ export function CreateFermaModal() {
                 value={formData.bossPassword}
                 onChange={handleChange}
                 placeholder="••••••••"
-                required
-                className="h-10 rounded-xl border-slate-200 focus-visible:border-blue-500 focus-visible:ring-blue-100 text-sm"
+                className={`h-10 rounded-xl text-sm ${
+                  errors.bossPassword
+                    ? "border-rose-400 focus-visible:border-rose-500 focus-visible:ring-rose-100"
+                    : "border-slate-200 focus-visible:border-blue-500 focus-visible:ring-blue-100"
+                }`}
               />
+              {errors.bossPassword && <p className="text-[11px] font-medium text-rose-500 mt-1">{errors.bossPassword}</p>}
             </div>
           </div>
         </div>
@@ -331,17 +465,33 @@ export function CreateFermaModal() {
         <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
           <button
             type="button"
-            onClick={closeModal}
-            className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-sm font-semibold transition-colors cursor-pointer"
+            onClick={handleClose}
+            disabled={createFarmMutation.isPending || uploadMutation.isPending}
+            className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-50 text-sm font-semibold transition-colors cursor-pointer"
           >
             Bekor qilish
           </button>
           <button
             type="submit"
-            className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white text-sm font-semibold transition-colors cursor-pointer shadow-xs"
+            disabled={createFarmMutation.isPending || uploadMutation.isPending}
+            className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#2563EB] hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold transition-colors cursor-pointer shadow-xs"
           >
-            <Plus className="size-4" />
-            <span>Saqlash</span>
+            {createFarmMutation.isPending ? (
+              <>
+                <Spinner size="xs" className="border-t-white border-blue-200" />
+                <span>Saqlanmoqda...</span>
+              </>
+            ) : uploadMutation.isPending ? (
+              <>
+                <Spinner size="xs" className="border-t-white border-blue-200" />
+                <span>Rasm yuklanmoqda...</span>
+              </>
+            ) : (
+              <>
+                <Plus className="size-4" />
+                <span>Saqlash</span>
+              </>
+            )}
           </button>
         </div>
       </form>

@@ -1,25 +1,37 @@
-import React, { useMemo } from "react"
+import React, { useState } from "react"
 import { useParams, Link } from "react-router-dom"
-import { Pencil, MapPin, Calendar, Layers, CheckCircle2, DollarSign, TrendingUp, Activity } from "lucide-react"
-import { Card, CardHeader, CardTitle, CardContent, Switch } from "@/shared/ui"
+import { Pencil, MapPin, Calendar, Layers, CheckCircle2, DollarSign, TrendingUp, Activity, ArrowLeft, Building2 } from "lucide-react"
+import { toast } from "sonner"
+import { Card, CardHeader, CardTitle, CardContent, Switch, Spinner } from "@/shared/ui"
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/shared/ui/breadcrumb"
+import { useFarm, useUpdateFarm } from "@/shared/hooks"
 import Chart from "react-apexcharts"
 
 export function FermaDetailPage() {
   const { id } = useParams()
-
-  // URL dagi ID orqali mos fermani topish
-  const farm = useMemo(() => {
-    return MOCK_FARMS.find((f) => f.id === id) || MOCK_FARMS[0]
-  }, [id])
+  const { data: farm, isPending, isError, error } = useFarm(id)
+  const updateFarmMutation = useUpdateFarm()
 
   // Ferma holati (Faol / Nofaol)
-  const [status, setStatus] = React.useState(farm?.status || "active")
-  const [prevFarmId, setPrevFarmId] = React.useState(farm?.id)
+  const [overrideStatus, setOverrideStatus] = useState(null)
+  const currentStatus = overrideStatus ?? farm?.status ?? "active"
 
-  if (farm?.id !== prevFarmId) {
-    setPrevFarmId(farm?.id)
-    setStatus(farm?.status || "active")
+  const handleStatusChange = async (val) => {
+    const newStatus = val ? "active" : "inactive"
+    setOverrideStatus(newStatus)
+    try {
+      await updateFarmMutation.mutateAsync({
+        id,
+        data: {
+          ...farm,
+          status: newStatus,
+        },
+      })
+      toast.success(newStatus === "active" ? "Ferma faollashtirildi!" : "Ferma nofaol holatga o'tkazildi.")
+    } catch (err) {
+      setOverrideStatus(null)
+      toast.error(err?.message || "Holatni yangilashda xatolik yuz berdi")
+    }
   }
 
   // Analitika grafigi (ApexCharts)
@@ -65,14 +77,45 @@ export function FermaDetailPage() {
   const chartSeries = [
     {
       name: "Buyurtmalar",
-      data: [31, 40, 28, 51, 42, 85, 77],
+      data: farm?.ordersChartData || [31, 40, 28, 51, 42, 85, 77],
     },
     {
-      name: "Daromad ($)",
-      data: [11, 32, 45, 32, 34, 52, 41],
+      name: "Daromad",
+      data: farm?.revenueChartData || [11, 32, 45, 32, 34, 52, 41],
     },
   ]
 
+  if (isPending) {
+    return (
+      <div className="max-w-7xl mx-auto py-20 flex flex-col items-center justify-center gap-4 bg-white border border-slate-200/80 rounded-2xl">
+        <Spinner size="lg" />
+        <p className="text-sm font-medium text-slate-500">Ferma ma'lumotlari yuklanmoqda...</p>
+      </div>
+    )
+  }
+
+  if (isError || !farm) {
+    return (
+      <div className="max-w-7xl mx-auto py-16 px-6 text-center bg-white border border-rose-200 rounded-2xl space-y-4">
+        <div className="size-14 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center mx-auto border border-rose-100">
+          <Building2 className="size-7" />
+        </div>
+        <div className="space-y-1">
+          <h2 className="text-lg font-bold text-slate-900">Ferma topilmadi</h2>
+          <p className="text-sm text-slate-500 max-w-md mx-auto">
+            {error?.response?.data?.message || error?.message || "Ushbu identifikatorga ega ferma mavjud emas yoki yuklashda xatolik yuz berdi."}
+          </p>
+        </div>
+        <Link
+          to="/super-admin/fermalar"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white text-sm font-semibold transition-colors cursor-pointer"
+        >
+          <ArrowLeft className="size-4" />
+          <span>Fermalar ro'yxatiga qaytish</span>
+        </Link>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-10">
@@ -119,7 +162,14 @@ export function FermaDetailPage() {
         </div>
 
         {/* Action Button: Ko'k rangli Tahrirlash tugmasi */}
-        <div className="flex items-center">
+        <div className="flex items-center gap-3">
+          <Link
+            to="/super-admin/fermalar"
+            className="flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-[10px] border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-sm transition-colors cursor-pointer shrink-0 shadow-2xs"
+          >
+            <ArrowLeft className="size-4" />
+            <span>Ortga</span>
+          </Link>
           <button
             type="button"
             className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-[10px] bg-[#2563EB] hover:bg-blue-700 text-white font-medium text-sm transition-colors cursor-pointer shrink-0 shadow-xs"
@@ -136,11 +186,18 @@ export function FermaDetailPage() {
           {/* Chap tomon: Yagona Katta Ferma Rasmi */}
           <div className="lg:col-span-5">
             <div className="w-full h-80 sm:h-96 lg:h-95 rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 shadow-xs relative">
-              <img
-                src={farm.logoUrl || farm.bannerUrl}
-                alt={farm.name}
-                className="w-full h-full object-cover transition-all duration-300 hover:scale-105"
-              />
+              {farm.logoUrl || farm.bannerUrl ? (
+                <img
+                  src={farm.logoUrl || farm.bannerUrl}
+                  alt={farm.name}
+                  className="w-full h-full object-cover transition-all duration-300 hover:scale-105"
+                />
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 gap-2 bg-slate-100">
+                  <Building2 className="size-16 stroke-1 text-slate-400" />
+                  <span className="text-xs font-medium">Rasm mavjud emas</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -167,7 +224,7 @@ export function FermaDetailPage() {
                 Tavsif (Description)
               </h3>
               <p className="text-sm text-slate-600 leading-relaxed">
-                {farm.description}
+                {farm.description || "Ushbu ferma bo'yicha qo'shimcha tavsif kiritilmagan."}
               </p>
             </div>
 
@@ -175,22 +232,24 @@ export function FermaDetailPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
               <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100 space-y-1">
                 <p className="text-xs font-medium text-slate-400">Ferma Rahbari</p>
-                <p className="text-sm font-semibold text-slate-900">{farm.bossFullName}</p>
+                <p className="text-sm font-semibold text-slate-900">{farm.bossFullName || "-"}</p>
               </div>
 
               <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100 space-y-1">
                 <p className="text-xs font-medium text-slate-400">Rahbar Telefoni</p>
-                <p className="text-sm font-semibold text-slate-900">{farm.bossPhone}</p>
+                <p className="text-sm font-semibold text-slate-900">{farm.bossPhone || "-"}</p>
               </div>
 
               <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100 space-y-1">
                 <p className="text-xs font-medium text-slate-400">Ferma Rasmiy Raqami</p>
-                <p className="text-sm font-semibold text-slate-900">{farm.phone}</p>
+                <p className="text-sm font-semibold text-slate-900">{farm.phone || "-"}</p>
               </div>
 
               <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100 space-y-1">
-                <p className="text-xs font-medium text-slate-400">Elektron Pochta</p>
-                <p className="text-sm font-semibold text-slate-900">info@{farm.id}.uz</p>
+                <p className="text-xs font-medium text-slate-400">Latitude / Longitude</p>
+                <p className="text-sm font-semibold text-slate-900">
+                  {farm.latitude || 0} / {farm.longitude || 0}
+                </p>
               </div>
             </div>
 
@@ -200,16 +259,19 @@ export function FermaDetailPage() {
                 <Calendar className="size-4 text-slate-400" />
                 <span>
                   Ro'yxatdan o'tgan:{" "}
-                  <strong className="text-slate-900 font-semibold">{farm.createdAt}</strong>
+                  <strong className="text-slate-900 font-semibold">
+                    {farm.createdAt ? new Date(farm.createdAt).toLocaleDateString("uz-UZ") : "-"}
+                  </strong>
                 </span>
               </div>
 
               <div className="flex items-center gap-2.5">
                 <span className="text-xs font-medium text-slate-500">Ferma holati:</span>
                 <Switch
-                  checked={status === "active"}
-                  onCheckedChange={(val) => setStatus(val ? "active" : "inactive")}
-                  title={status === "active" ? "Faol" : "Nofaol"}
+                  checked={currentStatus === "active"}
+                  onCheckedChange={handleStatusChange}
+                  disabled={updateFarmMutation.isPending}
+                  title={currentStatus === "active" ? "Faol" : "Nofaol"}
                 />
               </div>
             </div>
@@ -217,7 +279,7 @@ export function FermaDetailPage() {
         </div>
       </Card>
 
-      {/* 3. 4 ta Qisqa Ko'rsatkich Kartochkasi (Hamma ikonkalari bir xil chiroyli KO'K rangda) */}
+      {/* 3. 4 ta Qisqa Ko'rsatkich Kartochkasi */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Jami */}
         <Card className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
@@ -230,10 +292,10 @@ export function FermaDetailPage() {
             </div>
           </div>
           <div className="text-2xl font-bold text-slate-900 mt-2">
-            {farm.totalOrders || "1,240"}
+            {farm.totalOrders != null ? farm.totalOrders : "0"}
           </div>
           <p className="text-xs text-emerald-600 flex items-center gap-1 mt-1 font-medium">
-            <TrendingUp className="size-3.5" /> +12% o'tgan oydan
+            <TrendingUp className="size-3.5" /> Faol tizimda
           </p>
         </Card>
 
@@ -247,7 +309,9 @@ export function FermaDetailPage() {
               <Activity className="size-4.5 text-blue-600" strokeWidth={1.75} />
             </div>
           </div>
-          <div className="text-2xl font-bold text-slate-900 mt-2">320</div>
+          <div className="text-2xl font-bold text-slate-900 mt-2">
+            {farm.activeOrders != null ? farm.activeOrders : "0"}
+          </div>
           <p className="text-xs text-slate-500 mt-1">Yetkazib berilmoqda</p>
         </Card>
 
@@ -261,9 +325,11 @@ export function FermaDetailPage() {
               <CheckCircle2 className="size-4.5 text-blue-600" strokeWidth={1.75} />
             </div>
           </div>
-          <div className="text-2xl font-bold text-slate-900 mt-2">920</div>
+          <div className="text-2xl font-bold text-slate-900 mt-2">
+            {farm.completedOrders != null ? farm.completedOrders : "0"}
+          </div>
           <p className="text-xs text-emerald-600 mt-1 font-medium">
-            98.5% muvaffaqiyat
+            Muvaffaqiyatli buyurtmalar
           </p>
         </Card>
 
@@ -277,9 +343,11 @@ export function FermaDetailPage() {
               <DollarSign className="size-4.5 text-blue-600" strokeWidth={1.75} />
             </div>
           </div>
-          <div className="text-2xl font-bold text-slate-900 mt-2">$12,450</div>
+          <div className="text-2xl font-bold text-slate-900 mt-2">
+            {farm.totalRevenue != null ? `${Number(farm.totalRevenue).toLocaleString()} so'm` : "0 so'm"}
+          </div>
           <p className="text-xs text-emerald-600 flex items-center gap-1 mt-1 font-medium">
-            <TrendingUp className="size-3.5" /> +18.4% o'sish
+            <TrendingUp className="size-3.5" /> Jami daromad
           </p>
         </Card>
       </div>
