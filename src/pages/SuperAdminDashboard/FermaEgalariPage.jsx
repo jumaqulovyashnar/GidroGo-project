@@ -3,7 +3,7 @@ import { FilterBar } from "@/widgets"
 import { Card, CardHeader, Switch, Button, Spinner, EditBossModal, DeleteBossModal, Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext, PaginationEllipsis } from "@/shared/ui"
 import { User, ShieldCheck, TrendingUpIcon, Hammer, RefreshCw } from "lucide-react"
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/shared/ui/table"
-import { useBosses, useUpdateBossStatus, useUpdateBoss, useDeleteBoss } from "@/shared/hooks"
+import { useBosses, useUpdateBossStatus, useUpdateBoss, useDeleteBoss, useFarms } from "@/shared/hooks"
 
 const statusOptions = [
     { value: "all", label: "Barcha statuslar" },
@@ -21,6 +21,35 @@ const farmOptions = [
     { value: "tog", label: "Tog' Chashmasi" },
 ]
 
+const OwnerAvatar = ({ image, name }) => {
+    const [hasError, setHasError] = useState(false)
+    const initials = useMemo(() => {
+        if (!name) return "FE"
+        const parts = name.trim().split(/\s+/)
+        if (parts.length >= 2) {
+            return (parts[0][0] + parts[1][0]).toUpperCase()
+        }
+        return name.slice(0, 2).toUpperCase()
+    }, [name])
+
+    if (image && !hasError) {
+        return (
+            <img
+                src={image}
+                alt={name}
+                onError={() => setHasError(true)}
+                className="w-10 h-10 rounded-full object-cover object-center border border-slate-200 shrink-0 shadow-2xs"
+            />
+        )
+    }
+
+    return (
+        <div className="w-10 h-10 rounded-full bg-[#0284c7] text-white flex items-center justify-center font-bold text-xs border border-sky-600/30 shrink-0 select-none shadow-2xs">
+            {initials}
+        </div>
+    )
+}
+
 const FermaEgalariPage = () => {
     const [search, setSearch] = useState("")
     const [status, setStatus] = useState("all")
@@ -31,9 +60,21 @@ const FermaEgalariPage = () => {
     const [deletingBoss, setDeletingBoss] = useState(null)
 
     const { data, isPending, isError, error, isFetching, refetch } = useBosses()
+    const { data: farmsData } = useFarms()
     const toggleStatusMutation = useUpdateBossStatus()
     const updateBossMutation = useUpdateBoss()
     const deleteBossMutation = useDeleteBoss()
+
+    const farmsMap = useMemo(() => {
+        const list = farmsData?.data || []
+        const map = {}
+        if (Array.isArray(list)) {
+            list.forEach((f) => {
+                if (f.id) map[f.id] = f
+            })
+        }
+        return map
+    }, [farmsData])
 
     const bosses = useMemo(() => {
         const list = data?.data?.bosses || data?.data?.content || (Array.isArray(data?.data) ? data?.data : [])
@@ -282,8 +323,10 @@ const FermaEgalariPage = () => {
                                         const fullName = owner.fullName || owner.profile?.fullName || "—"
                                         const avatar = owner.avatarUrl || owner.profile?.avatar || ""
                                         const phone = owner.phone || owner.profile?.phone || "—"
-                                        const farmName = owner.farmName || owner.farm?.name || "Ferma biriktirilmagan"
-                                        const farmId = owner.farmId || owner.farm?.id || owner.id
+                                        const farmObj = owner.farm || farmsMap[owner.farmId] || farmsMap[owner.farm?.id]
+                                        const farmImage = farmObj?.logoUrl || farmObj?.bannerUrl || avatar || owner.logoUrl || owner.farmLogoUrl || ""
+                                        const farmName = owner.farmName || farmObj?.name || owner.farm?.name || "Ferma biriktirilmagan"
+                                        const farmId = owner.farmId || farmObj?.id || owner.farm?.id || owner.id
                                         const isActive = owner.active !== undefined
                                             ? Boolean(owner.active)
                                             : (owner.status === "ACTIVE" || owner.profile?.status === "active")
@@ -300,20 +343,7 @@ const FermaEgalariPage = () => {
                                             <TableRow key={owner.id} className="hover:bg-slate-50/60 transition-colors border-b border-slate-100 last:border-b-0">
                                                 {/* 1. Rasm */}
                                                 <TableCell className="py-3.5 pl-6 text-left">
-                                                    {avatar ? (
-                                                        <img
-                                                            className="w-10 h-10 rounded-full object-cover border border-slate-200 shrink-0"
-                                                            src={avatar}
-                                                            alt={fullName}
-                                                            onError={(e) => {
-                                                                e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=2563EB&color=fff`
-                                                            }}
-                                                        />
-                                                    ) : (
-                                                        <div className="w-10 h-10 rounded-full bg-blue-50 text-[#2563EB] flex items-center justify-center font-bold text-xs border border-blue-100 shrink-0">
-                                                            {fullName.slice(0, 2).toUpperCase()}
-                                                        </div>
-                                                    )}
+                                                    <OwnerAvatar image={farmImage} name={fullName} />
                                                 </TableCell>
 
                                                 {/* 2. Ferma Egasi (Ism + Ferma nomi) */}
