@@ -313,6 +313,44 @@ const AuditLogPage = () => {
 
     const { data: auditData, isPending, isFetching, refetch } = useAuditLogs(queryParams)
 
+const formatAuditMetadata = (metadata, action) => {
+    if (!metadata) {
+        if (!action) return "Muvaffaqiyatli amalga oshirildi"
+        const clean = action.replaceAll("_", " ").toLowerCase()
+        return clean.charAt(0).toUpperCase() + clean.slice(1)
+    }
+
+    try {
+        const parsed = typeof metadata === "string" ? JSON.parse(metadata) : metadata
+
+        if (parsed.newStatus) {
+            const statusMap = {
+                ACTIVE: "Faol holatga o'tkazildi",
+                INACTIVE: "Nofaol qilindi",
+                BLOCKED: "Bloklandi",
+            }
+            return `Holat: ${statusMap[parsed.newStatus] || parsed.newStatus}`
+        }
+
+        if (parsed.farmName || parsed.bossPhone) {
+            const parts = []
+            if (parsed.farmName) parts.push(`Ferma: "${parsed.farmName}"`)
+            if (parsed.bossPhone) parts.push(`Tel: ${parsed.bossPhone}`)
+            return parts.join(", ")
+        }
+
+        if (parsed.reason) {
+            return `Sabab: ${parsed.reason}`
+        }
+
+        const entries = Object.entries(parsed)
+            .map(([k, v]) => `${k}: ${typeof v === "object" ? JSON.stringify(v) : v}`)
+        return entries.slice(0, 2).join(", ")
+    } catch {
+        return typeof metadata === "string" ? metadata : "Amal muvaffaqiyatli qayd etildi"
+    }
+}
+
     const isServerPaginated = Boolean(
         auditData?.data?.content ||
         auditData?.data?.totalElements !== undefined ||
@@ -331,34 +369,53 @@ const AuditLogPage = () => {
         if (Array.isArray(rawLogs) && rawLogs.length > 0) {
             return rawLogs.map((log, index) => {
                 const dateObj = log.createdAt ? new Date(log.createdAt) : new Date()
+
+                const formattedDate = dateObj.toLocaleDateString("ru-RU", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                })
+                const formattedTime = dateObj.toLocaleTimeString("uz-UZ", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                })
+
+                const entityType = log.entityType || "FERMA"
+                const entityId = log.entityId || log.id || ""
+                const entityLabel = entityType === "FARM"
+                    ? "Ferma"
+                    : entityType === "BOSS" || entityType === "USER"
+                    ? "Rahbar"
+                    : entityType
+
+                const description = formatAuditMetadata(log.metadata, log.action)
+
                 return {
                     id: log.id || `log-${index}`,
-                    time: dateObj.toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
-                    date: dateObj.toLocaleDateString("ru-RU", { day: "2-digit", month: "short", year: "numeric" }),
-                    dayLabel: dateObj.toLocaleDateString("ru-RU", { day: "2-digit", month: "short" }),
+                    date: formattedDate,
+                    time: formattedTime,
                     admin: {
                         name: `SuperAdmin #${log.actorId || 1}`,
                         role: "ROOT",
                         avatarText: "SA",
                     },
                     action: {
-                        label: log.action || "Amal bajarildi",
-                        badgeClass: "bg-blue-600 text-white",
+                        label: log.action ? log.action.replaceAll("_", " ") : "Amal bajarildi",
                     },
                     target: {
-                        name: `${log.entityType || "Obyekt"} #${log.entityId || ""}`,
-                        code: `#${log.entityType || "AUD"}-${log.entityId || log.id || ""}`,
-                        codeClass: "text-blue-600",
+                        name: `${entityLabel} #${entityId}`,
+                        type: entityLabel,
                     },
                     clientInfo: {
                         ip: "127.0.0.1",
-                        device: log.metadata || "Web Client",
+                        device: "Chrome / Web",
                     },
-                    description: log.metadata || log.action || "Amal muvaffaqiyatli qayd etildi",
+                    description,
                 }
             })
         }
-        return MOCK_AUDIT_LOGS
+        return []
     }, [rawLogs])
 
     // Filterlash mantiqi (agar serverda filter qilinmagan bo'lsa)
@@ -385,6 +442,56 @@ const AuditLogPage = () => {
             return matchesSearch && matchesAction && matchesAdmin
         })
     }, [logsList, searchTerm, selectedAction, selectedAdmin, isServerPaginated])
+
+    const auditStats = useMemo(() => {
+        const total = auditData?.data?.totalElements ?? auditData?.totalElements ?? rawLogs.length
+        let farmActions = 0
+        let bossActions = 0
+
+        rawLogs.forEach((l) => {
+            if (l.entityType === "FARM") farmActions++
+            if (l.entityType === "BOSS" || l.entityType === "USER") bossActions++
+        })
+
+        return [
+            {
+                id: "total-actions",
+                title: "JAMI QAYDLAR",
+                value: total ? Number(total).toLocaleString("uz-UZ") : "0",
+                unit: "ta qayd",
+                badge: "REAL-TIME",
+                subtitle: "Tizimdagi jami audit jurnali",
+                icon: History,
+            },
+            {
+                id: "security-risks",
+                title: "XAVFSIZLIK HOLATI",
+                value: "Barqaror",
+                unit: "",
+                badge: "STABLE",
+                subtitle: "Tizim holati normal",
+                icon: ShieldCheck,
+            },
+            {
+                id: "approvals",
+                title: "FERMA AMALLARI",
+                value: farmActions,
+                unit: "amaliyot",
+                badge: null,
+                subtitle: "Ferma status va sozlamalari",
+                icon: ListFilter,
+            },
+            {
+                id: "settings-permissions",
+                title: "RAHBAR & USER AMALLARI",
+                value: bossActions,
+                unit: "amaliyot",
+                badge: null,
+                subtitle: "Rahbarlar va foydalanuvchilar",
+                icon: ShieldAlert,
+            },
+        ]
+    }, [auditData, rawLogs])
 
     const totalServerPages = auditData?.data?.totalPages ?? auditData?.totalPages ?? null
     const totalServerItems = auditData?.data?.totalElements ?? auditData?.totalElements ?? null
@@ -468,7 +575,7 @@ const AuditLogPage = () => {
 
                 {/* 4 ta Metrika Card */}
                 <div className="pt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {MOCK_AUDIT_METRICS_CARDS.map((audit) => {
+                    {auditStats.map((audit) => {
                         const Icon = audit.icon
                         return (
                             <Card key={audit.id} className="bg-white border border-slate-200/80 shadow-xs rounded-xl">
@@ -592,58 +699,55 @@ const AuditLogPage = () => {
                                     paginatedLogs.map((log) => (
                                         <TableRow
                                             key={log.id}
-                                            className="hover:bg-slate-50/70 transition-colors border-b border-slate-100 last:border-b-0"
+                                            className="hover:bg-slate-50/70 transition-colors border-b border-slate-100 last:border-b-0 h-16"
                                         >
-                                        {/* 1. Sana va vaqt */}
-                                        <TableCell className="py-3.5 px-4 whitespace-nowrap w-36">
-                                            <div className="text-xs font-semibold text-slate-800">
-                                                {log.dayLabel}, {log.time}
-                                            </div>
-                                            <div className="text-[11px] text-slate-400 mt-0.5">
-                                                {log.date}
-                                            </div>
-                                        </TableCell>
-
-                                        {/* 2. SuperAdmin */}
-                                        <TableCell className="py-3.5 px-4 whitespace-nowrap w-44">
-                                            <div className="flex items-center gap-2.5">
-                                                <div className="w-8 h-8 rounded-full bg-blue-700 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-xs">
-                                                    {log.admin.avatarText}
+                                            {/* 1. Sana va vaqt */}
+                                            <TableCell className="py-3 px-4 whitespace-nowrap w-36 align-middle">
+                                                <div className="text-xs font-semibold text-slate-800">
+                                                    {log.date}
                                                 </div>
-                                                <span className="text-xs font-semibold text-slate-800">
-                                                    {log.admin.name}
+                                                <div className="text-[11px] text-slate-400 mt-0.5 font-mono">
+                                                    {log.time}
+                                                </div>
+                                            </TableCell>
+
+                                            {/* 2. SuperAdmin */}
+                                            <TableCell className="py-3 px-4 whitespace-nowrap w-44 align-middle">
+                                                <div className="flex items-center gap-2.5">
+                                                    <div className="w-8 h-8 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
+                                                        {log.admin.avatarText}
+                                                    </div>
+                                                    <span className="text-xs font-semibold text-slate-800">
+                                                        {log.admin.name}
+                                                    </span>
+                                                </div>
+                                            </TableCell>
+
+                                            {/* 3. Ta'sir etilgan obyekt */}
+                                            <TableCell className="py-3 px-4 whitespace-nowrap w-44 align-middle">
+                                                <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-100">
+                                                    {log.target.name}
                                                 </span>
-                                            </div>
-                                        </TableCell>
+                                            </TableCell>
 
-                                        {/* 3. Ta'sir etilgan obyekt */}
-                                        <TableCell className="py-3.5 px-4 whitespace-nowrap w-48">
-                                            <div className="text-xs font-semibold text-slate-900">
-                                                {log.target.name}
-                                            </div>
-                                            <div className={`text-[11px] font-medium mt-0.5 ${log.target.codeClass}`}>
-                                                {log.target.code}
-                                            </div>
-                                        </TableCell>
+                                            {/* 4. IP & Qurilma */}
+                                            <TableCell className="py-3 px-4 whitespace-nowrap w-36 align-middle">
+                                                <div className="text-xs font-medium text-slate-700 font-mono">
+                                                    {log.clientInfo.ip}
+                                                </div>
+                                                <div className="text-[11px] text-slate-400 mt-0.5">
+                                                    {log.clientInfo.device}
+                                                </div>
+                                            </TableCell>
 
-                                        {/* 4. IP & Qurilma */}
-                                        <TableCell className="py-3.5 px-4 whitespace-nowrap w-40">
-                                            <div className="text-xs font-medium text-slate-700 font-mono">
-                                                {log.clientInfo.ip}
-                                            </div>
-                                            <div className="text-[11px] text-slate-400 mt-0.5">
-                                                {log.clientInfo.device}
-                                            </div>
-                                        </TableCell>
-
-                                        {/* 5. Tavsif va sabab */}
-                                        <TableCell className="py-3.5 px-4 w-48 max-w-48">
-                                            <p className="text-xs text-slate-600 truncate" title={log.description}>
-                                                {log.description}
-                                            </p>
-                                        </TableCell>
-                                    </TableRow>
-                                )))}
+                                            {/* 5. Tavsif va sabab */}
+                                            <TableCell className="py-3 px-4 align-middle min-w-[200px]">
+                                                <p className="text-xs text-slate-700 font-medium truncate max-w-sm" title={log.description}>
+                                                    {log.description}
+                                                </p>
+                                            </TableCell>
+                                        </TableRow>
+                                    )))}
                             </TableBody>
                         </Table>
                     </div>

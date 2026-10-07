@@ -83,14 +83,41 @@
     @apply border-border;
     font-family: inherit;
   }
-  html, body {
+  html,
+  body {
     font-family: var(--font-family-base);
-    @apply bg-background text-foreground min-h-screen antialiased;
+    @apply bg-background text-foreground antialiased;
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
     font-feature-settings: "rlig" 1, "calt" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+  #root {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+  }
   h1, h2, h3, h4, h5, h6 {
     font-family: "Google Sans", "Plus Jakarta Sans", sans-serif;
   }
+}
+
+/* Yupqa va silliq yagona scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }

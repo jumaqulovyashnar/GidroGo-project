@@ -1,20 +1,64 @@
+import { useMemo } from "react"
 import Chart from "react-apexcharts"
 
-export function SalesTeamDonutChart() {
-  const series = [44, 25, 18, 13]
+export function SalesTeamDonutChart({ dashboard = {}, regionalStats = {} }) {
+  const regions = regionalStats?.regions || []
+  const hasRegions = Array.isArray(regions) && regions.length > 0
+
+  const { series, labels, colors, totalCount, totalLabel } = useMemo(() => {
+    // 1. Agar hududlar kesimida statistika kelsa (API: /superadmin/statistics/regions)
+    if (hasRegions) {
+      const regionLabels = regions.map((r) => r.regionName || r.name || "Hudud")
+      const regionSeries = regions.map((r) => Number(r.count ?? r.value ?? 0))
+      const total = regionalStats.totalFarms || dashboard.totalFarms || regionSeries.reduce((a, b) => a + b, 0)
+      
+      const palette = [
+        "#2563EB", "#10B981", "#F59E0B", "#8B5CF6", "#06B6D4",
+        "#EC4899", "#84CC16", "#F97316", "#6366F1", "#14B8A6",
+      ]
+
+      return {
+        series: regionSeries.length > 0 ? regionSeries : [1],
+        labels: regionLabels.length > 0 ? regionLabels : ["Hudud"],
+        colors: palette.slice(0, Math.max(regionLabels.length, 1)),
+        totalCount: total,
+        totalLabel: "Jami fermalar",
+      }
+    }
+
+    // 2. Aks holda Dashboard KPI dan (API: /superadmin/dashboard)
+    // Faol fermalar vs Bloklangan fermalar
+    const active = Number(dashboard.activeFarms ?? 0)
+    const blocked = Number(dashboard.blockedFarms ?? 0)
+    const total = Number(dashboard.totalFarms ?? (active + blocked))
+
+    // Agar ikkalasi ham 0 bo'lsa
+    if (active === 0 && blocked === 0) {
+      return {
+        series: [1],
+        labels: ["Ma'lumot yo'q"],
+        colors: ["#94A3B8"],
+        totalCount: 0,
+        totalLabel: "Jami fermalar",
+      }
+    }
+
+    return {
+      series: [active, blocked],
+      labels: ["Faol fermalar", "Bloklangan fermalar"],
+      colors: ["#10B981", "#EF4444"], // Faol: Yashil, Bloklangan: Qizil
+      totalCount: total,
+      totalLabel: "Jami fermalar",
+    }
+  }, [dashboard, regionalStats, hasRegions, regions])
 
   const options = {
     chart: {
       type: "donut",
       fontFamily: "'Google Sans', 'Plus Jakarta Sans', sans-serif",
     },
-    labels: [
-      "Marguerite Tillman",
-      "Gabriel Barton",
-      "Kathleen Abernathy",
-      "Devon Reyes",
-    ],
-    colors: ["#0ea5e9", "#14b8a6", "#f59e0b", "#f43f5e"],
+    labels,
+    colors,
     plotOptions: {
       pie: {
         borderRadius: 8,
@@ -25,30 +69,27 @@ export function SalesTeamDonutChart() {
             show: true,
             name: {
               show: true,
-              fontSize: "14px",
+              fontSize: "13px",
               fontFamily: "'Google Sans', sans-serif",
               fontWeight: 600,
               color: "#64748b",
             },
             value: {
               show: true,
-              fontSize: "22px",
+              fontSize: "20px",
               fontFamily: "'Google Sans', sans-serif",
               fontWeight: 700,
               color: "#0f172a",
-              formatter: (val) => `${val}%`,
+              formatter: (val) => `${val} ta`,
             },
             total: {
               show: true,
-              label: "Jami buyurtmalar",
-              fontSize: "13px",
+              label: totalLabel,
+              fontSize: "12px",
               fontFamily: "'Google Sans', sans-serif",
               fontWeight: 600,
               color: "#64748b",
-              formatter: (w) => {
-                const total = w.globals.seriesTotals.reduce((a, b) => a + b, 0)
-                return `${total}%`
-              },
+              formatter: () => `${totalCount} ta`,
             },
           },
         },
@@ -75,7 +116,7 @@ export function SalesTeamDonutChart() {
     tooltip: {
       theme: "light",
       y: {
-        formatter: (val) => `${val}% ulush`,
+        formatter: (val) => `${val} ta ferma`,
       },
     },
     responsive: [
@@ -106,4 +147,4 @@ export function SalesTeamDonutChart() {
   )
 }
 
-export default SalesTeamDonutChart;
+export default SalesTeamDonutChart

@@ -1,13 +1,19 @@
+import { lazy, Suspense } from "react"
 import { useAuth } from "@/provider/AuthProvider"
 import { Card, CardHeader, CardTitle, CardContent, Button } from "@/shared/ui"
 import { Building2, Users, ShoppingCart, Truck, CheckCircle2, RefreshCw } from "lucide-react"
-import { BrushAnalyticsChart, SalesTeamDonutChart } from "@/widgets/charts"
-import { useSuperAdminDashboard } from "@/shared/hooks"
+import { useSuperAdminDashboard, useRegionalStatistics } from "@/shared/hooks"
+
+const BrushAnalyticsChart = lazy(() => import("@/widgets/charts/BrushAnalyticsChart"))
+const SalesTeamDonutChart = lazy(() => import("@/widgets/charts/SalesTeamDonutChart"))
 
 export function SuperAdminDashboardPage() {
   const { user: _user } = useAuth()
   const { data, isPending, isFetching, refetch } = useSuperAdminDashboard()
+  const { data: regData } = useRegionalStatistics()
+  
   const dashboard = data?.data || data || {}
+  const regionalStats = regData?.data || regData || {}
 
   const metrics = [
     {
@@ -133,21 +139,36 @@ export function SuperAdminDashboardPage() {
             </div>
           </CardHeader>
           <CardContent className="pt-2 min-h-[365px]">
-            <BrushAnalyticsChart />
+            <Suspense
+              fallback={
+                <div className="w-full h-[320px] bg-slate-50/70 rounded-xl animate-pulse flex flex-col items-center justify-center p-6 gap-3">
+                  <div className="w-48 h-4 bg-slate-200 rounded" />
+                  <div className="w-full flex-1 bg-slate-100 rounded-lg" />
+                </div>
+              }
+            >
+              <BrushAnalyticsChart dashboard={dashboard} />
+            </Suspense>
           </CardContent>
         </Card>
 
         <Card className="lg:col-span-4 border border-slate-200 bg-white shadow-xs rounded-2xl flex flex-col justify-between">
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-semibold text-slate-900">
-              Sotuvchilar bo'yicha ulush
+              Fermalar Taqsimoti
             </CardTitle>
             <p className="text-xs text-slate-500 mt-0.5">
-              Jamoa a'zolarining buyurtmalardagi taqsimoti
+              {regionalStats?.regions?.length > 0 ? "Hududlar bo'yicha fermalar ulushi" : "Faol va bloklangan fermalar nisbati"}
             </p>
           </CardHeader>
           <CardContent className="pt-4 flex-1 flex items-center justify-center min-h-[365px]">
-            <SalesTeamDonutChart />
+            <Suspense
+              fallback={
+                <div className="size-48 rounded-full border-8 border-slate-100 border-t-slate-200 animate-spin opacity-50" />
+              }
+            >
+              <SalesTeamDonutChart dashboard={dashboard} regionalStats={regionalStats} />
+            </Suspense>
           </CardContent>
         </Card>
       </div>
