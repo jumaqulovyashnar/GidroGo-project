@@ -1,19 +1,32 @@
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Button, Input, Label } from "@/shared/ui"
-import { UserRound, Contact, KeyRound, Eye, EyeOff, Upload } from "lucide-react"
+import { UserRound, Contact, KeyRound, Eye, EyeOff, Upload, Loader2 } from "lucide-react"
 import { toast } from "sonner"
-
-const INITIAL_PROFILE = {
-    firstName: "Yashnarbek",
-    lastName: "Jumaqulov",
-    phone: "+998 90 123-45-67",
-    email: "superadmin@gidrogo.uz",
-    role: "Bosh Platforma Administratori",
-}
+import {
+    useSuperAdminProfile,
+    useUpdateSuperAdminProfile,
+    useSuperAdminChangePassword,
+    useUploadFile,
+} from "@/shared/hooks"
+import { useUserStore } from "@/entities/user"
 
 const SozlamalarPage = () => {
-    const [formData, setFormData] = useState(INITIAL_PROFILE)
-    const [avatar, setAvatar] = useState(null)
+    const { data: rawProfile, isLoading: isProfileLoading } = useSuperAdminProfile()
+    const updateProfileMutation = useUpdateSuperAdminProfile()
+    const changePasswordMutation = useSuperAdminChangePassword()
+    const uploadMutation = useUploadFile()
+
+    const [formData, setFormData] = useState({
+        firstName: "",
+        lastName: "",
+        phone: "",
+        email: "",
+        role: "Bosh Platforma Administratori",
+        avatarUrl: "",
+    })
+
+    const [avatarPreview, setAvatarPreview] = useState(null)
+    const [selectedFile, setSelectedFile] = useState(null)
     const fileInputRef = useRef(null)
 
     // Parol maydonlari
@@ -27,6 +40,29 @@ const SozlamalarPage = () => {
         newPass: false,
         confirmPass: false,
     })
+
+    // Serverdan profil kelganda formani to'ldirish
+    const profile = rawProfile?.data || rawProfile
+    useEffect(() => {
+        if (profile) {
+            setFormData({
+                firstName: profile.firstName || "",
+                lastName: profile.lastName || "",
+                phone: profile.phone || "",
+                email: profile.email || "",
+                role: profile.roleTitle || profile.role || "Bosh Platforma Administratori",
+                avatarUrl: profile.avatarUrl || "",
+            })
+            if (profile.avatarUrl) {
+                setAvatarPreview(profile.avatarUrl)
+            }
+        }
+    }, [profile])
+
+    const isSaving =
+        updateProfileMutation.isPending ||
+        changePasswordMutation.isPending ||
+        uploadMutation.isPending
 
     const handleAvatarChange = (e) => {
         const file = e.target.files?.[0]
@@ -42,17 +78,27 @@ const SozlamalarPage = () => {
             return
         }
 
+        setSelectedFile(file)
         const reader = new FileReader()
         reader.onloadend = () => {
-            setAvatar(reader.result)
-            toast.success("Profil rasmi muvaffaqiyatli yuklandi")
+            setAvatarPreview(reader.result)
         }
         reader.readAsDataURL(file)
     }
 
     const handleReset = () => {
-        setFormData(INITIAL_PROFILE)
-        setAvatar(null)
+        if (profile) {
+            setFormData({
+                firstName: profile.firstName || "",
+                lastName: profile.lastName || "",
+                phone: profile.phone || "",
+                email: profile.email || "",
+                role: profile.roleTitle || profile.role || "Bosh Platforma Administratori",
+                avatarUrl: profile.avatarUrl || "",
+            })
+            setAvatarPreview(profile.avatarUrl || null)
+        }
+        setSelectedFile(null)
         setPasswords({ current: "", newPass: "", confirmPass: "" })
         if (fileInputRef.current) {
             fileInputRef.current.value = ""
@@ -60,8 +106,10 @@ const SozlamalarPage = () => {
         toast.info("O'zgarishlar bekor qilindi")
     }
 
-    const handleSave = () => {
-        if (passwords.current || passwords.newPass || passwords.confirmPass) {
+    const handleSave = async () => {
+        const hasPasswordInput = Boolean(passwords.current || passwords.newPass || passwords.confirmPass)
+
+        if (hasPasswordInput) {
             if (!passwords.current || !passwords.newPass || !passwords.confirmPass) {
                 toast.error("Parolni yangilash uchun barcha parol maydonlarini to'ldiring!")
                 return
@@ -74,14 +122,77 @@ const SozlamalarPage = () => {
                 toast.error("Yangi parollar bir-biriga mos kelmadi!")
                 return
             }
-            setPasswords({ current: "", newPass: "", confirmPass: "" })
         }
 
-        toast.success("Sozlamalar muvaffaqiyatli saqlandi!")
+        try {
+            let finalAvatarUrl = formData.avatarUrl || ""
+
+            // Agar yangi rasm tanlangan bo'lsa, serverga yuklaymiz
+            if (selectedFile) {
+                try {
+                    const res = await uploadMutation.mutateAsync(selectedFile)
+                    finalAvatarUrl =
+                        res?.data?.url ||
+                        res?.url ||
+                        res?.data?.path ||
+                        res?.path ||
+                        (typeof res?.data === "string" ? res.data : "") ||
+                        finalAvatarUrl
+                } catch (err) {
+                    toast.error("Rasmni yuklashda xatolik: " + (err.message || "Fayl yuklanmadi"))
+                    return
+                }
+            }
+
+            // Profil ma'lumotlarini yangilash
+            const profilePayload = {
+                firstName: formData.firstName?.trim() || "",
+                lastName: formData.lastName?.trim() || "",
+                fullName: `${formData.firstName?.trim() || ""} ${formData.lastName?.trim() || ""}`.trim(),
+                phone: formData.phone?.trim() || "",
+                email: formData.email?.trim() || "",
+                avatarUrl: finalAvatarUrl,
+            }
+
+            const updated = await updateProfileMutation.mutateAsync(profilePayload)
+            const updatedData = updated?.data || updated || profilePayload
+
+            // Zustand store'dagi foydalanuvchi ma'lumotlarini sinxronlash
+            const currentUser = useUserStore.getState().userInfo
+            if (currentUser) {
+                useUserStore.getState().actions.setUserInfo({
+                    ...currentUser,
+                    firstName: updatedData.firstName || profilePayload.firstName,
+                    lastName: updatedData.lastName || profilePayload.lastName,
+                    fullName: updatedData.fullName || profilePayload.fullName,
+                    phone: updatedData.phone || profilePayload.phone,
+                    email: updatedData.email || profilePayload.email,
+                    avatarUrl: updatedData.avatarUrl || profilePayload.avatarUrl,
+                })
+            }
+
+            // Parolni yangilash
+            if (hasPasswordInput) {
+                await changePasswordMutation.mutateAsync({
+                    currentPassword: passwords.current,
+                    newPassword: passwords.newPass,
+                    confirmPassword: passwords.confirmPass,
+                })
+                setPasswords({ current: "", newPass: "", confirmPass: "" })
+            }
+
+            setSelectedFile(null)
+            if (fileInputRef.current) {
+                fileInputRef.current.value = ""
+            }
+            toast.success("Sozlamalar muvaffaqiyatli saqlandi!")
+        } catch (error) {
+            toast.error(error?.message || "Sozlamalarni saqlashda xatolik yuz berdi")
+        }
     }
 
     return (
-        <section className="pb-16 max-w-5xl">
+        <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="pb-16 max-w-5xl">
             {/* Page Header: Sarlavha va tavsif */}
             <div className="pb-2">
                 <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
@@ -117,12 +228,12 @@ const SozlamalarPage = () => {
                         <div className="w-full sm:w-44 shrink-0 flex flex-col items-center text-center sm:pr-6 sm:border-r sm:border-slate-100 sm:justify-center">
                             <div
                                 onClick={() => fileInputRef.current?.click()}
-                                className="w-28 h-28 sm:w-32 sm:h-32 rounded-full border-2 border-slate-200/90 overflow-hidden bg-slate-50 flex items-center justify-center shadow-xs shrink-0 relative group cursor-pointer hover:border-blue-400 transition-colors"
+                                className="w-28 h-28 sm:w-32 sm:h-32 rounded-full border-2 border-slate-200/90 overflow-hidden bg-blue-50 flex items-center justify-center shadow-xs shrink-0 relative group cursor-pointer hover:border-blue-400 transition-colors"
                             >
-                                {avatar ? (
+                                {avatarPreview ? (
                                     <>
                                         <img
-                                            src={avatar}
+                                            src={avatarPreview}
                                             alt="SuperAdmin Avatar"
                                             className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
                                         />
@@ -132,8 +243,10 @@ const SozlamalarPage = () => {
                                         </div>
                                     </>
                                 ) : (
-                                    <div className="w-full h-full bg-slate-50 text-slate-400 flex items-center justify-center group-hover:bg-slate-100 transition-colors rounded-full">
-                                        <UserRound className="w-14 h-14 stroke-[1.5] text-slate-400 group-hover:text-slate-500 transition-colors" />
+                                    <div className="w-full h-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-3xl select-none group-hover:bg-blue-100/70 transition-colors rounded-full">
+                                        {formData.firstName?.[0]?.toUpperCase() || (
+                                            <UserRound className="w-14 h-14 stroke-[1.5] text-blue-600" />
+                                        )}
                                     </div>
                                 )}
                             </div>
@@ -143,7 +256,8 @@ const SozlamalarPage = () => {
                                 <button
                                     type="button"
                                     onClick={() => fileInputRef.current?.click()}
-                                    className="h-9 px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-all shadow-2xs cursor-pointer inline-flex items-center gap-1.5"
+                                    disabled={isSaving || isProfileLoading}
+                                    className="h-9 px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-all shadow-2xs cursor-pointer inline-flex items-center gap-1.5 disabled:opacity-50"
                                 >
                                     <Upload className="w-3.5 h-3.5 text-slate-500" />
                                     <span>Yuklash</span>
@@ -163,7 +277,7 @@ const SozlamalarPage = () => {
                             </p>
                         </div>
 
-                        {/* RIGHT: Profile Form Fields (To'g'ri type'lar bilan) */}
+                        {/* RIGHT: Profile Form Fields */}
                         <div className="flex-1 w-full space-y-4 sm:space-y-4.5 sm:pl-2">
                             {/* Row 1: Ism & Familiya */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
@@ -174,9 +288,11 @@ const SozlamalarPage = () => {
                                     <Input
                                         id="firstName"
                                         type="text"
-                                        placeholder="Yashnarbek"
-                                        value={formData.firstName ?? "Yashnarbek"}
+                                        autoComplete="given-name"
+                                        placeholder="Ism"
+                                        value={formData.firstName || ""}
                                         onChange={(e) => setFormData(d => ({ ...d, firstName: e.target.value }))}
+                                        disabled={isProfileLoading || isSaving}
                                         className="h-10 rounded-xl bg-white border-slate-200 text-slate-900 text-sm font-medium focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/15"
                                     />
                                 </div>
@@ -188,9 +304,11 @@ const SozlamalarPage = () => {
                                     <Input
                                         id="lastName"
                                         type="text"
-                                        placeholder="Jumaqulov"
-                                        value={formData.lastName ?? "Jumaqulov"}
+                                        autoComplete="family-name"
+                                        placeholder="Familiya"
+                                        value={formData.lastName || ""}
                                         onChange={(e) => setFormData(d => ({ ...d, lastName: e.target.value }))}
+                                        disabled={isProfileLoading || isSaving}
                                         className="h-10 rounded-xl bg-white border-slate-200 text-slate-900 text-sm font-medium focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/15"
                                     />
                                 </div>
@@ -205,9 +323,11 @@ const SozlamalarPage = () => {
                                     <Input
                                         id="phone"
                                         type="tel"
-                                        placeholder="+998 90 123-45-67"
-                                        value={formData.phone ?? "+998 90 123-45-67"}
+                                        autoComplete="tel"
+                                        placeholder="+998 (__) ___-__-__"
+                                        value={formData.phone || ""}
                                         onChange={(e) => setFormData(d => ({ ...d, phone: e.target.value }))}
+                                        disabled={isProfileLoading || isSaving}
                                         className="h-10 rounded-xl bg-white border-slate-200 text-slate-900 text-sm font-medium focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/15"
                                     />
                                 </div>
@@ -219,15 +339,17 @@ const SozlamalarPage = () => {
                                     <Input
                                         id="email"
                                         type="email"
-                                        placeholder="superadmin@gidrogo.uz"
-                                        value={formData.email ?? "superadmin@gidrogo.uz"}
+                                        autoComplete="username"
+                                        placeholder="Email manzili"
+                                        value={formData.email || ""}
                                         onChange={(e) => setFormData(d => ({ ...d, email: e.target.value }))}
+                                        disabled={isProfileLoading || isSaving}
                                         className="h-10 rounded-xl bg-white border-slate-200 text-slate-900 text-sm font-medium focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/15"
                                     />
                                 </div>
                             </div>
 
-                            {/* Row 3: Lavozim (Boshqa inputlar bilan bir xil 50% kenglikda) */}
+                            {/* Row 3: Lavozim (O'zgarmas badge bilan) */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                                 <div className="space-y-1.5">
                                     <Label className="text-xs font-semibold text-slate-700">
@@ -247,7 +369,7 @@ const SozlamalarPage = () => {
                     </div>
                 </div>
 
-                {/* 2. XAVFSIZLIK VA PAROLNI YANGILASH CARD (Ixcham, kaltaroq va to'g'ri joylashuvda) */}
+                {/* 2. XAVFSIZLIK VA PAROLNI YANGILASH CARD */}
                 <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 sm:p-7">
                     {/* Header */}
                     <div className="flex items-center gap-3 pb-5 border-b border-slate-100">
@@ -264,9 +386,9 @@ const SozlamalarPage = () => {
                         </div>
                     </div>
 
-                    {/* Password Form: Butun ekranga yoyilib ketmaydigan, ixcham kaltaroq shaklda */}
+                    {/* Password Form */}
                     <div className="pt-6 max-w-xl space-y-4">
-                        {/* 1. Joriy parol (Yangi parol bilan bir xil 50% kaltaroq kenglikda) */}
+                        {/* 1. Joriy parol */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-1.5">
                                 <Label htmlFor="currentPass" className="text-xs font-semibold text-slate-700">
@@ -280,6 +402,7 @@ const SozlamalarPage = () => {
                                         placeholder="Joriy parolingizni kiriting"
                                         value={passwords.current}
                                         onChange={(e) => setPasswords(p => ({ ...p, current: e.target.value }))}
+                                        disabled={isSaving}
                                         className="h-10 rounded-xl bg-white border-slate-200 pr-10 text-sm"
                                     />
                                     <button
@@ -293,7 +416,7 @@ const SozlamalarPage = () => {
                             </div>
                         </div>
 
-                        {/* 2. Yangi parol va 3. Yangi parolni tasdiqlash (Yonma-yon, kaltaroq va ixcham) */}
+                        {/* 2. Yangi parol va 3. Yangi parolni tasdiqlash */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-1.5">
                                 <Label htmlFor="newPass" className="text-xs font-semibold text-slate-700">
@@ -307,6 +430,7 @@ const SozlamalarPage = () => {
                                         placeholder="Kamida 8 ta belgi"
                                         value={passwords.newPass}
                                         onChange={(e) => setPasswords(p => ({ ...p, newPass: e.target.value }))}
+                                        disabled={isSaving}
                                         className="h-10 rounded-xl bg-white border-slate-200 pr-10 text-sm"
                                     />
                                     <button
@@ -331,6 +455,7 @@ const SozlamalarPage = () => {
                                         placeholder="Parolni qayta kiriting"
                                         value={passwords.confirmPass}
                                         onChange={(e) => setPasswords(p => ({ ...p, confirmPass: e.target.value }))}
+                                        disabled={isSaving}
                                         className="h-10 rounded-xl bg-white border-slate-200 pr-10 text-sm"
                                     />
                                     <button
@@ -349,28 +474,30 @@ const SozlamalarPage = () => {
                         </p>
                     </div>
 
-                    {/* Card Footer: O'ng tomon tagida Bekor qilish va Saqlash tugmalari */}
+                    {/* Card Footer */}
                     <div className="mt-7 pt-5 border-t border-slate-100 flex items-center justify-end gap-3">
                         <Button
                             type="button"
                             variant="outline"
                             onClick={handleReset}
-                            className="h-10 px-4 rounded-xl border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-xs sm:text-sm font-medium cursor-pointer shadow-2xs transition-colors"
+                            disabled={isSaving}
+                            className="h-10 px-4 rounded-xl border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-xs sm:text-sm font-medium cursor-pointer shadow-2xs transition-colors disabled:opacity-50"
                         >
                             Bekor qilish
                         </Button>
                         <Button
-                            type="button"
-                            onClick={handleSave}
-                            className="h-10 px-5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold cursor-pointer shadow-xs transition-colors"
+                            type="submit"
+                            disabled={isSaving || isProfileLoading}
+                            className="h-10 px-5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold cursor-pointer shadow-xs transition-colors inline-flex items-center gap-2 disabled:opacity-50"
                         >
-                            Saqlash
+                            {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
+                            <span>Saqlash</span>
                         </Button>
                     </div>
                 </div>
             </div>
-        </section>
+        </form>
     )
 }
 
-export default SozlamalarPage;
+export default SozlamalarPage

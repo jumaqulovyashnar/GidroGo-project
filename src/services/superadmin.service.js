@@ -27,7 +27,44 @@ class SuperAdminService {
       throw new Error(handleApiError(error))
     }
   }
+
+  async getProfile() {
+    try {
+      const response = await api.get("/superadmin/settings/profile")
+      return response.data
+    } catch (error) {
+      throw new Error(handleApiError(error))
+    }
+  }
+
+  async updateProfile(data) {
+    try {
+      const response = await api.put("/superadmin/settings/profile", data)
+      return response.data
+    } catch (error) {
+      throw new Error(handleApiError(error))
+    }
+  }
+
+  async changePassword(data) {
+    try {
+      const response = await api.post("/superadmin/settings/change-password", data)
+      return response.data
+    } catch (error) {
+      throw new Error(handleApiError(error))
+    }
+  }
+
+  async getDailyDynamics(params) {
+    try {
+      const response = await api.get("/superadmin/orders/daily-dynamics", { params })
+      return response.data
+    } catch (error) {
+      throw new Error(handleApiError(error))
+    }
+  }
 }
 
 export const superAdminService = new SuperAdminService()
-export default superAdminService;
+export default superAdminService
+
