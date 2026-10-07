@@ -179,7 +179,7 @@ export const AuthProvider = ({ children }) => {
   const user = useUserStore((state) => state.userInfo)
   const userToken = useUserStore((state) => state.userToken)
   const token = userToken?.accessToken || null
-
+  const isAuthenticated = Boolean(token && user)
   const isInitializing = false
 
   // LOGIN

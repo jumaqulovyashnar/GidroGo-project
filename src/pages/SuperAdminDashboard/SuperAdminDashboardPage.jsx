@@ -1,7 +1,7 @@
 import { useAuth } from "@/provider/AuthProvider"
-import { Card, CardHeader, CardTitle, CardContent, Button, Spinner } from "@/shared/ui"
+import { Card, CardHeader, CardTitle, CardContent, Button } from "@/shared/ui"
 import { Building2, Users, ShoppingCart, Truck, CheckCircle2, RefreshCw } from "lucide-react"
-import { BrushAnalyticsChart, SalesTeamDonutChart } from "@/widgets"
+import { BrushAnalyticsChart, SalesTeamDonutChart } from "@/widgets/charts"
 import { useSuperAdminDashboard } from "@/shared/hooks"
 
 export function SuperAdminDashboardPage() {
@@ -68,11 +68,24 @@ export function SuperAdminDashboardPage() {
         </Button>
       </div>
 
-      {/* 5 ta ko'rsatkich kartasi */}
+      {/* 5 ta ko'rsatkich kartasi (Skeleton yoki Haqiqiy data - Layout Shift bo'lmasligi uchun bir xil o'lchamda) */}
       {isPending ? (
-        <div className="bg-white border border-slate-200/80 rounded-2xl py-12 text-center flex flex-col items-center justify-center gap-3">
-          <Spinner size="md" />
-          <p className="text-sm text-slate-500">Boshqaruv paneli ko'rsatkichlari yuklanmoqda...</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+          {[...Array(5)].map((_, i) => (
+            <div
+              key={i}
+              className="border border-slate-200 bg-white rounded-2xl p-4 animate-pulse min-h-[110px] flex flex-col justify-between"
+            >
+              <div className="flex items-center justify-between pb-1 min-h-12">
+                <div className="h-4 w-24 bg-slate-200 rounded" />
+                <div className="size-9 rounded-xl bg-slate-100 border border-slate-200 shrink-0" />
+              </div>
+              <div className="pt-2">
+                <div className="h-7 w-20 bg-slate-200 rounded" />
+                <div className="h-3 w-32 bg-slate-100 rounded mt-2" />
+              </div>
+            </div>
+          ))}
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
@@ -82,7 +95,7 @@ export function SuperAdminDashboardPage() {
             return (
               <Card
                 key={index}
-                className="border border-slate-200 bg-white hover:border-slate-300 hover:shadow-xs transition-all duration-200 rounded-2xl p-4"
+                className="border border-slate-200 bg-white hover:border-slate-300 hover:shadow-xs transition-all duration-200 rounded-2xl p-4 min-h-[110px]"
               >
                 <CardHeader className="flex flex-row items-center justify-between pb-1 space-y-0 min-h-12 p-0">
                   <CardTitle className="text-xs sm:text-sm font-medium text-neutral-900 leading-snug">
@@ -119,7 +132,7 @@ export function SuperAdminDashboardPage() {
               </p>
             </div>
           </CardHeader>
-          <CardContent className="pt-2">
+          <CardContent className="pt-2 min-h-[365px]">
             <BrushAnalyticsChart />
           </CardContent>
         </Card>
@@ -133,7 +146,7 @@ export function SuperAdminDashboardPage() {
               Jamoa a'zolarining buyurtmalardagi taqsimoti
             </p>
           </CardHeader>
-          <CardContent className="pt-4 flex-1 flex items-center justify-center">
+          <CardContent className="pt-4 flex-1 flex items-center justify-center min-h-[365px]">
             <SalesTeamDonutChart />
           </CardContent>
         </Card>
