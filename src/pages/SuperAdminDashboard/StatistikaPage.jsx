@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react"
 import { Link } from "react-router-dom"
 import { LineColumn } from "@/widgets"
-import { Button, Card, CardContent, CardHeader, CardTitle, Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext, PaginationEllipsis } from "@/shared/ui"
+import { Button, Card, CardContent, CardHeader, CardTitle, TablePagination } from "@/shared/ui"
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/shared/ui/table"
 import { Filter, Tractor, Users, BadgeCheck, Gauge, Star, ChevronRight, RefreshCw } from "lucide-react"
 import { useRegionalStatistics, useSuperAdminDashboard } from "@/shared/hooks"
@@ -224,23 +224,7 @@ const StatistikaPage = () => {
         currentPage * itemsPerPage
     )
 
-    const getPageNumbers = () => {
-        const pages = []
-        if (totalPages <= 5) {
-            for (let i = 1; i <= totalPages; i++) {
-                pages.push(i)
-            }
-        } else {
-            if (currentPage <= 3) {
-                pages.push(1, 2, 3, "ellipsis-end", totalPages)
-            } else if (currentPage >= totalPages - 2) {
-                pages.push(1, "ellipsis-start", totalPages - 2, totalPages - 1, totalPages)
-            } else {
-                pages.push(1, "ellipsis-start", currentPage, "ellipsis-end", totalPages)
-            }
-        }
-        return pages
-    }
+
 
     return (
         <section>
@@ -303,7 +287,7 @@ const StatistikaPage = () => {
                 </div>
                 {/*diagramma section */}
                 <div className="mt-8">
-                    <LineColumn />
+                    <LineColumn dashboard={dashboard} />
                 </div>
 
                 {/* Hududiy Taqsimot va Fermalar Faollik Matritsasi Table */}
@@ -329,29 +313,27 @@ const StatistikaPage = () => {
                         </div>
                     </div>
 
-                    {/* Table Container - to'liq sig'adigan va qimirlamaydigan fixed jadval */}
-                    <div className="w-full overflow-hidden">
-                        <Table className="w-full table-fixed">
-                            <TableHeader className="bg-slate-50/80 border-y border-slate-200/80">
-                                <TableRow className="hover:bg-transparent border-none">
-                                    <TableHead className="py-3.5 px-3 text-xs font-semibold text-slate-700 uppercase tracking-wider text-center w-[22%] align-middle">
+                    {/* Table Container - toza, standart va overflow-x-auto bilan himoyalangan */}
+                    <div className="mt-2 rounded-xl border border-slate-200/80 overflow-hidden">
+                        <Table className="w-full">
+                            <TableHeader className="bg-slate-50/80">
+                                <TableRow className="border-b border-slate-200/80 hover:bg-transparent">
+                                    <TableHead className="py-3.5 pl-6 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
                                         HUDUD / VILOYAT
                                     </TableHead>
-                                    <TableHead className="py-3.5 px-2 text-xs font-semibold text-slate-700 uppercase tracking-wider text-center w-[20%] align-middle leading-tight">
-                                        <div>FERMALAR SONI</div>
-                                        <div className="text-[10px] text-slate-400 font-normal mt-0.5">(FAOL / ZAXIRA)</div>
+                                    <TableHead className="py-3.5 px-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider whitespace-nowrap">
+                                        FERMALAR SONI (FAOL / ZAXIRA)
                                     </TableHead>
-                                    <TableHead className="py-3.5 px-2 text-xs font-semibold text-slate-700 uppercase tracking-wider text-center w-[18%] align-middle leading-tight">
-                                        <div>OYLIK BUYURTMALAR</div>
-                                        <div className="text-[10px] text-slate-400 font-normal mt-0.5">HAJMI</div>
+                                    <TableHead className="py-3.5 px-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider whitespace-nowrap">
+                                        OYLIK BUYURTMALAR HAJMI
                                     </TableHead>
-                                    <TableHead className="py-3.5 px-2 text-xs font-semibold text-slate-700 uppercase tracking-wider text-center w-[14%] align-middle leading-tight">
+                                    <TableHead className="py-3.5 px-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider whitespace-nowrap">
                                         O'RTACHA REYTING
                                     </TableHead>
-                                    <TableHead className="py-3.5 px-2 text-xs font-semibold text-slate-700 uppercase tracking-wider text-center w-[12%] align-middle leading-tight">
+                                    <TableHead className="py-3.5 px-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider whitespace-nowrap">
                                         O'SISH KO'RSATKICHI
                                     </TableHead>
-                                    <TableHead className="py-3.5 px-3 text-xs font-semibold text-slate-700 uppercase tracking-wider text-center w-[14%] align-middle">
+                                    <TableHead className="py-3.5 px-4 text-center text-xs font-semibold text-slate-700 uppercase tracking-wider whitespace-nowrap">
                                         AMALLAR
                                     </TableHead>
                                 </TableRow>
@@ -360,19 +342,19 @@ const StatistikaPage = () => {
                                 {paginatedData.map((item) => (
                                     <TableRow
                                         key={item.id}
-                                        className="hover:bg-slate-50/70 transition-colors border-b border-slate-100 last:border-b-0"
+                                        className="hover:bg-slate-50/70 transition-colors border-b border-slate-100 last:border-b-0 h-16"
                                     >
                                         {/* 1. Hudud / Viloyat */}
-                                        <TableCell className="py-3.5 px-3 text-center">
-                                            <div className="flex items-center justify-center gap-2.5">
-                                                <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-700 font-bold text-xs flex items-center justify-center shrink-0">
+                                        <TableCell className="py-3.5 pl-6 text-left align-middle">
+                                            <div className="flex items-center gap-3">
+                                                <div className="size-9 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs select-none">
                                                     {item.code}
                                                 </div>
-                                                <div className="text-left min-w-0">
-                                                    <div className="text-xs sm:text-sm font-bold text-slate-900 truncate">
+                                                <div className="min-w-0">
+                                                    <div className="text-sm font-semibold text-slate-900 truncate">
                                                         {item.name}
                                                     </div>
-                                                    <div className="text-[11px] text-slate-500 truncate mt-0.5">
+                                                    <div className="text-xs text-slate-500 truncate mt-0.5">
                                                         {item.subtitle}
                                                     </div>
                                                 </div>
@@ -380,9 +362,9 @@ const StatistikaPage = () => {
                                         </TableCell>
 
                                         {/* 2. Fermalar soni (Faol / Zaxira) */}
-                                        <TableCell className="py-3.5 px-3 text-center">
-                                            <div className="flex items-center justify-center gap-1.5 whitespace-nowrap">
-                                                <span className="text-xs font-bold text-blue-700">
+                                        <TableCell className="py-3.5 px-4 text-left whitespace-nowrap align-middle">
+                                            <div className="flex items-center gap-1.5">
+                                                <span className="text-sm font-semibold text-slate-900">
                                                     {item.farmsActive} ta faol
                                                 </span>
                                                 <span className="text-xs text-slate-400">
@@ -392,127 +374,66 @@ const StatistikaPage = () => {
                                         </TableCell>
 
                                         {/* 3. Oylik buyurtmalar hajmi */}
-                                        <TableCell className="py-3.5 px-3 text-center">
-                                            <div className="flex items-center justify-center">
-                                                <span className="inline-block bg-blue-50 text-blue-700 font-bold px-2.5 py-1 rounded-md text-xs whitespace-nowrap">
-                                                    {item.monthlyOrders}
-                                                </span>
-                                            </div>
+                                        <TableCell className="py-3.5 px-4 text-left whitespace-nowrap align-middle">
+                                            <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-100">
+                                                {item.monthlyOrders}
+                                            </span>
                                         </TableCell>
 
                                         {/* 4. O'rtacha reyting */}
-                                        <TableCell className="py-3.5 px-3 text-center">
-                                            <div className="flex items-center justify-center gap-1 text-xs whitespace-nowrap">
-                                                <Star className="w-3.5 h-3.5 text-blue-600 fill-blue-600 shrink-0" />
-                                                <span className="font-bold text-slate-800">
+                                        <TableCell className="py-3.5 px-4 text-left whitespace-nowrap align-middle">
+                                            <div className="flex items-center gap-1.5 text-xs">
+                                                <Star className="size-3.5 text-amber-500 fill-amber-500 shrink-0" />
+                                                <span className="font-bold text-slate-900">
                                                     {item.rating}
                                                 </span>
-                                                <span className="text-slate-400 text-[11px]">
+                                                <span className="text-slate-400">
                                                     ({item.reviewCount})
                                                 </span>
                                             </div>
                                         </TableCell>
 
                                         {/* 5. O'sish ko'rsatkichi */}
-                                        <TableCell className="py-3.5 px-3 text-center">
-                                            <div className="flex items-center justify-center">
-                                                <span className="text-xs font-bold text-blue-700 whitespace-nowrap">
-                                                    {item.growthRate}
-                                                </span>
-                                            </div>
+                                        <TableCell className="py-3.5 px-4 text-left whitespace-nowrap align-middle">
+                                            <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                                {item.growthRate}
+                                            </span>
                                         </TableCell>
 
-                                        {/* 6. Amallar (Haqiqiy ferma va havola) */}
-                                        <TableCell className="py-3.5 px-3 text-center">
-                                            <div className="flex flex-col items-center justify-center">
-                                                <span className="text-xs font-semibold text-slate-800 truncate max-w-full block" title={item.leadFarm}>
-                                                    {item.leadFarm}
-                                                </span>
-                                                <Link
-                                                    to="/super-admin/fermalar"
-                                                    className="text-[11px] font-medium text-blue-600 hover:text-blue-700 hover:underline inline-flex items-center gap-0.5 mt-0.5 cursor-pointer"
-                                                >
-                                                    <span>Fermalar</span>
-                                                    <ChevronRight className="w-3 h-3" />
-                                                </Link>
-                                            </div>
+                                        {/* 6. Amallar */}
+                                        <TableCell className="py-3.5 px-4 text-center whitespace-nowrap align-middle">
+                                            <Link
+                                                to="/super-admin/fermalar"
+                                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 transition-colors cursor-pointer shadow-2xs"
+                                            >
+                                                <span>Fermalar</span>
+                                                <ChevronRight className="size-3" />
+                                            </Link>
                                         </TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
                         </Table>
                     </div>
-                </div>
 
-                {/* Pagination (Table dan tashqarida alohida) */}
-                <div className="pt-4 pb-2 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
-                    <div>
-                        Jami <span className="font-semibold text-slate-800">{regionsList.length}</span> ta hududdan{" "}
-                        <span className="font-semibold text-slate-800">
-                            {(currentPage - 1) * itemsPerPage + 1} -{" "}
-                            {Math.min(currentPage * itemsPerPage, regionsList.length)}
-                        </span> ko'rsatilmoqda
+                    {/* Pagination */}
+                    <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+                        <div>
+                            Jami <span className="font-semibold text-slate-800">{regionsList.length}</span> ta hududdan{" "}
+                            <span className="font-semibold text-slate-800">
+                                {(currentPage - 1) * itemsPerPage + 1} -{" "}
+                                {Math.min(currentPage * itemsPerPage, regionsList.length)}
+                            </span> ko'rsatilmoqda
+                        </div>
+
+                        {totalPages > 1 && (
+                            <TablePagination
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                onPageChange={setCurrentPage}
+                            />
+                        )}
                     </div>
-
-                    {totalPages > 1 && (
-                        <Pagination className="mx-0 w-auto justify-end">
-                            <PaginationContent className="bg-white p-1 rounded-2xl border border-slate-200/80 shadow-xs">
-                                <PaginationItem>
-                                    <PaginationPrevious
-                                        text="Oldingi"
-                                        onClick={(e) => {
-                                            e.preventDefault()
-                                            if (currentPage > 1) setCurrentPage((p) => p - 1)
-                                        }}
-                                        className={`cursor-pointer ${
-                                            currentPage === 1 ? "pointer-events-none opacity-40" : "hover:bg-slate-100"
-                                        }`}
-                                    />
-                                </PaginationItem>
-
-                                {getPageNumbers().map((pageItem, index) => {
-                                    if (pageItem === "ellipsis-start" || pageItem === "ellipsis-end") {
-                                        return (
-                                            <PaginationItem key={`${pageItem}-${index}`}>
-                                                <PaginationEllipsis />
-                                            </PaginationItem>
-                                        )
-                                    }
-                                    return (
-                                        <PaginationItem key={pageItem}>
-                                            <PaginationLink
-                                                isActive={currentPage === pageItem}
-                                                onClick={(e) => {
-                                                    e.preventDefault()
-                                                    setCurrentPage(pageItem)
-                                                }}
-                                                className={`cursor-pointer rounded-xl font-medium ${
-                                                    currentPage === pageItem
-                                                        ? "bg-[#2563EB]! text-white! border-transparent! shadow-xs"
-                                                        : "hover:bg-slate-100 text-slate-700"
-                                                }`}
-                                            >
-                                                {pageItem}
-                                            </PaginationLink>
-                                        </PaginationItem>
-                                    )
-                                })}
-
-                                <PaginationItem>
-                                    <PaginationNext
-                                        text="Keyingi"
-                                        onClick={(e) => {
-                                            e.preventDefault()
-                                            if (currentPage < totalPages) setCurrentPage((p) => p + 1)
-                                        }}
-                                        className={`cursor-pointer ${
-                                            currentPage === totalPages ? "pointer-events-none opacity-40" : "hover:bg-slate-100"
-                                        }`}
-                                    />
-                                </PaginationItem>
-                            </PaginationContent>
-                        </Pagination>
-                    )}
                 </div>
             </div>
         </section>

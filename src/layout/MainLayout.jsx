@@ -4,7 +4,7 @@ import { Header } from "@/widgets/header"
 
 export function MainLayout() {
   return (
-    <div className="h-screen w-full flex bg-[#f8fafc] text-slate-900 overflow-hidden">
+    <div className="h-full w-full flex bg-[#f8fafc] text-slate-900 overflow-hidden">
       {/* Chap tomondagi DoubleNavbar (Sidebar) */}
       <aside className="h-full shrink-0 z-20">
         <DoubleNavbar />
