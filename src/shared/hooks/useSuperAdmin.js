@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { superAdminService } from "@/services"
 
 export const useSuperAdminDashboard = () => {
@@ -21,3 +21,34 @@ export const useAuditLogs = (params) => {
     queryFn: () => superAdminService.getAuditLogs(params),
   })
 }
+
+export const useSuperAdminProfile = () => {
+  return useQuery({
+    queryKey: ["superadmin-profile"],
+    queryFn: () => superAdminService.getProfile(),
+  })
+}
+
+export const useUpdateSuperAdminProfile = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data) => superAdminService.updateProfile(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["superadmin-profile"] })
+    },
+  })
+}
+
+export const useSuperAdminChangePassword = () => {
+  return useMutation({
+    mutationFn: (data) => superAdminService.changePassword(data),
+  })
+}
+
+export const useDailyDynamics = (params) => {
+  return useQuery({
+    queryKey: ["daily-dynamics", params],
+    queryFn: () => superAdminService.getDailyDynamics(params),
+  })
+}
+
