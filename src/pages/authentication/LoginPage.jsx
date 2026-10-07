@@ -43,9 +43,9 @@ function LoginPage() {
   return (
     <section className="w-full h-full">
       <div className="mb-6 text-center">
-        <h2 className="text-2xl font-medium tracking-tight text-foreground">
+        <h1 className="text-2xl font-medium tracking-tight text-foreground">
           Tizimga kirish
-        </h2>
+        </h1>
 
         <p className="text-sm text-muted-foreground mt-1.5 font-normal">
           Avtorizatsiyadan o'tish uchun ma'lumotlaringizni kiriting

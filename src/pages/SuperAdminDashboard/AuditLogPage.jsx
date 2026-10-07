@@ -39,9 +39,18 @@ const CustomDropdown = ({ value, onChange, options }) => {
                 setOpen(false)
             }
         }
+        const handleKeyDown = (e) => {
+            if (e.key === "Escape" && open) {
+                setOpen(false)
+            }
+        }
         document.addEventListener("mousedown", handleClickOutside)
-        return () => document.removeEventListener("mousedown", handleClickOutside)
-    }, [])
+        document.addEventListener("keydown", handleKeyDown)
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside)
+            document.removeEventListener("keydown", handleKeyDown)
+        }
+    }, [open])
 
     const selectedOption = options.find((o) => o.value === value) || options[0]
 
@@ -49,6 +58,8 @@ const CustomDropdown = ({ value, onChange, options }) => {
         <div className="relative" ref={ref}>
             <button
                 type="button"
+                aria-haspopup="listbox"
+                aria-expanded={open}
                 onClick={() => setOpen((prev) => !prev)}
                 className="h-10 px-3.5 rounded-xl border border-slate-200 bg-white text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center justify-between gap-2.5 shadow-xs transition-colors cursor-pointer w-full md:w-auto min-w-42.5"
             >
@@ -57,15 +68,25 @@ const CustomDropdown = ({ value, onChange, options }) => {
             </button>
 
             {open && (
-                <div className="absolute right-0 md:left-0 mt-1.5 w-56 bg-white rounded-xl border border-slate-200 shadow-xl p-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
+                <div role="listbox" aria-label="Tanlov ro'yxati" className="absolute right-0 md:left-0 mt-1.5 w-56 bg-white rounded-xl border border-slate-200 shadow-xl p-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
                     {options.map((opt) => (
                         <div
                             key={opt.value}
+                            role="option"
+                            aria-selected={value === opt.value}
+                            tabIndex={0}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter" || e.key === " ") {
+                                    e.preventDefault()
+                                    onChange(opt.value)
+                                    setOpen(false)
+                                }
+                            }}
                             onClick={() => {
                                 onChange(opt.value)
                                 setOpen(false)
                             }}
-                            className={`px-3 py-2 text-xs font-medium rounded-lg cursor-pointer transition-colors flex items-center justify-between ${
+                            className={`px-3 py-2 text-xs font-medium rounded-lg cursor-pointer transition-colors flex items-center justify-between outline-none focus-visible:bg-blue-50 focus-visible:text-blue-600 ${
                                 value === opt.value
                                     ? "bg-blue-50 text-blue-600 font-semibold"
                                     : "text-slate-700 hover:bg-slate-100"

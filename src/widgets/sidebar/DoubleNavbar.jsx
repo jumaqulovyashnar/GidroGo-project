@@ -77,6 +77,11 @@ export function DoubleNavbar({ role }) {
             <img
               src={LogoImg}
               alt="GidroGo Logo"
+              width="46"
+              height="46"
+              loading="eager"
+              fetchpriority="high"
+              decoding="async"
               className="w-full h-full object-contain rounded-full"
             />
           </div>

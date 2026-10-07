@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /super-admin/
+Disallow: /manager/
+Disallow: /boss/
+Disallow: /api/
+
+Sitemap: https://gidrogo.uz/sitemap.xml

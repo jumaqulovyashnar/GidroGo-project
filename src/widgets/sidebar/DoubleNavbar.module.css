@@ -149,3 +149,12 @@
   border-color: #fecaca;
   color: #b91c1c;
 }
+
+@media (max-width: 768px) {
+  .navbar {
+    width: 64px;
+  }
+  .main {
+    display: none;
+  }
+}
