@@ -1,5 +1,6 @@
 import { Outlet } from "react-router-dom"
-import { DoubleNavbar, Header } from "@/widgets"
+import { DoubleNavbar } from "@/widgets/sidebar"
+import { Header } from "@/widgets/header"
 
 export function MainLayout() {
   return (

@@ -80,7 +80,7 @@ export function DoubleNavbar({ role }) {
               width="46"
               height="46"
               loading="eager"
-              fetchpriority="high"
+              fetchPriority="high"
               decoding="async"
               className="w-full h-full object-contain rounded-full"
             />
