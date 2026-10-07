@@ -1,6 +1,6 @@
 export { authService } from "./auth.service"
 export { farmService } from "./farm.service"
-export { fileUploadService } from "./filesUpload"
+export { fileUploadService } from "./file.upload.service"
 export { requestService } from "./farms.request.service"
 export { updateFarmsStatus } from "./farms.update.service"
 export { bossService } from "./boss.service"
