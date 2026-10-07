@@ -8,8 +8,21 @@ function LoginPage() {
   const passwordRef = useRef(null)
 
   const [error, setError] = useState("")
-
   const loginMutation = useLogin()
+
+  // O'zbekiston telefon raqamini formatlash (+998 XX XXX XX XX)
+  const normalizePhone = (val) => {
+    if (!val) return ""
+    const trimmed = val.trim()
+    const digits = trimmed.replace(/\D/g, "")
+    if (digits.length === 9) {
+      return `+998 ${digits.slice(0, 2)} ${digits.slice(2, 5)} ${digits.slice(5, 7)} ${digits.slice(7, 9)}`
+    }
+    if (digits.length === 12 && digits.startsWith("998")) {
+      return `+${digits.slice(0, 3)} ${digits.slice(3, 5)} ${digits.slice(5, 8)} ${digits.slice(8, 10)} ${digits.slice(10, 12)}`
+    }
+    return trimmed
+  }
 
   const handleSubmit = (event) => {
     event.preventDefault()
@@ -19,7 +32,8 @@ function LoginPage() {
     const phone = phoneRef.current?.value?.trim() || ""
     const password = passwordRef.current?.value?.trim() || ""
 
-    const loginIdentifier = name || phone  
+    // Agar telefon kiritilgan bo'lsa uni formatlaymiz, aks holda login nomini olamiz
+    const loginIdentifier = phone ? normalizePhone(phone) : name
 
     if (!loginIdentifier) {
       setError("Iltimos, login yoki telefon raqamingizni kiriting.")
@@ -35,7 +49,7 @@ function LoginPage() {
 
     loginMutation.mutate({
       login: loginIdentifier,
-      phone: phone || loginIdentifier,
+      phone: phone ? normalizePhone(phone) : loginIdentifier,
       password,
     })
   }
@@ -54,7 +68,6 @@ function LoginPage() {
 
       <form
         noValidate
-        autoComplete="off"
         onSubmit={handleSubmit}
         className="space-y-4 border-none"
       >
@@ -95,7 +108,7 @@ function LoginPage() {
             ref={passwordRef}
             type="password"
             placeholder="Parolingizni kiriting"
-            autoComplete="new-password"
+            autoComplete="current-password"
           />
         </Field>
 
@@ -119,4 +132,4 @@ function LoginPage() {
   )
 }
 
-export default LoginPage;
+export default LoginPage
