@@ -272,6 +272,10 @@ const FermalarPage = () => {
                                 <img
                                     src={farm.logoUrl || farm.bannerUrl}
                                     alt={farm.name}
+                                    width="400"
+                                    height="208"
+                                    loading="lazy"
+                                    decoding="async"
                                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                 />
                             </div>

@@ -37,6 +37,10 @@ const OwnerAvatar = ({ image, name }) => {
             <img
                 src={image}
                 alt={name}
+                width="40"
+                height="40"
+                loading="lazy"
+                decoding="async"
                 onError={() => setHasError(true)}
                 className="w-10 h-10 rounded-full object-cover object-center border border-slate-200 shrink-0 shadow-2xs"
             />
@@ -182,7 +186,7 @@ const FermaEgalariPage = () => {
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
-                        <h2 className="text-xl font-bold tracking-tight text-slate-900">Ferma egalari</h2>
+                        <h1 className="text-xl font-bold tracking-tight text-slate-900">Ferma egalari</h1>
                         <p className="text-sm text-slate-500 mt-1">
                             Fermalar egalari va asosiy rahbarlar monitoringi hamda hisob holati.
                         </p>
@@ -361,6 +365,7 @@ const FermaEgalariPage = () => {
                                                 <TableCell className="py-3.5 px-4 text-left whitespace-nowrap">
                                                     <div className="flex items-center gap-2.5">
                                                         <Switch
+                                                            aria-label={`${fullName} holatini o'zgartirish`}
                                                             checked={isActive}
                                                             disabled={isToggling}
                                                             onCheckedChange={() => handleToggleStatus(owner.id)}

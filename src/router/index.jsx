@@ -1,23 +1,50 @@
+import { lazy, Suspense } from "react"
 import { createBrowserRouter, Navigate } from "react-router-dom"
 import AuthLayout from "../layout/AuthLayout"
 import MainLayout from "../layout/MainLayout"
-import { LoginPage } from "@/pages/authentication"
 import { AuthGuard, RoleGuard } from "./guards"
-import SuperAdminDashboardPage from "@/pages/SuperAdminDashboard/SuperAdminDashboardPage"
-import { ManagerDashboardPage, ManagerOrdersPage, ManagerCouriersMapPage, ManagerXodimlarPage, ManagerOrderDetailPage, ManagerAllOrdersPage } from "@/pages/ManagerDashboard"
-import BossDashboardPage from "@/pages/BossDashboard/BossDashboardPage"
-import BossMoliyaPage from "@/pages/BossDashboard/BossMoliyaPage"
-import BossSavdoPage from "@/pages/BossDashboard/BossSavdoPage"
-import BossOsishPage from "@/pages/BossDashboard/BossOsishPage"
-import BossFermaPage from "@/pages/BossDashboard/BossFermaPage"
-import BossXodimlarPage from "@/pages/BossDashboard/BossXodimlarPage"
-import FermalarPage from "@/pages/SuperAdminDashboard/FermalarPage"
-import FermaDetailPage from "@/pages/SuperAdminDashboard/FermaDetailPage"
-import FermaEgalariPage from "@/pages/SuperAdminDashboard/FermaEgalariPage"
-import AuditLogPage from "@/pages/SuperAdminDashboard/AuditLogPage"
-import StatistikaPage from "@/pages/SuperAdminDashboard/StatistikaPage"
-import SozlamalarPage from "@/pages/SuperAdminDashboard/SozlamalarPage"
-import TasdiqlashPage from "@/pages/SuperAdminDashboard/TasdiqlashPage"
+import { Spinner } from "@/shared/ui"
+
+const PageFallback = () => (
+  <div className="flex h-[60vh] w-full items-center justify-center">
+    <Spinner size="lg" className="text-blue-600" />
+  </div>
+)
+
+const withSuspense = (Component) => (
+  <Suspense fallback={<PageFallback />}>
+    <Component />
+  </Suspense>
+)
+
+// Auth
+const LoginPage = lazy(() => import("@/pages/authentication/LoginPage"))
+
+// Super Admin
+const SuperAdminDashboardPage = lazy(() => import("@/pages/SuperAdminDashboard/SuperAdminDashboardPage"))
+const FermalarPage = lazy(() => import("@/pages/SuperAdminDashboard/FermalarPage"))
+const FermaDetailPage = lazy(() => import("@/pages/SuperAdminDashboard/FermaDetailPage"))
+const FermaEgalariPage = lazy(() => import("@/pages/SuperAdminDashboard/FermaEgalariPage"))
+const AuditLogPage = lazy(() => import("@/pages/SuperAdminDashboard/AuditLogPage"))
+const StatistikaPage = lazy(() => import("@/pages/SuperAdminDashboard/StatistikaPage"))
+const SozlamalarPage = lazy(() => import("@/pages/SuperAdminDashboard/SozlamalarPage"))
+const TasdiqlashPage = lazy(() => import("@/pages/SuperAdminDashboard/TasdiqlashPage"))
+
+// Manager
+const ManagerDashboardPage = lazy(() => import("@/pages/ManagerDashboard/ManagerDashboardPage"))
+const ManagerOrdersPage = lazy(() => import("@/pages/ManagerDashboard/ManagerOrdersPage"))
+const ManagerAllOrdersPage = lazy(() => import("@/pages/ManagerDashboard/ManagerAllOrdersPage"))
+const ManagerOrderDetailPage = lazy(() => import("@/pages/ManagerDashboard/ManagerOrderDetailPage"))
+const ManagerCouriersMapPage = lazy(() => import("@/pages/ManagerDashboard/ManagerCouriersMapPage"))
+const ManagerXodimlarPage = lazy(() => import("@/pages/ManagerDashboard/ManagerXodimlarPage"))
+
+// Boss
+const BossDashboardPage = lazy(() => import("@/pages/BossDashboard/BossDashboardPage"))
+const BossMoliyaPage = lazy(() => import("@/pages/BossDashboard/BossMoliyaPage"))
+const BossSavdoPage = lazy(() => import("@/pages/BossDashboard/BossSavdoPage"))
+const BossOsishPage = lazy(() => import("@/pages/BossDashboard/BossOsishPage"))
+const BossFermaPage = lazy(() => import("@/pages/BossDashboard/BossFermaPage"))
+const BossXodimlarPage = lazy(() => import("@/pages/BossDashboard/BossXodimlarPage"))
 
 const router = createBrowserRouter([
   {
@@ -30,7 +57,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/login",
-        element: <LoginPage />,
+        element: withSuspense(LoginPage),
       },
     ],
   },
@@ -47,32 +74,36 @@ const router = createBrowserRouter([
             children: [
               {
                 path: "/super-admin",
-                element: <SuperAdminDashboardPage />,
-              }, {
-                // fermalar uchun route qoshildi. 
-                path: "/super-admin/fermalar",
-                element: <FermalarPage />,
+                element: withSuspense(SuperAdminDashboardPage),
               },
               {
-                // ferma detail sahifasi
+                path: "/super-admin/fermalar",
+                element: withSuspense(FermalarPage),
+              },
+              {
                 path: "/super-admin/fermalar/:id",
-                element: <FermaDetailPage />,
-              }, {
+                element: withSuspense(FermaDetailPage),
+              },
+              {
                 path: "/super-admin/fermaEgalari",
-                element: <FermaEgalariPage />,
-              }, {
-                path: '/super-admin/auditlog',
-                element: <AuditLogPage />,
-              }, {
-                path: '/super-admin/statistika',
-                element: <StatistikaPage />,
-              }, {
-                path: '/super-admin/sozlamalar',
-                element: <SozlamalarPage />,
-              }, {
-                path: '/super-admin/tasdiqlash',
-                element: <TasdiqlashPage />,
-              }
+                element: withSuspense(FermaEgalariPage),
+              },
+              {
+                path: "/super-admin/auditlog",
+                element: withSuspense(AuditLogPage),
+              },
+              {
+                path: "/super-admin/statistika",
+                element: withSuspense(StatistikaPage),
+              },
+              {
+                path: "/super-admin/sozlamalar",
+                element: withSuspense(SozlamalarPage),
+              },
+              {
+                path: "/super-admin/tasdiqlash",
+                element: withSuspense(TasdiqlashPage),
+              },
             ],
           },
           // Manager
@@ -81,31 +112,31 @@ const router = createBrowserRouter([
             children: [
               {
                 path: "/manager",
-                element: <ManagerDashboardPage />,
+                element: withSuspense(ManagerDashboardPage),
               },
               {
                 path: "/manager/buyurtmalar",
-                element: <ManagerOrdersPage />,
+                element: withSuspense(ManagerOrdersPage),
               },
               {
                 path: "/manager/barcha-buyurtmalar",
-                element: <ManagerAllOrdersPage />,
+                element: withSuspense(ManagerAllOrdersPage),
               },
               {
                 path: "/manager/buyurtmalar/:id",
-                element: <ManagerOrderDetailPage />,
+                element: withSuspense(ManagerOrderDetailPage),
               },
               {
                 path: "/manager/dastavkachilar-xarita",
-                element: <ManagerCouriersMapPage />,
+                element: withSuspense(ManagerCouriersMapPage),
               },
               {
                 path: "/manager/xarita",
-                element: <ManagerCouriersMapPage />,
+                element: withSuspense(ManagerCouriersMapPage),
               },
               {
                 path: "/manager/xodimlar",
-                element: <ManagerXodimlarPage />,
+                element: withSuspense(ManagerXodimlarPage),
               },
             ],
           },
@@ -115,27 +146,27 @@ const router = createBrowserRouter([
             children: [
               {
                 path: "/boss",
-                element: <BossDashboardPage />,
+                element: withSuspense(BossDashboardPage),
               },
               {
                 path: "/boss/moliya",
-                element: <BossMoliyaPage />,
+                element: withSuspense(BossMoliyaPage),
               },
               {
                 path: "/boss/savdo",
-                element: <BossSavdoPage />,
+                element: withSuspense(BossSavdoPage),
               },
               {
                 path: "/boss/osish",
-                element: <BossOsishPage />,
+                element: withSuspense(BossOsishPage),
               },
               {
                 path: "/boss/ferma",
-                element: <BossFermaPage />,
+                element: withSuspense(BossFermaPage),
               },
               {
                 path: "/boss/xodimlar",
-                element: <BossXodimlarPage />,
+                element: withSuspense(BossXodimlarPage),
               },
             ],
           },

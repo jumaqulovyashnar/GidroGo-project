@@ -175,6 +175,10 @@ export function FermaDetailPage() {
                 <img
                   src={farm.logoUrl || farm.bannerUrl}
                   alt={farm.name}
+                  width="480"
+                  height="380"
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover transition-all duration-300 hover:scale-105"
                 />
               ) : (
@@ -253,6 +257,7 @@ export function FermaDetailPage() {
               <div className="flex items-center gap-2.5">
                 <span className="text-xs font-medium text-slate-500">Ferma holati:</span>
                 <Switch
+                  aria-label="Ferma holatini o'zgartirish"
                   checked={Boolean(isFarmActive)}
                   disabled={updateStatusMutation.isPending}
                   onCheckedChange={handleStatusChange}

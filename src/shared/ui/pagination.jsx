@@ -58,12 +58,12 @@ function PaginationLink({
 
 function PaginationPrevious({
   className,
-  text = "Previous",
+  text = "Oldingi",
   ...props
 }) {
   return (
     <PaginationLink
-      aria-label="Go to previous page"
+      aria-label="Oldingi sahifaga o'tish"
       size="default"
       className={cn("pl-1.5!", className)}
       {...props}>
@@ -75,12 +75,12 @@ function PaginationPrevious({
 
 function PaginationNext({
   className,
-  text = "Next",
+  text = "Keyingi",
   ...props
 }) {
   return (
     <PaginationLink
-      aria-label="Go to next page"
+      aria-label="Keyingi sahifaga o'tish"
       size="default"
       className={cn("pr-1.5!", className)}
       {...props}>
@@ -104,7 +104,7 @@ function PaginationEllipsis({
       )}
       {...props}>
       <MoreHorizontalIcon />
-      <span className="sr-only">More pages</span>
+      <span className="sr-only">Boshqa sahifalar</span>
     </span>
   );
 }
