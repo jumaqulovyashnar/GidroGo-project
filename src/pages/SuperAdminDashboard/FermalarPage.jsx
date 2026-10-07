@@ -71,29 +71,37 @@ const FermalarPage = () => {
     }
     const filteredFarms = farms
         .filter((f) => {
+            const query = (search || "").toLowerCase().trim()
+            const name = (f?.name || "").toLowerCase()
+            const address = (f?.address || "").toLowerCase()
+            const bossFullName = (f?.bossFullName || f?.bossPhone || f?.phone || "").toLowerCase()
+
             const matchSearch =
-                f.name.toLowerCase().includes(search.toLowerCase()) ||
-                f.address.toLowerCase().includes(search.toLowerCase()) ||
-                f.bossFullName.toLowerCase().includes(search.toLowerCase())
+                !query ||
+                name.includes(query) ||
+                address.includes(query) ||
+                bossFullName.includes(query)
+
             const matchStatus =
-                status === "all" || f.status === status
+                status === "all" || f?.status === status
 
             return matchSearch && matchStatus
-        })  .sort((a, b) => {
+        })
+        .sort((a, b) => {
             if (sort === "newest") {
-                return new Date(b.createdAt) - new Date(a.createdAt)
+                return new Date(b?.createdAt || 0) - new Date(a?.createdAt || 0)
             }
 
             if (sort === "oldest") {
-                return new Date(a.createdAt) - new Date(b.createdAt)
+                return new Date(a?.createdAt || 0) - new Date(b?.createdAt || 0)
             }
 
             if (sort === "name_asc") {
-                return a.name.localeCompare(b.name)
+                return (a?.name || "").localeCompare(b?.name || "")
             }
 
             if (sort === "name_desc") {
-                return b.name.localeCompare(a.name)
+                return (b?.name || "").localeCompare(a?.name || "")
             }
 
             return 0

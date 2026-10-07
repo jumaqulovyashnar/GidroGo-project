@@ -1,37 +1,31 @@
-import { api, handleApiError } from "@/shared";
+import { api, handleApiError } from "@/shared"
+import { bossService } from "./boss.service"
 
 class UpdateFarmsStatus {
-    async FarmsStatus(id, data) {
+    async farmsStatus(id, data) {
         try {
             const response = await api.patch(`/superadmin/farms/${id}/status`, data)
-            return response.data;
+            return response.data
         } catch (error) {
             throw new Error(handleApiError(error))
         }
     }
 
-    async farmsStatus(id, data) {
-        return this.FarmsStatus(id, data);
+    // Backward compatibility alias
+    async FarmsStatus(id, data) {
+        return this.farmsStatus(id, data)
     }
 
+    // Delegate to bossService single source of truth
     async updateFarmsBossStatus(id) {
-        try {
-            const response = await api.patch(`/superadmin/bosses/${id}/toggle-status`)
-            return response.data;
-        } catch (error) {
-            throw new Error(handleApiError(error))
-        }
+        return bossService.toggleBossStatus(id)
     }
 
+    // Delegate to bossService single source of truth
     async getBosses(params) {
-        try {
-            const response = await api.get("/superadmin/bosses", { params })
-            return response.data;
-        } catch (error) {
-            throw new Error(handleApiError(error))
-        }
+        return bossService.getBosses(params)
     }
 }
 
 export const updateFarmsStatus = new UpdateFarmsStatus()
-export default UpdateFarmsStatus;
+export default UpdateFarmsStatus

@@ -280,8 +280,31 @@ const AuditLogPage = () => {
     const [currentPage, setCurrentPage] = useState(1)
     const itemsPerPage = 5
 
-    const { data: auditData, isPending, isFetching, refetch } = useAuditLogs()
-    const rawLogs = useMemo(() => auditData?.data || (Array.isArray(auditData) ? auditData : []), [auditData])
+    const queryParams = useMemo(() => {
+        const params = {
+            page: currentPage - 1,
+            size: itemsPerPage,
+        }
+        if (selectedAction !== "all") params.action = selectedAction
+        if (searchTerm.trim()) params.search = searchTerm.trim()
+        return params
+    }, [currentPage, itemsPerPage, selectedAction, searchTerm])
+
+    const { data: auditData, isPending, isFetching, refetch } = useAuditLogs(queryParams)
+
+    const isServerPaginated = Boolean(
+        auditData?.data?.content ||
+        auditData?.data?.totalElements !== undefined ||
+        auditData?.totalElements !== undefined
+    )
+
+    const rawLogs = useMemo(() => {
+        if (Array.isArray(auditData?.data?.content)) return auditData.data.content
+        if (Array.isArray(auditData?.content)) return auditData.content
+        if (Array.isArray(auditData?.data)) return auditData.data
+        if (Array.isArray(auditData)) return auditData
+        return []
+    }, [auditData])
 
     const logsList = useMemo(() => {
         if (Array.isArray(rawLogs) && rawLogs.length > 0) {
@@ -317,27 +340,46 @@ const AuditLogPage = () => {
         return MOCK_AUDIT_LOGS
     }, [rawLogs])
 
-    // Filterlash mantiqi
+    // Filterlash mantiqi (agar serverda filter qilinmagan bo'lsa)
     const filteredLogs = useMemo(() => {
-        return logsList.filter((log) => {
-            const matchesSearch =
-                log.target.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                log.target.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                log.clientInfo.ip.includes(searchTerm) ||
-                log.action.label.toLowerCase().includes(searchTerm.toLowerCase())
+        if (isServerPaginated) return logsList
 
-            const matchesAction = selectedAction === "all" || log.action.label.toLowerCase().includes(selectedAction.toLowerCase())
-            const matchesAdmin = selectedAdmin === "all" || log.admin.name.toLowerCase().includes(selectedAdmin.toLowerCase())
+        return logsList.filter((log) => {
+            const term = (searchTerm || "").toLowerCase().trim()
+            const targetName = (log.target?.name || "").toLowerCase()
+            const targetCode = (log.target?.code || "").toLowerCase()
+            const ip = log.clientInfo?.ip || ""
+            const actionLabel = (log.action?.label || "").toLowerCase()
+
+            const matchesSearch =
+                !term ||
+                targetName.includes(term) ||
+                targetCode.includes(term) ||
+                ip.includes(term) ||
+                actionLabel.includes(term)
+
+            const matchesAction = selectedAction === "all" || actionLabel.includes((selectedAction || "").toLowerCase())
+            const matchesAdmin = selectedAdmin === "all" || (log.admin?.name || "").toLowerCase().includes((selectedAdmin || "").toLowerCase())
 
             return matchesSearch && matchesAction && matchesAdmin
         })
-    }, [logsList, searchTerm, selectedAction, selectedAdmin])
+    }, [logsList, searchTerm, selectedAction, selectedAdmin, isServerPaginated])
 
-    const totalPages = Math.ceil(filteredLogs.length / itemsPerPage) || 1
-    const paginatedLogs = filteredLogs.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
-    )
+    const totalServerPages = auditData?.data?.totalPages ?? auditData?.totalPages ?? null
+    const totalServerItems = auditData?.data?.totalElements ?? auditData?.totalElements ?? null
+
+    const totalPages = isServerPaginated && totalServerPages
+        ? totalServerPages
+        : isServerPaginated && totalServerItems
+        ? Math.ceil(totalServerItems / itemsPerPage) || 1
+        : Math.ceil(filteredLogs.length / itemsPerPage) || 1
+
+    const paginatedLogs = isServerPaginated
+        ? filteredLogs
+        : filteredLogs.slice(
+            (currentPage - 1) * itemsPerPage,
+            currentPage * itemsPerPage
+        )
 
     const getPageNumbers = () => {
         const pages = []
