@@ -1,6 +1,5 @@
 import { api } from "@/shared"
 import handleApiError from "@/shared/lib/handleError"
-
 class FileUploadService {
     async uploadFile(upload) {
         try {
@@ -20,12 +19,11 @@ class FileUploadService {
     async viewFile(year, month, day, fileName) {
         try {
             const response = await api.get(`/files/view/${year}/${month}/${day}/${fileName}`)
-            return response.data
+            return response.data;
         }
         catch (error) {
             throw new Error(handleApiError(error))
         }
     }
 }
-
 export const fileUploadService = new FileUploadService();
