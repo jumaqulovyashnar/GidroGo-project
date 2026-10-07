@@ -7,8 +7,8 @@ const MONTH_NAMES = [
 ]
 
 export const LineColumn = ({ dashboard = {} }) => {
-  const totalOrders = Number(dashboard?.totalOrders ?? 61)
-  const totalClients = Number(dashboard?.totalClients ?? 19)
+  const totalOrders = Number(dashboard?.totalOrders ?? 0)
+  const totalClients = Number(dashboard?.totalClients ?? 0)
 
   const { series, options } = useMemo(() => {
     const now = new Date()
@@ -30,8 +30,8 @@ export const LineColumn = ({ dashboard = {} }) => {
 
       // Real o'sish dinamikasi (API dagi totalOrders va totalClients ga mutanosib)
       const progress = (12 - i) / 12
-      const monthOrder = Math.max(1, Math.round((totalOrders / 12) * (0.35 + progress * 0.95)))
-      const monthClient = Math.max(1, Math.round((totalClients / 12) * (0.3 + progress * 1.05)))
+      const monthOrder = totalOrders > 0 ? Math.round((totalOrders / 12) * (0.35 + progress * 0.95)) : 0
+      const monthClient = totalClients > 0 ? Math.round((totalClients / 12) * (0.3 + progress * 1.05)) : 0
 
       ordersData.push(monthOrder)
       clientsData.push(monthClient)
