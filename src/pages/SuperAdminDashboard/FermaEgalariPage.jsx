@@ -3,7 +3,7 @@ import { FilterBar } from "@/widgets"
 import { Card, CardHeader, Switch, Button, Spinner, EditBossModal, DeleteBossModal, Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext, PaginationEllipsis } from "@/shared/ui"
 import { User, ShieldCheck, TrendingUpIcon, Hammer, RefreshCw } from "lucide-react"
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/shared/ui/table"
-import { useBosses, useUpdateBossStatus, useUpdateBoss, useDeleteBoss, useFarms } from "@/shared/hooks"
+import { useBosses, useUpdateBossStatus, useUpdateBoss, useDeleteBoss } from "@/shared/hooks"
 
 const statusOptions = [
     { value: "all", label: "Barcha statuslar" },
@@ -60,21 +60,9 @@ const FermaEgalariPage = () => {
     const [deletingBoss, setDeletingBoss] = useState(null)
 
     const { data, isPending, isError, error, isFetching, refetch } = useBosses()
-    const { data: farmsData } = useFarms()
     const toggleStatusMutation = useUpdateBossStatus()
     const updateBossMutation = useUpdateBoss()
     const deleteBossMutation = useDeleteBoss()
-
-    const farmsMap = useMemo(() => {
-        const list = farmsData?.data || []
-        const map = {}
-        if (Array.isArray(list)) {
-            list.forEach((f) => {
-                if (f.id) map[f.id] = f
-            })
-        }
-        return map
-    }, [farmsData])
 
     const bosses = useMemo(() => {
         const list = data?.data?.bosses || data?.data?.content || (Array.isArray(data?.data) ? data?.data : [])
@@ -323,10 +311,9 @@ const FermaEgalariPage = () => {
                                         const fullName = owner.fullName || owner.profile?.fullName || "—"
                                         const avatar = owner.avatarUrl || owner.profile?.avatar || ""
                                         const phone = owner.phone || owner.profile?.phone || "—"
-                                        const farmObj = owner.farm || farmsMap[owner.farmId] || farmsMap[owner.farm?.id]
-                                        const farmImage = farmObj?.logoUrl || farmObj?.bannerUrl || avatar || owner.logoUrl || owner.farmLogoUrl || ""
-                                        const farmName = owner.farmName || farmObj?.name || owner.farm?.name || "Ferma biriktirilmagan"
-                                        const farmId = owner.farmId || farmObj?.id || owner.farm?.id || owner.id
+                                        const farmImage = owner.farmLogoUrl || owner.logoUrl || avatar || owner.farm?.logoUrl || ""
+                                        const farmName = owner.farmName || owner.farm?.name || "Ferma biriktirilmagan"
+                                        const farmId = owner.farmId || owner.farm?.id || owner.id
                                         const isActive = owner.active !== undefined
                                             ? Boolean(owner.active)
                                             : (owner.status === "ACTIVE" || owner.profile?.status === "active")

@@ -10,17 +10,10 @@ export const useFarms = (params) => {
 
 export const useFarm = (id) => {
   return useQuery({
-    queryKey: ["farm", id],
+    queryKey: ["farm", String(id)],
     queryFn: async () => {
-      try {
-        const res = await farmService.getFarmById(id)
-        return res?.data || res
-      } catch {
-        const res = await farmService.getFarms()
-        const list = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : []
-        const found = list.find((f) => String(f.id) === String(id))
-        return found || null
-      }
+      const res = await farmService.getFarmById(id)
+      return res?.data || res
     },
     enabled: Boolean(id),
   })

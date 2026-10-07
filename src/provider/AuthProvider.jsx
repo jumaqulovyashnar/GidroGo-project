@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useCallback, useMemo } from "react"
+import { createContext, useContext, useCallback, useMemo } from "react"
 
 import { useUserStore } from "@/entities/user"
 import { authService } from "@/services"
@@ -180,8 +180,7 @@ export const AuthProvider = ({ children }) => {
   const userToken = useUserStore((state) => state.userToken)
   const token = userToken?.accessToken || null
 
-  const isAuthenticated = Boolean(token && user)
-  const [isInitializing, setIsInitializing] = useState(false)
+  const isInitializing = false
 
   // LOGIN
   const login = useCallback(

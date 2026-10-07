@@ -19,9 +19,9 @@ class SuperAdminService {
     }
   }
 
-  async getAuditLogs() {
+  async getAuditLogs(params) {
     try {
-      const response = await api.get("/superadmin/audit-log")
+      const response = await api.get("/superadmin/audit-log", { params })
       return response.data
     } catch (error) {
       throw new Error(handleApiError(error))

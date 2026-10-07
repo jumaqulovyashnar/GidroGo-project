@@ -15,9 +15,9 @@ export const useRegionalStatistics = () => {
   })
 }
 
-export const useAuditLogs = () => {
+export const useAuditLogs = (params) => {
   return useQuery({
-    queryKey: ["audit-logs"],
-    queryFn: () => superAdminService.getAuditLogs(),
+    queryKey: ["audit-logs", params],
+    queryFn: () => superAdminService.getAuditLogs(params),
   })
 }

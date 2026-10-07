@@ -32,7 +32,7 @@ export const useUpdateBossStatus = () => {
     const queryClient = useQueryClient()
     return useMutation({
         mutationKey: ["boss-status"],
-        mutationFn: (id) => updateFarmsStatus.updateFarmsBossStatus(id),
+        mutationFn: (id) => bossService.toggleBossStatus(id),
         onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: ["bosses"] })
             toast.success(data?.message || "Ferma egasi statusi o'zgartirildi")

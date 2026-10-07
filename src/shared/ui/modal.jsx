@@ -15,7 +15,6 @@ export function CreateFermaModal() {
     resetForm,
     imagePreview,
     setImagePreview,
-    selectedFile,
     setSelectedFile,
   } = useFermaModalStore()
 
@@ -149,7 +148,6 @@ export function CreateFermaModal() {
     try {
       await createFarmMutation.mutateAsync({
         ...formData,
-        file: selectedFile,
         latitude: Number(formData.latitude) || 0,
         longitude: Number(formData.longitude) || 0,
       })
@@ -844,8 +842,9 @@ function EditBossModalContent({ opened, onClose, boss, onSave, isPending }) {
     if (formData.farmId) {
       payload.farmId = Number(formData.farmId) || formData.farmId
     }
-    if (formData.password.trim()) {
-      payload.password = formData.password.trim()
+    const cleanPassword = (formData.password || "").trim()
+    if (cleanPassword) {
+      payload.password = cleanPassword
     }
 
     onSave({

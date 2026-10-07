@@ -1,4 +1,4 @@
-import { farmService, fileUploadService } from "@/services"
+import { farmService } from "@/services"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 
 export const useCreateFarm = () => {
@@ -6,29 +6,12 @@ export const useCreateFarm = () => {
 
   return useMutation({
     mutationKey: ["createFarm"],
-    mutationFn: async (data) => {
-      const { file, ...farmPayload } = data
-      let logoUrl = farmPayload.logoUrl || ""
-
-      if (file) {
-        const formData = new FormData()
-        formData.append("file", file)
-
-        const uploadRes = await fileUploadService.uploadFile(formData)
-        logoUrl =
-          uploadRes?.data?.url ||
-          uploadRes?.url ||
-          uploadRes?.data?.path ||
-          uploadRes?.path ||
-          (typeof uploadRes?.data === "string" ? uploadRes.data : "") ||
-          logoUrl
-      }
-
+    mutationFn: async (farmPayload) => {
+      const { file: _file, ...cleanPayload } = farmPayload || {}
       return await farmService.createFarm({
-        ...farmPayload,
-        logoUrl,
-        latitude: Number(farmPayload.latitude) || 0,
-        longitude: Number(farmPayload.longitude) || 0,
+        ...cleanPayload,
+        latitude: Number(cleanPayload.latitude) || 0,
+        longitude: Number(cleanPayload.longitude) || 0,
       })
     },
     onSuccess: () => {
