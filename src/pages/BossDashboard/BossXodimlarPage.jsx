@@ -3,110 +3,11 @@ import { toast } from "sonner"
 import { Modal as MantineModal } from "@mantine/core"
 import { Users, Truck, CheckCircle2, UserPlus, Plus, Download, Search, MapPin, Pencil, Eye, EyeOff, Phone, KeyRound, Briefcase } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent, Button, TablePagination } from "@/shared/ui"
-
-// Boshlang'ich xodimlar ro'yxati (Figma ma'lumotlariga to'liq mos)
-const initialEmployees = [
-  {
-    id: 1,
-    name: "Jamshid Aliyev",
-    initials: "JA",
-    phone: "+998 (90) 845-21-43",
-    roleType: "courier",
-    roleTitle: "Katta Dastavkachi",
-    sector: "Markaziy kengaytirilgan sektor",
-    stats: "48 buyurtma (912 L)",
-    subStats: "Avtomobil sig'imi: 92%",
-    rating: "4.98",
-    status: "active_delivering",
-    statusText: "Faol (Yo'nalishda)",
-    password: "jamshid#2026",
-    vehicle: "Labo (70 A 845 AA)",
-  },
-  {
-    id: 2,
-    name: "Sherzod Karimov",
-    initials: "SK",
-    phone: "+998 (91) 433-10-89",
-    roleType: "courier",
-    roleTitle: "Dastavkachi",
-    sector: "Shimoliy mikrorayon",
-    stats: "42 buyurtma (798 L)",
-    subStats: "Reja bo'yicha: 88%",
-    rating: "4.95",
-    status: "active_online",
-    statusText: "Faol (Online)",
-    password: "sherzod#2026",
-    vehicle: "Damas (70 B 433 BA)",
-  },
-  {
-    id: 3,
-    name: "Jasur Rustamov",
-    initials: "JR",
-    phone: "+998 (97) 314-55-60",
-    roleType: "courier",
-    roleTitle: "Dastavkachi",
-    sector: "Janubiy sanoat zonasi",
-    stats: "37 buyurtma (703 L)",
-    subStats: "Reja bo'yicha: 74%",
-    rating: "4.91",
-    status: "active_online",
-    statusText: "Faol (Online)",
-    password: "jasur#2026",
-    vehicle: "Labo (70 C 314 CA)",
-  },
-  {
-    id: 4,
-    name: "Umid Hakimov",
-    initials: "UH",
-    phone: "+998 (93) 120-77-99",
-    roleType: "manager",
-    roleTitle: "Logistika Menejeri",
-    sector: "Markaziy & G'arbiy nazorat",
-    stats: "12 ta haydovchi",
-    subStats: "Operatsion smena yetakchisi",
-    rating: "—",
-    status: "active_hq",
-    statusText: "Faol (Shtabda)",
-    password: "umid#manager",
-    vehicle: "Shtab dispetchelik punkti",
-  },
-  {
-    id: 5,
-    name: "Azizbek Toirov",
-    initials: "AT",
-    phone: "+998 (99) 700-12-34",
-    roleType: "manager",
-    roleTitle: "Ombor Menejeri",
-    sector: "Xomashyo & Mahsulot zaxirasi",
-    stats: "3,200 kapsula",
-    subStats: "Dispetcherlik to'liq nazoratda",
-    rating: "—",
-    status: "active_warehouse",
-    statusText: "Faol (Omborda)",
-    password: "aziz#ombor",
-    vehicle: "Asosiy omborxona",
-  },
-  {
-    id: 6,
-    name: "Bobur Ergashev",
-    initials: "BE",
-    phone: "+998 (94) 555-88-21",
-    roleType: "courier",
-    roleTitle: "Dastavkachi",
-    sector: "Janubiy sektor",
-    stats: "0 buyurtma",
-    subStats: "Smena to'xtatilgan",
-    rating: "3.82",
-    status: "blocked",
-    statusText: "Bloklangan",
-    password: "bobur#2026",
-    vehicle: "Labo (70 D 555 DA)",
-  },
-]
+import { useStaff } from "@/shared"
 
 export function BossXodimlarPage() {
-  const [employees, setEmployees] = useState(initialEmployees)
-  const [activeTab, setActiveTab] = useState("all") // "all" | "couriers" | "managers"
+  const [employees, setEmployees] = useState([])
+  const [activeTab, setActiveTab] = useState("all") 
   const [searchQuery, setSearchQuery] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 5
@@ -412,12 +313,12 @@ export function BossXodimlarPage() {
           </CardHeader>
           <CardContent className="p-4 pt-1">
             <div className="flex items-baseline gap-1.5">
-              <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
-                98.4%
+              <span className="text-2xl sm:text-3xl  font-extrabold tracking-tight text-slate-900">
+                0
               </span>
             </div>
             <p className="text-xs text-slate-400 mt-2.5 leading-tight">
-              Grafik bo'yicha (maks. kechikish: 4 daqiqa)
+              Ma'lumot mavjud emas
             </p>
           </CardContent>
         </Card>
@@ -503,7 +404,9 @@ export function BossXodimlarPage() {
               {filteredEmployees.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-12 text-center text-slate-400 text-xs">
-                    Qidiruv bo'yicha hech qanday xodim topilmadi.
+                    {employees.length === 0
+                      ? "Hozircha xodimlar yo'q. «Yangi Xodim Qo'shish» tugmasi orqali qo'shing."
+                      : "Qidiruv bo'yicha hech qanday xodim topilmadi."}
                   </td>
                 </tr>
               ) : (
@@ -1042,13 +945,10 @@ export function BossXodimlarPage() {
                   className="w-full h-11 px-3.5 rounded-xl border border-slate-200 bg-slate-50/50 hover:bg-white focus:bg-white text-sm text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all cursor-pointer font-medium"
                 >
                   <option value="Markaziy sektor">Markaziy sektor</option>
-                  <option value="Markaziy kengaytirilgan sektor">Markaziy kengaytirilgan sektor</option>
                   <option value="Shimoliy mikrorayon">Shimoliy mikrorayon</option>
                   <option value="Janubiy sanoat zonasi">Janubiy sanoat zonasi</option>
-                  <option value="Janubiy sektor">Janubiy sektor</option>
                   <option value="G'arbiy daha">G'arbiy daha</option>
-                  <option value="Markaziy & G'arbiy nazorat">Markaziy &amp; G'arbiy nazorat</option>
-                  <option value="Xomashyo & Mahsulot zaxirasi">Xomashyo &amp; Mahsulot zaxirasi</option>
+                  <option value="Omborxona & Zaxira">Omborxona &amp; Zaxira</option>
                   <option value="Dispetcherlik shtabi">Dispetcherlik shtabi</option>
                 </select>
               </div>
@@ -1096,4 +996,4 @@ export function BossXodimlarPage() {
   )
 }
 
-export default BossXodimlarPage
+export default BossXodimlarPage;

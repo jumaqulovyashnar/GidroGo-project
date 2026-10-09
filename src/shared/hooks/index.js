@@ -6,3 +6,4 @@ export * from "./useUpload"
 export * from "./useRequest"
 export * from "./useStatusFarm"
 export * from "./useSuperAdmin"
+export * from '../hooks/useXodim'
