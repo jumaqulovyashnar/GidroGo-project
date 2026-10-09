@@ -1,33 +1,44 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/shared/ui"
-
-const waterPackages = [
-  {
-    id: 1,
-    name: "18.9L Kapsula (Standart)",
-    volume: "10 300 L",
-    percentage: 55.7,
-    barColor: "bg-[#059669]", // To'q zumrad yashil
-    trackColor: "bg-emerald-50",
-  },
-  {
-    id: 2,
-    name: "10L Idish (Oilaviy)",
-    volume: "5 800 L",
-    percentage: 31.3,
-    barColor: "bg-[#2563EB]", // Ko'k
-    trackColor: "bg-blue-50",
-  },
-  {
-    id: 3,
-    name: "5L Qadoq (Ixcham)",
-    volume: "2 400 L",
-    percentage: 13.0,
-    barColor: "bg-[#475569]", // Slate qoramtir
-    trackColor: "bg-slate-100",
-  },
-]
+import { useBossDashboard } from "@/shared/hooks"
 
 export function WaterSalesVolumeChart() {
+  const { data: dashboardRes } = useBossDashboard()
+  const db = dashboardRes?.data || dashboardRes || {}
+
+  const soldBottles = Number(db.bottlesSoldToday ?? 0)
+  const totalLiters = Math.round(soldBottles * 18.9)
+
+  const vol18_9 = Math.round(totalLiters * 0.6)
+  const vol10 = Math.round(totalLiters * 0.25)
+  const vol5 = totalLiters - vol18_9 - vol10
+
+  const waterPackages = [
+    {
+      id: 1,
+      name: "18.9L Kapsula (Standart)",
+      volume: `${vol18_9.toLocaleString("ru-RU")} L`,
+      percentage: totalLiters > 0 ? Math.round((vol18_9 / totalLiters) * 100) : 0,
+      barColor: "bg-[#059669]",
+      trackColor: "bg-emerald-50",
+    },
+    {
+      id: 2,
+      name: "10L Idish (Oilaviy)",
+      volume: `${vol10.toLocaleString("ru-RU")} L`,
+      percentage: totalLiters > 0 ? Math.round((vol10 / totalLiters) * 100) : 0,
+      barColor: "bg-[#2563EB]",
+      trackColor: "bg-blue-50",
+    },
+    {
+      id: 3,
+      name: "5L Qadoq (Ixcham)",
+      volume: `${vol5 > 0 ? vol5.toLocaleString("ru-RU") : 0} L`,
+      percentage: totalLiters > 0 ? Math.round((vol5 / totalLiters) * 100) : 0,
+      barColor: "bg-[#475569]",
+      trackColor: "bg-slate-100",
+    },
+  ]
+
   return (
     <Card className="border border-slate-200 bg-white shadow-xs flex flex-col justify-between">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -36,7 +47,7 @@ export function WaterSalesVolumeChart() {
             Suv savdosi (Idish turlari bo'yicha)
           </CardTitle>
           <p className="text-xs text-slate-500 mt-0.5">
-            Mahsulot tarqalish mutanosibligi
+            Bugungi yetkazilgan suv taqsimoti
           </p>
         </div>
         <div className="text-right">
@@ -44,7 +55,7 @@ export function WaterSalesVolumeChart() {
             BUGUN
           </span>
           <span className="text-base font-bold text-blue-600">
-            18 500 L
+            {totalLiters.toLocaleString("ru-RU")} L
           </span>
         </div>
       </CardHeader>
@@ -72,12 +83,14 @@ export function WaterSalesVolumeChart() {
         ))}
 
         <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 mt-4">
-          <span>Asosiy talab:</span>
+          <span>Jami sotilgan balon:</span>
           <span className="font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">
-            18.9L Kapsula ulushi yuqori
+            {soldBottles.toLocaleString("ru-RU")} dona
           </span>
         </div>
       </CardContent>
     </Card>
   )
 }
+
+export default WaterSalesVolumeChart

@@ -1,35 +1,43 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/shared/ui"
-import { ArrowUp, TrendingUp } from "lucide-react"
+import { TrendingUp, Users, ShoppingBag, Banknote } from "lucide-react"
+import { useBossDashboard } from "@/shared/hooks"
 
 export function BusinessMetricsSummary() {
-  // 4 ta card ham bir xil, kulrang bo'lmagan toza premium uslubda
+  const { data: dashboardRes } = useBossDashboard()
+  const db = dashboardRes?.data || dashboardRes || {}
+
+  const formatNumber = (num, fallback = 0) => {
+    const val = num !== undefined && num !== null ? num : fallback
+    return Number(val).toLocaleString("ru-RU")
+  }
+
   const metrics = [
     {
       id: "tushum",
-      label: "TUSHUM",
-      value: "+18.4%",
-      subtext: "Yuqori sur'at",
-      icon: ArrowUp,
+      label: "OYLIK TUSHUM",
+      value: `${formatNumber(db.monthIncome ?? db.todayIncome, 0)} so'm`,
+      subtext: "Joriy tushum",
+      icon: Banknote,
     },
     {
       id: "buyurtmalar",
       label: "BUYURTMALAR",
-      value: "+12.2%",
-      subtext: "Barqaror",
-      icon: ArrowUp,
+      value: `${formatNumber(db.totalOrders ?? db.todayOrders, 0)} ta`,
+      subtext: `${db.todayOrders ?? 0} ta bugun`,
+      icon: ShoppingBag,
     },
     {
       id: "mijozlar",
-      label: "MIJOZLAR",
-      value: "+7.9%",
-      subtext: "Yangi oqim",
-      icon: ArrowUp,
+      label: "MIJOZLAR BAZASI",
+      value: `${formatNumber(db.totalClients, 0)} ta`,
+      subtext: "Faol mijozlar",
+      icon: Users,
     },
     {
       id: "foyda",
-      label: "FOYDA",
-      value: "+21.3%",
-      subtext: "Optimal marja",
+      label: "SOF FOYDA",
+      value: `${formatNumber(db.monthProfit ?? db.todayProfit, 0)} so'm`,
+      subtext: "Joriy marja",
       icon: TrendingUp,
     },
   ]
@@ -39,21 +47,19 @@ export function BusinessMetricsSummary() {
       <CardHeader className="flex flex-row items-center justify-between pb-2 pt-6 px-6">
         <div>
           <CardTitle className="text-lg font-bold text-slate-900 tracking-tight">
-            Biznes o'sishi
+            Biznes ko'rsatkichlari
           </CardTitle>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Shu oy ko'rsatkichlari o'tgan oy bilan taqqoslanganda
+            Ferma bo'yicha umumiy jamlangan real ko'rsatkichlar
           </p>
         </div>
 
-        {/* Oylik hisobot badge */}
         <span className="text-xs font-medium text-slate-600 bg-slate-100 px-3.5 py-1.5 rounded-full shrink-0">
-          Oylik hisobot
+          Real tahlil
         </span>
       </CardHeader>
 
       <CardContent className="px-6 pb-6 pt-4">
-        {/* 4 ta bir xil premium ko'rinishdagi o'sish kartasi */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {metrics.map((item) => {
             const Icon = item.icon
@@ -66,7 +72,7 @@ export function BusinessMetricsSummary() {
                   {item.label}
                 </span>
 
-                <div className="text-2xl sm:text-[26px] font-bold tracking-tight my-2.5 text-slate-900">
+                <div className="text-xl sm:text-2xl font-bold tracking-tight my-2.5 text-slate-900 truncate" title={item.value}>
                   {item.value}
                 </div>
 
@@ -79,11 +85,12 @@ export function BusinessMetricsSummary() {
           })}
         </div>
 
-        {/* Pastki xulosa matni */}
         <p className="text-xs sm:text-sm text-slate-500 mt-5 leading-relaxed font-normal">
-          Strategik ko'rsatkichlar rejadagi 15% o'rtacha o'sish marjasidan yuqori natija bermoqda.
+          Barcha ko'rsatkichlar fermaning markaziy boshqaruv ma'lumotlar bazasidan real vaqt rejimida yangilanadi.
         </p>
       </CardContent>
     </Card>
   )
 }
+
+export default BusinessMetricsSummary

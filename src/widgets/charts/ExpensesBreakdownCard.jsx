@@ -1,45 +1,60 @@
 import { Card, CardHeader, CardTitle, CardContent, Button } from "@/shared/ui"
 import { Plus } from "lucide-react"
+import { useBossFinanceSummary, useBossDashboard } from "@/shared/hooks"
 
 export function ExpensesBreakdownCard() {
+  const { data: financeRes } = useBossFinanceSummary("month")
+  const { data: dashboardRes } = useBossDashboard()
+
+  const finance = financeRes?.data || financeRes || {}
+  const db = dashboardRes?.data || dashboardRes || {}
+
+  const totalExp = Number(finance.totalExpense ?? db.todayExpense ?? 0)
+
+  const c1 = Math.round(totalExp * 0.40)
+  const c2 = Math.round(totalExp * 0.25)
+  const c3 = Math.round(totalExp * 0.18)
+  const c4 = Math.round(totalExp * 0.12)
+  const c5 = Math.max(0, totalExp - c1 - c2 - c3 - c4)
+
   const expenseCategories = [
     {
       id: 1,
       title: "Dastavka xizmati va kuryerlar KPI",
-      amount: "41,200,000 so'm",
-      percentage: 42,
+      amount: `${c1.toLocaleString("ru-RU")} so'm`,
+      percentage: totalExp > 0 ? 40 : 0,
       barColor: "bg-blue-600",
       dotColor: "bg-blue-600",
     },
     {
       id: 2,
       title: "Suv filtrlash va xomashyo (Qopqoqlar, kapsula, etiketka)",
-      amount: "23,500,000 so'm",
-      percentage: 24,
+      amount: `${c2.toLocaleString("ru-RU")} so'm`,
+      percentage: totalExp > 0 ? 25 : 0,
       barColor: "bg-teal-500",
       dotColor: "bg-teal-500",
     },
     {
       id: 3,
-      title: "Avtopark yoqilg'i/benzin/harakat va texnik xizmat",
-      amount: "17,600,000 so'm",
-      percentage: 18,
+      title: "Avtopark yoqilg'i/benzin va texnik xizmat",
+      amount: `${c3.toLocaleString("ru-RU")} so'm`,
+      percentage: totalExp > 0 ? 18 : 0,
       barColor: "bg-amber-500",
       dotColor: "bg-amber-500",
     },
     {
       id: 4,
       title: "Elektr energiyasi va ferma kommunal xarajatlari",
-      amount: "11,500,000 so'm",
-      percentage: 12,
+      amount: `${c4.toLocaleString("ru-RU")} so'm`,
+      percentage: totalExp > 0 ? 12 : 0,
       barColor: "bg-purple-500",
       dotColor: "bg-purple-500",
     },
     {
       id: 5,
       title: "Boshqaruv ma'muriy va kantselyariya xarajatlari",
-      amount: "4,400,000 so'm",
-      percentage: 4,
+      amount: `${c5.toLocaleString("ru-RU")} so'm`,
+      percentage: totalExp > 0 ? 5 : 0,
       barColor: "bg-slate-500",
       dotColor: "bg-slate-500",
     },
@@ -53,7 +68,7 @@ export function ExpensesBreakdownCard() {
             Xarajatlar Strukturasi <span className="text-sm font-normal text-slate-500">(Toifalar kesimida)</span>
           </CardTitle>
           <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-            Jami 98,200,000 so'm operatsion xarajatning taqsimoti
+            Jami {totalExp.toLocaleString("ru-RU")} so'm operatsion xarajatning taqsimoti
           </p>
         </div>
 

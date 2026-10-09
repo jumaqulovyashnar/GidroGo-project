@@ -19,7 +19,6 @@ export function AddXodimModal({ opened, onClose, onAddEmployee, isSubmitting }) 
     setShowPassword(false)
     onClose()
   }
-
   const handleSubmit = (e) => {
     e.preventDefault()
 
@@ -45,7 +44,6 @@ export function AddXodimModal({ opened, onClose, onAddEmployee, isSubmitting }) 
       password: form.password.trim(),
       role: form.roleType === "manager" ? "MANAGER" : "COURIER",
     }
-
     onAddEmployee(payload, handleClose)
   }
   return (
@@ -120,7 +118,6 @@ export function AddXodimModal({ opened, onClose, onAddEmployee, isSubmitting }) 
                 <span className="text-[11px] text-slate-500 font-medium">Kuryer</span>
               </div>
             </button>
-
             <button
               type="button"
               disabled={isSubmitting}

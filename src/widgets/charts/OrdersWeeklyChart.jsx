@@ -1,9 +1,47 @@
 import Chart from "react-apexcharts"
 import { Card, CardHeader, CardTitle, CardContent } from "@/shared/ui"
+import { useBossOrders, useBossDashboard } from "@/shared/hooks"
 
 export function OrdersWeeklyChart() {
+  const { data: ordersRes } = useBossOrders({ all: true })
+  const { data: dashboardRes } = useBossDashboard()
+
+  const rawOrders = ordersRes?.data || ordersRes || []
+  const orders = Array.isArray(rawOrders) ? rawOrders : []
+  const db = dashboardRes?.data || dashboardRes || {}
+
   const categories = ["Dush", "Sesh", "Chor", "Pay", "Jum", "Shan", "Yak"]
-  const data = [120, 138, 145, 132, 165, 178, 150]
+
+  // Hafta kunlari bo'yicha hisoblash
+  const countsByDayIndex = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 0: 0 }
+
+  orders.forEach((order) => {
+    if (order.createdAt) {
+      const d = new Date(order.createdAt)
+      const day = d.getDay()
+      countsByDayIndex[day] = (countsByDayIndex[day] || 0) + 1
+    }
+  })
+
+  // Agar orders ro'yxati bo'sh bo'lsa, bugungi buyurtmalar sonini bugungi kunga qo'yamiz
+  const todayDay = new Date().getDay()
+  if (orders.length === 0 && db.todayOrders) {
+    countsByDayIndex[todayDay] = db.todayOrders
+  }
+
+  const data = [
+    countsByDayIndex[1] || 0, // Dush
+    countsByDayIndex[2] || 0, // Sesh
+    countsByDayIndex[3] || 0, // Chor
+    countsByDayIndex[4] || 0, // Pay
+    countsByDayIndex[5] || 0, // Jum
+    countsByDayIndex[6] || 0, // Shan
+    countsByDayIndex[0] || 0, // Yak
+  ]
+
+  const maxVal = Math.max(...data, 1)
+  const totalWeekly = data.reduce((a, b) => a + b, 0) || db.todayOrders || 0
+  const avgPerDay = Math.round(totalWeekly / 7)
 
   const series = [
     {
@@ -30,23 +68,14 @@ export function OrdersWeeklyChart() {
         },
       },
     },
-    // Shanba kuni eng yuqori bo'lgani uchun to'q yashil (#059669), qolganlari och binafsha/ko'k (#E0E7FF)
-    colors: [
-      "#E2E8F0",
-      "#E2E8F0",
-      "#E2E8F0",
-      "#E2E8F0",
-      "#E2E8F0",
-      "#059669",
-      "#E2E8F0",
-    ],
+    colors: data.map((val) => (val === maxVal && val > 0 ? "#059669" : "#E2E8F0")),
     dataLabels: {
       enabled: true,
       offsetY: -20,
       style: {
         fontSize: "11px",
         fontWeight: 600,
-        colors: ["#64748B", "#64748B", "#64748B", "#64748B", "#64748B", "#059669", "#64748B"],
+        colors: data.map((val) => (val === maxVal && val > 0 ? "#059669" : "#64748B")),
       },
     },
     legend: { show: false },
@@ -81,7 +110,7 @@ export function OrdersWeeklyChart() {
             Buyurtmalar (Haftalik dinamika)
           </CardTitle>
           <p className="text-xs text-slate-500 mt-0.5">
-            Oxirgi 7 kunlik yetkazilgan suv hajmi
+            Oxirgi 7 kunlik yetkazilgan buyurtmalar hajmi
           </p>
         </div>
         <div className="text-right">
@@ -89,7 +118,7 @@ export function OrdersWeeklyChart() {
             JAMI
           </span>
           <span className="text-base font-bold text-emerald-600">
-            1023 ta
+            {totalWeekly} ta
           </span>
         </div>
       </CardHeader>
@@ -101,9 +130,11 @@ export function OrdersWeeklyChart() {
 
         <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 mt-1">
           <span>O'rtacha ko'rsatkich:</span>
-          <span className="font-semibold text-slate-700">146 ta / kun</span>
+          <span className="font-semibold text-slate-700">{avgPerDay} ta / kun</span>
         </div>
       </CardContent>
     </Card>
   )
 }
+
+export default OrdersWeeklyChart

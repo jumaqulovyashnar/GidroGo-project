@@ -3,6 +3,7 @@ import Chart from "react-apexcharts"
 import { Card, CardHeader, CardTitle, CardContent } from "@/shared/ui"
 import { Select } from "@mantine/core"
 import { ChevronDown } from "lucide-react"
+import { useBossOrders, useBossDashboard } from "@/shared/hooks"
 
 const rangeOptions = [
   { value: "7days", label: "Oxirgi 7 kun" },
@@ -12,24 +13,62 @@ const rangeOptions = [
 
 export function SyncingChart() {
   const [range, setRange] = useState("7days")
+  const { data: ordersRes } = useBossOrders({ all: true })
+  const { data: dashboardRes } = useBossDashboard()
+
+  const rawOrders = ordersRes?.data || ordersRes || []
+  const orders = Array.isArray(rawOrders) ? rawOrders : []
+  const db = dashboardRes?.data || dashboardRes || {}
+
+  const categories = ["Dush", "Sesh", "Chor", "Pay", "Jum", "Shan", "Yak"]
+  const incomeByDay = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 0: 0 }
+
+  orders.forEach((o) => {
+    if (o.createdAt) {
+      const day = new Date(o.createdAt).getDay()
+      const amount = Number(o.totalAmount || 0)
+      incomeByDay[day] = (incomeByDay[day] || 0) + amount
+    }
+  })
+
+  // Agar orders bo'sh bo'lsa, dashboarddagi bugungi tushumni bugungi kunga o'rnatish
+  const todayDay = new Date().getDay()
+  if (orders.length === 0 && db.todayIncome) {
+    incomeByDay[todayDay] = Number(db.todayIncome)
+  }
+
+  // Mln so'mda ifodalash
+  const tushumData = [
+    +(incomeByDay[1] / 1000000).toFixed(1),
+    +(incomeByDay[2] / 1000000).toFixed(1),
+    +(incomeByDay[3] / 1000000).toFixed(1),
+    +(incomeByDay[4] / 1000000).toFixed(1),
+    +(incomeByDay[5] / 1000000).toFixed(1),
+    +(incomeByDay[6] / 1000000).toFixed(1),
+    +(incomeByDay[0] / 1000000).toFixed(1),
+  ]
+
+  const xarajatData = tushumData.map((val) => +(val * 0.35).toFixed(1))
+  const sofFoydaData = tushumData.map((val, idx) => +(val - xarajatData[idx]).toFixed(1))
 
   const series = [
     {
       name: "Tushum",
-      data: [12.2, 13.5, 14.8, 13.2, 16.5, 18.2, 17.0],
+      data: tushumData,
     },
     {
       name: "Xarajat",
-      data: [4.1, 4.5, 4.8, 4.2, 5.1, 5.5, 4.9],
+      data: xarajatData,
     },
     {
       name: "Sof foyda",
-      data: [8.1, 9.0, 10.0, 9.0, 11.4, 12.7, 12.1],
+      data: sofFoydaData,
     },
   ]
 
   // Premium moliya ranglar palitrasi (Zumrad, Nafis Qizil, Chuqur Ko'k)
   const colors = ["#059669", "#E11D48", "#2563EB"]
+  const maxVal = Math.max(...tushumData, 1)
 
   const options = {
     chart: {
@@ -59,7 +98,7 @@ export function SyncingChart() {
       padding: { top: 0, right: 10, bottom: 0, left: 10 },
     },
     xaxis: {
-      categories: ["Dush", "Sesh", "Chor", "Pay", "Jum", "Shan", "Yak"],
+      categories: categories,
       axisBorder: { show: false },
       axisTicks: { show: false },
       labels: {
@@ -68,7 +107,7 @@ export function SyncingChart() {
     },
     yaxis: {
       min: 0,
-      max: 20,
+      max: Math.ceil(maxVal * 1.2),
       tickAmount: 4,
       labels: {
         style: { colors: "#94A3B8", fontSize: "12px", fontWeight: 500 },
@@ -132,39 +171,8 @@ export function SyncingChart() {
       </CardHeader>
 
       <CardContent className="pt-2">
-        {/* Asosiy Spline Line Chart */}
         <div className="h-[280px] w-full">
           <Chart options={options} series={series} type="line" height={280} />
-        </div>
-
-        {/* Pastki 3 ta Premium ko'rsatkich kartasi (Toza oq fon, chap hoshiyada nafis urg'u chizig'i) */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mt-4 pt-4 border-t border-slate-100">
-          <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-white border border-slate-200/90 border-l-4 border-l-emerald-500 shadow-2xs hover:border-slate-300 transition-all">
-            <span className="text-xs sm:text-sm font-medium text-slate-500">
-              Haftalik tushum
-            </span>
-            <span className="text-sm sm:text-base font-bold text-slate-900">
-              82.4 mln so'm
-            </span>
-          </div>
-
-          <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-white border border-slate-200/90 border-l-4 border-l-rose-500 shadow-2xs hover:border-slate-300 transition-all">
-            <span className="text-xs sm:text-sm font-medium text-slate-500">
-              Haftalik xarajat
-            </span>
-            <span className="text-sm sm:text-base font-bold text-slate-900">
-              31.8 mln so'm
-            </span>
-          </div>
-
-          <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-white border border-slate-200/90 border-l-4 border-l-blue-600 shadow-2xs hover:border-slate-300 transition-all">
-            <span className="text-xs sm:text-sm font-medium text-slate-500">
-              Haftalik sof foyda
-            </span>
-            <span className="text-sm sm:text-base font-bold text-slate-900">
-              50.6 mln so'm
-            </span>
-          </div>
         </div>
       </CardContent>
     </Card>

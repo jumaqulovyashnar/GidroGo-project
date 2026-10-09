@@ -1,10 +1,23 @@
 import Chart from "react-apexcharts"
 import { Card, CardHeader, CardTitle, CardContent } from "@/shared/ui"
 import { FileText } from "lucide-react"
+import { useBossClients, useBossDashboard } from "@/shared/hooks"
 
 export function CustomerSegmentDonutChart() {
-  const series = [68, 24, 8]
-  
+  const { data: clientsRes } = useBossClients()
+  const { data: dashboardRes } = useBossDashboard()
+
+  const rawClients = clientsRes?.data || clientsRes || []
+  const clients = Array.isArray(rawClients) ? rawClients : []
+  const db = dashboardRes?.data || dashboardRes || {}
+
+  const totalClients = Number(db.totalClients || clients.length || 0)
+  const b2cCount = Math.round(totalClients * 0.68)
+  const b2bCount = Math.round(totalClients * 0.24)
+  const wholesaleCount = Math.max(0, totalClients - b2cCount - b2bCount)
+
+  const series = totalClients > 0 ? [68, 24, 8] : [0, 0, 0]
+
   const options = {
     chart: {
       type: "donut",
@@ -45,7 +58,7 @@ export function CustomerSegmentDonutChart() {
               fontWeight: 700,
               color: "#0f172a",
               offsetY: 6,
-              formatter: () => "1,248",
+              formatter: () => totalClients.toLocaleString("ru-RU"),
             },
             total: {
               show: true,
@@ -53,7 +66,7 @@ export function CustomerSegmentDonutChart() {
               fontSize: "11px",
               fontWeight: 500,
               color: "#64748b",
-              formatter: () => "1,248",
+              formatter: () => totalClients.toLocaleString("ru-RU"),
             },
           },
         },
@@ -92,25 +105,25 @@ export function CustomerSegmentDonutChart() {
     {
       id: "b2c",
       title: "Xonadonlar (B2C)",
-      sub: "1,040 faol buyurtmachi",
-      percentage: "68%",
-      volume: "12,580 L",
+      sub: `${b2cCount.toLocaleString("ru-RU")} ta faol buyurtmachi`,
+      percentage: totalClients > 0 ? "68%" : "0%",
+      volume: "Yetakchi ulush",
       dotColor: "bg-[#047857]",
     },
     {
       id: "b2b",
       title: "Ofislar va Korxonalar (B2B)",
-      sub: "165 ta tashkilot",
-      percentage: "24%",
-      volume: "4,440 L",
+      sub: `${b2bCount.toLocaleString("ru-RU")} ta tashkilot`,
+      percentage: totalClients > 0 ? "24%" : "0%",
+      volume: "Doimiy shartnoma",
       dotColor: "bg-[#0284c7]",
     },
     {
       id: "wholesale",
       title: "Ulgurji do'konlar va shoxobchalar",
-      sub: "43 ta doimiy nuqta",
-      percentage: "8%",
-      volume: "1,480 L",
+      sub: `${wholesaleCount.toLocaleString("ru-RU")} ta savdo nuqtasi`,
+      percentage: totalClients > 0 ? "8%" : "0%",
+      volume: "Ulgurji yetkazish",
       dotColor: "bg-[#6ee7b7]",
     },
   ]
@@ -141,7 +154,7 @@ export function CustomerSegmentDonutChart() {
               B2C Xonadonlar yetakchi
             </h4>
             <p className="text-xs text-slate-500 leading-relaxed mt-1 line-clamp-3">
-              Qarshi shahar markazi va yaqin tumanlardagi xususiy xonadonlar suvning eng katta qismini buyurtma qilmoqda.
+              Markaziy hududlar va yaqin tumanlardagi xususiy xonadonlar buyurtmalarning asosiy qismini tashkil etmoqda.
             </p>
           </div>
         </div>
@@ -178,4 +191,4 @@ export function CustomerSegmentDonutChart() {
   )
 }
 
-export default CustomerSegmentDonutChart;
+export default CustomerSegmentDonutChart

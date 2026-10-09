@@ -1,4 +1,5 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/shared/ui"
+import { useBossCouriersDailySummary } from "@/shared/hooks"
 
 const couriersData = [
   {
@@ -11,7 +12,7 @@ const couriersData = [
     ordersCount: "48 ta",
     deliveredWater: "1 240 L",
     efficiency: 96,
-    barColor: "bg-[#059669]", // Zumrad yashil
+    barColor: "bg-[#059669]",
     textColor: "text-emerald-700",
   },
   {
@@ -37,7 +38,7 @@ const couriersData = [
     ordersCount: "37 ta",
     deliveredWater: "920 L",
     efficiency: 91,
-    barColor: "bg-slate-500", // Dam olishda kulrang bar
+    barColor: "bg-slate-500",
     textColor: "text-slate-600",
   },
   {
@@ -56,6 +57,38 @@ const couriersData = [
 ]
 
 export function CouriersPerformanceCard() {
+  const { data: couriersRes } = useBossCouriersDailySummary()
+  const rawCouriers = couriersRes?.data || couriersRes
+
+  const list =
+    Array.isArray(rawCouriers) && rawCouriers.length > 0
+      ? rawCouriers.map((c) => ({
+          id: c.courierId,
+          name: c.fullName || "Kuryer",
+          avatarUrl: c.avatarUrl || "",
+          initials: (c.fullName || "K").slice(0, 2).toUpperCase(),
+          status:
+            c.currentStatus === "ACTIVE" || c.currentStatus === "ONLINE"
+              ? "active"
+              : "resting",
+          statusText:
+            c.currentStatus === "ACTIVE" || c.currentStatus === "ONLINE"
+              ? "Faol"
+              : "Dam olishda",
+          ordersCount: `${c.completedOrdersCount ?? 0} ta`,
+          deliveredWater: `${c.soldBottlesToday ?? 0} ta`,
+          efficiency:
+            Math.min(
+              100,
+              Math.round(
+                ((c.soldBottlesToday || 0) / (c.loadedBottlesToday || 1)) * 100
+              )
+            ) || 90,
+          barColor: "bg-[#059669]",
+          textColor: "text-emerald-700",
+        }))
+      : couriersData
+
   return (
     <Card className="border border-slate-200 bg-white shadow-xs rounded-2xl overflow-hidden">
       <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 gap-2">
@@ -68,7 +101,7 @@ export function CouriersPerformanceCard() {
           </p>
         </div>
         <span className="text-xs font-medium text-slate-500">
-          Jami 10 nafar haydovchi
+          Jami {list.length} nafar haydovchi
         </span>
       </CardHeader>
 
@@ -86,7 +119,7 @@ export function CouriersPerformanceCard() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-sm">
-              {couriersData.map((driver) => {
+              {list.map((driver) => {
                 const isActive = driver.status === "active"
 
                 return (
@@ -103,7 +136,6 @@ export function CouriersPerformanceCard() {
                             alt={driver.name}
                             className="size-full object-cover"
                             onError={(e) => {
-                              // Agar rasm yuklanmasa harflarni ko'rsatish
                               e.currentTarget.style.display = "none"
                             }}
                           />
@@ -146,7 +178,7 @@ export function CouriersPerformanceCard() {
                       {driver.deliveredWater}
                     </td>
 
-                    {/* Bajarilish samaradorligi: Progress bar + Foiz */}
+                    {/* Bajarilish samaradorligi */}
                     <td className="py-3.5 px-5">
                       <div className="flex items-center gap-3">
                         <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
@@ -170,3 +202,5 @@ export function CouriersPerformanceCard() {
     </Card>
   )
 }
+
+export default CouriersPerformanceCard
