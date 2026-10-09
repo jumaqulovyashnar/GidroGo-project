@@ -1,9 +1,9 @@
 import { useState } from "react"
 import { Select } from "@mantine/core"
 import { toast } from "sonner"
-import { Droplet, CheckCircle2, Truck, TrendingUp, FileSpreadsheet, ChevronDown, Calendar, Package, Layers, Zap } from "lucide-react"
+import { Droplet, CheckCircle2, Truck, FileSpreadsheet, ChevronDown, Calendar, Package, Layers, Zap } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent, Button } from "@/shared/ui"
-import { WeeklySalesDynamicsChart, CustomerSegmentDonutChart } from "@/widgets"
+import { WeeklySalesDynamicsChart } from "@/widgets"
 import { useBossDashboard } from "@/shared/hooks"
 
 const periodOptions = [
@@ -47,10 +47,8 @@ export function BossSavdoPage() {
       percentage: totalLiters > 0 ? 60 : 0,
       progressColor: "bg-[#047857]",
       iconBg: "bg-emerald-50 text-emerald-700 border border-emerald-100",
-      stockText: `Omborda zaxira: ${formatNumber(db.warehouseBottles || 1840)} dona`,
-      stockStatus: "normal",
+      stockText: `Omborda zaxira: ${formatNumber(db.warehouseBottles ?? 0)} dona`,
       trendText: "Yetakchi mahsulot",
-      trendPositive: true,
       icon: Package,
     },
     {
@@ -63,9 +61,7 @@ export function BossSavdoPage() {
       progressColor: "bg-[#0284c7]",
       iconBg: "bg-sky-50 text-sky-700 border border-sky-100",
       stockText: "Omborda zaxira: barqaror",
-      stockStatus: "normal",
       trendText: "Barqaror dinamika",
-      trendPositive: null,
       icon: Droplet,
     },
     {
@@ -78,9 +74,7 @@ export function BossSavdoPage() {
       progressColor: "bg-slate-400",
       iconBg: "bg-slate-100 text-slate-700 border border-slate-200",
       stockText: "Zaxira me'yorda",
-      stockStatus: "normal",
       trendText: "Talab o'smoqda",
-      trendPositive: true,
       icon: Layers,
     },
   ]
@@ -171,12 +165,11 @@ export function BossSavdoPage() {
               </span>
             </div>
             <div className="flex items-center justify-between mt-3 text-xs">
-              <span className="inline-flex items-center gap-0.5 text-xs font-semibold text-emerald-600">
-                <TrendingUp className="size-3.5" strokeWidth={2.5} />
-                +12.8%
+              <span className="text-slate-500 font-medium">
+                Ombor zaxirasi:
               </span>
-              <span className="text-slate-400 font-medium">
-                {formatNumber(soldBottles)} dona balon
+              <span className="text-blue-600 font-bold">
+                {formatNumber(db.warehouseBottles ?? 0)} dona
               </span>
             </div>
           </CardContent>
@@ -285,98 +278,92 @@ export function BossSavdoPage() {
       {/* 3. Haftalik Savdo va Buyurtmalar Dinamikasi Grafigi */}
       <WeeklySalesDynamicsChart />
 
-      {/* 4. Pastki Qism: Mahsulotlar Kesimida Savdo Tahlili + Mijozlar Segmenti */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-        <div className="lg:col-span-7 flex">
-          <Card className="border border-slate-200/90 bg-white shadow-xs rounded-2xl flex flex-col justify-between w-full">
-            <CardHeader className="p-5 pb-3">
-              <div className="flex items-center justify-between gap-2">
-                <div>
-                  <CardTitle className="text-base sm:text-lg font-bold text-slate-900">
-                    Mahsulotlar Kesimida Savdo Tahlili
-                  </CardTitle>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Bugungi sotilgan idishlar soni, suv litri va umumiy tushum ko'rsatkichi.
-                  </p>
-                </div>
-                <span className="text-[11px] font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-md shrink-0">
-                  Realizatsiya ulushi
-                </span>
-              </div>
-            </CardHeader>
+      {/* 4. Pastki Qism: Mahsulotlar Kesimida Savdo Tahlili (To'liq kenglikdagi toza Card) */}
+      <Card className="border border-slate-200/90 bg-white shadow-xs rounded-2xl w-full">
+        <CardHeader className="p-5 pb-3">
+          <div className="flex items-center justify-between gap-2">
+            <div>
+              <CardTitle className="text-base sm:text-lg font-bold text-slate-900">
+                Mahsulotlar Kesimida Savdo Tahlili
+              </CardTitle>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Bugungi sotilgan idishlar soni, suv litri va umumiy tushum ko'rsatkichi.
+              </p>
+            </div>
+            <span className="text-[11px] font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-md shrink-0">
+              Realizatsiya ulushi
+            </span>
+          </div>
+        </CardHeader>
 
-            <CardContent className="p-5 pt-1 space-y-4 flex-1 flex flex-col justify-between">
-              <div className="space-y-3.5">
-                {productSales.map((prod) => {
-                  const Icon = prod.icon
-                  return (
-                    <div
-                      key={prod.id}
-                      className="p-3.5 rounded-xl border border-slate-100 bg-slate-50/40 hover:bg-slate-50/80 transition-colors"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`size-9 rounded-xl flex items-center justify-center shrink-0 ${prod.iconBg}`}
-                          >
-                            <Icon className="size-4.5 stroke-2" />
-                          </div>
-                          <div>
-                            <div className="text-sm font-bold text-slate-900">
-                              {prod.name}
-                            </div>
-                            <div className="text-xs text-slate-400 mt-0.5">
-                              {prod.category}
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="text-right">
-                          <div className="text-sm sm:text-base font-extrabold text-slate-900">
-                            {prod.revenue}
-                          </div>
-                          <div className="text-xs text-slate-400 font-medium mt-0.5">
-                            {prod.volumeText}
-                          </div>
-                        </div>
+        <CardContent className="p-5 pt-1 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {productSales.map((prod) => {
+              const Icon = prod.icon
+              return (
+                <div
+                  key={prod.id}
+                  className="p-4 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-colors flex flex-col justify-between"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`size-10 rounded-xl flex items-center justify-center shrink-0 ${prod.iconBg}`}
+                      >
+                        <Icon className="size-5 stroke-2" />
                       </div>
-
-                      <div className="h-1.5 w-full bg-slate-200/70 rounded-full overflow-hidden mt-3">
-                        <div
-                          className={`h-full rounded-full ${prod.progressColor}`}
-                          style={{ width: `${prod.percentage}%` }}
-                        />
-                      </div>
-
-                      <div className="flex items-center justify-between text-[11px] mt-2 text-slate-500">
-                        <span className="text-slate-400">
-                          {prod.stockText}
-                        </span>
-                        <span className="font-semibold text-emerald-600">
-                          {prod.trendText}
-                        </span>
+                      <div>
+                        <div className="text-sm font-bold text-slate-900">
+                          {prod.name}
+                        </div>
+                        <div className="text-xs text-slate-400 mt-0.5">
+                          {prod.category}
+                        </div>
                       </div>
                     </div>
-                  )
-                })}
-              </div>
+                  </div>
 
-              <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-                <span className="text-xs sm:text-sm font-medium text-slate-600">
-                  Bugungi umumiy mahsulot tushumi:
-                </span>
-                <span className="text-xl sm:text-2xl font-extrabold text-[#047857]">
-                  {formatNumber(todayRevenue)} so'm
-                </span>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+                  <div className="mt-3 pt-3 border-t border-slate-200/60">
+                    <div className="flex items-baseline justify-between">
+                      <span className="text-xs text-slate-500 font-medium">Tushum:</span>
+                      <span className="text-base font-extrabold text-slate-900">{prod.revenue}</span>
+                    </div>
+                    <div className="flex items-baseline justify-between mt-1 text-xs text-slate-500">
+                      <span>Yetkazildi:</span>
+                      <span className="font-semibold text-slate-700">{prod.volumeText}</span>
+                    </div>
 
-        <div className="lg:col-span-5 flex">
-          <CustomerSegmentDonutChart />
-        </div>
-      </div>
+                    <div className="h-1.5 w-full bg-slate-200/70 rounded-full overflow-hidden mt-3">
+                      <div
+                        className={`h-full rounded-full ${prod.progressColor}`}
+                        style={{ width: `${prod.percentage}%` }}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between text-[11px] mt-2.5 text-slate-500">
+                      <span className="text-slate-400">
+                        {prod.stockText}
+                      </span>
+                      <span className="font-semibold text-emerald-600">
+                        {prod.trendText}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <span className="text-xs sm:text-sm font-medium text-slate-600">
+              Bugungi umumiy mahsulot tushumi:
+            </span>
+            <span className="text-xl sm:text-2xl font-extrabold text-[#047857]">
+              {formatNumber(todayRevenue)} so'm
+            </span>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

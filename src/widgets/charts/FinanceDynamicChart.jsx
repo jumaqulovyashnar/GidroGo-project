@@ -10,8 +10,11 @@ export function FinanceDynamicChart() {
   const finance = financeRes?.data || financeRes || {}
   const db = dashboardRes?.data || dashboardRes || {}
 
-  const currentIncomeMln = +((finance.totalIncome || db.monthIncome || 0) / 1000000).toFixed(1)
-  const currentExpenseMln = +((finance.totalExpense || (currentIncomeMln * 0.35)) / (finance.totalExpense ? 1000000 : 1)).toFixed(1)
+  const totalIncomeVal = Number(finance.totalIncome || db.monthIncome || db.todayIncome || 0)
+  const totalExpenseVal = Number(finance.totalExpense || db.monthExpense || db.todayExpense || 0)
+
+  const currentIncomeMln = +(totalIncomeVal / 1000000).toFixed(1)
+  const currentExpenseMln = +(totalExpenseVal / 1000000).toFixed(1)
 
   const categories = [
     "Yanvar",

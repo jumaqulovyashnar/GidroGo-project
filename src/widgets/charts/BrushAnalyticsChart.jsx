@@ -1,15 +1,22 @@
 import { useState, useMemo } from "react"
 import Chart from "react-apexcharts"
 
-function generateDataFromDashboard(days, totalOrders = 61, totalClients = 19) {
+function generateDataFromDashboard(days, totalOrders = 0) {
   const data1 = []
   const data2 = []
   const now = Date.now()
   let ts = now - days * 86400000
 
-  // Haqiqiy API dagi totalOrders va totalClients ga mutanosib kunlik ko'rsatkichlar
-  const safeOrders = Number(totalOrders) || 61
-  const safeClients = Number(totalClients) || 19
+  const safeOrders = Number(totalOrders) || 0
+
+  if (safeOrders === 0) {
+    for (let i = 0; i < days; i++) {
+      data1.push([ts, 0])
+      data2.push([ts, 0])
+      ts += 86400000
+    }
+    return { data1, data2 }
+  }
 
   // Kunlik o'rtacha buyurtma soni
   const avgOrdersPerDay = Math.max(0.8, safeOrders / Math.min(days, 30))
@@ -51,12 +58,11 @@ const DAYS_MAP = {
 export function BrushAnalyticsChart({ dashboard = {} }) {
   const [timeRange, setTimeRange] = useState("1M")
 
-  const totalOrders = Number(dashboard?.totalOrders ?? 61)
-  const totalClients = Number(dashboard?.totalClients ?? 19)
+  const totalOrders = Number(dashboard?.totalOrders ?? 0)
 
   const { series, options } = useMemo(() => {
     const days = DAYS_MAP[timeRange] || 30
-    const { data1, data2 } = generateDataFromDashboard(days, totalOrders, totalClients)
+    const { data1, data2 } = generateDataFromDashboard(days, totalOrders)
 
     const seriesData = [
       {
@@ -210,7 +216,7 @@ export function BrushAnalyticsChart({ dashboard = {} }) {
     }
 
     return { series: seriesData, options: chartOpts }
-  }, [timeRange, totalOrders, totalClients])
+  }, [timeRange, totalOrders])
 
   return (
     <div className="w-full space-y-3">

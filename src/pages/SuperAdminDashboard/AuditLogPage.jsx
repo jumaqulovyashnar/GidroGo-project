@@ -101,7 +101,7 @@ const CustomDropdown = ({ value, onChange, options }) => {
     )
 }
 
-const MOCK_AUDIT_METRICS_CARDS = [
+const _MOCK_AUDIT_METRICS_CARDS = [
     {
         id: "total-actions",
         title: "JAMI AMALLAR",
@@ -140,7 +140,7 @@ const MOCK_AUDIT_METRICS_CARDS = [
     },
 ]
 
-const MOCK_AUDIT_LOGS = [
+const _MOCK_AUDIT_LOGS = [
     {
         id: "log-001",
         time: "15:42:10",

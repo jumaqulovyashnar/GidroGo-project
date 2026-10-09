@@ -50,7 +50,7 @@ export function SalesTeamDonutChart({ dashboard = {}, regionalStats = {} }) {
       totalCount: total,
       totalLabel: "Jami fermalar",
     }
-  }, [dashboard, regionalStats, hasRegions, regions])
+  }, [dashboard, regionalStats])
 
   const options = {
     chart: {
