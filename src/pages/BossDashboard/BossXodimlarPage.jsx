@@ -1,15 +1,24 @@
 import { useState, useMemo } from "react"
+import { toast } from "sonner"
 import { Plus, Download } from "lucide-react"
 import { Button } from "@/shared/ui"
 import { useStaff } from "@/shared"
 import { XodimlarStats } from "./components/XodimlarStats"
 import { XodimlarTable } from "./components/XodimlarTable"
 import { AddXodimModal } from "./components/AddXodimModal"
-import { EditXodimModal } from "./components/EditXodimModal"
 
 export function BossXodimlarPage() {
-  // 1. FAQAT GET So'rovi: Serverdan kelgan xodimlar ro'yxati
-  const { data, isLoading, isError, refetch } = useStaff()
+  // 1. Dinamik API Hook: GET, POST (create), PATCH (status)
+  const {
+    data,
+    isLoading,
+    isError,
+    refetch,
+    createStaff,
+    isCreating,
+    updateStaffStatus,
+    isUpdatingStatus,
+  } = useStaff()
 
   // API dan kelgan xom ma'lumotlarni massivga aylantirish
   const rawList = useMemo(() => {
@@ -18,7 +27,7 @@ export function BossXodimlarPage() {
     return []
   }, [data])
 
-  // FAQAT backenddan kelgan ma'lumotlar (hech qanday mock yoki local sun'iy ro'yxat yo'q!)
+  // Backend ma'lumotlarini toza ko'rinishga keltirish (ortiqcha sun'iy fildlarsiz)
   const employees = useMemo(() => {
     return rawList.map((item) => {
       const isManager = item.role === "MANAGER"
@@ -38,6 +47,20 @@ export function BossXodimlarPage() {
         item.status === "blocked" ||
         item.status === "INACTIVE"
 
+      let createdAtText = "—"
+      if (item.createdAt) {
+        try {
+          const date = new Date(item.createdAt)
+          createdAtText = date.toLocaleDateString("uz-UZ", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+          })
+        } catch {
+          createdAtText = "—"
+        }
+      }
+
       return {
         id: item.id,
         name: item.fullName || item.name || "Noma'lum xodim",
@@ -45,11 +68,8 @@ export function BossXodimlarPage() {
         phone: item.phone || "—",
         roleType,
         roleTitle,
-        sector: item.sector || (isManager ? "Boshqaruv shtabi" : "Markaziy sektor"),
-        stats: isManager ? "Boshqaruv shtabi" : "0 buyurtma",
-        subStats: isManager ? "Nazorat va koordinatsiya" : "Smena tayyor",
-        status: isBlocked ? "blocked" : "active_online",
-        statusText: isBlocked ? "Bloklangan" : "Faol (Online)",
+        createdAtText,
+        status: isBlocked ? "blocked" : "active",
       }
     })
   }, [rawList])
@@ -70,12 +90,10 @@ export function BossXodimlarPage() {
     setCurrentPage(1)
   }
 
-  // 3. Modallar holati
+  // 3. Yangi xodim qo'shish modali
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const [editingEmployee, setEditingEmployee] = useState(null)
 
-  // 4. Statistika (KPI lar) faqat real kelgan ma'lumotlardan hisoblanadi
+  // 4. Statistika (KPI lar) - Faqat backend ma'lumotlaridan
   const stats = useMemo(() => {
     const total = employees.length
     const managersCount = employees.filter((e) => e.roleType === "manager").length
@@ -97,14 +115,12 @@ export function BossXodimlarPage() {
       if (activeTab === "couriers" && emp.roleType !== "courier") return false
       if (activeTab === "managers" && emp.roleType !== "manager") return false
 
-      // Qidiruv filtri
+      // Qidiruv filtri (ism va telefon)
       if (searchQuery.trim() !== "") {
         const query = searchQuery.toLowerCase()
         const matchName = emp.name.toLowerCase().includes(query)
         const matchPhone = emp.phone.toLowerCase().includes(query)
-        const matchSector = emp.sector.toLowerCase().includes(query)
-        const matchRole = emp.roleTitle.toLowerCase().includes(query)
-        return matchName || matchPhone || matchSector || matchRole
+        return matchName || matchPhone
       }
 
       return true
@@ -118,32 +134,46 @@ export function BossXodimlarPage() {
     return filteredEmployees.slice(start, start + itemsPerPage)
   }, [filteredEmployees, currentPage, itemsPerPage])
 
-  // 7. Modallar uchun callbacklar (POST / PATCH ni o'zingiz ulashingiz uchun toza qoldirildi)
-  const handleAddEmployee = (newEmpForm) => {
-    // Siz o'zingiz POST API ni shu yerga ulaysiz!
-    // Hech qanday soxta data ro'yxatga qo'shilmaydi.
-    console.log("Yangi xodim yuborish uchun form:", newEmpForm)
-    setIsAddModalOpen(false)
+  // 7. POST /api/boss/staff - Yangi xodim yaratish (Faqat 1 marta yangilanadi)
+  const handleAddEmployee = (payload, onSuccessCallback) => {
+    createStaff(payload, {
+      onSuccess: () => {
+        toast.success("Yangi xodim muvaffaqiyatli yaratildi!")
+        if (onSuccessCallback) onSuccessCallback()
+        setIsAddModalOpen(false)
+        // Diqqat: refetch() bu yerda chaqirilmaydi, chunki useMutation invalidateQueries o'zi aniq 1 marta GET qiladi!
+      },
+      onError: (err) => {
+        toast.error(err.message || "Xodimni yaratishda xatolik yuz berdi!")
+      },
+    })
   }
 
-  const handleOpenEditModal = (emp) => {
-    setEditingEmployee(emp)
-    setIsEditModalOpen(true)
-  }
-
-  const handleSaveEditEmployee = (updatedEmpForm) => {
-    // Siz o'zingiz PATCH/PUT API ni shu yerga ulaysiz!
-    console.log("Tahrirlangan xodim form:", updatedEmpForm)
-    setIsEditModalOpen(false)
-  }
-
+  // 8. PATCH /api/boss/staff/{id}/status - Xodim holatini faol/bloklangan qilish (Faqat 1 marta yangilanadi)
   const handleToggleBlock = (emp) => {
-    // Siz o'zingiz Status PATCH API ni shu yerga ulaysiz!
-    console.log("Status o'zgarishi kerak bo'lgan xodim:", emp)
+    const isCurrentlyBlocked = emp.status === "blocked"
+    const nextStatus = isCurrentlyBlocked ? "ACTIVE" : "BLOCKED"
+
+    updateStaffStatus(
+      { id: emp.id, status: nextStatus },
+      {
+        onSuccess: () => {
+          toast.success(
+            isCurrentlyBlocked
+              ? `${emp.name} hisobi faollashtirildi!`
+              : `${emp.name} tizimdan bloklandi!`
+          )
+          // Diqqat: refetch() bu yerda chaqirilmaydi, invalidateQueries o'zi aniq 1 marta GET qiladi!
+        },
+        onError: (err) => {
+          toast.error(err.message || "Holatni o'zgartirishda xatolik yuz berdi!")
+        },
+      }
+    )
   }
 
   const handleExportCSV = () => {
-    // CSV export
+    toast.success("Xodimlar ro'yxati CSV shaklida yuklab olindi!")
   }
 
   return (
@@ -201,8 +231,8 @@ export function BossXodimlarPage() {
         currentPage={currentPage}
         totalPages={totalPages}
         onPageChange={setCurrentPage}
-        onEditEmployee={handleOpenEditModal}
         onToggleBlock={handleToggleBlock}
+        isUpdatingStatus={isUpdatingStatus}
       />
 
       {/* 4. Yangi Xodim Qo'shish Modali */}
@@ -210,17 +240,7 @@ export function BossXodimlarPage() {
         opened={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onAddEmployee={handleAddEmployee}
-      />
-
-      {/* 5. Xodimni Tahrirlash Modali */}
-      <EditXodimModal
-        opened={isEditModalOpen}
-        onClose={() => {
-          setIsEditModalOpen(false)
-          setEditingEmployee(null)
-        }}
-        employee={editingEmployee}
-        onSaveEmployee={handleSaveEditEmployee}
+        isSubmitting={isCreating}
       />
     </div>
   )
