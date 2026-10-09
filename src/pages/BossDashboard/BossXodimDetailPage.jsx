@@ -303,5 +303,4 @@ export function BossXodimDetailPage() {
     </div>
   )
 }
-
 export default BossXodimDetailPage;
