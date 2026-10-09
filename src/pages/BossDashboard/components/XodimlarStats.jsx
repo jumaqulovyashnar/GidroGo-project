@@ -53,24 +53,27 @@ export function XodimlarStats({ stats, isLoading }) {
         </CardContent>
       </Card>
 
-      {/* Karta 3: Yetkazish intizomi */}
+      {/* Karta 3: Bloklangan xodimlar */}
       <Card className="border border-slate-200/90 bg-white hover:border-slate-300 hover:shadow-xs transition-all duration-200 rounded-2xl flex flex-col justify-between">
         <CardHeader className="flex flex-row items-center justify-between pb-1 space-y-0 p-4">
           <CardTitle className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
-            YETKAZISH INTIZOMI
+            BLOKLANGAN XODIMLAR
           </CardTitle>
-          <div className="size-8 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0 text-blue-600">
+          <div className="size-8 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center shrink-0 text-slate-500">
             <CheckCircle2 className="size-4 stroke-2" />
           </div>
         </CardHeader>
         <CardContent className="p-4 pt-1">
           <div className="flex items-baseline gap-1.5">
             <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
-              0
+              {isLoading ? "..." : (stats.blockedCount ?? 0)}
             </span>
+            <span className="text-xs font-medium text-slate-500">nafar</span>
           </div>
-          <p className="text-xs text-slate-400 mt-2.5 leading-tight">
-            Ma'lumot mavjud emas
+          <p className="text-xs text-slate-500 mt-2.5 leading-tight font-medium">
+            {stats.blockedCount > 0
+              ? `${stats.blockedCount} ta hisob faoliyati to'xtatilgan`
+              : "Barcha xodimlar faol holatda"}
           </p>
         </CardContent>
       </Card>

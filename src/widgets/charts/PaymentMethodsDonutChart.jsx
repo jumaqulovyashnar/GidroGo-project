@@ -117,33 +117,43 @@ export function PaymentMethodsDonutChart() {
   ]
 
   return (
-    <Card className="border border-slate-200/80 bg-white shadow-xs rounded-2xl h-full flex flex-col justify-between">
+    <Card className="border border-slate-200/80 bg-white shadow-xs rounded-2xl w-full">
       <CardHeader className="p-5 pb-2">
         <CardTitle className="text-base sm:text-lg font-bold text-slate-900">
-          To'lov Usullari va Tushum
+          To'lov Usullari va Tushum Taqsimoti
         </CardTitle>
         <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-          Joriy davrdagi to'lov turlari taqsimoti
+          Joriy davrdagi tushumlarning to'lov usullari bo'yicha taqsimoti
         </p>
       </CardHeader>
 
-      <CardContent className="p-5 pt-0 flex flex-col justify-between flex-1">
-        {/* Donut Chart */}
-        <div className="flex justify-center items-center py-2">
-          <Chart options={options} series={series} type="donut" width={260} height={230} />
-        </div>
+      <CardContent className="p-5 pt-2">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+          {/* Donut Chart */}
+          <div className="md:col-span-5 flex justify-center items-center py-2">
+            <Chart options={options} series={series} type="donut" width={280} height={250} />
+          </div>
 
-        {/* Legend List */}
-        <div className="grid grid-cols-2 gap-2 pt-3 border-t border-slate-100 mt-2">
-          {paymentItems.map((item) => (
-            <div key={item.label} className="flex items-center justify-between p-2 rounded-lg bg-slate-50/70 text-xs">
-              <div className="flex items-center gap-1.5 min-w-0 pr-1">
-                <span className={`size-2 rounded-full ${item.color} shrink-0`}></span>
-                <span className="text-slate-600 truncate">{item.label}</span>
+          {/* Legend List */}
+          <div className="md:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {paymentItems.map((item) => (
+              <div
+                key={item.label}
+                className="flex items-center justify-between p-3.5 rounded-xl border border-slate-100 bg-slate-50/70 text-xs hover:border-slate-200 transition-colors"
+              >
+                <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                  <span className={`size-3 rounded-full ${item.color} shrink-0`}></span>
+                  <div>
+                    <span className="font-semibold text-slate-800 block truncate">{item.label}</span>
+                    <span className="text-[11px] text-slate-400 font-medium">{item.amount} so'm</span>
+                  </div>
+                </div>
+                <span className="font-extrabold text-sm text-slate-900 shrink-0 bg-white px-2.5 py-1 rounded-lg border border-slate-200/80 shadow-2xs">
+                  {item.percent}
+                </span>
               </div>
-              <span className="font-bold text-slate-900 shrink-0">{item.percent}</span>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </CardContent>
     </Card>

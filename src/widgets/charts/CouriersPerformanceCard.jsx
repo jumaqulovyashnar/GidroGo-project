@@ -1,93 +1,37 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/shared/ui"
 import { useBossCouriersDailySummary } from "@/shared/hooks"
-
-const couriersData = [
-  {
-    id: 1,
-    name: "Azizbek Rahimov",
-    avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80",
-    initials: "AR",
-    status: "active",
-    statusText: "Faol",
-    ordersCount: "48 ta",
-    deliveredWater: "1 240 L",
-    efficiency: 96,
-    barColor: "bg-[#059669]",
-    textColor: "text-emerald-700",
-  },
-  {
-    id: 2,
-    name: "Sardor Karimov",
-    avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=80",
-    initials: "SK",
-    status: "active",
-    statusText: "Faol",
-    ordersCount: "42 ta",
-    deliveredWater: "1 080 L",
-    efficiency: 94,
-    barColor: "bg-[#059669]",
-    textColor: "text-emerald-700",
-  },
-  {
-    id: 3,
-    name: "Jamshid Aliyev",
-    avatarUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&auto=format&fit=crop&q=80",
-    initials: "JA",
-    status: "resting",
-    statusText: "Dam olishda",
-    ordersCount: "37 ta",
-    deliveredWater: "920 L",
-    efficiency: 91,
-    barColor: "bg-slate-500",
-    textColor: "text-slate-600",
-  },
-  {
-    id: 4,
-    name: "Bekzod Rustamov",
-    avatarUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=120&auto=format&fit=crop&q=80",
-    initials: "BR",
-    status: "active",
-    statusText: "Faol",
-    ordersCount: "31 ta",
-    deliveredWater: "780 L",
-    efficiency: 89,
-    barColor: "bg-[#059669]",
-    textColor: "text-emerald-700",
-  },
-]
+import { Truck } from "lucide-react"
 
 export function CouriersPerformanceCard() {
-  const { data: couriersRes } = useBossCouriersDailySummary()
+  const { data: couriersRes, isLoading } = useBossCouriersDailySummary()
   const rawCouriers = couriersRes?.data || couriersRes
 
   const list =
-    Array.isArray(rawCouriers) && rawCouriers.length > 0
-      ? rawCouriers.map((c) => ({
-          id: c.courierId,
-          name: c.fullName || "Kuryer",
-          avatarUrl: c.avatarUrl || "",
-          initials: (c.fullName || "K").slice(0, 2).toUpperCase(),
-          status:
-            c.currentStatus === "ACTIVE" || c.currentStatus === "ONLINE"
-              ? "active"
-              : "resting",
-          statusText:
-            c.currentStatus === "ACTIVE" || c.currentStatus === "ONLINE"
-              ? "Faol"
-              : "Dam olishda",
-          ordersCount: `${c.completedOrdersCount ?? 0} ta`,
-          deliveredWater: `${c.soldBottlesToday ?? 0} ta`,
-          efficiency:
-            Math.min(
-              100,
-              Math.round(
-                ((c.soldBottlesToday || 0) / (c.loadedBottlesToday || 1)) * 100
-              )
-            ) || 90,
-          barColor: "bg-[#059669]",
-          textColor: "text-emerald-700",
-        }))
-      : couriersData
+    Array.isArray(rawCouriers)
+      ? rawCouriers.map((c) => {
+          const loaded = Number(c.loadedBottlesToday || 0)
+          const sold = Number(c.soldBottlesToday || 0)
+          const efficiency = loaded > 0 ? Math.min(100, Math.round((sold / loaded) * 100)) : 0
+
+          const isActive =
+            c.currentStatus === "ACTIVE" ||
+            c.currentStatus === "ONLINE" ||
+            c.currentStatus === "ON_THE_WAY"
+
+          return {
+            id: c.courierId,
+            name: c.fullName || "Kuryer",
+            phone: c.phone || "",
+            avatarUrl: c.avatarUrl || "",
+            initials: (c.fullName || "K").slice(0, 2).toUpperCase(),
+            isActive,
+            statusText: isActive ? "Faol" : "Kutilmoqda",
+            ordersCount: `${c.completedOrdersCount ?? 0} ta`,
+            deliveredBottles: `${sold} dona`,
+            efficiency,
+          }
+        })
+      : []
 
   return (
     <Card className="border border-slate-200 bg-white shadow-xs rounded-2xl overflow-hidden">
@@ -106,28 +50,41 @@ export function CouriersPerformanceCard() {
       </CardHeader>
 
       <CardContent className="p-0">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-y border-slate-100 bg-slate-50/50 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                <th className="py-3 px-5 w-16 text-center">Rasm</th>
-                <th className="py-3 px-4">Dastavkachi</th>
-                <th className="py-3 px-4">Holat</th>
-                <th className="py-3 px-4">Buyurtmalar soni</th>
-                <th className="py-3 px-4">Yetkazilgan suv</th>
-                <th className="py-3 px-5 min-w-44">Bajarilish samaradorligi</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 text-sm">
-              {list.map((driver) => {
-                const isActive = driver.status === "active"
-
-                return (
+        {isLoading ? (
+          <div className="py-12 text-center text-slate-400 text-sm">
+            Ma'lumotlar yuklanmoqda...
+          </div>
+        ) : list.length === 0 ? (
+          <div className="py-12 px-4 text-center flex flex-col items-center justify-center">
+            <div className="size-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-3">
+              <Truck className="size-6" />
+            </div>
+            <h4 className="text-sm font-semibold text-slate-700">
+              Faol kuryerlar topilmadi
+            </h4>
+            <p className="text-xs text-slate-400 mt-1 max-w-sm">
+              Bugungi kunda hali fermaning dastavkachilari tizimda ro'yxatdan o'tmagan yoki ishga chiqmagan.
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-y border-slate-100 bg-slate-50/50 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                  <th className="py-3 px-5 w-16 text-center">Rasm</th>
+                  <th className="py-3 px-4">Dastavkachi</th>
+                  <th className="py-3 px-4">Holat</th>
+                  <th className="py-3 px-4">Buyurtmalar soni</th>
+                  <th className="py-3 px-4">Yetkazilgan suv</th>
+                  <th className="py-3 px-5 min-w-44">Bajarilish samaradorligi</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 text-sm">
+                {list.map((driver) => (
                   <tr
                     key={driver.id}
                     className="hover:bg-slate-50/70 transition-colors"
                   >
-                    {/* Alohida "Rasm" ustuni */}
                     <td className="py-3.5 px-5 text-center">
                       <div className="size-9 rounded-full bg-blue-50 border border-slate-200 overflow-hidden mx-auto flex items-center justify-center text-blue-600 font-semibold text-xs shrink-0 shadow-2xs">
                         {driver.avatarUrl ? (
@@ -145,59 +102,57 @@ export function CouriersPerformanceCard() {
                       </div>
                     </td>
 
-                    {/* Dastavkachi ismi */}
-                    <td className="py-3.5 px-4 font-semibold text-slate-900">
-                      {driver.name}
+                    <td className="py-3.5 px-4">
+                      <div className="font-semibold text-slate-900">{driver.name}</div>
+                      {driver.phone && (
+                        <div className="text-xs text-slate-400 font-normal">{driver.phone}</div>
+                      )}
                     </td>
 
-                    {/* Holat badge */}
                     <td className="py-3.5 px-4">
                       <span
                         className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${
-                          isActive
+                          driver.isActive
                             ? "bg-emerald-50 text-emerald-700 border-emerald-200/80"
                             : "bg-slate-100 text-slate-600 border-slate-200/80"
                         }`}
                       >
                         <span
                           className={`size-1.5 rounded-full ${
-                            isActive ? "bg-emerald-500" : "bg-slate-400"
+                            driver.isActive ? "bg-emerald-500" : "bg-slate-400"
                           }`}
                         />
                         {driver.statusText}
                       </span>
                     </td>
 
-                    {/* Buyurtmalar soni */}
                     <td className="py-3.5 px-4 font-bold text-slate-900">
                       {driver.ordersCount}
                     </td>
 
-                    {/* Yetkazilgan suv */}
                     <td className="py-3.5 px-4 font-medium text-slate-600">
-                      {driver.deliveredWater}
+                      {driver.deliveredBottles}
                     </td>
 
-                    {/* Bajarilish samaradorligi */}
                     <td className="py-3.5 px-5">
                       <div className="flex items-center gap-3">
                         <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
                           <div
-                            className={`h-full rounded-full transition-all duration-500 ${driver.barColor}`}
+                            className="h-full rounded-full transition-all duration-500 bg-[#059669]"
                             style={{ width: `${driver.efficiency}%` }}
                           />
                         </div>
-                        <span className={`text-xs font-bold w-9 text-right ${driver.textColor}`}>
+                        <span className="text-xs font-bold w-9 text-right text-emerald-700">
                           {driver.efficiency}%
                         </span>
                       </div>
                     </td>
                   </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </CardContent>
     </Card>
   )

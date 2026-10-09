@@ -11,3 +11,13 @@ export { bossDashboardService } from "./boss.dashboard.service"
 export { bossFinanceService } from "./boss.finance.service"
 export { bossCouriersService } from "./boss.couriers.service"
 export { bossClientsService } from "./boss.clients.service"
+
+// Manager API Services
+export { managerDashboardService } from "./manager.dashboard.service"
+export { managerStockService } from "./manager.stock.service"
+export { managerProductsService } from "./manager.products.service"
+export { managerRegionsService } from "./manager.regions.service"
+export { managerOrdersService } from "./manager.orders.service"
+export { managerFinanceService } from "./manager.finance.service"
+export { managerCouriersService } from "./manager.couriers.service"
+export { managerClientsService } from "./manager.clients.service"

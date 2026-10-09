@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Select } from "@mantine/core"
-import { Banknote, Calendar, ChevronDown, Droplet, Receipt, ShoppingBag, TrendingDown, TrendingUp, Truck, Users } from "lucide-react"
+import { Banknote, Calendar, ChevronDown, Droplet, Receipt, ShoppingBag, TrendingUp, Truck, Users } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/shared/ui"
 import { SyncingChart, OrdersWeeklyChart, WaterSalesVolumeChart, CouriersPerformanceCard } from "@/widgets"
 import { useBossDashboard } from "@/shared/hooks"
@@ -22,7 +22,7 @@ export const BossDashboardPage = () => {
 
   const isMonthly = date === "this_month" || date === "this_year"
 
-  // 1. Asosiy moliyaviy ko'rsatkichlar (3 ta)
+  // 1. Asosiy moliyaviy ko'rsatkichlar (3 ta - 100% Real API)
   const financialMetrics = [
     {
       id: 1,
@@ -30,9 +30,7 @@ export const BossDashboardPage = () => {
       value: formatNumber(isMonthly ? db.monthIncome : db.todayIncome),
       unit: "so'm",
       icon: Banknote,
-      change: "+18.4%",
-      comparisonText: isMonthly ? "o'tgan oyga nisbatan" : "kechagiga nisbatan",
-      isPositive: true,
+      subtext: isMonthly ? "Fermaning oylik jami tushumi" : "Kassadagi bugungi tushum",
     },
     {
       id: 2,
@@ -40,9 +38,7 @@ export const BossDashboardPage = () => {
       value: formatNumber(db.todayExpense),
       unit: "so'm",
       icon: Receipt,
-      change: "+5.2%",
-      comparisonText: "kechagiga nisbatan",
-      isPositive: false,
+      subtext: "Fermaning operatsion sarf-xarajatlari",
     },
     {
       id: 3,
@@ -50,13 +46,11 @@ export const BossDashboardPage = () => {
       value: formatNumber(isMonthly ? db.monthProfit : db.todayProfit),
       unit: "so'm",
       icon: TrendingUp,
-      change: "+21.3%",
-      comparisonText: "rejaga nisbatan",
-      isPositive: true,
+      subtext: "Tushumdan xarajat chegirilgan sof foyda",
     },
   ]
 
-  // 2. Operatsion ko'rsatkichlar (4 ta)
+  // 2. Operatsion ko'rsatkichlar (4 ta - 100% Real API)
   const operationalMetrics = [
     {
       id: 4,
@@ -64,7 +58,7 @@ export const BossDashboardPage = () => {
       value: formatNumber(db.todayOrders),
       unit: "ta",
       icon: ShoppingBag,
-      subtext: `${db.deliveredToday ?? 0} ta yetkazildi • ${db.activeOrders ?? 0} ta jarayonda`,
+      subtext: `${db.deliveredToday ?? 0} ta yetkazildi • ${db.activeOrders ?? 0} ta faol`,
     },
     {
       id: 5,
@@ -72,33 +66,29 @@ export const BossDashboardPage = () => {
       value: formatNumber(db.bottlesSoldToday),
       unit: "dona",
       icon: Droplet,
-      change: "+12.8%",
-      comparisonText: "kunlik hajm",
-      isPositive: true,
+      subtext: `Ombor zaxirasi: ${formatNumber(db.warehouseBottles)} dona`,
     },
     {
       id: 6,
-      title: "Faol mijozlar",
+      title: "Mijozlar bazasi",
       value: formatNumber(db.totalClients),
       unit: "ta",
       icon: Users,
-      change: "+7.4%",
-      comparisonText: "jami mijozlar",
-      isPositive: true,
+      subtext: "Fermaga biriktirilgan jami mijozlar",
     },
     {
       id: 7,
       title: "Yetkazib beruvchilar",
       value: `${db.activeCouriers ?? 0}`,
-      unit: "faol",
+      unit: "nafar",
       icon: Truck,
-      subtext: `${db.activeCouriers ?? 0} ta kuryer ish holatida`,
+      subtext: `${db.activeCouriers ?? 0} nafar kuryer ish holatida`,
     },
   ]
 
   return (
     <div className="space-y-6 pb-8">
-      {/* Sarlavha va "Bugun" selekti */}
+      {/* Sarlavha va Davr selekti */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
@@ -157,23 +147,9 @@ export const BossDashboardPage = () => {
                     {item.unit}
                   </span>
                 </div>
-                <div className="flex items-center gap-1.5 mt-2.5">
-                  <span
-                    className={`inline-flex items-center gap-0.5 text-xs font-semibold ${
-                      item.isPositive ? "text-emerald-600" : "text-rose-600"
-                    }`}
-                  >
-                    {item.isPositive ? (
-                      <TrendingUp className="size-3.5" strokeWidth={2} />
-                    ) : (
-                      <TrendingDown className="size-3.5" strokeWidth={2} />
-                    )}
-                    {item.change}
-                  </span>
-                  <span className="text-xs text-slate-400">
-                    {item.comparisonText}
-                  </span>
-                </div>
+                <p className="text-xs text-slate-500 mt-2.5 truncate" title={item.subtext}>
+                  {item.subtext}
+                </p>
               </CardContent>
             </Card>
           )
@@ -208,23 +184,9 @@ export const BossDashboardPage = () => {
                     </span>
                   )}
                 </div>
-                <div className="mt-2.5 text-xs text-slate-500">
-                  {item.change ? (
-                    <div className="flex items-center gap-1.5">
-                      <span className="inline-flex items-center gap-0.5 font-semibold text-emerald-600">
-                        <TrendingUp className="size-3.5" strokeWidth={2} />
-                        {item.change}
-                      </span>
-                      <span className="text-slate-400">
-                        {item.comparisonText}
-                      </span>
-                    </div>
-                  ) : (
-                    <span className="text-slate-500">
-                      {item.subtext}
-                    </span>
-                  )}
-                </div>
+                <p className="text-xs text-slate-500 mt-2.5 truncate" title={item.subtext}>
+                  {item.subtext}
+                </p>
               </CardContent>
             </Card>
           )
@@ -234,7 +196,7 @@ export const BossDashboardPage = () => {
       {/* 3-Qism: Moliyaviy Holat Grafigi (SyncingChart) */}
       <SyncingChart />
 
-      {/* 4-Qism: 2 ta grafik (Buyurtmalar haftalik dinamikasi + Suv savdosi) */}
+      {/* 4-Qism: 2 ta grafik (Buyurtmalar haftalik dinamikasi + Suv va zaxira balansi) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <OrdersWeeklyChart />
         <WaterSalesVolumeChart />

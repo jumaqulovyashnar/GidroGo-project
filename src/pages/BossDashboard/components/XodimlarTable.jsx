@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom"
 import { Search, AlertCircle, RotateCw } from "lucide-react"
 import { Card, TablePagination, Button } from "@/shared/ui"
 
@@ -182,18 +181,14 @@ export function XodimlarTable({
                     >
                       {/* Xodim */}
                       <td className="py-4 px-5">
-                        <Link
-                          to={`/boss/xodimlar/${emp.id}`}
-                          className="flex items-center gap-3 group-hover:text-blue-600 transition-colors"
-                          title="Batafsil ma'lumotni ko'rish"
-                        >
-                          <div className="size-9 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center font-bold text-xs text-blue-700 shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                        <div className="flex items-center gap-3">
+                          <div className="size-9 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center font-bold text-xs text-blue-700 shrink-0">
                             {emp.initials}
                           </div>
-                          <span className="font-bold text-slate-900 group-hover:text-blue-600 block leading-tight truncate">
+                          <span className="font-bold text-slate-900 block leading-tight truncate">
                             {emp.name}
                           </span>
-                        </Link>
+                        </div>
                       </td>
 
                       {/* Telefon Raqami */}
@@ -246,7 +241,7 @@ export function XodimlarTable({
                             onClick={() => onToggleBlock(emp)}
                             className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none disabled:opacity-50 ${!isBlocked ? "bg-blue-600" : "bg-slate-300"
                               }`}
-                            title={
+                            aria-label={
                               !isBlocked
                                 ? "Faol (Bloklash uchun bosing)"
                                 : "Bloklangan (Faollashtirish uchun bosing)"

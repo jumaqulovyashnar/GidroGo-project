@@ -99,12 +99,14 @@ export function BossXodimlarPage() {
     const managersCount = employees.filter((e) => e.roleType === "manager").length
     const couriersCount = employees.filter((e) => e.roleType === "courier").length
     const activeCount = employees.filter((e) => e.status !== "blocked").length
+    const blockedCount = employees.filter((e) => e.status === "blocked").length
 
     return {
       total,
       managersCount,
       couriersCount,
       activeCount,
+      blockedCount,
     }
   }, [employees])
 

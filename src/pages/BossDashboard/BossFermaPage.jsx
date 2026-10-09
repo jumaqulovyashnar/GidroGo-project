@@ -3,10 +3,12 @@ import { toast } from "sonner"
 import { Warehouse, RefreshCw, Droplet, Filter, FileText } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent, Button } from "@/shared/ui"
 import { useBossDashboard } from "@/shared/hooks"
+import { useUserStore } from "@/entities/user"
 
 export function BossFermaPage() {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const { data: dashboardRes, refetch } = useBossDashboard()
+  const userInfo = useUserStore((state) => state.userInfo)
   const db = dashboardRes?.data || dashboardRes || {}
 
   const handleRefresh = async () => {
@@ -22,43 +24,39 @@ export function BossFermaPage() {
 
   const formatNumber = (num) => Number(num || 0).toLocaleString("ru-RU")
 
-  // 1. Texnik va Zaxira KPI ko'rsatkichlari (Boshidagi 4 ta karta)
+  // 1. Texnik va Zaxira KPI ko'rsatkichlari (Real API ma'lumotlari)
   const technicalKPIs = [
     {
       id: "ready_stock",
       title: "TAYYOR MAHSULOT ZAXIRASI",
-      value: formatNumber(db.warehouseBottles || 3200),
-      unit: "dona (19L)",
+      value: formatNumber(db.warehouseBottles ?? 0),
+      unit: "dona (18.9L)",
       icon: Warehouse,
-      subText: "Bugungi yetkazib berish rejasiga to'liq yetarli",
-      badge: "To'liqligi: 82%",
+      subText: "Ombordagi joriy tayyor suv zaxirasi",
     },
     {
       id: "empty_bottles",
       title: "BO'SH QAYTGAN IDISHLAR",
-      value: "1 850",
+      value: formatNumber(db.returnedBottles ?? db.emptyBottles ?? 0),
       unit: "dona",
       icon: RefreshCw,
-      subText: "Tekshiruv va tozalashga yo'naltirilgan",
-      badge: "Qabul punktida",
+      subText: "Qaytarilgan bo'sh idishlar balansi",
     },
     {
-      id: "capacity",
-      title: "KUNLIK TOZALASH QUVVATI",
-      value: "25 000",
-      unit: "L / kun",
+      id: "bottles_sold",
+      title: "KUNLIK YETKAZILGAN SUV",
+      value: formatNumber(db.bottlesSoldToday ?? db.deliveredToday ?? 0),
+      unit: "dona",
       icon: Droplet,
-      subText: "Yuklama me'yori",
-      percent: "76%",
-      limitText: "Maksimal limit: 34,000 L",
-      progressWidth: "w-[76%]",
+      subText: "Bugun yetkazib berilgan tayyor balonlar",
     },
     {
-      id: "filter_module",
-      title: "FILTRLASH MODULI",
-      value: "7 bosqichli osmos",
-      unit: "",
+      id: "active_couriers",
+      title: "BIRIKTIRILGAN KURYERLAR",
+      value: formatNumber(db.activeCouriers ?? 0),
+      unit: "nafar",
       icon: Filter,
+      subText: "Fermaga biriktirilgan faol logistika xodimlari",
     },
   ]
 
@@ -131,31 +129,10 @@ export function BossFermaPage() {
                     )}
                   </div>
 
-                  {item.progressWidth && (
-                    <div className="mt-2.5">
-                      <div className="flex items-center justify-between text-[11px] font-medium mb-1">
-                        <span className="text-slate-600 font-medium">{item.subText}</span>
-                        <span className="text-blue-600 font-bold">{item.percent}</span>
-                      </div>
-                      <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                        <div className={`h-full bg-blue-600 rounded-full ${item.progressWidth}`} />
-                      </div>
-                      <div className="text-[11px] text-slate-400 mt-1">
-                        {item.limitText}
-                      </div>
-                    </div>
-                  )}
-
-                  {item.badge && (
-                    <div className="mt-2 space-y-1.5">
-                      <span className="inline-block text-[11px] font-bold px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-100">
-                        {item.badge}
-                      </span>
-                      <p className="text-xs text-slate-500 leading-snug">
-                        {item.subText}
-                      </p>
-                    </div>
-                  )}
+                  <p className="text-xs text-slate-500 mt-2 font-medium leading-relaxed">
+                    {item.subText}
+                  </p>
+                  <div className="mt-3 h-1 w-12 bg-blue-600 rounded-full" />
                 </div>
               </CardContent>
             </Card>
@@ -163,80 +140,40 @@ export function BossFermaPage() {
         })}
       </div>
 
-      {/* 3. Pastki Qism: Korxona Rekvizitlari & Suv Laboratoriya Tahlili */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-        <div className="lg:col-span-6 flex">
-          <Card className="border border-slate-200/90 bg-white shadow-xs rounded-2xl flex flex-col justify-between w-full">
-            <CardHeader className="p-5 pb-3">
-              <CardTitle className="text-base sm:text-lg font-bold text-slate-900">
-                Korxona Rekvizitlari
-              </CardTitle>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Yuridik hujjatlar va litsenziya ma'lumotlari.
-              </p>
-            </CardHeader>
+      {/* 3. Pastki Qism: Korxona Rekvizitlari */}
+      <Card className="border border-slate-200/90 bg-white shadow-xs rounded-2xl w-full">
+        <CardHeader className="p-5 pb-3">
+          <CardTitle className="text-base sm:text-lg font-bold text-slate-900">
+            Korxona Rekvizitlari
+          </CardTitle>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Yuridik hujjatlar va korxona boshqaruv ma'lumotlari.
+          </p>
+        </CardHeader>
 
-            <CardContent className="p-5 pt-1 space-y-3 flex-1">
-              <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
-                <span className="text-slate-500">Yuridik nomi:</span>
-                <span className="font-semibold text-slate-800">"OAZIS CLEAN WATER" MCHJ</span>
-              </div>
-              <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
-                <span className="text-slate-500">STIR (INN):</span>
-                <span className="font-semibold text-slate-800">308 945 112</span>
-              </div>
-              <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
-                <span className="text-slate-500">Litsenziya raqami:</span>
-                <span className="font-semibold text-slate-800">UZ-SAN-2024-8849</span>
-              </div>
-              <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
-                <span className="text-slate-500">Manzil:</span>
-                <span className="font-semibold text-slate-800 text-right max-w-xs">Qashqadaryo viloyati, Qarshi sh., Nasaf ko'chasi 14-uy</span>
-              </div>
-              <div className="flex justify-between py-2 text-xs">
-                <span className="text-slate-500">Bog'lanish:</span>
-                <span className="font-semibold text-blue-600">+998 78 120 00 20</span>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="lg:col-span-6 flex">
-          <Card className="border border-slate-200/90 bg-white shadow-xs rounded-2xl flex flex-col justify-between w-full">
-            <CardHeader className="p-5 pb-3">
-              <CardTitle className="text-base sm:text-lg font-bold text-slate-900">
-                Suv Laboratoriya Sifat Tahlili
-              </CardTitle>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Sanitariya-gigiyena me'yorlariga muvofiqlik darajasi.
-              </p>
-            </CardHeader>
-
-            <CardContent className="p-5 pt-1 space-y-3 flex-1">
-              <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
-                <span className="text-slate-500">TDS (Minerallashuv):</span>
-                <span className="font-semibold text-emerald-600">45 - 65 ppm (Ideal)</span>
-              </div>
-              <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
-                <span className="text-slate-500">pH Balansi:</span>
-                <span className="font-semibold text-blue-600">7.2 - 7.5 (Optimal neytral)</span>
-              </div>
-              <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
-                <span className="text-slate-500">Qattiqlik darajasi:</span>
-                <span className="font-semibold text-emerald-600">1.2 mg-ekv/l</span>
-              </div>
-              <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
-                <span className="text-slate-500">Oxirgi laboratoriya testi:</span>
-                <span className="font-semibold text-slate-800">Bugun, 08:30 (Muvaffaqiyatli)</span>
-              </div>
-              <div className="flex justify-between py-2 text-xs">
-                <span className="text-slate-500">Sertifikat holati:</span>
-                <span className="font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">GOST 951:2018 Faol</span>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+        <CardContent className="p-5 pt-1 space-y-3">
+          <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
+            <span className="text-slate-500">Korxona nomi:</span>
+            <span className="font-semibold text-slate-800">{userInfo?.farm_name || userInfo?.farmName || "GidroGo Hamkor Fermasi"}</span>
+          </div>
+          <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
+            <span className="text-slate-500">Ferma rahbari:</span>
+            <span className="font-semibold text-slate-800">{userInfo?.name || "Ferma Rahbari"}</span>
+          </div>
+          <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
+            <span className="text-slate-500">STIR (INN):</span>
+            <span className="font-semibold text-slate-800">{userInfo?.inn || "308 945 112"}</span>
+          </div>
+          <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
+            <span className="text-slate-500">Manzil:</span>
+            <span className="font-semibold text-slate-800 text-right max-w-xs">{userInfo?.address || "Markaziy Ishlab Chiqarish Majmuasi"}</span>
+          </div>
+          <div className="flex justify-between py-2 text-xs">
+            <span className="text-slate-500">Bog'lanish:</span>
+            <span className="font-semibold text-blue-600">{userInfo?.phone || "+998 78 120 00 20"}</span>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }
