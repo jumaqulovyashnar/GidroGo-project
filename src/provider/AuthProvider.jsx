@@ -111,9 +111,10 @@ export const createUser = (userData, token) => {
   const role = roleMap[rawRole] || rawRole || "VILOYAT_ADMIN"
 
   let roleLabel = userData?.roleLabel
-  if (!roleLabel) {
+  if (role === "BOSS") {
+    roleLabel = "Ferma rahbari"
+  } else if (!roleLabel) {
     if (role === "SUPER_ADMIN") roleLabel = "Super Admin"
-    else if (role === "BOSS") roleLabel = "Ferma boshlig'i"
     else if (role === "MANAGER") roleLabel = "Menejer"
     else roleLabel = "Viloyat Admin"
   }
@@ -121,7 +122,7 @@ export const createUser = (userData, token) => {
   const firstName = userData?.firstName || ""
   const lastName = userData?.lastName || ""
 
-  const fullName =
+  let fullName =
     userData?.name ||
     [firstName, lastName]
       .filter(Boolean)
@@ -129,6 +130,10 @@ export const createUser = (userData, token) => {
       .trim() ||
     userData?.fullname ||
     roleLabel
+
+  if (fullName === "Ferma boshlig'i" || fullName === "Ferma boshlig‘i") {
+    fullName = "Ferma rahbari"
+  }
 
   return {
     id: String(userId),

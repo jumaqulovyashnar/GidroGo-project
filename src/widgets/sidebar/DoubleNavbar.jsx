@@ -6,7 +6,7 @@ import LogoImg from "@/shared/assets/Logo.png"
 
 const ROLE_TITLES = {
   SUPER_ADMIN: "Boshqaruv",
-  BOSS: "Ferma boshlig'i",
+  BOSS: "Ferma rahbari",
   MANAGER: "Menejer",
   DRIVER: "Yetkazib beruvchi",
 }
