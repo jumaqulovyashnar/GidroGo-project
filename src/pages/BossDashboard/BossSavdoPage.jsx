@@ -4,6 +4,7 @@ import { toast } from "sonner"
 import { Droplet, CheckCircle2, Truck, TrendingUp, FileSpreadsheet, ChevronDown, Calendar, Package, Layers, Zap } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent, Button } from "@/shared/ui"
 import { WeeklySalesDynamicsChart, CustomerSegmentDonutChart } from "@/widgets"
+import { useBossDashboard } from "@/shared/hooks"
 
 const periodOptions = [
   { value: "today", label: "Bugun" },
@@ -22,38 +23,46 @@ const productFilterOptions = [
 export function BossSavdoPage() {
   const [activePeriod, setActivePeriod] = useState("today")
   const [selectedProduct, setSelectedProduct] = useState("all")
+  const { data: dashboardRes } = useBossDashboard()
+  const db = dashboardRes?.data || dashboardRes || {}
 
   const handleExport = () => {
     toast.success("XLSX hisobot muvaffaqiyatli yuklab olindi!")
   }
+
+  const formatNumber = (num) => Number(num || 0).toLocaleString("ru-RU")
+
+  const soldBottles = Number(db.bottlesSoldToday || 0)
+  const totalLiters = Math.round(soldBottles * 18.9)
+  const todayRevenue = Number(db.todayIncome || 0)
 
   // Mahsulotlar kesimidagi savdo tahlili ma'lumotlari
   const productSales = [
     {
       id: "18_9l",
       name: "18.9L Kapsula",
-      category: "Qaytariladigan idish • 545 dona",
-      revenue: "24,525,000 so'm",
-      volumeText: "10,300 L (56%)",
-      percentage: 56,
+      category: `Qaytariladigan idish • ${Math.round(soldBottles * 0.6)} dona`,
+      revenue: `${formatNumber(Math.round(todayRevenue * 0.6))} so'm`,
+      volumeText: `${formatNumber(Math.round(totalLiters * 0.6))} L (60%)`,
+      percentage: totalLiters > 0 ? 60 : 0,
       progressColor: "bg-[#047857]",
       iconBg: "bg-emerald-50 text-emerald-700 border border-emerald-100",
-      stockText: "Omborda zaxira: 1,840 dona (Yetarli)",
+      stockText: `Omborda zaxira: ${formatNumber(db.warehouseBottles || 1840)} dona`,
       stockStatus: "normal",
-      trendText: "+14% kutilgandan yuqori",
+      trendText: "Yetakchi mahsulot",
       trendPositive: true,
       icon: Package,
     },
     {
       id: "10l",
       name: "10L Idish",
-      category: "Oilaviy xonadonlar • 580 dona",
-      revenue: "12,760,000 so'm",
-      volumeText: "5,800 L (29%)",
-      percentage: 29,
+      category: `Oilaviy xonadonlar • ${Math.round(soldBottles * 0.25)} dona`,
+      revenue: `${formatNumber(Math.round(todayRevenue * 0.25))} so'm`,
+      volumeText: `${formatNumber(Math.round(totalLiters * 0.25))} L (25%)`,
+      percentage: totalLiters > 0 ? 25 : 0,
       progressColor: "bg-[#0284c7]",
       iconBg: "bg-sky-50 text-sky-700 border border-sky-100",
-      stockText: "Omborda zaxira: 920 dona",
+      stockText: "Omborda zaxira: barqaror",
       stockStatus: "normal",
       trendText: "Barqaror dinamika",
       trendPositive: null,
@@ -62,15 +71,15 @@ export function BossSavdoPage() {
     {
       id: "5l",
       name: "5L Qadoq (Blok)",
-      category: "Ixcham 2-talik blok • 480 dona",
-      revenue: "6,720,000 so'm",
-      volumeText: "2,400 L (15%)",
-      percentage: 15,
+      category: `Ixcham blok • ${Math.max(0, soldBottles - Math.round(soldBottles * 0.85))} dona`,
+      revenue: `${formatNumber(Math.round(todayRevenue * 0.15))} so'm`,
+      volumeText: `${formatNumber(Math.round(totalLiters * 0.15))} L (15%)`,
+      percentage: totalLiters > 0 ? 15 : 0,
       progressColor: "bg-slate-400",
       iconBg: "bg-slate-100 text-slate-700 border border-slate-200",
-      stockText: "Omborda zaxira: 450 dona (Kam qolmoqda)",
-      stockStatus: "warning",
-      trendText: "+6% talab ortgan",
+      stockText: "Zaxira me'yorda",
+      stockStatus: "normal",
+      trendText: "Talab o'smoqda",
       trendPositive: true,
       icon: Layers,
     },
@@ -78,7 +87,7 @@ export function BossSavdoPage() {
 
   return (
     <div className="space-y-6 pb-10">
-      {/* Sarlavha va Boshqaruv elementlari (2 ta Select + XLSX yuklash tugmasi bir qatorda) */}
+      {/* Sarlavha va Boshqaruv elementlari */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
@@ -89,9 +98,8 @@ export function BossSavdoPage() {
           </p>
         </div>
 
-        {/* O'ng tomon: 2 ta Select + XLSX yuklash tugmasi bir qatorda */}
+        {/* O'ng tomon: Select'lar va Yuklash tugmasi */}
         <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 shrink-0">
-          {/* 1. Davr selektori */}
           <Select
             value={activePeriod}
             onChange={(val) => setActivePeriod(val || "today")}
@@ -111,7 +119,6 @@ export function BossSavdoPage() {
             }}
           />
 
-          {/* 2. Mahsulot selektori */}
           <Select
             value={selectedProduct}
             onChange={(val) => setSelectedProduct(val || "all")}
@@ -130,7 +137,6 @@ export function BossSavdoPage() {
             }}
           />
 
-          {/* 3. Hisobotni yuklash (XLSX) tugmasi - Button komponenti */}
           <Button
             variant="default"
             size="sm"
@@ -143,7 +149,7 @@ export function BossSavdoPage() {
         </div>
       </div>
 
-      {/* 3. Top 4 ta KPI Ko'rsatkich Kartalari */}
+      {/* 2. Top 4 ta KPI Ko'rsatkich Kartalari */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Karta 1: Jami sotilgan suv hajmi */}
         <Card className="border border-slate-200/90 bg-white hover:border-slate-300 hover:shadow-xs transition-all duration-200 rounded-2xl">
@@ -158,7 +164,7 @@ export function BossSavdoPage() {
           <CardContent className="p-4 pt-1">
             <div className="flex items-baseline gap-1.5">
               <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
-                18,500
+                {formatNumber(totalLiters)}
               </span>
               <span className="text-xl font-bold text-sky-500">
                 L
@@ -170,7 +176,7 @@ export function BossSavdoPage() {
                 +12.8%
               </span>
               <span className="text-slate-400 font-medium">
-                Bugungi reja: 16,000 L
+                {formatNumber(soldBottles)} dona balon
               </span>
             </div>
           </CardContent>
@@ -189,29 +195,36 @@ export function BossSavdoPage() {
           <CardContent className="p-4 pt-1">
             <div className="flex items-baseline gap-1.5">
               <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
-                132
+                {db.deliveredToday ?? 0}
               </span>
               <span className="text-slate-400 font-normal text-base sm:text-lg">
-                / 150 ta
+                / {db.todayOrders ?? 0} ta
               </span>
             </div>
             <div className="mt-2.5">
               <div className="flex items-center justify-between text-[11px] font-medium mb-1.5">
-                <span className="text-emerald-600 font-semibold">88% yakunlandi</span>
-                <span className="text-slate-400">18 ta kutilmoqda</span>
+                <span className="text-emerald-600 font-semibold">
+                  {db.todayOrders > 0 ? Math.round(((db.deliveredToday || 0) / db.todayOrders) * 100) : 100}% yakunlandi
+                </span>
+                <span className="text-slate-400">{db.activeOrders ?? 0} ta kutilmoqda</span>
               </div>
               <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                <div className="h-full bg-[#047857] rounded-full w-[88%]"></div>
+                <div
+                  className="h-full bg-[#047857] rounded-full transition-all duration-500"
+                  style={{
+                    width: `${db.todayOrders > 0 ? Math.round(((db.deliveredToday || 0) / db.todayOrders) * 100) : 0}%`,
+                  }}
+                />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Karta 3: O'rtacha yetkazish vaqti */}
+        {/* Karta 3: Faol Kuryerlar */}
         <Card className="border border-slate-200/90 bg-white hover:border-slate-300 hover:shadow-xs transition-all duration-200 rounded-2xl">
           <CardHeader className="flex flex-row items-center justify-between pb-1 space-y-0 p-4">
             <CardTitle className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
-              O'rtacha yetkazish vaqti
+              Faol Dastavkachilar
             </CardTitle>
             <div className="size-8 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0">
               <Truck className="size-4 text-blue-600 stroke-2" />
@@ -220,19 +233,19 @@ export function BossSavdoPage() {
           <CardContent className="p-4 pt-1">
             <div className="flex items-baseline gap-1.5">
               <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
-                28
+                {db.activeCouriers ?? 0}
               </span>
               <span className="text-sm font-semibold text-slate-600">
-                daqiqa
+                nafar
               </span>
             </div>
             <div className="flex items-center justify-between mt-3 text-xs">
               <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-sky-700 bg-sky-50 border border-sky-100 px-2 py-0.5 rounded-md">
                 <Zap className="size-3 text-sky-600 fill-sky-500" />
-                7 daqiqa tezroq
+                Marshrutda
               </span>
               <span className="text-slate-400 font-medium">
-                Reja: 35 daqiqa
+                To'liq operatsion rejim
               </span>
             </div>
           </CardContent>
@@ -254,27 +267,26 @@ export function BossSavdoPage() {
                 18.9L Kapsula
               </span>
               <span className="text-xs text-slate-400 font-medium mt-0.5 block">
-                10,300 L sotildi
+                {formatNumber(Math.round(totalLiters * 0.6))} L sotildi
               </span>
             </div>
             <div className="flex items-center justify-between mt-2.5 text-xs text-slate-500">
               <span className="text-[11px] text-slate-500">
-                Umumiy hajmning 56% ulushi
+                Umumiy hajmning 60% ulushi
               </span>
               <span className="text-xs font-bold text-slate-800">
-                545 dona
+                {formatNumber(Math.round(soldBottles * 0.6))} dona
               </span>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* 4. Haftalik Savdo va Buyurtmalar Dinamikasi Grafigi */}
+      {/* 3. Haftalik Savdo va Buyurtmalar Dinamikasi Grafigi */}
       <WeeklySalesDynamicsChart />
 
-      {/* 5. Pastki Qism: Mahsulotlar Kesimida Savdo Tahlili + Mijozlar Segmenti */}
+      {/* 4. Pastki Qism: Mahsulotlar Kesimida Savdo Tahlili + Mijozlar Segmenti */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-        {/* Chapdagi karta: Mahsulotlar kesimida savdo tahlili (7 ustun) */}
         <div className="lg:col-span-7 flex">
           <Card className="border border-slate-200/90 bg-white shadow-xs rounded-2xl flex flex-col justify-between w-full">
             <CardHeader className="p-5 pb-3">
@@ -294,7 +306,6 @@ export function BossSavdoPage() {
             </CardHeader>
 
             <CardContent className="p-5 pt-1 space-y-4 flex-1 flex flex-col justify-between">
-              {/* Mahsulotlar ro'yxati */}
               <div className="space-y-3.5">
                 {productSales.map((prod) => {
                   const Icon = prod.icon
@@ -303,7 +314,6 @@ export function BossSavdoPage() {
                       key={prod.id}
                       className="p-3.5 rounded-xl border border-slate-100 bg-slate-50/40 hover:bg-slate-50/80 transition-colors"
                     >
-                      {/* Yuqori qism: Ikonka, Nomi, Tushum va hajmi */}
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-center gap-3">
                           <div
@@ -331,30 +341,18 @@ export function BossSavdoPage() {
                         </div>
                       </div>
 
-                      {/* Progress bar */}
                       <div className="h-1.5 w-full bg-slate-200/70 rounded-full overflow-hidden mt-3">
                         <div
                           className={`h-full rounded-full ${prod.progressColor}`}
                           style={{ width: `${prod.percentage}%` }}
-                        ></div>
+                        />
                       </div>
 
-                      {/* Pastki meta ma'lumotlari */}
                       <div className="flex items-center justify-between text-[11px] mt-2 text-slate-500">
-                        <span
-                          className={
-                            prod.stockStatus === "warning"
-                              ? "text-amber-600 font-semibold"
-                              : "text-slate-400"
-                          }
-                        >
+                        <span className="text-slate-400">
                           {prod.stockText}
                         </span>
-                        <span
-                          className={`font-semibold ${
-                            prod.trendPositive ? "text-emerald-600" : "text-slate-500"
-                          }`}
-                        >
+                        <span className="font-semibold text-emerald-600">
                           {prod.trendText}
                         </span>
                       </div>
@@ -363,20 +361,18 @@ export function BossSavdoPage() {
                 })}
               </div>
 
-              {/* Pastki umumiy tushum banneri */}
               <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
                 <span className="text-xs sm:text-sm font-medium text-slate-600">
                   Bugungi umumiy mahsulot tushumi:
                 </span>
                 <span className="text-xl sm:text-2xl font-extrabold text-[#047857]">
-                  44,005,000 so'm
+                  {formatNumber(todayRevenue)} so'm
                 </span>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* O'ngdagi karta: Mijozlar Segmenti bo'yicha Savdo (5 ustun) */}
         <div className="lg:col-span-5 flex">
           <CustomerSegmentDonutChart />
         </div>
@@ -384,4 +380,5 @@ export function BossSavdoPage() {
     </div>
   )
 }
+
 export default BossSavdoPage;

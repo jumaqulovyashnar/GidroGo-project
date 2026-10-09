@@ -1,22 +1,69 @@
 import Chart from "react-apexcharts"
 import { Card, CardHeader, CardTitle, CardContent } from "@/shared/ui"
-import { TrendingUp } from "lucide-react"
+import { useBossOrders, useBossDashboard } from "@/shared/hooks"
 
 export function WeeklySalesDynamicsChart() {
+  const { data: ordersRes } = useBossOrders({ all: true })
+  const { data: dashboardRes } = useBossDashboard()
+
+  const rawOrders = ordersRes?.data || ordersRes || []
+  const orders = Array.isArray(rawOrders) ? rawOrders : []
+  const db = dashboardRes?.data || dashboardRes || {}
+
   const categories = ["Dush", "Sesh", "Chor", "Pay", "Juma", "Shan", "Yak"]
+
+  const countByDay = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 0: 0 }
+  const litersByDay = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 0: 0 }
+
+  orders.forEach((o) => {
+    if (o.createdAt) {
+      const day = new Date(o.createdAt).getDay()
+      countByDay[day] = (countByDay[day] || 0) + 1
+      const bottles = Number(o.bottleCount || 1)
+      litersByDay[day] = (litersByDay[day] || 0) + bottles * 18.9
+    }
+  })
+
+  // Agar orders bo'sh bo'lsa, dashboard ma'lumotlaridan foydalanish
+  const todayDay = new Date().getDay()
+  if (orders.length === 0 && db.todayOrders) {
+    countByDay[todayDay] = db.todayOrders
+    litersByDay[todayDay] = (db.bottlesSoldToday || db.todayOrders) * 18.9
+  }
+
+  const actualOrders = [
+    countByDay[1] || 0,
+    countByDay[2] || 0,
+    countByDay[3] || 0,
+    countByDay[4] || 0,
+    countByDay[5] || 0,
+    countByDay[6] || 0,
+    countByDay[0] || 0,
+  ]
+
+  const waterKL = [
+    +(litersByDay[1] / 1000).toFixed(1),
+    +(litersByDay[2] / 1000).toFixed(1),
+    +(litersByDay[3] / 1000).toFixed(1),
+    +(litersByDay[4] / 1000).toFixed(1),
+    +(litersByDay[5] / 1000).toFixed(1),
+    +(litersByDay[6] / 1000).toFixed(1),
+    +(litersByDay[0] / 1000).toFixed(1),
+  ]
+
+  const totalWeeklyOrders = actualOrders.reduce((a, b) => a + b, 0)
+  const totalWeeklyLiters = (waterKL.reduce((a, b) => a + b, 0) * 1000).toLocaleString("ru-RU")
 
   const series = [
     {
       name: "Suv hajmi (kL)",
-      data: [14.2, 15.8, 13.9, 17.1, 19.4, 16.0, 18.5],
+      data: waterKL,
     },
     {
       name: "Buyurtmalar soni",
-      data: [13.2, 14.8, 12.6, 16.0, 18.2, 15.0, 17.2], // scaled for visual symmetry
+      data: actualOrders,
     },
   ]
-
-  const actualOrders = [128, 142, 120, 152, 174, 140, 162]
 
   const options = {
     chart: {
@@ -61,87 +108,79 @@ export function WeeklySalesDynamicsChart() {
       show: false,
     },
     grid: {
-      show: false,
+      borderColor: "#f1f5f9",
+      strokeDashArray: 3,
       padding: {
-        top: 25,
-        right: 10,
-        bottom: 0,
-        left: 10,
+        top: 20,
       },
     },
     xaxis: {
       categories: categories,
-      axisBorder: { show: false },
-      axisTicks: { show: false },
       labels: {
         style: {
-          colors: "#64748b",
           fontSize: "12px",
-          fontWeight: 600,
+          fontWeight: 500,
+          colors: "#64748b",
         },
       },
     },
     yaxis: {
-      show: false,
+      labels: {
+        style: {
+          fontSize: "11px",
+          colors: "#94a3b8",
+        },
+      },
     },
     tooltip: {
-      theme: "light",
-      shared: true,
-      intersect: false,
       y: {
-        formatter: function (val, { seriesIndex, dataPointIndex }) {
-          if (seriesIndex === 0) {
-            return `${val} kL (${Math.round(val * 1000).toLocaleString("uz-UZ")} L)`
+        formatter: function (val, opts) {
+          if (opts.seriesIndex === 0) {
+            return `${val} ming litr`
           }
-          return `${actualOrders[dataPointIndex]} ta buyurtma`
+          return `${val} ta buyurtma`
         },
       },
     },
   }
 
   return (
-    <Card className="border border-slate-200/90 bg-white shadow-xs rounded-2xl relative overflow-hidden">
-      <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 gap-3">
+    <Card className="border border-slate-200 bg-white shadow-xs rounded-2xl">
+      <CardHeader className="flex flex-row items-center justify-between pb-2 pt-6 px-6">
         <div>
-          <CardTitle className="text-base sm:text-lg font-bold text-slate-900">
-            Haftalik Savdo va Buyurtmalar Dinamikasi
+          <CardTitle className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
+            Haftalik Savdo Dinamikasi
           </CardTitle>
           <p className="text-xs text-slate-500 mt-0.5">
-            Oxirgi 7 kunlik suv tarqatish hajmi (Litr) va bajarilgan umumiy buyurtmalar soni
+            Yetkazilgan suv hajmi va buyurtmalar soni
           </p>
         </div>
 
-        {/* Legend */}
-        <div className="flex items-center gap-4 text-xs font-medium text-slate-600">
+        <div className="flex items-center gap-4 text-xs font-semibold text-slate-600">
           <div className="flex items-center gap-1.5">
-            <span className="size-2.5 rounded-full bg-[#047857]"></span>
+            <span className="size-2.5 rounded-full bg-[#047857]" />
             <span>Suv hajmi (kL)</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="size-2.5 rounded-full bg-[#38bdf8]"></span>
-            <span>Buyurtmalar soni</span>
+            <span className="size-2.5 rounded-full bg-[#38bdf8]" />
+            <span>Buyurtmalar</span>
           </div>
         </div>
       </CardHeader>
 
-      <CardContent className="pt-2">
-        <div className="h-[290px] w-full">
-          <Chart options={options} series={series} type="bar" height={290} />
+      <CardContent className="px-6 pb-6 pt-2">
+        <div className="h-72 w-full">
+          <Chart options={options} series={series} type="bar" height={280} />
         </div>
 
-        {/* Footer info row */}
-        <div className="pt-3.5 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
-          <div className="flex items-center gap-1.5 text-slate-600">
-            <TrendingUp className="size-3.5 text-emerald-600" />
-            <span>
-              Haftalik jami realizatsiya:{" "}
-              <strong className="font-semibold text-slate-900">115,500 L</strong>{" "}
-              (912 ta muvaffaqiyatli buyurtma)
-            </span>
+        <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100 text-xs">
+          <div>
+            <span className="text-slate-500 block">Jami haftalik hajm:</span>
+            <span className="font-bold text-slate-900 text-sm">{totalWeeklyLiters} L</span>
           </div>
-          <div className="text-slate-500 font-medium sm:text-right">
-            Eng faol kun:{" "}
-            <span className="font-semibold text-slate-800">Juma (19,400 L)</span>
+          <div>
+            <span className="text-slate-500 block">Jami haftalik buyurtmalar:</span>
+            <span className="font-bold text-emerald-600 text-sm">{totalWeeklyOrders} ta</span>
           </div>
         </div>
       </CardContent>

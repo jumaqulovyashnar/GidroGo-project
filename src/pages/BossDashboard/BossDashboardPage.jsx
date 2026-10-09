@@ -2,7 +2,8 @@ import { useState } from "react"
 import { Select } from "@mantine/core"
 import { Banknote, Calendar, ChevronDown, Droplet, Receipt, ShoppingBag, TrendingDown, TrendingUp, Truck, Users } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/shared/ui"
-import { SyncingChart, OrdersWeeklyChart, WaterSalesVolumeChart, BusinessMetricsSummary, CouriersPerformanceCard } from "@/widgets"
+import { SyncingChart, OrdersWeeklyChart, WaterSalesVolumeChart, CouriersPerformanceCard } from "@/widgets"
+import { useBossDashboard } from "@/shared/hooks"
 
 const dateOptions = [
   { value: "today", label: "Bugun" },
@@ -12,97 +13,102 @@ const dateOptions = [
   { value: "this_year", label: "Shu yil" },
 ]
 
-// 1. Asosiy moliyaviy ko'rsatkichlar (3 ta)
-const financialMetrics = [
-  {
-    id: 1,
-    title: "Bugungi tushum",
-    value: "12 850 000",
-    unit: "so'm",
-    icon: Banknote,
-    change: "+18.4%",
-    comparisonText: "kechagiga nisbatan",
-    isPositive: true,
-  },
-  {
-    id: 2,
-    title: "Bugungi xarajat",
-    value: "4 250 000",
-    unit: "so'm",
-    icon: Receipt,
-    change: "+5.2%",
-    comparisonText: "kechagiga nisbatan",
-    isPositive: false,
-  },
-  {
-    id: 3,
-    title: "Bugungi sof foyda",
-    value: "8 600 000",
-    unit: "so'm",
-    icon: TrendingUp,
-    change: "+21.3%",
-    comparisonText: "kechagiga nisbatan",
-    isPositive: true,
-  },
-]
-
-// 2. Operatsion ko'rsatkichlar (4 ta)
-const operationalMetrics = [
-  {
-    id: 4,
-    title: "Kunlik buyurtmalar",
-    value: "150",
-    unit: "ta",
-    icon: ShoppingBag,
-    subtext: "132 ta yetkazildi • 18 ta jarayonda",
-  },
-  {
-    id: 5,
-    title: "Sotilgan toza suv",
-    value: "18 500",
-    unit: "L",
-    icon: Droplet,
-    change: "+12.8%",
-    comparisonText: "kechagiga nisbatan",
-    isPositive: true,
-  },
-  {
-    id: 6,
-    title: "Faol mijozlar",
-    value: "1 248",
-    unit: "ta",
-    icon: Users,
-    change: "+7.4%",
-    comparisonText: "shu oyga nisbatan",
-    isPositive: true,
-  },
-  {
-    id: 7,
-    title: "Yetkazib beruvchilar",
-    value: "8 / 10",
-    unit: "faol",
-    icon: Truck,
-    subtext: "8 tasi yo'lda • 2 tasi navbatda",
-  },
-]
-
-const BossDashboardPage = () => {
+export const BossDashboardPage = () => {
   const [date, setDate] = useState("today")
+  const { data: dashboardRes } = useBossDashboard()
+  const db = dashboardRes?.data || dashboardRes || {}
+
+  const formatNumber = (num) => Number(num || 0).toLocaleString("ru-RU")
+
+  const isMonthly = date === "this_month" || date === "this_year"
+
+  // 1. Asosiy moliyaviy ko'rsatkichlar (3 ta)
+  const financialMetrics = [
+    {
+      id: 1,
+      title: isMonthly ? "Oylik tushum" : "Bugungi tushum",
+      value: formatNumber(isMonthly ? db.monthIncome : db.todayIncome),
+      unit: "so'm",
+      icon: Banknote,
+      change: "+18.4%",
+      comparisonText: isMonthly ? "o'tgan oyga nisbatan" : "kechagiga nisbatan",
+      isPositive: true,
+    },
+    {
+      id: 2,
+      title: "Bugungi xarajat",
+      value: formatNumber(db.todayExpense),
+      unit: "so'm",
+      icon: Receipt,
+      change: "+5.2%",
+      comparisonText: "kechagiga nisbatan",
+      isPositive: false,
+    },
+    {
+      id: 3,
+      title: isMonthly ? "Oylik sof foyda" : "Bugungi sof foyda",
+      value: formatNumber(isMonthly ? db.monthProfit : db.todayProfit),
+      unit: "so'm",
+      icon: TrendingUp,
+      change: "+21.3%",
+      comparisonText: "rejaga nisbatan",
+      isPositive: true,
+    },
+  ]
+
+  // 2. Operatsion ko'rsatkichlar (4 ta)
+  const operationalMetrics = [
+    {
+      id: 4,
+      title: "Kunlik buyurtmalar",
+      value: formatNumber(db.todayOrders),
+      unit: "ta",
+      icon: ShoppingBag,
+      subtext: `${db.deliveredToday ?? 0} ta yetkazildi • ${db.activeOrders ?? 0} ta jarayonda`,
+    },
+    {
+      id: 5,
+      title: "Sotilgan toza suv",
+      value: formatNumber(db.bottlesSoldToday),
+      unit: "dona",
+      icon: Droplet,
+      change: "+12.8%",
+      comparisonText: "kunlik hajm",
+      isPositive: true,
+    },
+    {
+      id: 6,
+      title: "Faol mijozlar",
+      value: formatNumber(db.totalClients),
+      unit: "ta",
+      icon: Users,
+      change: "+7.4%",
+      comparisonText: "jami mijozlar",
+      isPositive: true,
+    },
+    {
+      id: 7,
+      title: "Yetkazib beruvchilar",
+      value: `${db.activeCouriers ?? 0}`,
+      unit: "faol",
+      icon: Truck,
+      subtext: `${db.activeCouriers ?? 0} ta kuryer ish holatida`,
+    },
+  ]
 
   return (
     <div className="space-y-6 pb-8">
-      {/* Sarlavha va "Bugun" selekti (flex justify-between) */}
+      {/* Sarlavha va "Bugun" selekti */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
-            Ferma Egasi
+            Ferma Rahbari
           </h1>
           <p className="text-sm text-slate-500 mt-1">
             Fermangizning joriy holati, ko'rsatkichlari va tahlillari.
           </p>
         </div>
 
-        {/* O'ng tomondagi "Bugun" selekti */}
         <div className="shrink-0">
           <Select
             value={date}
@@ -225,19 +231,16 @@ const BossDashboardPage = () => {
         })}
       </div>
 
-      {/* 3-Qism: Asosiy Katta Chart - Moliyaviy Holat (SyncingChart) */}
+      {/* 3-Qism: Moliyaviy Holat Grafigi (SyncingChart) */}
       <SyncingChart />
 
-      {/* 4-Qism: 2 ta grafik (Buyurtmalar haftalik dinamikasi + Suv savdosi idish turlari) */}
+      {/* 4-Qism: 2 ta grafik (Buyurtmalar haftalik dinamikasi + Suv savdosi) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <OrdersWeeklyChart />
         <WaterSalesVolumeChart />
       </div>
 
-      {/* 5-Qism: Biznes ko'rsatkichlari xulosasi */}
-      <BusinessMetricsSummary />
-
-      {/* 6-Qism: Dastavkachilar faoliyati (Card ichida Table) */}
+      {/* 5-Qism: Dastavkachilar faoliyati jadvali */}
       <CouriersPerformanceCard />
     </div>
   )

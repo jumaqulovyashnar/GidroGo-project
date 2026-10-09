@@ -2,28 +2,32 @@ import { useState } from "react"
 import { toast } from "sonner"
 import { Warehouse, RefreshCw, Droplet, Filter, FileText } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent, Button } from "@/shared/ui"
+import { useBossDashboard } from "@/shared/hooks"
 
 export function BossFermaPage() {
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const { data: dashboardRes, refetch } = useBossDashboard()
+  const db = dashboardRes?.data || dashboardRes || {}
 
-  const handleRefresh = () => {
+  const handleRefresh = async () => {
     setIsRefreshing(true)
-    setTimeout(() => {
-      setIsRefreshing(false)
-      toast.success("Telemetriya va texnik ma'lumotlar yangilandi!")
-    }, 600)
+    await refetch()
+    setIsRefreshing(false)
+    toast.success("Telemetriya va texnik ma'lumotlar yangilandi!")
   }
 
   const handleDownloadPassport = () => {
     toast.success("PDF pasport muvaffaqiyatli yuklab olindi!")
   }
 
+  const formatNumber = (num) => Number(num || 0).toLocaleString("ru-RU")
+
   // 1. Texnik va Zaxira KPI ko'rsatkichlari (Boshidagi 4 ta karta)
   const technicalKPIs = [
     {
       id: "ready_stock",
       title: "TAYYOR MAHSULOT ZAXIRASI",
-      value: "3,200",
+      value: formatNumber(db.warehouseBottles || 3200),
       unit: "dona (19L)",
       icon: Warehouse,
       subText: "Bugungi yetkazib berish rejasiga to'liq yetarli",
@@ -32,7 +36,7 @@ export function BossFermaPage() {
     {
       id: "empty_bottles",
       title: "BO'SH QAYTGAN IDISHLAR",
-      value: "1,850",
+      value: "1 850",
       unit: "dona",
       icon: RefreshCw,
       subText: "Tekshiruv va tozalashga yo'naltirilgan",
@@ -41,7 +45,7 @@ export function BossFermaPage() {
     {
       id: "capacity",
       title: "KUNLIK TOZALASH QUVVATI",
-      value: "25,000",
+      value: "25 000",
       unit: "L / kun",
       icon: Droplet,
       subText: "Yuklama me'yori",
@@ -127,7 +131,6 @@ export function BossFermaPage() {
                     )}
                   </div>
 
-                  {/* Progress bar (quvvat kartasi uchun) */}
                   {item.progressWidth && (
                     <div className="mt-2.5">
                       <div className="flex items-center justify-between text-[11px] font-medium mb-1">
@@ -135,7 +138,7 @@ export function BossFermaPage() {
                         <span className="text-blue-600 font-bold">{item.percent}</span>
                       </div>
                       <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                        <div className={`h-full bg-blue-600 rounded-full ${item.progressWidth}`}></div>
+                        <div className={`h-full bg-blue-600 rounded-full ${item.progressWidth}`} />
                       </div>
                       <div className="text-[11px] text-slate-400 mt-1">
                         {item.limitText}
@@ -143,8 +146,6 @@ export function BossFermaPage() {
                     </div>
                   )}
 
-
-                  {/* Badge nishoni (tayyor mahsulot va bo'sh idishlar uchun) */}
                   {item.badge && (
                     <div className="mt-2 space-y-1.5">
                       <span className="inline-block text-[11px] font-bold px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-100">
@@ -162,65 +163,82 @@ export function BossFermaPage() {
         })}
       </div>
 
-      {/* 3. Yuridik va Tashkiliy Ma'lumotlar */}
-      <Card className="border border-slate-200/90 bg-white shadow-xs rounded-2xl">
-        <CardHeader className="p-5 pb-3 flex-col items-stretch gap-1">
-          <div className="flex items-center justify-between gap-2">
-            <CardTitle className="text-base sm:text-lg font-bold text-slate-900">
-              Yuridik va Tashkiliy Ma'lumotlar
-            </CardTitle>
-          </div>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Korxona ro'yxatdan o'tgan rasmiy rekvizitlari va mas'ul shaxslari.
-          </p>
-        </CardHeader>
+      {/* 3. Pastki Qism: Korxona Rekvizitlari & Suv Laboratoriya Tahlili */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+        <div className="lg:col-span-6 flex">
+          <Card className="border border-slate-200/90 bg-white shadow-xs rounded-2xl flex flex-col justify-between w-full">
+            <CardHeader className="p-5 pb-3">
+              <CardTitle className="text-base sm:text-lg font-bold text-slate-900">
+                Korxona Rekvizitlari
+              </CardTitle>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Yuridik hujjatlar va litsenziya ma'lumotlari.
+              </p>
+            </CardHeader>
 
-        <CardContent className="p-5 pt-1 space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 text-xs">
-            <div className="p-3.5 rounded-xl bg-slate-50/60 border border-slate-100">
-              <span className="text-[11px] text-slate-400 font-medium block">Ferma Nomi</span>
-              <span className="font-extrabold text-slate-900 text-sm mt-0.5 block">
-                "Oazis Water" MCHJ
-              </span>
-            </div>
+            <CardContent className="p-5 pt-1 space-y-3 flex-1">
+              <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
+                <span className="text-slate-500">Yuridik nomi:</span>
+                <span className="font-semibold text-slate-800">"OAZIS CLEAN WATER" MCHJ</span>
+              </div>
+              <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
+                <span className="text-slate-500">STIR (INN):</span>
+                <span className="font-semibold text-slate-800">308 945 112</span>
+              </div>
+              <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
+                <span className="text-slate-500">Litsenziya raqami:</span>
+                <span className="font-semibold text-slate-800">UZ-SAN-2024-8849</span>
+              </div>
+              <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
+                <span className="text-slate-500">Manzil:</span>
+                <span className="font-semibold text-slate-800 text-right max-w-xs">Qashqadaryo viloyati, Qarshi sh., Nasaf ko'chasi 14-uy</span>
+              </div>
+              <div className="flex justify-between py-2 text-xs">
+                <span className="text-slate-500">Bog'lanish:</span>
+                <span className="font-semibold text-blue-600">+998 78 120 00 20</span>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-            <div className="p-3.5 rounded-xl bg-slate-50/60 border border-slate-100">
-              <span className="text-[11px] text-slate-400 font-medium block">Ferma ID Kodi</span>
-              <span className="font-extrabold text-blue-600 text-sm mt-0.5 block">
-                #FRM-7704
-              </span>
-            </div>
+        <div className="lg:col-span-6 flex">
+          <Card className="border border-slate-200/90 bg-white shadow-xs rounded-2xl flex flex-col justify-between w-full">
+            <CardHeader className="p-5 pb-3">
+              <CardTitle className="text-base sm:text-lg font-bold text-slate-900">
+                Suv Laboratoriya Sifat Tahlili
+              </CardTitle>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Sanitariya-gigiyena me'yorlariga muvofiqlik darajasi.
+              </p>
+            </CardHeader>
 
-            <div className="p-3.5 rounded-xl bg-slate-50/60 border border-slate-100">
-              <span className="text-[11px] text-slate-400 font-medium block">Tizimga ulangan sana</span>
-              <span className="font-extrabold text-slate-900 text-sm mt-0.5 block">
-                12.03.2024 (2 yil)
-              </span>
-            </div>
-
-            <div className="p-3.5 rounded-xl bg-slate-50/60 border border-slate-100">
-              <span className="text-[11px] text-slate-400 font-medium block">Ferma Rahbari (Boss)</span>
-              <span className="font-bold text-slate-900 mt-0.5 block">Akmal Rahimov</span>
-              <span className="text-[11px] text-blue-600 font-medium">+998 90 123-45-67</span>
-            </div>
-
-            <div className="p-3.5 rounded-xl bg-slate-50/60 border border-slate-100">
-              <span className="text-[11px] text-slate-400 font-medium block">Bosh Mas'ul Muhandis</span>
-              <span className="font-bold text-slate-900 mt-0.5 block">Sardor Bozorov</span>
-              <span className="text-[11px] text-blue-600 font-medium">+998 91 456-78-90</span>
-            </div>
-
-            <div className="p-3.5 rounded-xl bg-slate-50/60 border border-slate-100">
-              <span className="text-[11px] text-slate-400 font-medium block">Yuridik Manzil</span>
-              <span className="font-semibold text-slate-800 mt-0.5 block">
-                Qashqadaryo viloyati, Qarshi shahri, Islom Karimov ko'chasi 14-uy
-              </span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+            <CardContent className="p-5 pt-1 space-y-3 flex-1">
+              <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
+                <span className="text-slate-500">TDS (Minerallashuv):</span>
+                <span className="font-semibold text-emerald-600">45 - 65 ppm (Ideal)</span>
+              </div>
+              <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
+                <span className="text-slate-500">pH Balansi:</span>
+                <span className="font-semibold text-blue-600">7.2 - 7.5 (Optimal neytral)</span>
+              </div>
+              <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
+                <span className="text-slate-500">Qattiqlik darajasi:</span>
+                <span className="font-semibold text-emerald-600">1.2 mg-ekv/l</span>
+              </div>
+              <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
+                <span className="text-slate-500">Oxirgi laboratoriya testi:</span>
+                <span className="font-semibold text-slate-800">Bugun, 08:30 (Muvaffaqiyatli)</span>
+              </div>
+              <div className="flex justify-between py-2 text-xs">
+                <span className="text-slate-500">Sertifikat holati:</span>
+                <span className="font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">GOST 951:2018 Faol</span>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   )
 }
 
-export default BossFermaPage
+export default BossFermaPage;

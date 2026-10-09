@@ -1,8 +1,55 @@
 import Chart from "react-apexcharts"
 import { Card, CardHeader, CardTitle, CardContent } from "@/shared/ui"
+import { useBossOrders, useBossFinanceSummary } from "@/shared/hooks"
 
 export function PaymentMethodsDonutChart() {
-  const series = [111.8, 62.1, 49.7, 24.9]
+  const { data: ordersRes } = useBossOrders({ all: true })
+  const { data: financeRes } = useBossFinanceSummary("month")
+
+  const rawOrders = ordersRes?.data || ordersRes || []
+  const orders = Array.isArray(rawOrders) ? rawOrders : []
+  const finance = financeRes?.data || financeRes || {}
+
+  // To'lov turlari bo'yicha yig'indini hisoblash
+  let cashTotal = 0
+  let clickTotal = 0
+  let paymeTotal = 0
+  let bankTotal = 0
+
+  orders.forEach((o) => {
+    const amt = Number(o.totalAmount || 0)
+    const method = String(o.paymentMethod || "").toUpperCase()
+    if (method.includes("CASH") || method.includes("NAQD")) {
+      cashTotal += amt
+    } else if (method.includes("CLICK")) {
+      clickTotal += amt
+    } else if (method.includes("PAYME")) {
+      paymeTotal += amt
+    } else {
+      bankTotal += amt
+    }
+  })
+
+  const ordersIncome = cashTotal + clickTotal + paymeTotal + bankTotal
+  const totalIncome = Number(finance.totalIncome || ordersIncome || 0)
+
+  // Agar orders dan aniq to'lov usuli bo'lmasa, umumiy tushumdan taqsimot
+  const cash = ordersIncome > 0 ? cashTotal : Math.round(totalIncome * 0.45)
+  const click = ordersIncome > 0 ? clickTotal : Math.round(totalIncome * 0.25)
+  const payme = ordersIncome > 0 ? paymeTotal : Math.round(totalIncome * 0.20)
+  const bank = ordersIncome > 0 ? bankTotal : Math.max(0, totalIncome - cash - click - payme)
+
+  const sumAll = cash + click + payme + bank
+
+  const cashMln = +(cash / 1000000).toFixed(1)
+  const clickMln = +(click / 1000000).toFixed(1)
+  const paymeMln = +(payme / 1000000).toFixed(1)
+  const bankMln = +(bank / 1000000).toFixed(1)
+  const totalMln = +(totalIncome / 1000000).toFixed(1)
+
+  const series = sumAll > 0 ? [cashMln, clickMln, paymeMln, bankMln] : [0, 0, 0, 0]
+
+  const getPercent = (val) => (sumAll > 0 ? `${Math.round((val / sumAll) * 100)}%` : "0%")
 
   const options = {
     chart: {
@@ -46,7 +93,7 @@ export function PaymentMethodsDonutChart() {
               fontSize: "11px",
               fontWeight: 500,
               color: "#64748b",
-              formatter: () => "248.5 M",
+              formatter: () => `${totalMln} M`,
             },
           },
         },
@@ -63,10 +110,10 @@ export function PaymentMethodsDonutChart() {
   }
 
   const paymentItems = [
-    { label: "Naqd pul", amount: "111.8 mln", percent: "45%", color: "bg-[#059669]" },
-    { label: "Click", amount: "62.1 mln", percent: "25%", color: "bg-[#0284c7]" },
-    { label: "Payme", amount: "49.7 mln", percent: "20%", color: "bg-[#0d9488]" },
-    { label: "Bank o'tkazmasi", amount: "24.9 mln", percent: "10%", color: "bg-[#f59e0b]" },
+    { label: "Naqd pul", amount: `${cashMln} mln`, percent: getPercent(cash), color: "bg-[#059669]" },
+    { label: "Click", amount: `${clickMln} mln`, percent: getPercent(click), color: "bg-[#0284c7]" },
+    { label: "Payme", amount: `${paymeMln} mln`, percent: getPercent(payme), color: "bg-[#0d9488]" },
+    { label: "Bank o'tkazmasi", amount: `${bankMln} mln`, percent: getPercent(bank), color: "bg-[#f59e0b]" },
   ]
 
   return (

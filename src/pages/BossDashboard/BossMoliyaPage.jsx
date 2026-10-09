@@ -1,37 +1,49 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
 import { Select } from "@mantine/core"
-import { CreditCard, Receipt, Landmark, ShoppingBag, Wallet, Download, Plus, TrendingUp, TrendingDown, ChevronRight, Calendar, ChevronDown } from "lucide-react"
+import { CreditCard, Receipt, Landmark, ShoppingBag, Download, Plus, TrendingUp, TrendingDown, ChevronRight, Calendar, ChevronDown } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent, Button } from "@/shared/ui"
 import { FinanceDynamicChart, ExpensesBreakdownCard, PaymentMethodsDonutChart } from "@/widgets"
+import { useBossFinanceSummary } from "@/shared/hooks"
 
 const periodOptions = [
   { value: "today", label: "Bugun" },
   { value: "week", label: "Hafta" },
   { value: "this_month", label: "Shu oy" },
   { value: "this_year", label: "Shu yil" },
-  { value: "custom", label: "Maxsus sana" },
 ]
 
 export function BossMoliyaPage() {
   const [activePeriod, setActivePeriod] = useState("this_month")
 
+  const periodParam =
+    activePeriod === "this_month"
+      ? "month"
+      : activePeriod === "this_year"
+      ? "year"
+      : activePeriod
+
+  const { data: financeRes } = useBossFinanceSummary(periodParam)
+  const finance = financeRes?.data || financeRes || {}
+
+  const formatNumber = (num) => Number(num || 0).toLocaleString("ru-RU")
+
   const topMetrics = [
     {
       id: "tushum",
       title: "UMUMIY TUSHUM",
-      value: "248,500,000",
+      value: formatNumber(finance.totalIncome),
       unit: "so'm",
       icon: CreditCard,
       iconBg: "bg-blue-50 text-blue-600 border border-blue-100",
       change: "+14.2%",
       isPositive: true,
-      subtext: "o'tgan oyga nisbatan",
+      subtext: "tanlangan davr bo'yicha",
     },
     {
       id: "xarajat",
       title: "OPERATSION XARAJATLAR",
-      value: "98,200,000",
+      value: formatNumber(finance.totalExpense),
       unit: "so'm",
       icon: Receipt,
       iconBg: "bg-blue-50 text-blue-600 border border-blue-100",
@@ -42,33 +54,24 @@ export function BossMoliyaPage() {
     {
       id: "sof_foyda",
       title: "SOF FOYDA (EBITDA)",
-      value: "150,300,000",
+      value: formatNumber(finance.netProfit),
       unit: "so'm",
       icon: Landmark,
       iconBg: "bg-blue-50 text-blue-600 border border-blue-100",
       change: "+21.5%",
       isPositive: true,
-      badgeText: "Marja: 60.5%",
+      badgeText: "Sof tushum",
     },
     {
       id: "chek",
       title: "O'RTACHA BUYURTMA CHEKI",
-      value: "38,400",
+      value: "38 400",
       unit: "so'm",
       icon: ShoppingBag,
       iconBg: "bg-blue-50 text-blue-600 border border-blue-100",
       change: "+2.1%",
       isPositive: true,
-      subtext: "12 ta yetkazuvchi",
-    },
-    {
-      id: "kassa",
-      title: "KASSA & BANK QOLDIG'I",
-      value: "64,250,000",
-      unit: "so'm",
-      icon: Wallet,
-      iconBg: "bg-blue-50 text-blue-600 border border-blue-100",
-      extraLine: "Naqd: 21.5 mln • Hisob: 42.75 mln",
+      subtext: "hisoblangan chek",
     },
   ]
 
@@ -99,7 +102,6 @@ export function BossMoliyaPage() {
 
         {/* O'ng tomon: Davr tugmalari + Action tugmalari */}
         <div className="flex flex-wrap items-center gap-2.5">
-          {/* Davr filtr Select */}
           <Select
             value={activePeriod}
             onChange={(val) => setActivePeriod(val || "this_month")}
@@ -119,7 +121,6 @@ export function BossMoliyaPage() {
             }}
           />
 
-          {/* Hisobot (PDF/Excel) yuklab olish tugmasi */}
           <Button
             variant="outline"
             className="rounded-xl border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-xs font-semibold gap-1.5 shadow-2xs h-9 px-3.5"
@@ -128,7 +129,6 @@ export function BossMoliyaPage() {
             <span>Hisobot (PDF/Excel)</span>
           </Button>
 
-          {/* + Xarajat qo'shish ko'k tugmasi */}
           <button
             type="button"
             className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold gap-1.5 shadow-2xs h-9 px-4 flex items-center transition-colors cursor-pointer"
@@ -139,8 +139,8 @@ export function BossMoliyaPage() {
         </div>
       </div>
 
-      {/* 3. Top 5 ta Moliyaviy KPI Kartalari */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-3.5">
+      {/* 3. Top 4 ta Moliyaviy KPI Kartalari (1 qatorda tekis) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {topMetrics.map((item) => {
           const Icon = item.icon
           return (
@@ -167,7 +167,6 @@ export function BossMoliyaPage() {
                   </span>
                 </div>
 
-                {/* Pastki o'zgarish foizi va izohi */}
                 <div className="flex items-center gap-1.5 mt-2.5 flex-wrap">
                   {item.change && (
                     <span
@@ -197,12 +196,6 @@ export function BossMoliyaPage() {
                       {item.subtext}
                     </span>
                   )}
-
-                  {item.extraLine && (
-                    <span className="text-[11px] text-slate-500 font-medium truncate" title={item.extraLine}>
-                      {item.extraLine}
-                    </span>
-                  )}
                 </div>
               </CardContent>
             </Card>
@@ -210,7 +203,7 @@ export function BossMoliyaPage() {
         })}
       </div>
 
-      {/* 4. Asosiy Daromad va Xarajatlar Dinamikasi Grafigi (2024 Yil) */}
+      {/* 4. Asosiy Daromad va Xarajatlar Dinamikasi Grafigi */}
       <FinanceDynamicChart />
 
       {/* 5. Pastki Qism: Xarajatlar Strukturasi + To'lov Usullari Donut Chart */}
