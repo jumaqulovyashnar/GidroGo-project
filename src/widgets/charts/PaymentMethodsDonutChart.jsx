@@ -40,6 +40,7 @@ export function PaymentMethodsDonutChart() {
   const bank = ordersIncome > 0 ? bankTotal : Math.max(0, totalIncome - cash - click - payme)
 
   const sumAll = cash + click + payme + bank
+  const isZero = sumAll === 0 || totalIncome === 0
 
   const cashMln = +(cash / 1000000).toFixed(1)
   const clickMln = +(click / 1000000).toFixed(1)
@@ -47,7 +48,8 @@ export function PaymentMethodsDonutChart() {
   const bankMln = +(bank / 1000000).toFixed(1)
   const totalMln = +(totalIncome / 1000000).toFixed(1)
 
-  const series = sumAll > 0 ? [cashMln, clickMln, paymeMln, bankMln] : [0, 0, 0, 0]
+  // Default / 0 holatida kulrang yumaloq aylana chiqishi uchun [1] beriladi
+  const series = isZero ? [1] : [cashMln, clickMln, paymeMln, bankMln]
 
   const getPercent = (val) => (sumAll > 0 ? `${Math.round((val / sumAll) * 100)}%` : "0%")
 
@@ -57,10 +59,10 @@ export function PaymentMethodsDonutChart() {
       height: 250,
       fontFamily: "inherit",
     },
-    labels: ["Naqd pul", "Click", "Payme", "Bank hisobi"],
-    colors: ["#059669", "#0284c7", "#0d9488", "#f59e0b"],
+    labels: isZero ? ["Ma'lumot mavjud emas"] : ["Naqd pul", "Click", "Payme", "Bank hisobi"],
+    colors: isZero ? ["#e2e8f0"] : ["#059669", "#0284c7", "#0d9488", "#f59e0b"],
     stroke: {
-      width: 2,
+      width: isZero ? 0 : 2,
       colors: ["#ffffff"],
     },
     dataLabels: {
@@ -73,14 +75,14 @@ export function PaymentMethodsDonutChart() {
           labels: {
             show: true,
             name: {
-              show: true,
+              show: !isZero,
               fontSize: "12px",
               fontWeight: 500,
               color: "#64748b",
               offsetY: -4,
             },
             value: {
-              show: true,
+              show: !isZero,
               fontSize: "20px",
               fontWeight: 700,
               color: "#0f172a",
@@ -103,6 +105,7 @@ export function PaymentMethodsDonutChart() {
       show: false,
     },
     tooltip: {
+      enabled: !isZero,
       y: {
         formatter: (val) => `${val} mln so'm`,
       },

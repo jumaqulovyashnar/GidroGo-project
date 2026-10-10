@@ -23,35 +23,31 @@ export function CustomerGrowthAreaChart({ period = "quarter" }) {
   let clientData = []
   let orderData = []
 
+  const totalClients = Number(db.totalClients || clients.length || 0)
+  const totalOrders = Number(db.totalOrders || db.todayOrders || 0)
+
   if (Array.isArray(growthData.categories) && growthData.categories.length > 0) {
     categories = growthData.categories
-    clientData = Array.isArray(growthData.new_clients) ? growthData.new_clients : []
-    orderData = Array.isArray(growthData.orders_volume) ? growthData.orders_volume : []
+  }
+
+  // Agar mijoz va buyurtma soni 0 yoki 1 ta bo'lsa, o'tgan oylarga soxta sonlar qo'yilmasin!
+  if (totalClients === 0 && totalOrders === 0) {
+    clientData = categories.map(() => 0)
+    orderData = categories.map(() => 0)
+  } else if (totalClients <= 1 && totalOrders <= 1) {
+    clientData = categories.map((_, i) => (i === categories.length - 1 ? totalClients : 0))
+    orderData = categories.map((_, i) => (i === categories.length - 1 ? totalOrders : 0))
+  } else if (
+    Array.isArray(growthData.new_clients) &&
+    growthData.new_clients.length > 0 &&
+    Math.max(...growthData.new_clients) <= totalClients * 2
+  ) {
+    clientData = growthData.new_clients
+    orderData = Array.isArray(growthData.orders_volume) ? growthData.orders_volume : categories.map(() => 0)
   } else {
-    const totalClients = Number(db.totalClients || clients.length || 0)
-    const totalOrders = Number(db.totalOrders || db.todayOrders || 0)
-
-    clientData = totalClients > 0
-      ? [
-          Math.round(totalClients * 0.55),
-          Math.round(totalClients * 0.65),
-          Math.round(totalClients * 0.75),
-          Math.round(totalClients * 0.85),
-          Math.round(totalClients * 0.93),
-          totalClients,
-        ]
-      : [0, 0, 0, 0, 0, 0]
-
-    orderData = totalOrders > 0
-      ? [
-          Math.round(totalOrders * 0.50),
-          Math.round(totalOrders * 0.62),
-          Math.round(totalOrders * 0.74),
-          Math.round(totalOrders * 0.85),
-          Math.round(totalOrders * 0.92),
-          totalOrders,
-        ]
-      : [0, 0, 0, 0, 0, 0]
+    // Real joriy ma'lumotlar: o'tgan oylar 0, joriy davr real ko'rsatkich
+    clientData = categories.map((_, i) => (i === categories.length - 1 ? totalClients : 0))
+    orderData = categories.map((_, i) => (i === categories.length - 1 ? totalOrders : 0))
   }
 
   const series = [

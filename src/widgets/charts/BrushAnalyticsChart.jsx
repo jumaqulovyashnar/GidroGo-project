@@ -9,10 +9,11 @@ function generateDataFromDashboard(days, totalOrders = 0) {
 
   const safeOrders = Number(totalOrders) || 0
 
-  if (safeOrders === 0) {
+  if (safeOrders <= 1) {
     for (let i = 0; i < days; i++) {
-      data1.push([ts, 0])
-      data2.push([ts, 0])
+      const isToday = i === days - 1
+      data1.push([ts, isToday ? safeOrders : 0])
+      data2.push([ts, isToday ? Math.round(safeOrders * 35) : 0])
       ts += 86400000
     }
     return { data1, data2 }

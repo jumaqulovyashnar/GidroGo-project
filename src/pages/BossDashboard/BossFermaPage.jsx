@@ -72,7 +72,7 @@ export function BossFermaPage() {
             Ferma Ma'lumotlari va Texnik Pasport
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl">
-            Oazis Water fermasining texnik quvvati, ombor zaxiralari va korxona rekvizitlari.
+            {(farm.name || farm.farm_name || userInfo?.farm_name || userInfo?.farmName) ? `${farm.name || farm.farm_name || userInfo?.farm_name || userInfo?.farmName} fermasining` : "Fermaning"} texnik quvvati, ombor zaxiralari va korxona rekvizitlari.
           </p>
         </div>
 
@@ -150,23 +150,59 @@ export function BossFermaPage() {
             Korxona Rekvizitlari
           </CardTitle>
           <p className="text-xs text-slate-500 mt-0.5">
-            Yuridik hujjatlar va korxona boshqaruv ma'lumotlari.
+            Ferma ma'lumotlari va boshqaruv rekvizitlari.
           </p>
         </CardHeader>
 
         <CardContent className="p-5 pt-1 space-y-3">
           <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
             <span className="text-slate-500">Korxona nomi:</span>
-            <span className="font-semibold text-slate-800">{farm.farm_name || userInfo?.farm_name || userInfo?.farmName || "GidroGo Hamkor Fermasi"}</span>
+            <span className="font-semibold text-slate-800">
+              {farm.name || farm.farm_name || userInfo?.farm_name || userInfo?.farmName || "—"}
+            </span>
           </div>
           <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
             <span className="text-slate-500">Ferma rahbari:</span>
-            <span className="font-semibold text-slate-800">{userInfo?.name || "Ferma Rahbari"}</span>
+            <span className="font-semibold text-slate-800">
+              {farm.bossFullName || farm.ownerName || farm.boss_name || userInfo?.name || userInfo?.fullName || "—"}
+            </span>
           </div>
+          {(farm.phone || userInfo?.phone) && (
+            <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
+              <span className="text-slate-500">Bog'lanish telefoni:</span>
+              <span className="font-semibold text-blue-600">
+                {farm.phone || userInfo?.phone}
+              </span>
+            </div>
+          )}
+          {farm.bossPhone && (
+            <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
+              <span className="text-slate-500">Rahbar telefoni:</span>
+              <span className="font-semibold text-slate-800">
+                {farm.bossPhone}
+              </span>
+            </div>
+          )}
           <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
-            <span className="text-slate-500">STIR (INN):</span>
-            <span className="font-semibold text-slate-800">{farm.inn || userInfo?.inn || "308 945 112"}</span>
+            <span className="text-slate-500">Manzil:</span>
+            <span className="font-semibold text-slate-800 text-right max-w-xs">
+              {farm.address || userInfo?.address || "—"}
+            </span>
           </div>
+          {(farm.latitude && farm.longitude) && (
+            <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
+              <span className="text-slate-500">Geolokatsiya:</span>
+              <span className="font-semibold text-slate-800 font-mono text-[11px]">
+                {farm.latitude}, {farm.longitude}
+              </span>
+            </div>
+          )}
+          {(farm.inn || userInfo?.inn) && (
+            <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
+              <span className="text-slate-500">STIR (INN):</span>
+              <span className="font-semibold text-slate-800">{farm.inn || userInfo?.inn}</span>
+            </div>
+          )}
           {farm.license_number && (
             <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
               <span className="text-slate-500">Litsenziya raqami:</span>
@@ -174,19 +210,11 @@ export function BossFermaPage() {
             </div>
           )}
           {farm.filter_type && (
-            <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
+            <div className="flex justify-between py-2 text-xs">
               <span className="text-slate-500">Filtrlash texnologiyasi:</span>
               <span className="font-semibold text-slate-800">{farm.filter_type}</span>
             </div>
           )}
-          <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
-            <span className="text-slate-500">Manzil:</span>
-            <span className="font-semibold text-slate-800 text-right max-w-xs">{farm.address || userInfo?.address || "Markaziy Ishlab Chiqarish Majmuasi"}</span>
-          </div>
-          <div className="flex justify-between py-2 text-xs">
-            <span className="text-slate-500">Bog'lanish:</span>
-            <span className="font-semibold text-blue-600">{farm.phone || userInfo?.phone || "+998 78 120 00 20"}</span>
-          </div>
         </CardContent>
       </Card>
     </div>
