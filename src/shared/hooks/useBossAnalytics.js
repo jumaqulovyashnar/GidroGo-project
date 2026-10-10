@@ -12,5 +12,4 @@ export const useBossBusinessGrowth = (params = { period: "quarter" }, options = 
     ...options,
   });
 };
-
 export default useBossBusinessGrowth;
