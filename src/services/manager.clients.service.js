@@ -30,6 +30,16 @@ class ManagerClientsService {
       throw new Error(handleApiError(error));
     }
   }
+
+  // 4. POST /api/manager/clients/{clientId}/bottles/adjust - Menejer tomonidan mijoz idish balansini qo'lda tuzatish (eski idishlar)
+  async adjustBottleBalance(clientId, data) {
+    try {
+      const response = await api.post(`/manager/clients/${clientId}/bottles/adjust`, data);
+      return response.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  }
 }
 export const managerClientsService = new ManagerClientsService();
 export default managerClientsService;

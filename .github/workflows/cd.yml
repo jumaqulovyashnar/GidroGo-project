@@ -1,0 +1,46 @@
+name: CD Production Deployment
+
+on:
+  push:
+    branches: [main]
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+concurrency:
+  group: cd-production-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    name: Build & Package Production Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: 📦 Clean install dependencies
+        run: npm ci
+
+      - name: 🔍 Pre-deployment Validation (Oxlint + Build)
+        run: npm run validate
+
+      - name: 📦 Create Deployment Bundle (Archive)
+        run: |
+          tar -czvf release-bundle.tar.gz dist/
+          echo "✅ Release bundle created: release-bundle.tar.gz"
+
+      - name: 📤 Upload Production Release Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gidrogo-production-release-${{ github.sha }}
+          path: release-bundle.tar.gz
+          retention-days: 30

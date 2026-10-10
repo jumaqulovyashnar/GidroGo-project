@@ -1,5 +1,17 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import bossXodimlarService from "@/services/boss.xodimlar.service";
+
+// 4. GET /api/boss/staff/summary - Xodimlar monitoringi statistikasi
+export const useStaffSummary = (options = {}) => {
+  return useQuery({
+    queryKey: ["staff-summary"],
+    queryFn: () => bossXodimlarService.getStaffSummary(),
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
+    ...options,
+  });
+};
 
 export const useStaff = () => {
   const queryClient = useQueryClient();
@@ -14,11 +26,13 @@ export const useStaff = () => {
   // 2. POST /api/boss/staff
   const createStaff = useMutation({
     mutationFn: (payload) => bossXodimlarService.createXodim(payload),
-    onSuccess: () => {
-      // Faqat 1 marta yangi ma'lumotni olish
-      queryClient.invalidateQueries({
-        queryKey: ["staff"],
-      });
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ["staff"] });
+      queryClient.invalidateQueries({ queryKey: ["staff-summary"] });
+      toast.success(res?.message || "Yangi xodim muvaffaqiyatli qo'shildi!");
+    },
+    onError: (err) => {
+      toast.error(err?.message || "Xodim qo'shishda xatolik yuz berdi");
     },
   });
 
@@ -26,11 +40,26 @@ export const useStaff = () => {
   const updateStaffStatus = useMutation({
     mutationFn: ({ id, status }) =>
       bossXodimlarService.updateStaffStatus(id, status),
-    onSuccess: () => {
-      // Faqat 1 marta yangi ma'lumotni olish
-      queryClient.invalidateQueries({
-        queryKey: ["staff"],
-      });
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ["staff"] });
+      queryClient.invalidateQueries({ queryKey: ["staff-summary"] });
+      toast.success(res?.message || "Xodim holati yangilandi!");
+    },
+    onError: (err) => {
+      toast.error(err?.message || "Xodim holatini o'zgartirishda xatolik yuz berdi");
+    },
+  });
+
+  // 5. DELETE /api/boss/staff/{id}
+  const deleteStaff = useMutation({
+    mutationFn: (id) => bossXodimlarService.deleteStaff(id),
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ["staff"] });
+      queryClient.invalidateQueries({ queryKey: ["staff-summary"] });
+      toast.success(res?.message || "Xodim tizimdan o'chirildi!");
+    },
+    onError: (err) => {
+      toast.error(err?.message || "Xodimni o'chirishda xatolik yuz berdi (Kassa balansini tekshiring)");
     },
   });
 
@@ -48,7 +77,12 @@ export const useStaff = () => {
     updateStaffStatus: updateStaffStatus.mutate,
     updateStaffStatusAsync: updateStaffStatus.mutateAsync,
     isUpdatingStatus: updateStaffStatus.isPending,
+    // O'chirish
+    deleteStaff: deleteStaff.mutate,
+    deleteStaffAsync: deleteStaff.mutateAsync,
+    isDeleting: deleteStaff.isPending,
   };
 };
 
 export default useStaff;
+

@@ -2,18 +2,21 @@ import { useState } from "react"
 import { toast } from "sonner"
 import { Warehouse, RefreshCw, Droplet, Filter, FileText } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent, Button } from "@/shared/ui"
-import { useBossDashboard } from "@/shared/hooks"
+import { useBossDashboard, useBossFarmPassport } from "@/shared/hooks"
 import { useUserStore } from "@/entities/user"
 
 export function BossFermaPage() {
   const [isRefreshing, setIsRefreshing] = useState(false)
-  const { data: dashboardRes, refetch } = useBossDashboard()
+  const { data: dashboardRes, refetch: refetchDashboard } = useBossDashboard()
+  const { data: farmRes, refetch: refetchFarm } = useBossFarmPassport()
   const userInfo = useUserStore((state) => state.userInfo)
+
   const db = dashboardRes?.data || dashboardRes || {}
+  const farm = farmRes?.data || farmRes || {}
 
   const handleRefresh = async () => {
     setIsRefreshing(true)
-    await refetch()
+    await Promise.all([refetchDashboard(), refetchFarm()])
     setIsRefreshing(false)
     toast.success("Telemetriya va texnik ma'lumotlar yangilandi!")
   }
@@ -154,7 +157,7 @@ export function BossFermaPage() {
         <CardContent className="p-5 pt-1 space-y-3">
           <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
             <span className="text-slate-500">Korxona nomi:</span>
-            <span className="font-semibold text-slate-800">{userInfo?.farm_name || userInfo?.farmName || "GidroGo Hamkor Fermasi"}</span>
+            <span className="font-semibold text-slate-800">{farm.farm_name || userInfo?.farm_name || userInfo?.farmName || "GidroGo Hamkor Fermasi"}</span>
           </div>
           <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
             <span className="text-slate-500">Ferma rahbari:</span>
@@ -162,15 +165,27 @@ export function BossFermaPage() {
           </div>
           <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
             <span className="text-slate-500">STIR (INN):</span>
-            <span className="font-semibold text-slate-800">{userInfo?.inn || "308 945 112"}</span>
+            <span className="font-semibold text-slate-800">{farm.inn || userInfo?.inn || "308 945 112"}</span>
           </div>
+          {farm.license_number && (
+            <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
+              <span className="text-slate-500">Litsenziya raqami:</span>
+              <span className="font-semibold text-slate-800">{farm.license_number}</span>
+            </div>
+          )}
+          {farm.filter_type && (
+            <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
+              <span className="text-slate-500">Filtrlash texnologiyasi:</span>
+              <span className="font-semibold text-slate-800">{farm.filter_type}</span>
+            </div>
+          )}
           <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
             <span className="text-slate-500">Manzil:</span>
-            <span className="font-semibold text-slate-800 text-right max-w-xs">{userInfo?.address || "Markaziy Ishlab Chiqarish Majmuasi"}</span>
+            <span className="font-semibold text-slate-800 text-right max-w-xs">{farm.address || userInfo?.address || "Markaziy Ishlab Chiqarish Majmuasi"}</span>
           </div>
           <div className="flex justify-between py-2 text-xs">
             <span className="text-slate-500">Bog'lanish:</span>
-            <span className="font-semibold text-blue-600">{userInfo?.phone || "+998 78 120 00 20"}</span>
+            <span className="font-semibold text-blue-600">{farm.phone || userInfo?.phone || "+998 78 120 00 20"}</span>
           </div>
         </CardContent>
       </Card>

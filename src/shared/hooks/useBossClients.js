@@ -25,3 +25,17 @@ export const useBossClientDetail = (id, options = {}) => {
     ...options,
   });
 };
+
+// 3. CRM Mijozlar toifalari (B2C, B2B, ulgurji)
+export const useBossClientSegments = (options = {}) => {
+  return useQuery({
+    queryKey: ["boss-client-segments"],
+    queryFn: () => bossClientsService.getClientSegments(),
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    ...options,
+  });
+};
+
+export default useBossClients;

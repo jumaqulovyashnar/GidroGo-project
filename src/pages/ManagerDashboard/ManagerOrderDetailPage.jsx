@@ -1,11 +1,12 @@
 import { useState } from "react"
 import { useParams, useNavigate, Link } from "react-router-dom"
-import { ArrowLeft, Copy, MapPin, Package, Clock, CheckCircle2, CreditCard, UserCheck, AlertCircle, Truck, Home } from "lucide-react"
+import { ArrowLeft, Copy, MapPin, Package, Clock, CheckCircle2, CreditCard, UserCheck, AlertCircle, Truck, Home, Droplet } from "lucide-react"
 import { Modal as MantineModal } from "@mantine/core"
 import { MOCK_ORDERS, MOCK_COURIERS } from "@/mock"
 import { GoogleMap } from "@/widgets"
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbPage, BreadcrumbSeparator } from "@/shared/ui"
 import { toast } from "sonner"
+import { AdjustBottleBalanceModal } from "./components/AdjustBottleBalanceModal"
 
 export default function ManagerOrderDetailPage() {
   const { id } = useParams()
@@ -16,6 +17,7 @@ export default function ManagerOrderDetailPage() {
 
   const [currentOrder, setCurrentOrder] = useState(order)
   const [isReassignModalOpen, setIsReassignModalOpen] = useState(false)
+  const [isBottleModalOpen, setIsBottleModalOpen] = useState(false)
   const [selectedCourierId, setSelectedCourierId] = useState(currentOrder.courierId || 1)
 
   const handleCopyPhone = (phone) => {
@@ -98,20 +100,30 @@ export default function ManagerOrderDetailPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
           <button
             type="button"
             onClick={() => handleCopyPhone(currentOrder.phone)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-xs"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-xs cursor-pointer"
             title="Telefon raqamini nusxalash"
           >
             <Copy className="w-3.5 h-3.5 text-blue-600" />
             <span>Raqamni nusxalash</span>
           </button>
+
+          <button
+            type="button"
+            onClick={() => setIsBottleModalOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-xs cursor-pointer"
+          >
+            <Droplet className="w-3.5 h-3.5 text-blue-600" />
+            <span>Idish balansini tuzatish</span>
+          </button>
+
           <button
             type="button"
             onClick={() => setIsReassignModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-xs"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-xs cursor-pointer"
           >
             <UserCheck className="w-3.5 h-3.5" />
             <span>Kuryerni biriktirish</span>
@@ -435,6 +447,16 @@ export default function ManagerOrderDetailPage() {
           </div>
         </div>
       </MantineModal>
+
+      {/* Idish balansini tuzatish modali (POST /api/manager/clients/{clientId}/bottles/adjust) */}
+      <AdjustBottleBalanceModal
+        isOpen={isBottleModalOpen}
+        onClose={() => setIsBottleModalOpen(false)}
+        clientId={currentOrder.clientId || currentOrder.customer_id || 1}
+        customerName={currentOrder.customer}
+        productId={1}
+        productName={currentOrder.product || "18.9L Kapsula"}
+      />
     </div>
   )
 }

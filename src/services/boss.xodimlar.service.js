@@ -30,6 +30,26 @@ class BossXodimlarService {
       throw new Error(handleApiError(error));
     }
   }
+
+  // 4. GET /api/boss/staff/summary - Xodimlar va dastavkachilar monitoringi statistikasi (kartochkalar uchun)
+  async getStaffSummary() {
+    try {
+      const response = await api.get("/boss/staff/summary");
+      return response.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  }
+
+  // 5. DELETE /api/boss/staff/{id} - Xodimni o'chirish (Kassa balansi 0 dan katta bo'lsa 409 CASH_BALANCE_NOT_ZERO)
+  async deleteStaff(id) {
+    try {
+      const response = await api.delete(`/boss/staff/${id}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  }
 }
 
 export const bossXodimlarService = new BossXodimlarService();

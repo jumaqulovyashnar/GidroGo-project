@@ -1,5 +1,5 @@
 import React, { useMemo } from "react"
-import { useParams, Link } from "react-router-dom"
+import { useParams, Link, useNavigate } from "react-router-dom"
 import {
   User,
   Phone,
@@ -8,7 +8,8 @@ import {
   Building2,
   Truck,
   Briefcase,
-  Hash
+  Hash,
+  Trash2,
 } from "lucide-react"
 import { toast } from "sonner"
 import { Card, Switch, Button } from "@/shared/ui"
@@ -24,7 +25,17 @@ import { useStaff } from "@/shared"
 
 export function BossXodimDetailPage() {
   const { id } = useParams()
-  const { data, isLoading, isError, refetch, updateStaffStatus, isUpdatingStatus } = useStaff()
+  const navigate = useNavigate()
+  const {
+    data,
+    isLoading,
+    isError,
+    refetch,
+    updateStaffStatus,
+    isUpdatingStatus,
+    deleteStaff,
+    isDeleting,
+  } = useStaff()
 
   // Xodimlar ro'yxati
   const rawList = useMemo(() => {
@@ -65,6 +76,21 @@ export function BossXodimDetailPage() {
         },
       }
     )
+  }
+
+  // Xodimni o'chirish: DELETE /api/boss/staff/{id} (Double request protected, 409 CASH_BALANCE_NOT_ZERO qo'llab-quvvatlaydi)
+  const handleDeleteEmployee = () => {
+    if (isDeleting || !employee) return
+    const confirmed = window.confirm(
+      `Haqiqatan ham "${employee.fullName || employee.name}" xodimini tizimdan o'chirmoqchimisiz?`
+    )
+    if (confirmed) {
+      deleteStaff(employee.id, {
+        onSuccess: () => {
+          navigate("/boss/xodimlar")
+        },
+      })
+    }
   }
 
   // Sana formatlash (kun.oy.yil, soat:daqiqa)
@@ -206,6 +232,16 @@ export function BossXodimDetailPage() {
             <span className="text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 font-mono border border-slate-200/60">
               ID: #{employee.id}
             </span>
+            <button
+              type="button"
+              disabled={isDeleting}
+              onClick={handleDeleteEmployee}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-semibold border border-rose-200/60 transition-colors cursor-pointer disabled:opacity-50"
+              title="Xodimni o'chirish"
+            >
+              <Trash2 className="size-3.5" />
+              <span>{isDeleting ? "O'chirilmoqda..." : "Xodimni o'chirish"}</span>
+            </button>
           </div>
         </div>
 

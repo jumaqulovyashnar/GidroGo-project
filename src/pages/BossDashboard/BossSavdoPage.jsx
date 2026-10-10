@@ -1,10 +1,10 @@
 import { useState } from "react"
 import { Select } from "@mantine/core"
 import { toast } from "sonner"
-import { Droplet, CheckCircle2, Truck, FileSpreadsheet, ChevronDown, Calendar, Package, Layers, Zap } from "lucide-react"
+import { Droplet, CheckCircle2, Truck, FileSpreadsheet, ChevronDown, Calendar, Package, Zap } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent, Button } from "@/shared/ui"
 import { WeeklySalesDynamicsChart } from "@/widgets"
-import { useBossDashboard } from "@/shared/hooks"
+import { useBossDashboard, useBossSalesSummary, useBossSalesProductsSummary } from "@/shared/hooks"
 
 const periodOptions = [
   { value: "today", label: "Bugun" },
@@ -13,18 +13,27 @@ const periodOptions = [
   { value: "this_year", label: "Shu yil" },
 ]
 
-const productFilterOptions = [
-  { value: "all", label: "Barcha mahsulotlar" },
-  { value: "18_9l", label: "18.9L Kapsula" },
-  { value: "10l", label: "10L Idish" },
-  { value: "5l", label: "5L Qadoq (Blok)" },
-]
-
 export function BossSavdoPage() {
   const [activePeriod, setActivePeriod] = useState("today")
   const [selectedProduct, setSelectedProduct] = useState("all")
+  
+  // Real API: Sales summary va Products summary
+  const { data: salesRes } = useBossSalesSummary({
+    period: activePeriod,
+    productId: selectedProduct !== "all" ? Number(selectedProduct) : undefined,
+  })
+  const { data: productsRes } = useBossSalesProductsSummary()
   const { data: dashboardRes } = useBossDashboard()
+
+  const salesData = salesRes?.data || salesRes || {}
+  const rawProducts = productsRes?.data || productsRes || []
+  const products = Array.isArray(rawProducts) ? rawProducts : []
   const db = dashboardRes?.data || dashboardRes || {}
+
+  const productFilterOptions = [
+    { value: "all", label: "Barcha mahsulotlar" },
+    ...products.map((p) => ({ value: String(p.productId || p.id), label: p.name || p.title })),
+  ]
 
   const handleExport = () => {
     toast.success("XLSX hisobot muvaffaqiyatli yuklab olindi!")
@@ -32,52 +41,14 @@ export function BossSavdoPage() {
 
   const formatNumber = (num) => Number(num || 0).toLocaleString("ru-RU")
 
-  const soldBottles = Number(db.bottlesSoldToday || 0)
-  const totalLiters = Math.round(soldBottles * 18.9)
+  const totalLiters = salesData.totalWaterVolumeLiters ?? Math.round(Number(db.bottlesSoldToday || 0) * 18.9)
+  const soldBottles = salesData.totalBottlesSold ?? Number(db.bottlesSoldToday || 0)
   const todayRevenue = Number(db.todayIncome || 0)
-
-  // Mahsulotlar kesimidagi savdo tahlili ma'lumotlari
-  const productSales = [
-    {
-      id: "18_9l",
-      name: "18.9L Kapsula",
-      category: `Qaytariladigan idish • ${Math.round(soldBottles * 0.6)} dona`,
-      revenue: `${formatNumber(Math.round(todayRevenue * 0.6))} so'm`,
-      volumeText: `${formatNumber(Math.round(totalLiters * 0.6))} L (60%)`,
-      percentage: totalLiters > 0 ? 60 : 0,
-      progressColor: "bg-[#047857]",
-      iconBg: "bg-emerald-50 text-emerald-700 border border-emerald-100",
-      stockText: `Omborda zaxira: ${formatNumber(db.warehouseBottles ?? 0)} dona`,
-      trendText: "Yetakchi mahsulot",
-      icon: Package,
-    },
-    {
-      id: "10l",
-      name: "10L Idish",
-      category: `Oilaviy xonadonlar • ${Math.round(soldBottles * 0.25)} dona`,
-      revenue: `${formatNumber(Math.round(todayRevenue * 0.25))} so'm`,
-      volumeText: `${formatNumber(Math.round(totalLiters * 0.25))} L (25%)`,
-      percentage: totalLiters > 0 ? 25 : 0,
-      progressColor: "bg-[#0284c7]",
-      iconBg: "bg-sky-50 text-sky-700 border border-sky-100",
-      stockText: "Omborda zaxira: barqaror",
-      trendText: "Barqaror dinamika",
-      icon: Droplet,
-    },
-    {
-      id: "5l",
-      name: "5L Qadoq (Blok)",
-      category: `Ixcham blok • ${Math.max(0, soldBottles - Math.round(soldBottles * 0.85))} dona`,
-      revenue: `${formatNumber(Math.round(todayRevenue * 0.15))} so'm`,
-      volumeText: `${formatNumber(Math.round(totalLiters * 0.15))} L (15%)`,
-      percentage: totalLiters > 0 ? 15 : 0,
-      progressColor: "bg-slate-400",
-      iconBg: "bg-slate-100 text-slate-700 border border-slate-200",
-      stockText: "Zaxira me'yorda",
-      trendText: "Talab o'smoqda",
-      icon: Layers,
-    },
-  ]
+  const completedOrders = salesData.completedOrders ?? db.deliveredToday ?? 0
+  const totalOrders = salesData.totalOrders ?? db.todayOrders ?? 0
+  const completionPercent = salesData.completionPercent ?? (totalOrders > 0 ? Math.round((completedOrders / totalOrders) * 100) : 100)
+  const pendingOrders = salesData.pendingOrders ?? db.activeOrders ?? 0
+  const topProduct = salesData.topProduct || null
 
   return (
     <div className="space-y-6 pb-10">
@@ -166,10 +137,10 @@ export function BossSavdoPage() {
             </div>
             <div className="flex items-center justify-between mt-3 text-xs">
               <span className="text-slate-500 font-medium">
-                Ombor zaxirasi:
+                Sotilgan balonlar:
               </span>
               <span className="text-blue-600 font-bold">
-                {formatNumber(db.warehouseBottles ?? 0)} dona
+                {formatNumber(soldBottles)} dona
               </span>
             </div>
           </CardContent>
@@ -188,24 +159,24 @@ export function BossSavdoPage() {
           <CardContent className="p-4 pt-1">
             <div className="flex items-baseline gap-1.5">
               <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
-                {db.deliveredToday ?? 0}
+                {completedOrders}
               </span>
               <span className="text-slate-400 font-normal text-base sm:text-lg">
-                / {db.todayOrders ?? 0} ta
+                / {totalOrders} ta
               </span>
             </div>
             <div className="mt-2.5">
               <div className="flex items-center justify-between text-[11px] font-medium mb-1.5">
                 <span className="text-emerald-600 font-semibold">
-                  {db.todayOrders > 0 ? Math.round(((db.deliveredToday || 0) / db.todayOrders) * 100) : 100}% yakunlandi
+                  {completionPercent}% yakunlandi
                 </span>
-                <span className="text-slate-400">{db.activeOrders ?? 0} ta kutilmoqda</span>
+                <span className="text-slate-400">{pendingOrders} ta kutilmoqda</span>
               </div>
               <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-[#047857] rounded-full transition-all duration-500"
                   style={{
-                    width: `${db.todayOrders > 0 ? Math.round(((db.deliveredToday || 0) / db.todayOrders) * 100) : 0}%`,
+                    width: `${Math.min(100, Math.max(0, completionPercent))}%`,
                   }}
                 />
               </div>
@@ -255,22 +226,54 @@ export function BossSavdoPage() {
             </div>
           </CardHeader>
           <CardContent className="p-4 pt-1">
-            <div>
-              <span className="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 block truncate">
-                18.9L Kapsula
-              </span>
-              <span className="text-xs text-slate-400 font-medium mt-0.5 block">
-                {formatNumber(Math.round(totalLiters * 0.6))} L sotildi
-              </span>
-            </div>
-            <div className="flex items-center justify-between mt-2.5 text-xs text-slate-500">
-              <span className="text-[11px] text-slate-500">
-                Umumiy hajmning 60% ulushi
-              </span>
-              <span className="text-xs font-bold text-slate-800">
-                {formatNumber(Math.round(soldBottles * 0.6))} dona
-              </span>
-            </div>
+            {topProduct ? (
+              <>
+                <div>
+                  <span className="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 block truncate">
+                    {topProduct.name || "Yetakchi Mahsulot"}
+                  </span>
+                  <span className="text-xs text-slate-400 font-medium mt-0.5 block">
+                    {formatNumber(topProduct.soldLiters || 0)} L sotildi
+                  </span>
+                </div>
+                <div className="flex items-center justify-between mt-2.5 text-xs text-slate-500">
+                  <span className="text-[11px] text-slate-500">Ulushi: {topProduct.sharePercent ?? 0}%</span>
+                  <span className="text-xs font-bold text-slate-800">
+                    {formatNumber(topProduct.soldCount || 0)} dona
+                  </span>
+                </div>
+              </>
+            ) : products.length > 0 ? (
+              <>
+                <div>
+                  <span className="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 block truncate">
+                    {products[0]?.name || "Mahsulot"}
+                  </span>
+                  <span className="text-xs text-slate-400 font-medium mt-0.5 block">
+                    {formatNumber(products[0]?.soldCount || 0)} dona sotildi
+                  </span>
+                </div>
+                <div className="flex items-center justify-between mt-2.5 text-xs text-slate-500">
+                  <span className="text-[11px] text-slate-500">Ombor qoldig'i</span>
+                  <span className="text-xs font-bold text-slate-800">
+                    {formatNumber(products[0]?.stock || 0)} dona
+                  </span>
+                </div>
+              </>
+            ) : (
+              <div>
+                <span className="text-base sm:text-lg font-bold tracking-tight text-slate-700 block truncate">
+                  Mahsulot topilmadi
+                </span>
+                <span className="text-xs text-slate-400 font-medium mt-1 block">
+                  Katalog kutilmoqda
+                </span>
+                <div className="flex items-center justify-between mt-2.5 text-xs text-slate-400">
+                  <span className="text-[11px]">Sotuv mavjud emas</span>
+                  <span className="text-xs font-semibold">0 dona</span>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -278,81 +281,61 @@ export function BossSavdoPage() {
       {/* 3. Haftalik Savdo va Buyurtmalar Dinamikasi Grafigi */}
       <WeeklySalesDynamicsChart />
 
-      {/* 4. Pastki Qism: Mahsulotlar Kesimida Savdo Tahlili (To'liq kenglikdagi toza Card) */}
+      {/* 4. Pastki Qism: Mahsulotlar Kesimida Savdo Tahlili */}
       <Card className="border border-slate-200/90 bg-white shadow-xs rounded-2xl w-full">
         <CardHeader className="p-5 pb-3">
-          <div className="flex items-center justify-between gap-2">
-            <div>
-              <CardTitle className="text-base sm:text-lg font-bold text-slate-900">
-                Mahsulotlar Kesimida Savdo Tahlili
-              </CardTitle>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Bugungi sotilgan idishlar soni, suv litri va umumiy tushum ko'rsatkichi.
-              </p>
-            </div>
-            <span className="text-[11px] font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-md shrink-0">
-              Realizatsiya ulushi
-            </span>
+          <div>
+            <CardTitle className="text-base sm:text-lg font-bold text-slate-900">
+              Mahsulotlar Kesimida Savdo Tahlili
+            </CardTitle>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Sotilgan idishlar soni, suv litri va umumiy tushum ko'rsatkichi.
+            </p>
           </div>
         </CardHeader>
 
         <CardContent className="p-5 pt-1 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {productSales.map((prod) => {
-              const Icon = prod.icon
-              return (
+          {products.length === 0 ? (
+            /* Bo'sh holat (Empty State) - Mahsulotlar topilmadi */
+            <div className="py-12 px-4 text-center flex flex-col items-center justify-center">
+              <div className="size-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-3">
+                <Package className="size-6 stroke-[1.5]" />
+              </div>
+              <p className="text-sm font-bold text-slate-800">
+                Mahsulotlar topilmadi
+              </p>
+              <p className="text-xs text-slate-400 mt-1 max-w-sm">
+                Hozircha tizimga mahsulotlar kiritilmagan.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {products.map((prod) => (
                 <div
-                  key={prod.id}
+                  key={prod.productId || prod.id}
                   className="p-4 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-colors flex flex-col justify-between"
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`size-10 rounded-xl flex items-center justify-center shrink-0 ${prod.iconBg}`}
-                      >
-                        <Icon className="size-5 stroke-2" />
+                  <div className="flex items-center gap-3">
+                    <div className="size-10 rounded-xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center shrink-0">
+                      <Package className="size-5 stroke-2" />
+                    </div>
+                    <div>
+                      <div className="text-sm font-bold text-slate-900">
+                        {prod.name}
                       </div>
-                      <div>
-                        <div className="text-sm font-bold text-slate-900">
-                          {prod.name}
-                        </div>
-                        <div className="text-xs text-slate-400 mt-0.5">
-                          {prod.category}
-                        </div>
+                      <div className="text-xs text-slate-400 mt-0.5">
+                        Omborda: {formatNumber(prod.stock ?? 0)} dona
                       </div>
                     </div>
                   </div>
-
-                  <div className="mt-3 pt-3 border-t border-slate-200/60">
-                    <div className="flex items-baseline justify-between">
-                      <span className="text-xs text-slate-500 font-medium">Tushum:</span>
-                      <span className="text-base font-extrabold text-slate-900">{prod.revenue}</span>
-                    </div>
-                    <div className="flex items-baseline justify-between mt-1 text-xs text-slate-500">
-                      <span>Yetkazildi:</span>
-                      <span className="font-semibold text-slate-700">{prod.volumeText}</span>
-                    </div>
-
-                    <div className="h-1.5 w-full bg-slate-200/70 rounded-full overflow-hidden mt-3">
-                      <div
-                        className={`h-full rounded-full ${prod.progressColor}`}
-                        style={{ width: `${prod.percentage}%` }}
-                      />
-                    </div>
-
-                    <div className="flex items-center justify-between text-[11px] mt-2.5 text-slate-500">
-                      <span className="text-slate-400">
-                        {prod.stockText}
-                      </span>
-                      <span className="font-semibold text-emerald-600">
-                        {prod.trendText}
-                      </span>
-                    </div>
+                  <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
+                    <span className="text-slate-500">Sotilgan: <strong className="text-slate-800">{formatNumber(prod.soldCount ?? 0)}</strong></span>
+                    <span className="font-bold text-blue-600">{formatNumber(prod.revenue ?? 0)} so'm</span>
                   </div>
                 </div>
-              )
-            })}
-          </div>
+              ))}
+            </div>
+          )}
 
           <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <span className="text-xs sm:text-sm font-medium text-slate-600">

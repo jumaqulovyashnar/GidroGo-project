@@ -2,13 +2,13 @@ import { useState, useMemo } from "react"
 import { toast } from "sonner"
 import { Plus, Download } from "lucide-react"
 import { Button } from "@/shared/ui"
-import { useStaff } from "@/shared"
+import { useStaff, useStaffSummary } from "@/shared/hooks"
 import { XodimlarStats } from "./components/XodimlarStats"
 import { XodimlarTable } from "./components/XodimlarTable"
 import { AddXodimModal } from "./components/AddXodimModal"
 
 export function BossXodimlarPage() {
-  // 1. Dinamik API Hook: GET, POST (create), PATCH (status)
+  // 1. Dinamik API Hook: GET, POST (create), PATCH (status), DELETE
   const {
     data,
     isLoading,
@@ -18,7 +18,13 @@ export function BossXodimlarPage() {
     isCreating,
     updateStaffStatus,
     isUpdatingStatus,
+    deleteStaff,
+    isDeleting,
   } = useStaff()
+
+  // Real API: GET /api/boss/staff/summary
+  const { data: summaryRes, isLoading: isSummaryLoading } = useStaffSummary()
+  const summaryData = useMemo(() => summaryRes?.data || summaryRes || {}, [summaryRes])
 
   // API dan kelgan xom ma'lumotlarni massivga aylantirish
   const rawList = useMemo(() => {
@@ -93,8 +99,19 @@ export function BossXodimlarPage() {
   // 3. Yangi xodim qo'shish modali
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
 
-  // 4. Statistika (KPI lar) - Faqat backend ma'lumotlaridan
+  // 4. Statistika (KPI lar) - Faqat backend ma'lumotlaridan (GET /api/boss/staff/summary)
   const stats = useMemo(() => {
+    if (summaryData.totalStaffCount != null) {
+      return {
+        total: Number(summaryData.totalStaffCount),
+        managersCount: Number(summaryData.managersCount ?? 0),
+        couriersCount: Number(summaryData.couriersCount ?? 0),
+        activeCount: Number(summaryData.activeOnShiftCount ?? 0),
+        blockedCount: employees.filter((e) => e.status === "blocked").length,
+        disciplinePercent: summaryData.deliveryDisciplinePercent,
+      }
+    }
+
     const total = employees.length
     const managersCount = employees.filter((e) => e.roleType === "manager").length
     const couriersCount = employees.filter((e) => e.roleType === "courier").length
@@ -108,7 +125,7 @@ export function BossXodimlarPage() {
       activeCount,
       blockedCount,
     }
-  }, [employees])
+  }, [employees, summaryData])
 
   // 5. Qidiruv va Tab bo'yicha saralash
   const filteredEmployees = useMemo(() => {
@@ -174,6 +191,15 @@ export function BossXodimlarPage() {
     )
   }
 
+  // 9. DELETE /api/boss/staff/{id} - Xodimni o'chirish (Double-request protected)
+  const handleDeleteEmployee = (emp) => {
+    if (isDeleting) return
+    const confirmed = window.confirm(`Haqiqatan ham "${emp.name}" xodimini tizimdan o'chirmoqchimisiz?`)
+    if (confirmed) {
+      deleteStaff(emp.id)
+    }
+  }
+
   const handleExportCSV = () => {
     toast.success("Xodimlar ro'yxati CSV shaklida yuklab olindi!")
   }
@@ -215,7 +241,7 @@ export function BossXodimlarPage() {
       </div>
 
       {/* 2. Top Asosiy KPI Kartalari */}
-      <XodimlarStats stats={stats} isLoading={isLoading} />
+      <XodimlarStats stats={stats} isLoading={isLoading || isSummaryLoading} />
 
       {/* 3. Asosiy Jadval, Filtrlash va Pagination */}
       <XodimlarTable
@@ -235,6 +261,8 @@ export function BossXodimlarPage() {
         onPageChange={setCurrentPage}
         onToggleBlock={handleToggleBlock}
         isUpdatingStatus={isUpdatingStatus}
+        onDeleteEmployee={handleDeleteEmployee}
+        isDeleting={isDeleting}
       />
 
       {/* 4. Yangi Xodim Qo'shish Modali */}

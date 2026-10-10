@@ -1,14 +1,42 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { Users, Truck, Copy, Search, CheckCircle2, Star } from "lucide-react"
+import { Users, Truck, Copy, Search, CheckCircle2, Banknote, Clock, ArrowRight } from "lucide-react"
 import { MOCK_COURIERS } from "@/mock"
 import { toast } from "sonner"
+import { useCourierCashBalances, useCashHandovers } from "@/shared/hooks"
+import { ManagerDirectHandoverModal } from "./components/ManagerDirectHandoverModal"
+import { ConfirmHandoverModal } from "./components/ConfirmHandoverModal"
 
 export default function ManagerXodimlarPage() {
   const navigate = useNavigate()
   const couriers = MOCK_COURIERS
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
+
+  // Real Cash & Handover API hooks
+  const { data: cashBalancesRes } = useCourierCashBalances()
+  const { data: pendingHandoversRes } = useCashHandovers({ status: "PENDING" })
+
+  const cashBalances = Array.isArray(cashBalancesRes?.data)
+    ? cashBalancesRes.data
+    : Array.isArray(cashBalancesRes)
+    ? cashBalancesRes
+    : []
+  const pendingHandovers = Array.isArray(pendingHandoversRes?.data)
+    ? pendingHandoversRes.data
+    : Array.isArray(pendingHandoversRes)
+    ? pendingHandoversRes
+    : []
+
+  const [selectedCourierForHandover, setSelectedCourierForHandover] = useState(null)
+  const [selectedHandoverForConfirm, setSelectedHandoverForConfirm] = useState(null)
+
+  const getCourierCashBalance = (courierId) => {
+    const item = cashBalances.find((b) => Number(b.courierId) === Number(courierId))
+    return item ? Number(item.balance || 0) : 0
+  }
+
+  const totalCourierCash = cashBalances.reduce((sum, b) => sum + Number(b.balance || 0), 0)
 
   const filteredCouriers = couriers.filter((courier) => {
     const matchesSearch =
@@ -88,21 +116,44 @@ export default function ManagerXodimlarPage() {
 
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
           <div>
-            <span className="text-xs font-medium text-slate-500">O'rtacha xizmat reytingi</span>
+            <span className="text-xs font-medium text-slate-500">Dastavkachilar kassasi</span>
             <div className="flex items-baseline gap-1.5 mt-1">
-              <span className="text-2xl font-bold text-slate-900">4.94</span>
-              <span className="text-xs font-bold text-blue-600 flex items-center gap-0.5">
-                <Star className="w-3.5 h-3.5 fill-blue-500 text-blue-600" />
-                a'lo
+              <span className="text-2xl font-bold text-emerald-600">
+                {totalCourierCash.toLocaleString()}
               </span>
+              <span className="text-xs font-semibold text-slate-500">so'm</span>
             </div>
-            <p className="text-[11px] text-slate-500 mt-0.5">Mijozlar bahosi asosida</p>
+            <p className="text-[11px] text-slate-500 mt-0.5">
+              {pendingHandovers.length > 0
+                ? `${pendingHandovers.length} ta topshirish kutilmoqda`
+                : "Barcha kassalar nazoratda"}
+            </p>
           </div>
-          <div className="size-10 rounded-full bg-blue-100/70 border border-blue-200 text-blue-600 flex items-center justify-center shrink-0">
-            <Star className="w-5 h-5" />
+          <div className="size-10 rounded-full bg-emerald-100/70 border border-emerald-200 text-emerald-600 flex items-center justify-center shrink-0">
+            <Banknote className="w-5 h-5" />
           </div>
         </div>
       </div>
+
+      {/* Kassa topshirish so'rovlari bildirishnomasi */}
+      {pendingHandovers.length > 0 && (
+        <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-center justify-between text-xs text-amber-900 shadow-xs">
+          <div className="flex items-center gap-2">
+            <Clock className="w-4 h-4 text-amber-600 shrink-0" />
+            <span>
+              <strong>{pendingHandovers.length} ta</strong> dastavkachidan kassa topshirish so'rovi kutilmoqda!
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setSelectedHandoverForConfirm(pendingHandovers[0])}
+            className="px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-lg text-xs flex items-center gap-1 shadow-xs cursor-pointer transition-colors"
+          >
+            <span>Ko'rib chiqish</span>
+            <ArrowRight className="w-3 h-3" />
+          </button>
+        </div>
+      )}
 
       {/* Couriers List Card */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-xs flex flex-col">
@@ -161,7 +212,7 @@ export default function ManagerXodimlarPage() {
                 <th className="py-2.5 px-3">Hudud / Sektor</th>
                 <th className="py-2.5 px-3">Yuk sig'imi</th>
                 <th className="py-2.5 px-3">Holat</th>
-                <th className="py-2.5 px-3">Bugun</th>
+                <th className="py-2.5 px-3">Kassa Balansi</th>
                 <th className="py-2.5 px-3 text-right">Amal</th>
               </tr>
             </thead>
@@ -173,82 +224,112 @@ export default function ManagerXodimlarPage() {
                   </td>
                 </tr>
               ) : (
-                filteredCouriers.map((courier) => (
-                  <tr key={courier.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="py-3 px-3">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 font-bold text-xs flex items-center justify-center shrink-0">
-                          {courier.initials}
-                        </div>
-                        <div>
-                          <div className="font-semibold text-slate-900 flex items-center gap-1.5">
-                            <span>{courier.name}</span>
-                            <span className="text-[10px] text-amber-500 font-medium">
-                              ★ {courier.rating}
-                            </span>
+                filteredCouriers.map((courier) => {
+                  const courierCash = getCourierCashBalance(courier.id)
+                  return (
+                    <tr key={courier.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="py-3 px-3">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 font-bold text-xs flex items-center justify-center shrink-0">
+                            {courier.initials}
                           </div>
-                          <div className="text-[10px] text-slate-400">Dastavkachi xodim</div>
+                          <div>
+                            <div className="font-semibold text-slate-900 flex items-center gap-1.5">
+                              <span>{courier.name}</span>
+                              <span className="text-[10px] text-amber-500 font-medium">
+                                ★ {courier.rating}
+                              </span>
+                            </div>
+                            <div className="text-[10px] text-slate-400">Dastavkachi xodim</div>
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                    <td className="py-3 px-3 font-mono text-slate-700">
-                      {courier.phone}
-                    </td>
-                    <td className="py-3 px-3">
-                      <div className="font-medium text-slate-800">{courier.vehicle}</div>
-                      <div className="text-[10px] text-slate-400 font-mono">{courier.plate}</div>
-                    </td>
-                    <td className="py-3 px-3 text-slate-700">
-                      {courier.sector}
-                    </td>
-                    <td className="py-3 px-3">
-                      <span className="font-semibold text-blue-600">{courier.load}</span>
-                    </td>
-                    <td className="py-3 px-3">
-                      <span
-                        className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-                          courier.status === "on_way"
-                            ? "bg-blue-50 text-blue-700 border border-blue-200"
-                            : courier.status === "free"
-                            ? "bg-slate-100 text-slate-700 border border-slate-200"
-                            : "bg-slate-50 text-slate-600 border border-slate-200"
-                        }`}
-                      >
-                        {courier.statusText}
-                      </span>
-                    </td>
-                    <td className="py-3 px-3 font-semibold text-slate-900">
-                      {courier.completedToday} ta
-                    </td>
-                    <td className="py-3 px-3 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            navigator.clipboard?.writeText(courier.phone)
-                            toast.success(`Telefon raqami nusxalandi: ${courier.phone}`)
-                          }}
-                          className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors"
-                          title="Telefon raqamini nusxalash"
+                      </td>
+                      <td className="py-3 px-3 font-mono text-slate-700">
+                        {courier.phone}
+                      </td>
+                      <td className="py-3 px-3">
+                        <div className="font-medium text-slate-800">{courier.vehicle}</div>
+                        <div className="text-[10px] text-slate-400 font-mono">{courier.plate}</div>
+                      </td>
+                      <td className="py-3 px-3 text-slate-700">
+                        {courier.sector}
+                      </td>
+                      <td className="py-3 px-3">
+                        <span className="font-semibold text-blue-600">{courier.load}</span>
+                      </td>
+                      <td className="py-3 px-3">
+                        <span
+                          className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                            courier.status === "on_way"
+                              ? "bg-blue-50 text-blue-700 border border-blue-200"
+                              : courier.status === "free"
+                              ? "bg-slate-100 text-slate-700 border border-slate-200"
+                              : "bg-slate-50 text-slate-600 border border-slate-200"
+                          }`}
                         >
-                          <Copy className="w-3.5 h-3.5 text-blue-600" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => navigate("/manager/dastavkachilar-xarita")}
-                          className="px-2.5 py-1 rounded-lg text-xs font-medium bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
-                        >
-                          Xaritada
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                          {courier.statusText}
+                        </span>
+                      </td>
+                      <td className="py-3 px-3">
+                        <span className={`font-bold font-mono ${courierCash > 0 ? "text-emerald-700" : "text-slate-500"}`}>
+                          {courierCash.toLocaleString()} so'm
+                        </span>
+                      </td>
+                      <td className="py-3 px-3 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          {/* Direct Handover button (POST /api/manager/couriers/{courierId}/cash/handovers) */}
+                          <button
+                            type="button"
+                            onClick={() => setSelectedCourierForHandover(courier)}
+                            className="px-2 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 transition-colors flex items-center gap-1 shadow-2xs cursor-pointer"
+                            title="Kassani qabul qilish"
+                          >
+                            <Banknote className="w-3.5 h-3.5" />
+                            <span>Kassa</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              navigator.clipboard?.writeText(courier.phone)
+                              toast.success(`Telefon raqami nusxalandi: ${courier.phone}`)
+                            }}
+                            className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors cursor-pointer"
+                            title="Telefon raqamini nusxalash"
+                          >
+                            <Copy className="w-3.5 h-3.5 text-blue-600" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => navigate("/manager/dastavkachilar-xarita")}
+                            className="px-2.5 py-1 rounded-lg text-xs font-medium bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors cursor-pointer"
+                          >
+                            Xaritada
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })
               )}
             </tbody>
           </table>
         </div>
       </div>
+
+      {/* Menejer tomonidan to'g'ridan-to'g'ri topshirilgan naqd pulni kiritish modali */}
+      <ManagerDirectHandoverModal
+        isOpen={Boolean(selectedCourierForHandover)}
+        onClose={() => setSelectedCourierForHandover(null)}
+        courierId={selectedCourierForHandover?.id}
+        courierName={selectedCourierForHandover?.name}
+      />
+
+      {/* Kuryer kassa so'rovini tasdiqlash/rad etish modali */}
+      <ConfirmHandoverModal
+        isOpen={Boolean(selectedHandoverForConfirm)}
+        onClose={() => setSelectedHandoverForConfirm(null)}
+        handover={selectedHandoverForConfirm}
+      />
     </div>
   )
 }
