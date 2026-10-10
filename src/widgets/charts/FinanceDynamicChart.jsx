@@ -1,22 +1,19 @@
 import Chart from "react-apexcharts"
 import { Card, CardHeader, CardTitle, CardContent } from "@/shared/ui"
 import { TrendingUp } from "lucide-react"
-import { useBossFinanceSummary, useBossDashboard } from "@/shared/hooks"
+import { useBossFinanceSummary, useBossDashboard, useBossFinanceChart } from "@/shared/hooks"
 
-export function FinanceDynamicChart() {
-  const { data: financeRes } = useBossFinanceSummary("month")
+export function FinanceDynamicChart({ period = "month" }) {
+  const { data: chartRes } = useBossFinanceChart(period)
+  const { data: financeRes } = useBossFinanceSummary(period)
   const { data: dashboardRes } = useBossDashboard()
 
+  const rawChart = chartRes?.data || chartRes || []
+  const chartList = Array.isArray(rawChart) ? rawChart : []
   const finance = financeRes?.data || financeRes || {}
   const db = dashboardRes?.data || dashboardRes || {}
 
-  const totalIncomeVal = Number(finance.totalIncome || db.monthIncome || db.todayIncome || 0)
-  const totalExpenseVal = Number(finance.totalExpense || db.monthExpense || db.todayExpense || 0)
-
-  const currentIncomeMln = +(totalIncomeVal / 1000000).toFixed(1)
-  const currentExpenseMln = +(totalExpenseVal / 1000000).toFixed(1)
-
-  const categories = [
+  let categories = [
     "Yanvar",
     "Fevral",
     "Mart",
@@ -25,33 +22,48 @@ export function FinanceDynamicChart() {
     "Iyun",
     "Joriy oy",
   ]
+  let incomeData = []
+  let expenseData = []
+  let profitData = []
 
-  // Joriy oydagi real ko'rsatkichlar asosida oylar dinamikasi
-  const incomeData = currentIncomeMln > 0
-    ? [
-        +(currentIncomeMln * 0.65).toFixed(1),
-        +(currentIncomeMln * 0.72).toFixed(1),
-        +(currentIncomeMln * 0.80).toFixed(1),
-        +(currentIncomeMln * 0.86).toFixed(1),
-        +(currentIncomeMln * 0.92).toFixed(1),
-        +(currentIncomeMln * 0.97).toFixed(1),
-        currentIncomeMln,
-      ]
-    : [0, 0, 0, 0, 0, 0, 0]
+  if (chartList.length > 0) {
+    categories = chartList.map((item) => item.date || "Sana")
+    incomeData = chartList.map((item) => +(Number(item.income || 0) / 1000000).toFixed(1))
+    expenseData = chartList.map((item) => +(Number(item.expense || 0) / 1000000).toFixed(1))
+    profitData = chartList.map((item) => +(Number(item.profit || 0) / 1000000).toFixed(1))
+  } else {
+    const totalIncomeVal = Number(finance.totalIncome || db.monthIncome || db.todayIncome || 0)
+    const totalExpenseVal = Number(finance.totalExpense || db.monthExpense || db.todayExpense || 0)
 
-  const expenseData = currentExpenseMln > 0
-    ? [
-        +(currentExpenseMln * 0.70).toFixed(1),
-        +(currentExpenseMln * 0.75).toFixed(1),
-        +(currentExpenseMln * 0.82).toFixed(1),
-        +(currentExpenseMln * 0.88).toFixed(1),
-        +(currentExpenseMln * 0.92).toFixed(1),
-        +(currentExpenseMln * 0.95).toFixed(1),
-        currentExpenseMln,
-      ]
-    : [0, 0, 0, 0, 0, 0, 0]
+    const currentIncomeMln = +(totalIncomeVal / 1000000).toFixed(1)
+    const currentExpenseMln = +(totalExpenseVal / 1000000).toFixed(1)
 
-  const profitData = incomeData.map((inc, i) => +(inc - expenseData[i]).toFixed(1))
+    incomeData = currentIncomeMln > 0
+      ? [
+          +(currentIncomeMln * 0.65).toFixed(1),
+          +(currentIncomeMln * 0.72).toFixed(1),
+          +(currentIncomeMln * 0.80).toFixed(1),
+          +(currentIncomeMln * 0.86).toFixed(1),
+          +(currentIncomeMln * 0.92).toFixed(1),
+          +(currentIncomeMln * 0.97).toFixed(1),
+          currentIncomeMln,
+        ]
+      : [0, 0, 0, 0, 0, 0, 0]
+
+    expenseData = currentExpenseMln > 0
+      ? [
+          +(currentExpenseMln * 0.70).toFixed(1),
+          +(currentExpenseMln * 0.75).toFixed(1),
+          +(currentExpenseMln * 0.82).toFixed(1),
+          +(currentExpenseMln * 0.88).toFixed(1),
+          +(currentExpenseMln * 0.92).toFixed(1),
+          +(currentExpenseMln * 0.95).toFixed(1),
+          currentExpenseMln,
+        ]
+      : [0, 0, 0, 0, 0, 0, 0]
+
+    profitData = incomeData.map((inc, i) => +(inc - expenseData[i]).toFixed(1))
+  }
 
   const series = [
     {

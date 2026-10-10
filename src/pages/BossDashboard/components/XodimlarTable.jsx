@@ -1,4 +1,4 @@
-import { Search, AlertCircle, RotateCw } from "lucide-react"
+import { Search, AlertCircle, RotateCw, Trash2 } from "lucide-react"
 import { Card, TablePagination, Button } from "@/shared/ui"
 
 export function XodimlarTable({
@@ -18,6 +18,8 @@ export function XodimlarTable({
   onPageChange,
   onToggleBlock,
   isUpdatingStatus,
+  onDeleteEmployee,
+  isDeleting,
 }) {
   return (
     <>
@@ -231,7 +233,7 @@ export function XodimlarTable({
 
                       {/* Amallar */}
                       <td className="py-4 px-5 text-right">
-                        <div className="flex items-center justify-end">
+                        <div className="flex items-center justify-end gap-2.5">
                           {/* Switch toggle */}
                           <button
                             type="button"
@@ -252,6 +254,17 @@ export function XodimlarTable({
                               className={`pointer-events-none inline-block size-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${!isBlocked ? "translate-x-4" : "translate-x-0"
                                 }`}
                             />
+                          </button>
+
+                          {/* Delete button (DELETE /api/boss/staff/{id}) */}
+                          <button
+                            type="button"
+                            disabled={isDeleting}
+                            onClick={() => onDeleteEmployee && onDeleteEmployee(emp)}
+                            className="size-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer disabled:opacity-50"
+                            title="Xodimni o'chirish"
+                          >
+                            <Trash2 className="size-3.5" />
                           </button>
                         </div>
                       </td>

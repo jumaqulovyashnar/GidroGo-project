@@ -4,7 +4,7 @@ import { toast } from "sonner"
 import { Calendar, ChevronDown, FileText, Wallet, Truck, Users, TrendingUp, Sparkles } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent, Button } from "@/shared/ui"
 import { CustomerGrowthAreaChart } from "@/widgets"
-import { useBossDashboard, useBossClients } from "@/shared/hooks"
+import { useBossDashboard, useBossClients, useBossClientSegments, useBossBusinessGrowth } from "@/shared/hooks"
 
 const quarterOptions = [
   { value: "2026_q1", label: "2026-yil 1-Chorak" },
@@ -22,13 +22,17 @@ const modeOptions = [
 export function BossOsishPage() {
   const [selectedQuarter, setSelectedQuarter] = useState("2026_q1")
   const [selectedMode, setSelectedMode] = useState("prev_quarter")
+  const { data: growthRes } = useBossBusinessGrowth({ period: "quarter" })
   const { data: dashboardRes } = useBossDashboard()
   const { data: clientsRes } = useBossClients()
+  const { data: segmentsRes } = useBossClientSegments()
 
+  const growth = growthRes?.data || growthRes || {}
+  const segments = segmentsRes?.data || segmentsRes || {}
   const db = dashboardRes?.data || dashboardRes || {}
   const rawClients = clientsRes?.data || clientsRes || []
   const clients = Array.isArray(rawClients) ? rawClients : []
-  const totalClients = Number(db.totalClients || clients.length || 0)
+  const totalClients = Number(segments.total || db.totalClients || clients.length || 0)
 
   const handleExportPDF = () => {
     toast.success("PDF hisobot muvaffaqiyatli yuklab olindi!")
@@ -42,7 +46,7 @@ export function BossOsishPage() {
       id: "revenue",
       title: "OYLIK JAMI TUSHUM",
       value: `${formatNumber(db.monthIncome || db.todayIncome)} so'm`,
-      subtext: "Fermaning aylanma mablag'i",
+      subtext: growth.revenue_growth_percent != null ? `O'sish sur'ati: +${growth.revenue_growth_percent}%` : "Fermaning aylanma mablag'i",
       icon: Wallet,
     },
     {
@@ -56,7 +60,7 @@ export function BossOsishPage() {
       id: "customers",
       title: "MIJOZLAR BAZASI",
       value: `${formatNumber(totalClients)} ta`,
-      subtext: "Fermaga biriktirilgan mijozlar",
+      subtext: growth.retention_rate_percent != null ? `Mijozlarni saqlab qolish: ${growth.retention_rate_percent}%` : "Fermaga biriktirilgan mijozlar",
       icon: Users,
     },
     {
@@ -182,7 +186,7 @@ export function BossOsishPage() {
             </CardHeader>
 
             <CardContent className="p-5 pt-1 space-y-4 flex-1">
-              <div className="p-4 rounded-xl border border-slate-100 bg-slate-50/50 flex items-center justify-between">
+              <div className="p-4 rounded-xl border border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
                   <div className="text-sm font-bold text-slate-900">
                     Jami ro'yxatdan o'tgan mijozlar
@@ -190,8 +194,15 @@ export function BossOsishPage() {
                   <div className="text-xs text-slate-400 mt-0.5">
                     Fermaga buyurtma beruvchi faol iste'molchilar
                   </div>
+                  {(segments.b2cCount != null || segments.b2bCount != null) && (
+                    <div className="flex flex-wrap items-center gap-2 mt-2 text-[11px] font-medium text-slate-500">
+                      <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-semibold">B2C: {segments.b2cCount ?? 0}</span>
+                      <span className="px-2 py-0.5 rounded bg-purple-50 text-purple-700 font-semibold">B2B: {segments.b2bCount ?? 0}</span>
+                      <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-semibold">Ulgurji: {segments.wholesaleCount ?? 0}</span>
+                    </div>
+                  )}
                 </div>
-                <div className="text-2xl font-extrabold text-blue-600">
+                <div className="text-2xl font-extrabold text-blue-600 shrink-0">
                   {formatNumber(totalClients)} ta
                 </div>
               </div>

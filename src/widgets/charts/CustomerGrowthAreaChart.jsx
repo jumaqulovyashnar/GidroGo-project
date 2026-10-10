@@ -1,19 +1,18 @@
 import Chart from "react-apexcharts"
 import { Card, CardHeader, CardTitle, CardContent } from "@/shared/ui"
-import { useBossClients, useBossDashboard } from "@/shared/hooks"
+import { useBossClients, useBossDashboard, useBossBusinessGrowth } from "@/shared/hooks"
 
-export function CustomerGrowthAreaChart() {
+export function CustomerGrowthAreaChart({ period = "quarter" }) {
+  const { data: growthRes } = useBossBusinessGrowth({ period })
   const { data: clientsRes } = useBossClients()
   const { data: dashboardRes } = useBossDashboard()
 
+  const growthData = growthRes?.data || growthRes || {}
   const rawClients = clientsRes?.data || clientsRes || []
   const clients = Array.isArray(rawClients) ? rawClients : []
   const db = dashboardRes?.data || dashboardRes || {}
 
-  const totalClients = Number(db.totalClients || clients.length || 0)
-  const totalOrders = Number(db.totalOrders || db.todayOrders || 0)
-
-  const categories = [
+  let categories = [
     "Okt 2025",
     "Noy 2025",
     "Dek 2025",
@@ -21,28 +20,39 @@ export function CustomerGrowthAreaChart() {
     "Fev 2026",
     "Joriy davr",
   ]
+  let clientData = []
+  let orderData = []
 
-  const clientData = totalClients > 0
-    ? [
-        Math.round(totalClients * 0.55),
-        Math.round(totalClients * 0.65),
-        Math.round(totalClients * 0.75),
-        Math.round(totalClients * 0.85),
-        Math.round(totalClients * 0.93),
-        totalClients,
-      ]
-    : [0, 0, 0, 0, 0, 0]
+  if (Array.isArray(growthData.categories) && growthData.categories.length > 0) {
+    categories = growthData.categories
+    clientData = Array.isArray(growthData.new_clients) ? growthData.new_clients : []
+    orderData = Array.isArray(growthData.orders_volume) ? growthData.orders_volume : []
+  } else {
+    const totalClients = Number(db.totalClients || clients.length || 0)
+    const totalOrders = Number(db.totalOrders || db.todayOrders || 0)
 
-  const orderData = totalOrders > 0
-    ? [
-        Math.round(totalOrders * 0.50),
-        Math.round(totalOrders * 0.62),
-        Math.round(totalOrders * 0.74),
-        Math.round(totalOrders * 0.85),
-        Math.round(totalOrders * 0.92),
-        totalOrders,
-      ]
-    : [0, 0, 0, 0, 0, 0]
+    clientData = totalClients > 0
+      ? [
+          Math.round(totalClients * 0.55),
+          Math.round(totalClients * 0.65),
+          Math.round(totalClients * 0.75),
+          Math.round(totalClients * 0.85),
+          Math.round(totalClients * 0.93),
+          totalClients,
+        ]
+      : [0, 0, 0, 0, 0, 0]
+
+    orderData = totalOrders > 0
+      ? [
+          Math.round(totalOrders * 0.50),
+          Math.round(totalOrders * 0.62),
+          Math.round(totalOrders * 0.74),
+          Math.round(totalOrders * 0.85),
+          Math.round(totalOrders * 0.92),
+          totalOrders,
+        ]
+      : [0, 0, 0, 0, 0, 0]
+  }
 
   const series = [
     {

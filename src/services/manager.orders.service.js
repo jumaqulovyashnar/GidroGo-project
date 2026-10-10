@@ -40,6 +40,56 @@ class ManagerOrdersService {
       throw new Error(handleApiError(error));
     }
   }
+
+  // 5. GET /api/manager/orders/{id} - Bitta buyurtmaning to'liq ma'lumotlari (Detail API)
+  async getOrderById(id) {
+    try {
+      const response = await api.get(`/manager/orders/${id}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  }
+
+  // 6. POST /api/manager/orders - Menejer tomonidan yangi buyurtma kiritish (Manual Order Create)
+  async createOrder(data) {
+    try {
+      const response = await api.post("/manager/orders", data);
+      return response.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  }
+
+  // 7. POST /api/manager/orders/{id}/retry-dispatch - PREPARING buyurtmani darhol qayta taqsimlash navbatiga qo'yish
+  async retryDispatchOrder(id) {
+    try {
+      const response = await api.post(`/manager/orders/${id}/retry-dispatch`);
+      return response.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  }
+
+  // 8. POST /api/manager/orders/{id}/assign - Buyurtmaga kuryer biriktirish (Assign Order API)
+  async assignOrder(id, data) {
+    try {
+      const response = await api.post(`/manager/orders/${id}/assign`, data);
+      return response.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  }
+
+  // 9. PATCH /api/manager/orders/{id}/status - Buyurtma holatini o'zgartirish
+  async updateOrderStatus(id, data) {
+    try {
+      const response = await api.patch(`/manager/orders/${id}/status`, data);
+      return response.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  }
 }
 
 export const managerOrdersService = new ManagerOrdersService();

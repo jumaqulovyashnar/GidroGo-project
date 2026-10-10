@@ -1,10 +1,10 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
 import { Select } from "@mantine/core"
-import { CreditCard, Receipt, Landmark, ShoppingBag, Download, Plus, ChevronRight, Calendar, ChevronDown } from "lucide-react"
+import { CreditCard, Receipt, Landmark, ShoppingBag, Download, Plus, ChevronRight, Calendar, ChevronDown, HandCoins, ArrowDownToLine, Wallet, Users } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent, Button } from "@/shared/ui"
 import { FinanceDynamicChart, PaymentMethodsDonutChart } from "@/widgets"
-import { useBossFinanceSummary, useBossOrders } from "@/shared/hooks"
+import { useBossFinanceSummary, useBossOrders, useBossCashSummary } from "@/shared/hooks"
 
 const periodOptions = [
   { value: "today", label: "Bugun" },
@@ -25,10 +25,12 @@ export function BossMoliyaPage() {
 
   const { data: financeRes } = useBossFinanceSummary(periodParam)
   const { data: ordersRes } = useBossOrders({ all: true })
+  const { data: cashSummaryRes } = useBossCashSummary()
 
   const finance = financeRes?.data || financeRes || {}
   const rawOrders = ordersRes?.data || ordersRes || []
   const orders = Array.isArray(rawOrders) ? rawOrders : []
+  const cashSummary = cashSummaryRes?.data || cashSummaryRes || {}
 
   const formatNumber = (num) => Number(num || 0).toLocaleString("ru-RU")
 
@@ -175,11 +177,118 @@ export function BossMoliyaPage() {
           )
         })}
       </div>
+ 
+      {/* 4. Kassa va Inkassatsiya Monitoringi (GET /api/boss/cash/summary) */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-base font-bold text-slate-900">
+              Kassa va Inkassatsiya Hisoboti
+            </h2>
+            <p className="text-xs text-slate-500">
+              Kuryerlardan yig'ilgan naqd pul, kassaga topshirilgan va qoldiq summalar monitoringi
+            </p>
+          </div>
+          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">
+            Real vaqt
+          </span>
+        </div>
 
-      {/* 4. Asosiy Daromad va Xarajatlar Dinamikasi Grafigi */}
-      <FinanceDynamicChart />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card className="border border-slate-200/80 bg-white hover:border-slate-300 hover:shadow-xs transition-all duration-200 rounded-2xl p-4">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  Jami Yig'ilgan Naqd Pul
+                </p>
+                <div className="flex items-baseline gap-1 mt-2">
+                  <span className="text-xl font-bold text-slate-900 font-mono">
+                    {formatNumber(cashSummary.totalCollected)}
+                  </span>
+                  <span className="text-xs font-medium text-slate-500">so'm</span>
+                </div>
+              </div>
+              <div className="size-8 rounded-full bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center shrink-0">
+                <HandCoins className="size-4" />
+              </div>
+            </div>
+            <p className="text-xs text-slate-500 mt-2">
+              Kuryerlar tomonidan qabul qilingan naqd pul
+            </p>
+          </Card>
 
-      {/* 5. Pastki Qism: To'lov Usullari va Tushum Tahlili */}
+          <Card className="border border-slate-200/80 bg-white hover:border-slate-300 hover:shadow-xs transition-all duration-200 rounded-2xl p-4">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  Kassaga Topshirilgan
+                </p>
+                <div className="flex items-baseline gap-1 mt-2">
+                  <span className="text-xl font-bold text-emerald-600 font-mono">
+                    {formatNumber(cashSummary.totalHandedOver)}
+                  </span>
+                  <span className="text-xs font-medium text-slate-500">so'm</span>
+                </div>
+              </div>
+              <div className="size-8 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center shrink-0">
+                <ArrowDownToLine className="size-4" />
+              </div>
+            </div>
+            <p className="text-xs text-slate-500 mt-2">
+              Menejer tomonidan tasdiqlangan summa
+            </p>
+          </Card>
+
+          <Card className="border border-slate-200/80 bg-white hover:border-slate-300 hover:shadow-xs transition-all duration-200 rounded-2xl p-4">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  Dastavkachilar Qo'lida
+                </p>
+                <div className="flex items-baseline gap-1 mt-2">
+                  <span className="text-xl font-bold text-amber-600 font-mono">
+                    {formatNumber(cashSummary.remainingWithCouriers)}
+                  </span>
+                  <span className="text-xs font-medium text-slate-500">so'm</span>
+                </div>
+              </div>
+              <div className="size-8 rounded-full bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center shrink-0">
+                <Wallet className="size-4" />
+              </div>
+            </div>
+            <p className="text-xs text-slate-500 mt-2">
+              Topshirilishi kutilayotgan kassa balansi
+            </p>
+          </Card>
+
+          <Card className="border border-slate-200/80 bg-white hover:border-slate-300 hover:shadow-xs transition-all duration-200 rounded-2xl p-4">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  Kassasi Bor Kuryerlar
+                </p>
+                <div className="flex items-baseline gap-1 mt-2">
+                  <span className="text-xl font-bold text-slate-900 font-mono">
+                    {cashSummary.activeCouriersWithCash ?? 0}
+                  </span>
+                  <span className="text-xs font-medium text-slate-500">nafar</span>
+                </div>
+              </div>
+              <div className="size-8 rounded-full bg-purple-50 text-purple-600 border border-purple-100 flex items-center justify-center shrink-0">
+                <Users className="size-4" />
+              </div>
+            </div>
+            <p className="text-xs text-slate-500 mt-2">
+              Qo'lida naqd pul bo'lgan xodimlar soni
+            </p>
+          </Card>
+        </div>
+      </div>
+
+      {/* 5. Asosiy Daromad va Xarajatlar Dinamikasi Grafigi */}
+      <FinanceDynamicChart period={periodParam} />
+
+      {/* 6. Pastki Qism: To'lov Usullari va Tushum Tahlili */}
       <PaymentMethodsDonutChart />
     </div>
   )
