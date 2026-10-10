@@ -190,29 +190,11 @@ export function BossFermaPage() {
             </span>
           </div>
           {(farm.latitude && farm.longitude) && (
-            <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
+            <div className="flex justify-between py-2 text-xs">
               <span className="text-slate-500">Geolokatsiya:</span>
               <span className="font-semibold text-slate-800 font-mono text-[11px]">
                 {farm.latitude}, {farm.longitude}
               </span>
-            </div>
-          )}
-          {(farm.inn || userInfo?.inn) && (
-            <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
-              <span className="text-slate-500">STIR (INN):</span>
-              <span className="font-semibold text-slate-800">{farm.inn || userInfo?.inn}</span>
-            </div>
-          )}
-          {farm.license_number && (
-            <div className="flex justify-between py-2 border-b border-slate-100 text-xs">
-              <span className="text-slate-500">Litsenziya raqami:</span>
-              <span className="font-semibold text-slate-800">{farm.license_number}</span>
-            </div>
-          )}
-          {farm.filter_type && (
-            <div className="flex justify-between py-2 text-xs">
-              <span className="text-slate-500">Filtrlash texnologiyasi:</span>
-              <span className="font-semibold text-slate-800">{farm.filter_type}</span>
             </div>
           )}
         </CardContent>
