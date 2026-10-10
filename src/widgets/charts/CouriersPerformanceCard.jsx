@@ -9,24 +9,60 @@ export function CouriersPerformanceCard() {
   const list =
     Array.isArray(rawCouriers)
       ? rawCouriers.map((c) => {
-          const loaded = Number(c.loadedBottlesToday || 0)
-          const sold = Number(c.soldBottlesToday || 0)
-          const efficiency = loaded > 0 ? Math.min(100, Math.round((sold / loaded) * 100)) : 0
+          const rawStatus = String(c.currentStatus || c.status || "").toUpperCase()
 
+          const isBlocked =
+            rawStatus === "BLOCKED" ||
+            rawStatus === "INACTIVE" ||
+            c.isActive === false ||
+            c.isBlocked === true
+
+          // Agar bloklanmagan bo'lsa yoki status ACTIVE, ONLINE, ON_THE_WAY, FREE, AVAILABLE bo'lsa -> Faol
           const isActive =
-            c.currentStatus === "ACTIVE" ||
-            c.currentStatus === "ONLINE" ||
-            c.currentStatus === "ON_THE_WAY"
+            !isBlocked &&
+            (rawStatus === "ACTIVE" ||
+              rawStatus === "ONLINE" ||
+              rawStatus === "ON_THE_WAY" ||
+              rawStatus === "ON_WAY" ||
+              rawStatus === "FREE" ||
+              rawStatus === "AVAILABLE" ||
+              c.isOnline === true ||
+              c.active === true ||
+              rawStatus === "")
+
+          let statusText = "Faol"
+          if (isBlocked) {
+            statusText = "Nofaol"
+          } else if (rawStatus === "ON_THE_WAY" || rawStatus === "ON_WAY" || rawStatus === "DELIVERING") {
+            statusText = "Yetkazmoqda"
+          } else if (rawStatus === "BUSY" || rawStatus === "LOADING") {
+            statusText = "Band"
+          } else if (rawStatus === "OFFLINE") {
+            statusText = "Oflayn"
+          } else {
+            statusText = "Faol"
+          }
+          const loaded = Number(c.loadedBottlesToday ?? c.loadedBottles ?? c.loadedCount ?? 0)
+          const sold = Number(c.soldBottlesToday ?? c.deliveredBottlesToday ?? c.soldBottles ?? c.deliveredBottles ?? 0)
+          const completedOrders = Number(c.completedOrdersCount ?? c.completedOrders ?? c.ordersCount ?? c.ordersToday ?? 0)
+          const efficiency =
+            c.efficiency !== undefined && c.efficiency !== null
+              ? Number(c.efficiency)
+              : loaded > 0
+              ? Math.min(100, Math.round((sold / loaded) * 100))
+              : completedOrders > 0
+              ? 100
+              : 0
 
           return {
-            id: c.courierId,
-            name: c.fullName || "Kuryer",
+            id: c.courierId || c.id || c._id,
+            name: c.fullName || c.name || "Kuryer",
             phone: c.phone || "",
-            avatarUrl: c.avatarUrl || "",
-            initials: (c.fullName || "K").slice(0, 2).toUpperCase(),
+            avatarUrl: c.avatarUrl || c.avatar || "",
+            initials: (c.fullName || c.name || "K").slice(0, 2).toUpperCase(),
             isActive,
-            statusText: isActive ? "Faol" : "Kutilmoqda",
-            ordersCount: `${c.completedOrdersCount ?? 0} ta`,
+            statusText,
+            ordersCount: `${completedOrders} ta`,
             deliveredBottles: `${sold} dona`,
             efficiency,
           }

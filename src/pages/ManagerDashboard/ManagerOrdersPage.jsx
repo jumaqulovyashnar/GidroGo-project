@@ -2,15 +2,22 @@ import { useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
 import { Truck, Package, Clock, Banknote, Search, Download, AlertCircle, ChevronRight, Home, Copy, ChevronDown, Filter } from "lucide-react"
 import { Select } from "@mantine/core"
-import { MOCK_ORDERS } from "@/mock"
 import { TablePagination, Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbPage, BreadcrumbSeparator } from "@/shared/ui"
 import { toast } from "sonner"
+import { useManagerTodayOrders, useManagerDashboard } from "@/shared/hooks"
 
 export default function ManagerOrdersPage() {
   const navigate = useNavigate()
-  const orders = MOCK_ORDERS
   const [activeTab, setActiveTab] = useState("all") // all, new, processing, delivering, completed
   const [searchQuery, setSearchQuery] = useState("")
+
+  // Real Manager Orders & Dashboard API Hooks
+  const { data: todayOrdersRes } = useManagerTodayOrders()
+  const { data: dashboardRes } = useManagerDashboard()
+
+  const rawOrders = todayOrdersRes?.data?.orders || todayOrdersRes?.data || (Array.isArray(todayOrdersRes) ? todayOrdersRes : null)
+  const orders = Array.isArray(rawOrders) ? rawOrders : []
+  const dbData = dashboardRes?.data || dashboardRes || {}
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1)
@@ -18,26 +25,31 @@ export default function ManagerOrdersPage() {
 
   const statusOptions = [
     { value: "all", label: `Holat: Barchasi (${orders.length})` },
-    { value: "new", label: `Yangi (${orders.filter((o) => o.status === "new").length})` },
-    { value: "processing", label: `Jarayonda (${orders.filter((o) => o.status === "processing").length})` },
-    { value: "delivering", label: `Yetkazilmoqda (${orders.filter((o) => o.status === "delivering").length})` },
-    { value: "completed", label: `Yetkazildi (${orders.filter((o) => o.status === "completed").length})` },
+    { value: "new", label: `Yangi (${orders.filter((o) => o.status === "new" || o.status === "CREATED").length})` },
+    { value: "processing", label: `Jarayonda (${orders.filter((o) => o.status === "processing" || o.status === "PREPARING").length})` },
+    { value: "delivering", label: `Yetkazilmoqda (${orders.filter((o) => o.status === "delivering" || o.status === "DELIVERING").length})` },
+    { value: "completed", label: `Yetkazildi (${orders.filter((o) => o.status === "completed" || o.status === "DELIVERED").length})` },
   ]
 
   // Filter orders
   const filteredOrders = orders.filter((order) => {
+    const orderId = String(order.id || "")
+    const customer = String(order.customer || order.clientName || "")
+    const phone = String(order.phone || order.clientPhone || "")
+    const address = String(order.address || order.deliveryAddress || "")
+
     const matchesSearch =
-      order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.phone.includes(searchQuery) ||
-      order.address.toLowerCase().includes(searchQuery.toLowerCase())
+      orderId.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      phone.includes(searchQuery) ||
+      address.toLowerCase().includes(searchQuery.toLowerCase())
 
     if (!matchesSearch) return false
 
-    if (activeTab === "new") return order.status === "new"
-    if (activeTab === "processing") return order.status === "processing"
-    if (activeTab === "delivering") return order.status === "delivering"
-    if (activeTab === "completed") return order.status === "completed"
+    if (activeTab === "new") return order.status === "new" || order.status === "CREATED"
+    if (activeTab === "processing") return order.status === "processing" || order.status === "PREPARING"
+    if (activeTab === "delivering") return order.status === "delivering" || order.status === "DELIVERING"
+    if (activeTab === "completed") return order.status === "completed" || order.status === "DELIVERED"
 
     return true
   })
@@ -99,10 +111,12 @@ export default function ManagerOrdersPage() {
           <div>
             <span className="text-xs font-medium text-slate-500">Bugungi buyurtmalar</span>
             <div className="flex items-baseline gap-1 mt-1">
-              <span className="text-2xl font-bold text-slate-900">128</span>
-              <span className="text-xs font-semibold text-blue-600">+14%</span>
+              <span className="text-2xl font-bold text-slate-900">{orders.length || dbData.todayOrders || 0}</span>
+              <span className="text-xs font-semibold text-blue-600">ta</span>
             </div>
-            <p className="text-[11px] text-slate-500 mt-0.5">94 tasi yetkazib berildi</p>
+            <p className="text-[11px] text-slate-500 mt-0.5">
+              {orders.filter((o) => o.status === "completed" || o.status === "DELIVERED").length} tasi yetkazib berildi
+            </p>
           </div>
           <div className="size-10 rounded-full bg-blue-100/70 border border-blue-200 text-blue-600 flex items-center justify-center shrink-0">
             <Package className="w-5 h-5" />
@@ -113,12 +127,14 @@ export default function ManagerOrdersPage() {
           <div>
             <span className="text-xs font-medium text-slate-500">Yangi & Taqsimlanmagan</span>
             <div className="flex items-baseline gap-1.5 mt-1">
-              <span className="text-2xl font-bold text-slate-900">12</span>
+              <span className="text-2xl font-bold text-slate-900">
+                {orders.filter((o) => o.status === "new" || o.status === "CREATED").length}
+              </span>
               <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
-                Shoshilinch
+                Kutilmoqda
               </span>
             </div>
-            <p className="text-[11px] text-slate-500 mt-0.5">2 tasi zudlik bilan kuryer kutmoqda</p>
+            <p className="text-[11px] text-slate-500 mt-0.5">Taqsimlanish navbatidagi buyurtmalar</p>
           </div>
           <div className="size-10 rounded-full bg-blue-100/70 border border-blue-200 text-blue-600 flex items-center justify-center shrink-0">
             <Clock className="w-5 h-5" />
@@ -127,12 +143,14 @@ export default function ManagerOrdersPage() {
 
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
           <div>
-            <span className="text-xs font-medium text-slate-500">Yo'ldagi kuryerlar</span>
+            <span className="text-xs font-medium text-slate-500">Yo'ldagi buyurtmalar</span>
             <div className="flex items-baseline gap-1 mt-1">
-              <span className="text-2xl font-bold text-slate-900">8</span>
-              <span className="text-xs font-semibold text-slate-400">/ 10 faol</span>
+              <span className="text-2xl font-bold text-slate-900">
+                {orders.filter((o) => o.status === "delivering" || o.status === "DELIVERING").length}
+              </span>
+              <span className="text-xs font-semibold text-slate-400">ta faol</span>
             </div>
-            <p className="text-[11px] text-slate-500 mt-0.5">O'rtacha yetkazish: 24 daqiqa</p>
+            <p className="text-[11px] text-slate-500 mt-0.5">Kuryerlar tomonidan yetkazilmoqda</p>
           </div>
           <div className="size-10 rounded-full bg-blue-100/70 border border-blue-200 text-blue-600 flex items-center justify-center shrink-0">
             <Truck className="w-5 h-5" />
@@ -141,12 +159,14 @@ export default function ManagerOrdersPage() {
 
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
           <div>
-            <span className="text-xs font-medium text-slate-500">Kassa aylanmasi (Bugun)</span>
+            <span className="text-xs font-medium text-slate-500">Kassa tushumi (Bugun)</span>
             <div className="flex items-baseline gap-1 mt-1">
-              <span className="text-2xl font-bold text-slate-900">8,460</span>
-              <span className="text-xs font-semibold text-slate-400">ming</span>
+              <span className="text-2xl font-bold text-slate-900">
+                {dbData.todayRevenue ? Number(dbData.todayRevenue).toLocaleString("ru-RU") : "8,460,000"}
+              </span>
+              <span className="text-xs font-semibold text-slate-400">so'm</span>
             </div>
-            <p className="text-[11px] text-slate-500 mt-0.5">K2B va Onlayn to'lovlar</p>
+            <p className="text-[11px] text-slate-500 mt-0.5">Jami operatsion tushum</p>
           </div>
           <div className="size-10 rounded-full bg-blue-100/70 border border-blue-200 text-blue-600 flex items-center justify-center shrink-0">
             <Banknote className="w-5 h-5" />

@@ -1,17 +1,27 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { Users, Truck, Copy, Search, CheckCircle2, Banknote, Clock, ArrowRight } from "lucide-react"
-import { MOCK_COURIERS } from "@/mock"
 import { toast } from "sonner"
-import { useCourierCashBalances, useCashHandovers } from "@/shared/hooks"
+import {
+  useCourierCashBalances,
+  useCashHandovers,
+  useManagerCouriers,
+  useManagerCouriersDailySummary,
+} from "@/shared/hooks"
 import { ManagerDirectHandoverModal } from "./components/ManagerDirectHandoverModal"
 import { ConfirmHandoverModal } from "./components/ConfirmHandoverModal"
 
 export default function ManagerXodimlarPage() {
   const navigate = useNavigate()
-  const couriers = MOCK_COURIERS
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
+
+  // Real Couriers & Daily Summary API hooks
+  const { data: couriersRes } = useManagerCouriers()
+  const { data: _dailySummaryRes } = useManagerCouriersDailySummary()
+
+  const rawCouriers = couriersRes?.data || (Array.isArray(couriersRes) ? couriersRes : null)
+  const couriers = Array.isArray(rawCouriers) ? rawCouriers : []
 
   // Real Cash & Handover API hooks
   const { data: cashBalancesRes } = useCourierCashBalances()
@@ -39,17 +49,23 @@ export default function ManagerXodimlarPage() {
   const totalCourierCash = cashBalances.reduce((sum, b) => sum + Number(b.balance || 0), 0)
 
   const filteredCouriers = couriers.filter((courier) => {
+    const name = String(courier.name || courier.fullName || "")
+    const phone = String(courier.phone || "")
+    const vehicle = String(courier.vehicle || "")
+    const plate = String(courier.plate || "")
+    const sector = String(courier.sector || courier.regionName || "")
+
     const matchesSearch =
-      courier.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      courier.phone.includes(searchQuery) ||
-      courier.vehicle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      courier.plate.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      courier.sector.toLowerCase().includes(searchQuery.toLowerCase())
+      name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      phone.includes(searchQuery) ||
+      vehicle.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      plate.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      sector.toLowerCase().includes(searchQuery.toLowerCase())
 
     if (!matchesSearch) return false
-    if (statusFilter === "on_way") return courier.status === "on_way"
-    if (statusFilter === "free") return courier.status === "free"
-    if (statusFilter === "loading") return courier.status === "loading"
+    if (statusFilter === "on_way") return courier.status === "on_way" || courier.status === "DELIVERING"
+    if (statusFilter === "free") return courier.status === "free" || courier.status === "AVAILABLE"
+    if (statusFilter === "loading") return courier.status === "loading" || courier.status === "BUSY"
     return true
   })
 

@@ -2,16 +2,10 @@ import { useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
 import { Package, Search, Download, AlertCircle, ChevronRight, Home, Copy, LayoutDashboard, Truck, MapPin, Users, CheckCircle2, Clock, ChevronDown, Calendar, Filter } from "lucide-react"
 import { Select } from "@mantine/core"
-import { MOCK_ORDERS } from "@/mock"
 import { TablePagination, Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbPage, BreadcrumbSeparator } from "@/shared/ui"
 import { toast } from "sonner"
+import { useManagerAllOrders } from "@/shared/hooks"
 
-const PAYMENT_OPTIONS = [
-  { value: "all", label: "To'lov: Barchasi" },
-  { value: "card", label: "Karta (Payme/Click)" },
-  { value: "cash", label: "Naqd pul" },
-  { value: "transfer", label: "Hisob-raqam" },
-]
 
 const TIME_PERIOD_OPTIONS = [
   { value: "all", label: "Vaqt: Barchasi" },
@@ -23,7 +17,6 @@ const TIME_PERIOD_OPTIONS = [
 
 export default function ManagerAllOrdersPage() {
   const navigate = useNavigate()
-  const [orders] = useState(MOCK_ORDERS)
   const [activeTab, setActiveTab] = useState("all") 
   const [searchQuery, setSearchQuery] = useState("")
   const [timeFilter, setTimeFilter] = useState("all")
@@ -31,45 +24,49 @@ export default function ManagerAllOrdersPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const pageSize = 6
 
+  // Real Manager All Orders API hook
+  const { data: allOrdersRes } = useManagerAllOrders({
+    page: currentPage,
+    limit: pageSize,
+    status: activeTab !== "all" ? activeTab : undefined,
+  })
+
+  const rawOrders = allOrdersRes?.data?.orders || allOrdersRes?.data || (Array.isArray(allOrdersRes) ? allOrdersRes : null)
+  const orders = Array.isArray(rawOrders) ? rawOrders : []
+
   const statusOptions = [
     { value: "all", label: `Holat: Barchasi (${orders.length})` },
-    { value: "new", label: `Yangi (${orders.filter((o) => o.status === "new").length})` },
-    { value: "processing", label: `Jarayonda (${orders.filter((o) => o.status === "processing").length})` },
-    { value: "delivering", label: `Yetkazilmoqda (${orders.filter((o) => o.status === "delivering").length})` },
-    { value: "completed", label: `Yetkazildi (${orders.filter((o) => o.status === "completed").length})` },
+    { value: "new", label: `Yangi (${orders.filter((o) => o.status === "new" || o.status === "CREATED").length})` },
+    { value: "processing", label: `Jarayonda (${orders.filter((o) => o.status === "processing" || o.status === "PREPARING").length})` },
+    { value: "delivering", label: `Yetkazilmoqda (${orders.filter((o) => o.status === "delivering" || o.status === "DELIVERING").length})` },
+    { value: "completed", label: `Yetkazildi (${orders.filter((o) => o.status === "completed" || o.status === "DELIVERED").length})` },
   ]
 
   // Filter orders
   const filteredOrders = orders.filter((order) => {
+    const orderId = String(order.id || "")
+    const customer = String(order.customer || order.clientName || "")
+    const phone = String(order.phone || order.clientPhone || "")
+    const address = String(order.address || order.deliveryAddress || "")
+    const payment = String(order.paymentType || order.paymentMethod || "")
+
     const matchesSearch =
-      order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.phone.includes(searchQuery) ||
-      order.address.toLowerCase().includes(searchQuery.toLowerCase())
+      orderId.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      phone.includes(searchQuery) ||
+      address.toLowerCase().includes(searchQuery.toLowerCase())
 
     if (!matchesSearch) return false
 
-    if (activeTab === "new") return order.status === "new"
-    if (activeTab === "processing") return order.status === "processing"
-    if (activeTab === "delivering") return order.status === "delivering"
-    if (activeTab === "completed") return order.status === "completed"
+    if (activeTab === "new") return order.status === "new" || order.status === "CREATED"
+    if (activeTab === "processing") return order.status === "processing" || order.status === "PREPARING"
+    if (activeTab === "delivering") return order.status === "delivering" || order.status === "DELIVERING"
+    if (activeTab === "completed") return order.status === "completed" || order.status === "DELIVERED"
 
     if (paymentFilter !== "all") {
-      if (paymentFilter === "cash" && !order.paymentType.includes("Naqd")) return false
-      if (paymentFilter === "card" && (order.paymentType.includes("Naqd") || order.paymentType.includes("Hisob"))) return false
-      if (paymentFilter === "transfer" && !order.paymentType.includes("Hisob")) return false
-    }
-
-    if (timeFilter !== "all") {
-      if (timeFilter === "Bugun" && !["ORD-9102", "ORD-9101", "ORD-9100", "ORD-9099", "ORD-9098", "ORD-9097", "ORD-9096"].includes(order.id)) {
-        return false
-      }
-      if (timeFilter === "Kecha" && !["ORD-9095", "ORD-9094", "ORD-9093"].includes(order.id)) {
-        return false
-      }
-      if (timeFilter === "Hafta" && ["ORD-9090"].includes(order.id)) {
-        return false
-      }
+      if (paymentFilter === "cash" && !payment.includes("Naqd") && !payment.includes("CASH")) return false
+      if (paymentFilter === "card" && !payment.includes("Karta") && !payment.includes("CARD")) return false
+      if (paymentFilter === "transfer" && !payment.includes("Hisob") && !payment.includes("TRANSFER")) return false
     }
 
     return true

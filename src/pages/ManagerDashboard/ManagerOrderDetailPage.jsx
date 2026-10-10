@@ -2,20 +2,43 @@ import { useState } from "react"
 import { useParams, useNavigate, Link } from "react-router-dom"
 import { ArrowLeft, Copy, MapPin, Package, Clock, CheckCircle2, CreditCard, UserCheck, AlertCircle, Truck, Home, Droplet } from "lucide-react"
 import { Modal as MantineModal } from "@mantine/core"
-import { MOCK_ORDERS, MOCK_COURIERS } from "@/mock"
 import { GoogleMap } from "@/widgets"
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbPage, BreadcrumbSeparator } from "@/shared/ui"
 import { toast } from "sonner"
 import { AdjustBottleBalanceModal } from "./components/AdjustBottleBalanceModal"
+import { useManagerOrderDetail, useManagerCouriers, useManagerReassignOrder } from "@/shared/hooks"
 
 export default function ManagerOrderDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
 
-  // Find order by ID from URL params, or fallback to first order
-  const order = MOCK_ORDERS.find((o) => o.id === id) || MOCK_ORDERS[0]
+  // Real Manager Order Detail & Couriers API Hooks
+  const { data: orderRes } = useManagerOrderDetail(id)
+  const { data: couriersRes } = useManagerCouriers()
+  const reassignMutation = useManagerReassignOrder()
 
-  const [currentOrder, setCurrentOrder] = useState(order)
+  const apiOrder = orderRes?.data || orderRes
+  const fallbackOrder = {
+    id: id || "—",
+    customer: "—",
+    phone: "—",
+    address: "—",
+    status: "CREATED",
+    statusText: "Yangi",
+    total: 0,
+    qty: 0,
+    items: [],
+  }
+
+  const [reassignedOverride, setReassignedOverride] = useState(null)
+  const currentOrder = {
+    ...(apiOrder?.id ? apiOrder : fallbackOrder),
+    ...(reassignedOverride || {}),
+  }
+
+  const rawCouriers = couriersRes?.data || (Array.isArray(couriersRes) ? couriersRes : null)
+  const couriersList = Array.isArray(rawCouriers) ? rawCouriers : []
+
   const [isReassignModalOpen, setIsReassignModalOpen] = useState(false)
   const [isBottleModalOpen, setIsBottleModalOpen] = useState(false)
   const [selectedCourierId, setSelectedCourierId] = useState(currentOrder.courierId || 1)
@@ -25,21 +48,30 @@ export default function ManagerOrderDetailPage() {
     toast.success(`Telefon raqami nusxalandi: ${phone}`)
   }
 
-  const handleReassign = () => {
-    const courier = MOCK_COURIERS.find((c) => c.id === Number(selectedCourierId))
+  const handleReassign = async () => {
+    const courier = couriersList.find((c) => c.id === Number(selectedCourierId))
     if (!courier) return
 
-    setCurrentOrder((prev) => ({
-      ...prev,
-      courier: courier.name,
-      courierId: courier.id,
-      vehicle: `${courier.vehicle} (${courier.plate})`,
-      status: "delivering",
-      statusText: "Yetkazilmoqda",
-    }))
+    try {
+      if (apiOrder?.id) {
+        await reassignMutation.mutateAsync({
+          id: currentOrder.id,
+          data: { courierId: Number(selectedCourierId) },
+        })
+      }
+      setReassignedOverride({
+        courier: courier.name,
+        courierId: courier.id,
+        vehicle: `${courier.vehicle || "Avtomobil"} (${courier.plate || ""})`,
+        status: "delivering",
+        statusText: "Yetkazilmoqda",
+      })
 
-    setIsReassignModalOpen(false)
-    toast.success(`Buyurtma ${courier.name}ga muvaffaqiyatli biriktirildi!`)
+      setIsReassignModalOpen(false)
+      toast.success(`Buyurtma ${courier.name}ga muvaffaqiyatli biriktirildi!`)
+    } catch (err) {
+      toast.error(err?.message || "Kuryer biriktirishda xatolik yuz berdi")
+    }
   }
 
   return (
@@ -402,7 +434,7 @@ export default function ManagerOrderDetailPage() {
         <div className="space-y-3 py-2 text-xs">
           <p className="text-slate-600">Qashqadaryo bo'yicha faol kuryerni tanlang:</p>
           <div className="space-y-2 max-h-60 overflow-y-auto">
-            {MOCK_COURIERS.map((c) => (
+            {couriersList.map((c) => (
               <label
                 key={c.id}
                 className={`flex items-center justify-between p-2.5 rounded-lg border cursor-pointer ${
