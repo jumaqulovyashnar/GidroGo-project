@@ -242,7 +242,6 @@ export function BossOsishPage() {
                 Logistika va Kuryerlar Quvvati
               </CardTitle>
             </CardHeader>
-
             <CardContent className="p-5 pt-1 space-y-4 flex-1">
               <div className="p-4 rounded-xl border border-slate-100 bg-slate-50/50 flex items-center justify-between">
                 <div>
