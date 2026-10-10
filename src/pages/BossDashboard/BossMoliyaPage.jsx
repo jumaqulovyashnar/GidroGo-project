@@ -3,7 +3,7 @@ import { Link } from "react-router-dom"
 import { Select } from "@mantine/core"
 import { CreditCard, Receipt, Landmark, ShoppingBag, Download, Plus, ChevronRight, Calendar, ChevronDown, HandCoins, ArrowDownToLine, Wallet, Users } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent, Button } from "@/shared/ui"
-import { FinanceDynamicChart, PaymentMethodsDonutChart } from "@/widgets"
+import { FinanceDynamicChart } from "@/widgets"
 import { useBossFinanceSummary, useBossOrders, useBossCashSummary } from "@/shared/hooks"
 
 const periodOptions = [
@@ -162,7 +162,7 @@ export function BossMoliyaPage() {
 
               <CardContent className="p-4 pt-1">
                 <div className="flex items-baseline gap-1.5">
-                  <span className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+                  <span className="text-xl sm:text-2xl font-bold tracking-tight text-blue-600">
                     {item.value}
                   </span>
                   <span className="text-xs font-medium text-slate-500">
@@ -202,7 +202,7 @@ export function BossMoliyaPage() {
                   Jami Yig'ilgan Naqd Pul
                 </p>
                 <div className="flex items-baseline gap-1 mt-2">
-                  <span className="text-xl font-bold text-slate-900 font-mono">
+                  <span className="text-xl font-bold text-blue-600 font-mono">
                     {formatNumber(cashSummary.totalCollected)}
                   </span>
                   <span className="text-xs font-medium text-slate-500">so'm</span>
@@ -224,7 +224,7 @@ export function BossMoliyaPage() {
                   Kassaga Topshirilgan
                 </p>
                 <div className="flex items-baseline gap-1 mt-2">
-                  <span className="text-xl font-bold text-emerald-600 font-mono">
+                  <span className="text-xl font-bold text-blue-600 font-mono">
                     {formatNumber(cashSummary.totalHandedOver)}
                   </span>
                   <span className="text-xs font-medium text-slate-500">so'm</span>
@@ -246,7 +246,7 @@ export function BossMoliyaPage() {
                   Dastavkachilar Qo'lida
                 </p>
                 <div className="flex items-baseline gap-1 mt-2">
-                  <span className="text-xl font-bold text-amber-600 font-mono">
+                  <span className="text-xl font-bold text-blue-600 font-mono">
                     {formatNumber(cashSummary.remainingWithCouriers)}
                   </span>
                   <span className="text-xs font-medium text-slate-500">so'm</span>
@@ -268,7 +268,7 @@ export function BossMoliyaPage() {
                   Kassasi Bor Kuryerlar
                 </p>
                 <div className="flex items-baseline gap-1 mt-2">
-                  <span className="text-xl font-bold text-slate-900 font-mono">
+                  <span className="text-xl font-bold text-blue-600 font-mono">
                     {cashSummary.activeCouriersWithCash ?? 0}
                   </span>
                   <span className="text-xs font-medium text-slate-500">nafar</span>
@@ -287,9 +287,6 @@ export function BossMoliyaPage() {
 
       {/* 5. Asosiy Daromad va Xarajatlar Dinamikasi Grafigi */}
       <FinanceDynamicChart period={periodParam} />
-
-      {/* 6. Pastki Qism: To'lov Usullari va Tushum Tahlili */}
-      <PaymentMethodsDonutChart />
     </div>
   )
 }

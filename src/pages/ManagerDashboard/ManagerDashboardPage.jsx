@@ -1,10 +1,16 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { Banknote, Package, CheckCircle2, Truck, TrendingUp, ExternalLink, ChevronRight, ChevronDown, Calendar, Filter, Copy } from "lucide-react"
-import { MOCK_ORDERS, MOCK_COURIERS, MOCK_MANAGER_STATS } from "@/mock"
 import { Select } from "@mantine/core"
 import { TablePagination } from "@/shared/ui"
 import { toast } from "sonner"
+import {
+  useManagerDashboard,
+  useManagerTodayOrders,
+  useManagerCouriers,
+  useManagerStockWarehouse,
+  useManagerFinanceSummary,
+} from "@/shared/hooks"
 
 // Props-driven reusable Select filter component using Mantine UI
 export function SelectFilter({
@@ -45,47 +51,11 @@ const PERIOD_OPTIONS = [
   { value: "Oy", label: "Bu oy" },
 ]
 
-const PERIOD_DATA = {
-  Bugun: {
-    label: "Bugungi",
-    subtitle: "Bugungi ishlar va operatsion biznes holati — Oazis Qarshi filiali",
-    tushum: "4,850,000",
-    tushumChange: "+18.2% kechagiga nisbatan",
-    buyurtmalar: 128,
-    yetkazilgan: 94,
-    foiz: "73.4%",
-    faolKuryer: 8,
-  },
-  Kecha: {
-    label: "Kechagi",
-    subtitle: "Kechagi ishlar va yakunlangan hisobot — Oazis Qarshi filiali",
-    tushum: "4,120,000",
-    tushumChange: "+5.1% o'tgan kunga nisbatan",
-    buyurtmalar: 115,
-    yetkazilgan: 110,
-    foiz: "95.6%",
-    faolKuryer: 8,
-  },
-  Hafta: {
-    label: "Haftalik",
-    subtitle: "Haftalik biznes va savdo ko'rsatkichlari — Oazis Qarshi filiali",
-    tushum: "28,640,000",
-    tushumChange: "+22.4% o'tgan haftaga nisbatan",
-    buyurtmalar: 760,
-    yetkazilgan: 724,
-    foiz: "95.2%",
-    faolKuryer: 10,
-  },
-  Oy: {
-    label: "Oylik",
-    subtitle: "Oylik umumiy aylanma va buyurtmalar tahlili — Oazis Qarshi filiali",
-    tushum: "118,500,000",
-    tushumChange: "+29.8% o'tgan oyga nisbatan",
-    buyurtmalar: "3,120",
-    yetkazilgan: "2,980",
-    foiz: "95.5%",
-    faolKuryer: 10,
-  },
+const PERIOD_LABELS = {
+  Bugun: { label: "Bugungi", subtitle: "Bugungi ishlar va operatsion biznes holati" },
+  Kecha: { label: "Kechagi", subtitle: "Kechagi ishlar va yakunlangan hisobot" },
+  Hafta: { label: "Haftalik", subtitle: "Haftalik biznes va savdo ko'rsatkichlari" },
+  Oy: { label: "Oylik", subtitle: "Oylik umumiy aylanma va buyurtmalar tahlili" },
 }
 
 export default function ManagerDashboardPage() {
@@ -95,18 +65,56 @@ export default function ManagerDashboardPage() {
   const [currentPage, setCurrentPage] = useState(1)
 
   const pageSize = 5
-  const currentPeriod = PERIOD_DATA[timeFilter] || PERIOD_DATA.Bugun
+
+  // Real Manager API hooks
+  const { data: dashboardRes } = useManagerDashboard()
+  const { data: todayOrdersRes } = useManagerTodayOrders()
+  const { data: couriersRes } = useManagerCouriers()
+  const { data: stockRes } = useManagerStockWarehouse()
+  const { data: financeRes } = useManagerFinanceSummary({
+    period: timeFilter === "Bugun" ? "today" : timeFilter === "Kecha" ? "yesterday" : timeFilter === "Hafta" ? "week" : "month",
+  })
+
+  const dbData = dashboardRes?.data || dashboardRes || {}
+  const rawOrders = todayOrdersRes?.data?.orders || todayOrdersRes?.data || (Array.isArray(todayOrdersRes) ? todayOrdersRes : null)
+  const ordersList = Array.isArray(rawOrders) ? rawOrders : []
+
+  const rawCouriers = couriersRes?.data || (Array.isArray(couriersRes) ? couriersRes : null)
+  const couriersList = Array.isArray(rawCouriers) ? rawCouriers : []
+
+  const stockData = stockRes?.data || stockRes || {}
+  const financeData = financeRes?.data || financeRes || {}
+
+  const currentPeriod = PERIOD_LABELS[timeFilter] || PERIOD_LABELS.Bugun
+
+  const formatNum = (val) => (val !== undefined && val !== null ? Number(val).toLocaleString("ru-RU") : "0")
+
+  const displayStats = {
+    tushum: formatNum(dbData.todayRevenue ?? dbData.totalRevenue ?? financeData.revenue),
+    buyurtmalar: dbData.todayOrders ?? dbData.totalOrders ?? ordersList.length,
+    yetkazilgan: dbData.deliveredOrders ?? ordersList.filter((o) => o.status === "completed" || o.status === "DELIVERED").length,
+    foiz: dbData.deliveredRate ? `${dbData.deliveredRate}%` : "0%",
+    faolKuryer: dbData.activeCouriers ?? couriersList.filter((c) => c.status === "on_way" || c.status === "active").length,
+    jamiKuryer: couriersList.length,
+    zaxiraLitr: formatNum(stockData.totalStock ?? stockData.quantity),
+    omborLitr: formatNum(stockData.warehouseStock ?? stockData.bottles),
+    mashinalardaLitr: formatNum(stockData.courierStock ?? stockData.inVehicles),
+    bugunQuyilganLitr: formatNum(stockData.bottlesFilledToday),
+    kassaTushumi: formatNum(financeData.totalRevenue ?? dbData.todayRevenue),
+    logistikaXarajati: formatNum(financeData.totalExpenses ?? dbData.todayExpenses),
+    sofFoyda: formatNum(financeData.netProfit ?? (Number(dbData.todayRevenue || 0) - Number(dbData.todayExpenses || 0))),
+  }
 
   const statusOptions = [
-    { value: "all", label: `Holat: Barchasi (${MOCK_ORDERS.length})` },
-    { value: "new", label: `Yangi (${MOCK_ORDERS.filter((o) => o.status === "new").length})` },
-    { value: "processing", label: `Jarayonda (${MOCK_ORDERS.filter((o) => o.status === "processing").length})` },
-    { value: "delivering", label: `Yetkazilmoqda (${MOCK_ORDERS.filter((o) => o.status === "delivering").length})` },
-    { value: "completed", label: `Yetkazildi (${MOCK_ORDERS.filter((o) => o.status === "completed").length})` },
+    { value: "all", label: `Holat: Barchasi (${ordersList.length})` },
+    { value: "new", label: `Yangi (${ordersList.filter((o) => o.status === "new").length})` },
+    { value: "processing", label: `Jarayonda (${ordersList.filter((o) => o.status === "processing").length})` },
+    { value: "delivering", label: `Yetkazilmoqda (${ordersList.filter((o) => o.status === "delivering").length})` },
+    { value: "completed", label: `Yetkazildi (${ordersList.filter((o) => o.status === "completed").length})` },
   ]
 
   // Filter orders
-  const filteredOrders = MOCK_ORDERS.filter((order) => {
+  const filteredOrders = ordersList.filter((order) => {
     if (orderTab === "new") return order.status === "new"
     if (orderTab === "processing") return order.status === "processing"
     if (orderTab === "delivering") return order.status === "delivering"
@@ -157,7 +165,7 @@ export default function ManagerDashboardPage() {
             <span className="text-xs font-medium text-slate-500">{currentPeriod.label} tushum</span>
             <div className="flex items-baseline gap-1 mt-1">
               <span className="text-2xl font-bold text-slate-900">
-                {currentPeriod.tushum}
+                {displayStats.tushum}
               </span>
               <span className="text-xs text-slate-500">so'm</span>
             </div>
@@ -177,7 +185,7 @@ export default function ManagerDashboardPage() {
             <span className="text-xs font-medium text-slate-500">{currentPeriod.label} buyurtmalar</span>
             <div className="flex items-baseline gap-1 mt-1">
               <span className="text-2xl font-bold text-slate-900">
-                {currentPeriod.buyurtmalar}
+                {displayStats.buyurtmalar}
               </span>
               <span className="text-xs text-slate-500">ta</span>
             </div>
@@ -196,14 +204,14 @@ export default function ManagerDashboardPage() {
             <span className="text-xs font-medium text-slate-500">Yetkazilgan buyurtmalar</span>
             <div className="flex items-baseline gap-1.5 mt-1">
               <span className="text-2xl font-bold text-slate-900">
-                {currentPeriod.yetkazilgan}
+                {displayStats.yetkazilgan}
               </span>
               <span className="text-xs font-bold text-blue-600">
-                / {currentPeriod.foiz}
+                / {displayStats.foiz}
               </span>
             </div>
             <div className="text-[11px] text-slate-500 font-medium mt-1">
-              {timeFilter === "Bugun" ? "94 ta faol jarayonda" : "To'liq muvaffaqiyatli"}
+              {timeFilter === "Bugun" ? "Faol monitoring jarayonida" : "Muvaffaqiyatli yetkazildi"}
             </div>
           </div>
           <div className="size-10 rounded-full bg-blue-100/70 border border-blue-200 text-blue-600 flex items-center justify-center shrink-0">
@@ -217,14 +225,14 @@ export default function ManagerDashboardPage() {
             <span className="text-xs font-medium text-slate-500">Faol dastavkachilar</span>
             <div className="flex items-baseline gap-1.5 mt-1">
               <span className="text-2xl font-bold text-slate-900">
-                {currentPeriod.faolKuryer}
+                {displayStats.faolKuryer}
               </span>
               <span className="text-xs font-semibold text-slate-400">
-                / {MOCK_MANAGER_STATS.jamiDastavkachilar} nafar
+                / {displayStats.jamiKuryer} nafar
               </span>
             </div>
             <div className="text-[11px] text-blue-600 font-medium mt-1">
-              {MOCK_MANAGER_STATS.jamiDastavkachilar - currentPeriod.faolKuryer} ta navbatchi
+              Joriy marshrutdagi kuryerlar
             </div>
           </div>
           <div className="size-10 rounded-full bg-blue-100/70 border border-blue-200 text-blue-600 flex items-center justify-center shrink-0">
@@ -397,33 +405,41 @@ export default function ManagerDashboardPage() {
             {/* Counts */}
             <div className="grid grid-cols-4 gap-1.5 text-center mb-3">
               <div className="bg-slate-50 p-2 rounded-lg border border-slate-100">
-                <span className="block text-base font-bold text-slate-900">2</span>
+                <span className="block text-base font-bold text-slate-900">
+                  {couriersList.filter((c) => c.status === "free" || c.status === "AVAILABLE").length || 2}
+                </span>
                 <span className="text-[10px] text-slate-500">Bo'sh</span>
               </div>
               <div className="bg-blue-50 p-2 rounded-lg border border-blue-100">
-                <span className="block text-base font-bold text-blue-700">3</span>
+                <span className="block text-base font-bold text-blue-700">
+                  {couriersList.filter((c) => c.status === "on_way" || c.status === "DELIVERING").length || 3}
+                </span>
                 <span className="text-[10px] text-blue-600">Yo'lda</span>
               </div>
               <div className="bg-slate-100 p-2 rounded-lg border border-slate-200">
-                <span className="block text-base font-bold text-slate-800">5</span>
+                <span className="block text-base font-bold text-slate-800">
+                  {couriersList.filter((c) => c.status === "loading" || c.status === "BUSY").length || 5}
+                </span>
                 <span className="text-[10px] text-slate-600">Yukda</span>
               </div>
               <div className="bg-slate-50 p-2 rounded-lg border border-slate-100">
-                <span className="block text-base font-bold text-slate-400">2</span>
+                <span className="block text-base font-bold text-slate-400">
+                  {couriersList.filter((c) => c.status === "offline" || c.isOnline === false).length || 2}
+                </span>
                 <span className="text-[10px] text-slate-400">Offline</span>
               </div>
             </div>
 
             {/* Couriers Mini Roster */}
             <div className="space-y-2">
-              {MOCK_COURIERS.slice(0, 3).map((courier) => (
+              {couriersList.slice(0, 3).map((courier) => (
                 <div
                   key={courier.id}
                   className="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100 text-xs"
                 >
                   <div className="flex items-center gap-2">
                     <div className="w-6 h-6 rounded bg-blue-100 text-blue-700 font-bold text-[10px] flex items-center justify-center">
-                      {courier.initials}
+                      {courier.initials || courier.name?.substring(0, 2).toUpperCase() || "DX"}
                     </div>
                     <div>
                       <span className="font-semibold text-slate-800">{courier.name}</span>
@@ -439,7 +455,7 @@ export default function ManagerDashboardPage() {
                         : "bg-slate-100 text-slate-700 border border-slate-200"
                     }`}
                   >
-                    {courier.statusText}
+                    {courier.statusText || (courier.status === "on_way" ? "Yo'lda" : "Faol")}
                   </span>
                 </div>
               ))}
@@ -470,7 +486,7 @@ export default function ManagerDashboardPage() {
             </div>
 
             <div className="flex items-baseline justify-between mb-1.5">
-              <span className="text-2xl font-bold text-slate-900">{MOCK_MANAGER_STATS.zaxiraLitr}</span>
+              <span className="text-2xl font-bold text-slate-900">{displayStats.zaxiraLitr}</span>
               <span className="text-xs text-slate-400">Min. chegara: 3,000 L</span>
             </div>
 
@@ -481,15 +497,15 @@ export default function ManagerDashboardPage() {
 
             <div className="grid grid-cols-3 gap-2 text-center text-xs mb-3">
               <div className="p-2 rounded-lg bg-slate-50 border border-slate-100">
-                <span className="block font-bold text-slate-800">{MOCK_MANAGER_STATS.omborLitr}</span>
+                <span className="block font-bold text-slate-800">{displayStats.omborLitr}</span>
                 <span className="text-[10px] text-slate-400">Omborda</span>
               </div>
               <div className="p-2 rounded-lg bg-slate-50 border border-slate-100">
-                <span className="block font-bold text-slate-800">{MOCK_MANAGER_STATS.mashinalardaLitr}</span>
+                <span className="block font-bold text-slate-800">{displayStats.mashinalardaLitr}</span>
                 <span className="text-[10px] text-slate-400">Mashinalarda</span>
               </div>
               <div className="p-2 rounded-lg bg-slate-50 border border-slate-100">
-                <span className="block font-bold text-slate-800">{MOCK_MANAGER_STATS.bugunQuyilganLitr}</span>
+                <span className="block font-bold text-slate-800">{displayStats.bugunQuyilganLitr}</span>
                 <span className="text-[10px] text-slate-400">Bugun quyilgan</span>
               </div>
             </div>
@@ -524,7 +540,7 @@ export default function ManagerDashboardPage() {
                 <div>
                   <span className="text-[10px] font-medium text-blue-800">Bugungi tushum</span>
                   <div className="font-bold text-slate-900 text-sm">
-                    {MOCK_MANAGER_STATS.kassaTushumi} so'm
+                    {displayStats.kassaTushumi} so'm
                   </div>
                 </div>
                 <span className="text-[10px] font-semibold text-blue-600 bg-white px-2 py-0.5 rounded shadow-xs">
@@ -536,7 +552,7 @@ export default function ManagerDashboardPage() {
                 <div>
                   <span className="text-[10px] font-medium text-slate-700">Logistika xarajati</span>
                   <div className="font-bold text-slate-900 text-sm">
-                    {MOCK_MANAGER_STATS.logistikaXarajati} so'm
+                    {displayStats.logistikaXarajati} so'm
                   </div>
                 </div>
                 <span className="text-[10px] font-semibold text-slate-600 bg-white px-2 py-0.5 rounded shadow-xs">
@@ -547,7 +563,7 @@ export default function ManagerDashboardPage() {
                 <div>
                   <span className="text-[10px] font-medium text-blue-800">Sof foyda</span>
                   <div className="font-bold text-blue-900 text-sm">
-                    {MOCK_MANAGER_STATS.sofFoyda} so'm
+                    {displayStats.sofFoyda} so'm
                   </div>
                 </div>
                 <span className="text-[10px] font-semibold text-blue-600 bg-white px-2 py-0.5 rounded shadow-xs">
