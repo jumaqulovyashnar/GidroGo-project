@@ -40,7 +40,6 @@ export function BossOsishPage() {
 
   const formatNumber = (num) => Number(num || 0).toLocaleString("ru-RU")
 
-  // 1. Top 4 ta O'sish KPI ko'rsatkichlari (100% Real API)
   const kpiMetrics = [
     {
       id: "revenue",
@@ -168,10 +167,8 @@ export function BossOsishPage() {
           )
         })}
       </div>
-
-      {/* 3. O'sish Tendensiyasi Grafigi */}
+    {/* 3. O'sish Tendensiyasi Grafigi */}
       <CustomerGrowthAreaChart />
-
       {/* 4. Pastki Qism: Mijozlar va Yetkazish ko'rsatkichlari */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         <div className="lg:col-span-7 flex">
@@ -244,9 +241,6 @@ export function BossOsishPage() {
               <CardTitle className="text-base sm:text-lg font-bold text-slate-900">
                 Logistika va Kuryerlar Quvvati
               </CardTitle>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Yetkazib berish xizmatining operatsion tayyorgarligi.
-              </p>
             </CardHeader>
 
             <CardContent className="p-5 pt-1 space-y-4 flex-1">

@@ -1,6 +1,5 @@
 import Chart from "react-apexcharts"
 import { Card, CardHeader, CardTitle, CardContent } from "@/shared/ui"
-import { TrendingUp } from "lucide-react"
 import { useBossFinanceSummary, useBossDashboard, useBossFinanceChart } from "@/shared/hooks"
 
 export function FinanceDynamicChart({ period = "month" }) {
@@ -26,43 +25,26 @@ export function FinanceDynamicChart({ period = "month" }) {
   let expenseData = []
   let profitData = []
 
-  if (chartList.length > 0) {
+  const totalIncomeVal = Number(finance.totalIncome || db.monthIncome || db.todayIncome || 0)
+  const totalExpenseVal = Number(finance.totalExpense || db.monthExpense || db.todayExpense || 0)
+  const isZeroFinance = totalIncomeVal === 0 && totalExpenseVal === 0
+
+  if (isZeroFinance) {
+    if (chartList.length > 0) {
+      categories = chartList.map((item) => item.date || "Sana")
+    }
+    incomeData = categories.map(() => 0)
+    expenseData = categories.map(() => 0)
+    profitData = categories.map(() => 0)
+  } else if (chartList.length > 0) {
     categories = chartList.map((item) => item.date || "Sana")
     incomeData = chartList.map((item) => +(Number(item.income || 0) / 1000000).toFixed(1))
     expenseData = chartList.map((item) => +(Number(item.expense || 0) / 1000000).toFixed(1))
     profitData = chartList.map((item) => +(Number(item.profit || 0) / 1000000).toFixed(1))
   } else {
-    const totalIncomeVal = Number(finance.totalIncome || db.monthIncome || db.todayIncome || 0)
-    const totalExpenseVal = Number(finance.totalExpense || db.monthExpense || db.todayExpense || 0)
-
-    const currentIncomeMln = +(totalIncomeVal / 1000000).toFixed(1)
-    const currentExpenseMln = +(totalExpenseVal / 1000000).toFixed(1)
-
-    incomeData = currentIncomeMln > 0
-      ? [
-          +(currentIncomeMln * 0.65).toFixed(1),
-          +(currentIncomeMln * 0.72).toFixed(1),
-          +(currentIncomeMln * 0.80).toFixed(1),
-          +(currentIncomeMln * 0.86).toFixed(1),
-          +(currentIncomeMln * 0.92).toFixed(1),
-          +(currentIncomeMln * 0.97).toFixed(1),
-          currentIncomeMln,
-        ]
-      : [0, 0, 0, 0, 0, 0, 0]
-
-    expenseData = currentExpenseMln > 0
-      ? [
-          +(currentExpenseMln * 0.70).toFixed(1),
-          +(currentExpenseMln * 0.75).toFixed(1),
-          +(currentExpenseMln * 0.82).toFixed(1),
-          +(currentExpenseMln * 0.88).toFixed(1),
-          +(currentExpenseMln * 0.92).toFixed(1),
-          +(currentExpenseMln * 0.95).toFixed(1),
-          currentExpenseMln,
-        ]
-      : [0, 0, 0, 0, 0, 0, 0]
-
-    profitData = incomeData.map((inc, i) => +(inc - expenseData[i]).toFixed(1))
+    incomeData = categories.map(() => 0)
+    expenseData = categories.map(() => 0)
+    profitData = categories.map(() => 0)
   }
 
   const series = [
@@ -162,10 +144,6 @@ export function FinanceDynamicChart({ period = "month" }) {
             <CardTitle className="text-lg font-bold text-slate-900 tracking-tight">
               Daromad va Xarajatlar Dinamikasi
             </CardTitle>
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700">
-              <TrendingUp className="size-3" />
-              Real statistika
-            </span>
           </div>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
             Fermaning umumiy aylanmasi, sarf-xarajatlari va marjinalligi

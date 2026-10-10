@@ -28,10 +28,10 @@ export const LineColumn = ({ dashboard = {} }) => {
       // Oxirgi oyda yilini ham ko'rsatish
       categories.push(i === 0 ? `${mName} '${yrShort}` : mName)
 
-      // Real o'sish dinamikasi (API dagi totalOrders va totalClients ga mutanosib)
+      const isCurrentMonth = i === 0
       const progress = (12 - i) / 12
-      const monthOrder = totalOrders > 0 ? Math.round((totalOrders / 12) * (0.35 + progress * 0.95)) : 0
-      const monthClient = totalClients > 0 ? Math.round((totalClients / 12) * (0.3 + progress * 1.05)) : 0
+      const monthOrder = totalOrders > 1 ? Math.round((totalOrders / 12) * (0.35 + progress * 0.95)) : (isCurrentMonth ? totalOrders : 0)
+      const monthClient = totalClients > 1 ? Math.round((totalClients / 12) * (0.3 + progress * 1.05)) : (isCurrentMonth ? totalClients : 0)
 
       ordersData.push(monthOrder)
       clientsData.push(monthClient)
