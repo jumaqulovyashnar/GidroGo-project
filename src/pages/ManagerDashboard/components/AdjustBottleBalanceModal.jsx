@@ -5,15 +5,21 @@ import { Modal as MantineModal } from "@mantine/core"
 import { Droplet, Plus, Minus, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { useAdjustBottleBalance } from "@/shared/hooks"
-import { cn } from "@/shared/lib"
+import { cn, POSITIVE_INTEGER_REGEX } from "@/shared/lib"
 
 const adjustBottleSchema = z.object({
   deltaType: z.enum(["add", "subtract"]),
-  amount: z.coerce
-    .number({ invalid_type_error: "Miqdorni raqamda kiriting" })
-    .min(1, "Idishlar soni kamida 1 bo'lishi kerak")
-    .max(1000, "Idishlar soni 1000 dan oshmasligi kerak"),
-  note: z.string().max(200, "Izoh 200 ta belgidan oshmasligi kerak").optional().default(""),
+  amount: z
+    .any()
+    .transform((val) => String(val ?? "").trim())
+    .refine((val) => POSITIVE_INTEGER_REGEX.test(val), {
+      message: "Idishlar sonini butun musbat son sifatida kiriting",
+    })
+    .transform((val) => Number(val))
+    .refine((num) => num >= 1 && num <= 1000, {
+      message: "Idishlar soni 1 dan 1000 gacha bo'lishi kerak",
+    }),
+  note: z.string().trim().max(200, "Izoh 200 ta belgidan oshmasligi kerak").optional().default(""),
 })
 
 export function AdjustBottleBalanceModal({

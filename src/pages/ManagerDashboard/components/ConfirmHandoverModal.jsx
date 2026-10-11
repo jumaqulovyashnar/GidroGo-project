@@ -4,24 +4,24 @@ import { z } from "zod"
 import { Modal as MantineModal } from "@mantine/core"
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react"
 import { useConfirmCashHandover, useRejectCashHandover } from "@/shared/hooks"
-import { cn } from "@/shared/lib"
+import { cn, AMOUNT_REGEX } from "@/shared/lib"
 
 const handoverSchema = z
   .object({
     actionType: z.enum(["confirm", "reject"]),
-    confirmedAmount: z.coerce.number({
-      invalid_type_error: "Summani raqamda kiriting",
-    }),
-    note: z.string().max(250, "Izoh 250 ta belgidan oshmasligi kerak").optional().default(""),
-    reason: z.string().max(250, "Sabab 250 ta belgidan oshmasligi kerak").optional().default(""),
+    confirmedAmount: z
+      .any()
+      .transform((val) => String(val ?? "").trim()),
+    note: z.string().trim().max(250, "Izoh 250 ta belgidan oshmasligi kerak").optional().default(""),
+    reason: z.string().trim().max(250, "Sabab 250 ta belgidan oshmasligi kerak").optional().default(""),
   })
   .superRefine((data, ctx) => {
     if (data.actionType === "confirm") {
-      if (!data.confirmedAmount || data.confirmedAmount <= 0) {
+      if (!data.confirmedAmount || !AMOUNT_REGEX.test(data.confirmedAmount)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["confirmedAmount"],
-          message: "Tasdiqlash summasi noldan katta bo'lishi kerak!",
+          message: "Summani to'g'ri musbat son shaklida kiriting (Masalan: 50000)",
         })
       }
     } else if (data.actionType === "reject") {

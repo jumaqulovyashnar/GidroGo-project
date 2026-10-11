@@ -5,15 +5,33 @@ import { z } from "zod"
 import { Eye, EyeOff } from "lucide-react"
 import { useLogin } from "@/shared"
 import { Button, Field, Input, Label } from "@/shared/ui"
+import { PHONE_REGEX } from "@/shared/lib"
 
 const loginSchema = z
   .object({
-    name: z.string().trim().optional().default(""),
-    phone: z.string().trim().optional().default(""),
+    name: z
+      .string()
+      .trim()
+      .optional()
+      .default("")
+      .refine(
+        (val) => !val || /^[a-zA-Z0-9А-Яа-яЁёʻ'`ʼ\s_.-]{2,50}$/u.test(val),
+        { message: "Ism yoki login faqat harflar va raqamlardan iborat bo'lishi kerak." }
+      ),
+    phone: z
+      .string()
+      .trim()
+      .optional()
+      .default("")
+      .refine(
+        (val) => !val || PHONE_REGEX.test(val),
+        { message: "Telefon raqami noto'g'ri (Masalan: +998 90 123 45 67)." }
+      ),
     password: z
       .string()
       .min(1, "Iltimos, parolingizni kiriting.")
-      .min(3, "Parol kamida 3 ta belgidan iborat bo'lishi kerak."),
+      .min(3, "Parol kamida 3 ta belgidan iborat bo'lishi kerak.")
+      .regex(/^\S+$/, "Parolda bo'sh joy (probel) bo'lmasligi kerak."),
   })
   .refine(
     (data) => Boolean(data.name || data.phone),

@@ -157,5 +157,4 @@ export function SuperAdminDashboardPage() {
     </div>
   )
 }
-
 export default SuperAdminDashboardPage
