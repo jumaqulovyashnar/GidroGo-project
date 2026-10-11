@@ -1,4 +1,7 @@
 import { useState, useRef, useEffect } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
 import { Button, Input, Label } from "@/shared/ui"
 import { UserRound, Contact, KeyRound, Eye, EyeOff, Upload, Loader2 } from "lucide-react"
 import { toast } from "sonner"
@@ -9,6 +12,58 @@ import {
     useUploadFile,
 } from "@/shared/hooks"
 import { useUserStore } from "@/entities/user"
+import { cn } from "@/shared/lib"
+
+const settingsSchema = z
+    .object({
+        firstName: z.string().trim().min(1, "Ismni kiriting"),
+        lastName: z.string().trim().min(1, "Familiyani kiriting"),
+        phone: z.string().trim().min(1, "Telefon raqamini kiriting"),
+        email: z.string().trim().email("E-mail manzilini to'g'ri kiriting").or(z.literal("")),
+        role: z.string().optional().default("Bosh Platforma Administratori"),
+        currentPassword: z.string().optional().default(""),
+        newPassword: z.string().optional().default(""),
+        confirmPassword: z.string().optional().default(""),
+    })
+    .superRefine((data, ctx) => {
+        const hasPasswordInput = Boolean(
+            data.currentPassword || data.newPassword || data.confirmPassword
+        )
+        if (hasPasswordInput) {
+            if (!data.currentPassword) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    path: ["currentPassword"],
+                    message: "Joriy parolingizni kiriting",
+                })
+            }
+            if (!data.newPassword || data.newPassword.length < 8) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    path: ["newPassword"],
+                    message: "Yangi parol kamida 8 ta belgidan iborat bo'lishi kerak",
+                })
+            }
+            if (data.newPassword !== data.confirmPassword) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    path: ["confirmPassword"],
+                    message: "Yangi parollar bir-biriga mos kelmadi",
+                })
+            }
+        }
+    })
+
+const defaultFormValues = {
+    firstName: "",
+    lastName: "",
+    phone: "",
+    email: "",
+    role: "Bosh Platforma Administratori",
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+}
 
 const SozlamalarPage = () => {
     const { data: rawProfile, isLoading: isProfileLoading } = useSuperAdminProfile()
@@ -16,48 +71,53 @@ const SozlamalarPage = () => {
     const changePasswordMutation = useSuperAdminChangePassword()
     const uploadMutation = useUploadFile()
 
-    const [formData, setFormData] = useState({
-        firstName: "",
-        lastName: "",
-        phone: "",
-        email: "",
-        role: "Bosh Platforma Administratori",
-        avatarUrl: "",
-    })
-
     const [avatarPreview, setAvatarPreview] = useState(null)
     const [selectedFile, setSelectedFile] = useState(null)
+    const [savedAvatarUrl, setSavedAvatarUrl] = useState("")
     const fileInputRef = useRef(null)
 
-    // Parol maydonlari
-    const [passwords, setPasswords] = useState({
-        current: "",
-        newPass: "",
-        confirmPass: "",
-    })
+    // Parol ko'rsatish/yashirish holatlari
     const [showPasswords, setShowPasswords] = useState({
         current: false,
         newPass: false,
         confirmPass: false,
     })
 
+    const {
+        register,
+        handleSubmit,
+        reset,
+        watch,
+        formState: { errors },
+    } = useForm({
+        resolver: zodResolver(settingsSchema),
+        defaultValues: defaultFormValues,
+        mode: "onBlur",
+    })
+
+    const watchedRole = watch("role")
+    const watchedFirstName = watch("firstName")
+
     // Serverdan profil kelganda formani to'ldirish
     const profile = rawProfile?.data || rawProfile
     useEffect(() => {
         if (profile) {
-            setFormData({
+            reset({
                 firstName: profile.firstName || "",
                 lastName: profile.lastName || "",
                 phone: profile.phone || "",
                 email: profile.email || "",
                 role: profile.roleTitle || profile.role || "Bosh Platforma Administratori",
-                avatarUrl: profile.avatarUrl || "",
+                currentPassword: "",
+                newPassword: "",
+                confirmPassword: "",
             })
             if (profile.avatarUrl) {
                 setAvatarPreview(profile.avatarUrl)
+                setSavedAvatarUrl(profile.avatarUrl)
             }
         }
-    }, [profile])
+    }, [profile, reset])
 
     const isSaving =
         updateProfileMutation.isPending ||
@@ -88,44 +148,35 @@ const SozlamalarPage = () => {
 
     const handleReset = () => {
         if (profile) {
-            setFormData({
+            reset({
                 firstName: profile.firstName || "",
                 lastName: profile.lastName || "",
                 phone: profile.phone || "",
                 email: profile.email || "",
                 role: profile.roleTitle || profile.role || "Bosh Platforma Administratori",
-                avatarUrl: profile.avatarUrl || "",
+                currentPassword: "",
+                newPassword: "",
+                confirmPassword: "",
             })
             setAvatarPreview(profile.avatarUrl || null)
+        } else {
+            reset(defaultFormValues)
+            setAvatarPreview(null)
         }
         setSelectedFile(null)
-        setPasswords({ current: "", newPass: "", confirmPass: "" })
         if (fileInputRef.current) {
             fileInputRef.current.value = ""
         }
         toast.info("O'zgarishlar bekor qilindi")
     }
 
-    const handleSave = async () => {
-        const hasPasswordInput = Boolean(passwords.current || passwords.newPass || passwords.confirmPass)
-
-        if (hasPasswordInput) {
-            if (!passwords.current || !passwords.newPass || !passwords.confirmPass) {
-                toast.error("Parolni yangilash uchun barcha parol maydonlarini to'ldiring!")
-                return
-            }
-            if (passwords.newPass.length < 8) {
-                toast.error("Yangi parol kamida 8 ta belgidan iborat bo'lishi kerak!")
-                return
-            }
-            if (passwords.newPass !== passwords.confirmPass) {
-                toast.error("Yangi parollar bir-biriga mos kelmadi!")
-                return
-            }
-        }
+    const onSubmit = async (data) => {
+        const hasPasswordInput = Boolean(
+            data.currentPassword || data.newPassword || data.confirmPassword
+        )
 
         try {
-            let finalAvatarUrl = formData.avatarUrl || ""
+            let finalAvatarUrl = savedAvatarUrl || ""
 
             // Agar yangi rasm tanlangan bo'lsa, serverga yuklaymiz
             if (selectedFile) {
@@ -138,6 +189,7 @@ const SozlamalarPage = () => {
                         res?.path ||
                         (typeof res?.data === "string" ? res.data : "") ||
                         finalAvatarUrl
+                    setSavedAvatarUrl(finalAvatarUrl)
                 } catch (err) {
                     toast.error("Rasmni yuklashda xatolik: " + (err.message || "Fayl yuklanmadi"))
                     return
@@ -146,11 +198,11 @@ const SozlamalarPage = () => {
 
             // Profil ma'lumotlarini yangilash
             const profilePayload = {
-                firstName: formData.firstName?.trim() || "",
-                lastName: formData.lastName?.trim() || "",
-                fullName: `${formData.firstName?.trim() || ""} ${formData.lastName?.trim() || ""}`.trim(),
-                phone: formData.phone?.trim() || "",
-                email: formData.email?.trim() || "",
+                firstName: data.firstName?.trim() || "",
+                lastName: data.lastName?.trim() || "",
+                fullName: `${data.firstName?.trim() || ""} ${data.lastName?.trim() || ""}`.trim(),
+                phone: data.phone?.trim() || "",
+                email: data.email?.trim() || "",
                 avatarUrl: finalAvatarUrl,
             }
 
@@ -174,12 +226,19 @@ const SozlamalarPage = () => {
             // Parolni yangilash
             if (hasPasswordInput) {
                 await changePasswordMutation.mutateAsync({
-                    currentPassword: passwords.current,
-                    newPassword: passwords.newPass,
-                    confirmPassword: passwords.confirmPass,
+                    currentPassword: data.currentPassword,
+                    newPassword: data.newPassword,
+                    confirmPassword: data.confirmPassword,
                 })
-                setPasswords({ current: "", newPass: "", confirmPass: "" })
             }
+
+            // Parol maydonlarini tozalash
+            reset({
+                ...data,
+                currentPassword: "",
+                newPassword: "",
+                confirmPassword: "",
+            })
 
             setSelectedFile(null)
             if (fileInputRef.current) {
@@ -192,7 +251,7 @@ const SozlamalarPage = () => {
     }
 
     return (
-        <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="pb-16 max-w-5xl">
+        <form onSubmit={handleSubmit(onSubmit)} className="pb-16 max-w-5xl">
             {/* Page Header: Sarlavha va tavsif */}
             <div className="pb-2">
                 <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
@@ -244,7 +303,7 @@ const SozlamalarPage = () => {
                                     </>
                                 ) : (
                                     <div className="w-full h-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-3xl select-none group-hover:bg-blue-100/70 transition-colors rounded-full">
-                                        {formData.firstName?.[0]?.toUpperCase() || (
+                                        {watchedFirstName?.[0]?.toUpperCase() || (
                                             <UserRound className="w-14 h-14 stroke-[1.5] text-blue-600" />
                                         )}
                                     </div>
@@ -260,13 +319,12 @@ const SozlamalarPage = () => {
                                     className="h-9 px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-all shadow-2xs cursor-pointer inline-flex items-center gap-1.5 disabled:opacity-50"
                                 >
                                     <Upload className="w-3.5 h-3.5 text-slate-500" />
-                                    <span>Yuklash</span>
+                                    <span>Rasm Yuklash</span>
                                 </button>
-
                                 <input
                                     ref={fileInputRef}
                                     type="file"
-                                    accept="image/png, image/jpeg, image/jpg, image/webp"
+                                    accept="image/png, image/jpeg, image/webp"
                                     className="hidden"
                                     onChange={handleAvatarChange}
                                 />
@@ -283,34 +341,52 @@ const SozlamalarPage = () => {
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                                 <div className="space-y-1.5">
                                     <Label htmlFor="firstName" className="text-xs font-semibold text-slate-700">
-                                        Ism
+                                        Ism *
                                     </Label>
                                     <Input
                                         id="firstName"
                                         type="text"
                                         autoComplete="given-name"
                                         placeholder="Ism"
-                                        value={formData.firstName || ""}
-                                        onChange={(e) => setFormData(d => ({ ...d, firstName: e.target.value }))}
                                         disabled={isProfileLoading || isSaving}
-                                        className="h-10 rounded-xl bg-white border-slate-200 text-slate-900 text-sm font-medium focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/15"
+                                        {...register("firstName")}
+                                        className={cn(
+                                            "h-10 rounded-xl bg-white text-slate-900 text-sm font-medium transition-all",
+                                            errors.firstName
+                                                ? "border-rose-400 focus-visible:border-rose-500 focus-visible:ring-rose-500/15"
+                                                : "border-slate-200 focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/15"
+                                        )}
                                     />
+                                    {errors.firstName && (
+                                        <p className="text-xs text-rose-500 font-medium mt-1">
+                                            {errors.firstName.message}
+                                        </p>
+                                    )}
                                 </div>
 
                                 <div className="space-y-1.5">
                                     <Label htmlFor="lastName" className="text-xs font-semibold text-slate-700">
-                                        Familiya
+                                        Familiya *
                                     </Label>
                                     <Input
                                         id="lastName"
                                         type="text"
                                         autoComplete="family-name"
                                         placeholder="Familiya"
-                                        value={formData.lastName || ""}
-                                        onChange={(e) => setFormData(d => ({ ...d, lastName: e.target.value }))}
                                         disabled={isProfileLoading || isSaving}
-                                        className="h-10 rounded-xl bg-white border-slate-200 text-slate-900 text-sm font-medium focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/15"
+                                        {...register("lastName")}
+                                        className={cn(
+                                            "h-10 rounded-xl bg-white text-slate-900 text-sm font-medium transition-all",
+                                            errors.lastName
+                                                ? "border-rose-400 focus-visible:border-rose-500 focus-visible:ring-rose-500/15"
+                                                : "border-slate-200 focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/15"
+                                        )}
                                     />
+                                    {errors.lastName && (
+                                        <p className="text-xs text-rose-500 font-medium mt-1">
+                                            {errors.lastName.message}
+                                        </p>
+                                    )}
                                 </div>
                             </div>
 
@@ -318,18 +394,27 @@ const SozlamalarPage = () => {
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                                 <div className="space-y-1.5">
                                     <Label htmlFor="phone" className="text-xs font-semibold text-slate-700">
-                                        Telefon
+                                        Telefon *
                                     </Label>
                                     <Input
                                         id="phone"
                                         type="tel"
                                         autoComplete="tel"
                                         placeholder="+998 (__) ___-__-__"
-                                        value={formData.phone || ""}
-                                        onChange={(e) => setFormData(d => ({ ...d, phone: e.target.value }))}
                                         disabled={isProfileLoading || isSaving}
-                                        className="h-10 rounded-xl bg-white border-slate-200 text-slate-900 text-sm font-medium focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/15"
+                                        {...register("phone")}
+                                        className={cn(
+                                            "h-10 rounded-xl bg-white text-slate-900 text-sm font-medium transition-all",
+                                            errors.phone
+                                                ? "border-rose-400 focus-visible:border-rose-500 focus-visible:ring-rose-500/15"
+                                                : "border-slate-200 focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/15"
+                                        )}
                                     />
+                                    {errors.phone && (
+                                        <p className="text-xs text-rose-500 font-medium mt-1">
+                                            {errors.phone.message}
+                                        </p>
+                                    )}
                                 </div>
 
                                 <div className="space-y-1.5">
@@ -341,11 +426,20 @@ const SozlamalarPage = () => {
                                         type="email"
                                         autoComplete="username"
                                         placeholder="Email manzili"
-                                        value={formData.email || ""}
-                                        onChange={(e) => setFormData(d => ({ ...d, email: e.target.value }))}
                                         disabled={isProfileLoading || isSaving}
-                                        className="h-10 rounded-xl bg-white border-slate-200 text-slate-900 text-sm font-medium focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/15"
+                                        {...register("email")}
+                                        className={cn(
+                                            "h-10 rounded-xl bg-white text-slate-900 text-sm font-medium transition-all",
+                                            errors.email
+                                                ? "border-rose-400 focus-visible:border-rose-500 focus-visible:ring-rose-500/15"
+                                                : "border-slate-200 focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/15"
+                                        )}
                                     />
+                                    {errors.email && (
+                                        <p className="text-xs text-rose-500 font-medium mt-1">
+                                            {errors.email.message}
+                                        </p>
+                                    )}
                                 </div>
                             </div>
 
@@ -357,7 +451,7 @@ const SozlamalarPage = () => {
                                     </Label>
                                     <div className="h-10 rounded-xl bg-slate-50 border border-slate-200 px-3.5 flex items-center justify-between text-xs sm:text-sm font-medium text-slate-700 select-none">
                                         <span className="whitespace-nowrap">
-                                            {formData.role || "Bosh Platforma Administratori"}
+                                            {watchedRole || "Bosh Platforma Administratori"}
                                         </span>
                                         <span className="text-[10px] font-semibold text-blue-700 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-md shrink-0 ml-2">
                                             O'zgarmas
@@ -391,81 +485,108 @@ const SozlamalarPage = () => {
                         {/* 1. Joriy parol */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-1.5">
-                                <Label htmlFor="currentPass" className="text-xs font-semibold text-slate-700">
+                                <Label htmlFor="currentPassword" className="text-xs font-semibold text-slate-700">
                                     Joriy parol
                                 </Label>
                                 <div className="relative">
                                     <Input
-                                        id="currentPass"
+                                        id="currentPassword"
                                         type={showPasswords.current ? "text" : "password"}
                                         autoComplete="current-password"
                                         placeholder="Joriy parolingizni kiriting"
-                                        value={passwords.current}
-                                        onChange={(e) => setPasswords(p => ({ ...p, current: e.target.value }))}
                                         disabled={isSaving}
-                                        className="h-10 rounded-xl bg-white border-slate-200 pr-10 text-sm"
+                                        {...register("currentPassword")}
+                                        className={cn(
+                                            "h-10 rounded-xl bg-white pr-10 text-sm transition-all",
+                                            errors.currentPassword
+                                                ? "border-rose-400 focus-visible:border-rose-500"
+                                                : "border-slate-200 focus-visible:border-blue-500"
+                                        )}
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowPasswords(s => ({ ...s, current: !s.current }))}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer p-1"
                                     >
                                         {showPasswords.current ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                     </button>
                                 </div>
+                                {errors.currentPassword && (
+                                    <p className="text-xs text-rose-500 font-medium mt-1">
+                                        {errors.currentPassword.message}
+                                    </p>
+                                )}
                             </div>
                         </div>
 
                         {/* 2. Yangi parol va 3. Yangi parolni tasdiqlash */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-1.5">
-                                <Label htmlFor="newPass" className="text-xs font-semibold text-slate-700">
+                                <Label htmlFor="newPassword" className="text-xs font-semibold text-slate-700">
                                     Yangi parol
                                 </Label>
                                 <div className="relative">
                                     <Input
-                                        id="newPass"
+                                        id="newPassword"
                                         type={showPasswords.newPass ? "text" : "password"}
                                         autoComplete="new-password"
                                         placeholder="Kamida 8 ta belgi"
-                                        value={passwords.newPass}
-                                        onChange={(e) => setPasswords(p => ({ ...p, newPass: e.target.value }))}
                                         disabled={isSaving}
-                                        className="h-10 rounded-xl bg-white border-slate-200 pr-10 text-sm"
+                                        {...register("newPassword")}
+                                        className={cn(
+                                            "h-10 rounded-xl bg-white pr-10 text-sm transition-all",
+                                            errors.newPassword
+                                                ? "border-rose-400 focus-visible:border-rose-500"
+                                                : "border-slate-200 focus-visible:border-blue-500"
+                                        )}
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowPasswords(s => ({ ...s, newPass: !s.newPass }))}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer p-1"
                                     >
                                         {showPasswords.newPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                     </button>
                                 </div>
+                                {errors.newPassword && (
+                                    <p className="text-xs text-rose-500 font-medium mt-1">
+                                        {errors.newPassword.message}
+                                    </p>
+                                )}
                             </div>
 
                             <div className="space-y-1.5">
-                                <Label htmlFor="confirmPass" className="text-xs font-semibold text-slate-700">
+                                <Label htmlFor="confirmPassword" className="text-xs font-semibold text-slate-700">
                                     Yangi parolni tasdiqlash
                                 </Label>
                                 <div className="relative">
                                     <Input
-                                        id="confirmPass"
+                                        id="confirmPassword"
                                         type={showPasswords.confirmPass ? "text" : "password"}
                                         autoComplete="new-password"
                                         placeholder="Parolni qayta kiriting"
-                                        value={passwords.confirmPass}
-                                        onChange={(e) => setPasswords(p => ({ ...p, confirmPass: e.target.value }))}
                                         disabled={isSaving}
-                                        className="h-10 rounded-xl bg-white border-slate-200 pr-10 text-sm"
+                                        {...register("confirmPassword")}
+                                        className={cn(
+                                            "h-10 rounded-xl bg-white pr-10 text-sm transition-all",
+                                            errors.confirmPassword
+                                                ? "border-rose-400 focus-visible:border-rose-500"
+                                                : "border-slate-200 focus-visible:border-blue-500"
+                                        )}
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowPasswords(s => ({ ...s, confirmPass: !s.confirmPass }))}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer p-1"
                                     >
                                         {showPasswords.confirmPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                     </button>
                                 </div>
+                                {errors.confirmPassword && (
+                                    <p className="text-xs text-rose-500 font-medium mt-1">
+                                        {errors.confirmPassword.message}
+                                    </p>
+                                )}
                             </div>
                         </div>
 

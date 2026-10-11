@@ -1,14 +1,45 @@
-import { useRef, useState } from "react"
+import { useState } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
+import { Eye, EyeOff } from "lucide-react"
 import { useLogin } from "@/shared"
 import { Button, Field, Input, Label } from "@/shared/ui"
 
-function LoginPage() {
-  const nameRef = useRef(null)
-  const phoneRef = useRef(null)
-  const passwordRef = useRef(null)
+const loginSchema = z
+  .object({
+    name: z.string().trim().optional().default(""),
+    phone: z.string().trim().optional().default(""),
+    password: z
+      .string()
+      .min(1, "Iltimos, parolingizni kiriting.")
+      .min(3, "Parol kamida 3 ta belgidan iborat bo'lishi kerak."),
+  })
+  .refine(
+    (data) => Boolean(data.name || data.phone),
+    {
+      message: "Iltimos, login yoki telefon raqamingizni kiriting.",
+      path: ["phone"],
+    }
+  )
 
-  const [error, setError] = useState("")
+function LoginPage() {
+  const [showPassword, setShowPassword] = useState(false)
   const loginMutation = useLogin()
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      name: "",
+      phone: "",
+      password: "",
+    },
+    mode: "onBlur",
+  })
 
   // O'zbekiston telefon raqamini formatlash (+998 XX XXX XX XX)
   const normalizePhone = (val) => {
@@ -24,28 +55,13 @@ function LoginPage() {
     return trimmed
   }
 
-  const handleSubmit = (event) => {
-    event.preventDefault()
-    setError("")
+  const onSubmit = (data) => {
+    if (loginMutation.isPending) return
+    const name = data.name?.trim() || ""
+    const phone = data.phone?.trim() || ""
+    const password = data.password
 
-    const name = nameRef.current?.value?.trim() || ""
-    const phone = phoneRef.current?.value?.trim() || ""
-    const password = passwordRef.current?.value?.trim() || ""
-
-    // Agar telefon kiritilgan bo'lsa uni formatlaymiz, aks holda login nomini olamiz
     const loginIdentifier = phone ? normalizePhone(phone) : name
-
-    if (!loginIdentifier) {
-      setError("Iltimos, login yoki telefon raqamingizni kiriting.")
-      phoneRef.current?.focus()
-      return
-    }
-
-    if (!password) {
-      setError("Iltimos, parolingizni kiriting.")
-      passwordRef.current?.focus()
-      return
-    }
 
     loginMutation.mutate({
       login: loginIdentifier,
@@ -57,10 +73,9 @@ function LoginPage() {
   return (
     <section className="w-full h-full">
       <div className="mb-6 text-center">
-        <h1 className="text-2xl font-medium tracking-tight text-foreground">
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">
           Tizimga kirish
         </h1>
-
         <p className="text-sm text-muted-foreground mt-1.5 font-normal">
           Avtorizatsiyadan o'tish uchun ma'lumotlaringizni kiriting
         </p>
@@ -68,64 +83,93 @@ function LoginPage() {
 
       <form
         noValidate
-        onSubmit={handleSubmit}
+        onSubmit={handleSubmit(onSubmit)}
         className="space-y-4 border-none"
       >
         <Field>
           <Label htmlFor="name" className="font-medium text-sm">
             Login yoki Ismingiz
           </Label>
-
           <Input
             id="name"
-            ref={nameRef}
             type="text"
-            placeholder=" ismingiz kiriting."
+            autoComplete="username"
+            placeholder="ismingiz kiriting."
+            {...register("name")}
           />
+          {errors.name && (
+            <p className="text-xs text-rose-500 font-medium mt-1">
+              {errors.name.message}
+            </p>
+          )}
         </Field>
 
         <Field>
           <Label htmlFor="phone" className="font-medium text-sm">
             Telefon raqamingiz
           </Label>
-
           <Input
             id="phone"
-            ref={phoneRef}
             type="tel"
+            autoComplete="username"
             placeholder="+998 90 123 45 67"
             autoFocus
+            {...register("phone")}
           />
+          {errors.phone && (
+            <p className="text-xs text-rose-500 font-medium mt-1">
+              {errors.phone.message}
+            </p>
+          )}
         </Field>
 
         <Field>
           <Label htmlFor="password" className="font-medium text-sm">
             Parol
           </Label>
-
-          <Input
-            id="password"
-            ref={passwordRef}
-            type="password"
-            placeholder="Parolingizni kiriting"
-            autoComplete="current-password"
-          />
+          <div className="relative w-full">
+            <Input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="Parolingizni kiriting"
+              autoComplete="current-password"
+              {...register("password")}
+              className="pr-11"
+            />
+            <button
+              type="button"
+              tabIndex={-1}
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-800 focus:outline-none p-1 cursor-pointer transition-colors z-20 flex items-center justify-center"
+              title={showPassword ? "Parolni yashirish" : "Parolni ko'rsatish"}
+              aria-label={showPassword ? "Parolni yashirish" : "Parolni ko'rsatish"}
+            >
+              {showPassword ? (
+                <EyeOff className="w-5 h-5 text-slate-500 hover:text-slate-800" />
+              ) : (
+                <Eye className="w-5 h-5 text-slate-500 hover:text-slate-800" />
+              )}
+            </button>
+          </div>
+          {errors.password && (
+            <p className="text-xs text-rose-500 font-medium mt-1">
+              {errors.password.message}
+            </p>
+          )}
         </Field>
 
-        {(error || loginMutation.isError) && (
-          <p className="text-sm text-red-500 font-medium">
-            {error || loginMutation.error?.response?.data?.message || "Telefon raqami yoki parol noto'g'ri."}
+        {loginMutation.isError && (
+          <p className="text-sm text-rose-500 font-medium">
+            {loginMutation.error?.response?.data?.message ||
+              "Telefon raqami yoki parol noto'g'ri."}
           </p>
         )}
 
         <Button
           type="submit"
-          disabled={loginMutation.isPending}
-          className="w-full h-10 font-medium text-white bg-[#2563EB] hover:bg-blue-700 disabled:opacity-50 cursor-pointer"
+          className="w-full h-10 font-medium text-white bg-[#2563EB] hover:bg-blue-700 cursor-pointer rounded-xl transition-all shadow-xs"
         >
-          {loginMutation.isPending
-            ? "Kirilmoqda..."
-            : "Tizimga kirish"}
+          Tizimga kirish
         </Button>
       </form>
     </section>

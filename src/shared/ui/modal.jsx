@@ -1,6 +1,9 @@
 import React, { useRef, useState } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
 import { Modal as MantineModal } from "@mantine/core"
-import { Building2, User, Plus, Inbox, Trash2, Image as ImageIcon, Pencil } from "lucide-react"
+import { Building2, User, Plus, Inbox, Trash2, Image as ImageIcon, Pencil, Eye, EyeOff } from "lucide-react"
 import { toast } from "sonner"
 import { useFermaModalStore, fermaSchema } from "@/entities/farm"
 import { Button, Input, Spinner } from "@/shared/ui"
@@ -19,6 +22,7 @@ export function CreateFermaModal() {
   } = useFermaModalStore()
 
   const [errors, setErrors] = useState({})
+  const [showBossPassword, setShowBossPassword] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef(null)
 
@@ -425,6 +429,8 @@ export function CreateFermaModal() {
               <Input
                 id="modal-bossPhone"
                 name="bossPhone"
+                type="tel"
+                autoComplete="username"
                 value={formData.bossPhone}
                 onChange={handleChange}
                 placeholder="+998 90 123 45 67"
@@ -441,19 +447,35 @@ export function CreateFermaModal() {
               <label htmlFor="modal-bossPassword" className="text-xs font-semibold text-slate-700">
                 Parol <span className="text-rose-500">*</span>
               </label>
-              <Input
-                id="modal-bossPassword"
-                name="bossPassword"
-                type="password"
-                value={formData.bossPassword}
-                onChange={handleChange}
-                placeholder="••••••••"
-                className={`h-10 rounded-xl text-sm ${
-                  errors.bossPassword
-                    ? "border-rose-400 focus-visible:border-rose-500 focus-visible:ring-rose-100"
-                    : "border-slate-200 focus-visible:border-blue-500 focus-visible:ring-blue-100"
-                }`}
-              />
+              <div className="relative">
+                <Input
+                  id="modal-bossPassword"
+                  name="bossPassword"
+                  type={showBossPassword ? "text" : "password"}
+                  autoComplete="new-password"
+                  value={formData.bossPassword}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  className={`h-10 rounded-xl text-sm pr-10 ${
+                    errors.bossPassword
+                      ? "border-rose-400 focus-visible:border-rose-500 focus-visible:ring-rose-100"
+                      : "border-slate-200 focus-visible:border-blue-500 focus-visible:ring-blue-100"
+                  }`}
+                />
+                <button
+                  type="button"
+                  tabIndex={-1}
+                  onClick={() => setShowBossPassword((p) => !p)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none p-1 cursor-pointer transition-colors"
+                  title={showBossPassword ? "Parolni yashirish" : "Parolni ko'rsatish"}
+                >
+                  {showBossPassword ? (
+                    <EyeOff className="size-4" />
+                  ) : (
+                    <Eye className="size-4" />
+                  )}
+                </button>
+              </div>
               {errors.bossPassword && <p className="text-[11px] font-medium text-rose-500 mt-1">{errors.bossPassword}</p>}
             </div>
           </div>
@@ -807,42 +829,50 @@ export function EditBossModal({ opened, onClose, boss, onSave, isPending }) {
   )
 }
 
+const editBossSchema = z.object({
+  fullName: z.string().trim().min(3, "Rahbar to'liq ismini kiriting (kamida 3 ta belgi)"),
+  phone: z.string().trim().min(1, "Telefon raqamini kiriting"),
+  farmId: z.string().optional().default(""),
+  password: z.string().optional().default(""),
+  status: z.enum(["ACTIVE", "BLOCKED"]).default("ACTIVE"),
+})
+
 function EditBossModalContent({ opened, onClose, boss, onSave, isPending }) {
-  const [formData, setFormData] = useState({
-    fullName: boss?.fullName || boss?.profile?.fullName || "",
-    phone: boss?.phone || boss?.profile?.phone || "",
-    farmId: boss?.farmId || boss?.farm?.id || "",
-    status: (boss?.active || boss?.status === "ACTIVE" || boss?.profile?.status === "active") ? "ACTIVE" : "BLOCKED",
-    password: "",
+  const [showPassword, setShowPassword] = useState(false)
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(editBossSchema),
+    defaultValues: {
+      fullName: boss?.fullName || boss?.profile?.fullName || "",
+      phone: boss?.phone || boss?.profile?.phone || "",
+      farmId: String(boss?.farmId || boss?.farm?.id || ""),
+      status:
+        boss?.active || boss?.status === "ACTIVE" || boss?.profile?.status === "active"
+          ? "ACTIVE"
+          : "BLOCKED",
+      password: "",
+    },
+    mode: "onBlur",
   })
 
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+  const currentStatus = watch("status")
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-
-    if (!formData.fullName.trim()) {
-      toast.error("Ferma egasining to'liq ismini kiriting!")
-      return
-    }
-    if (!formData.phone.trim()) {
-      toast.error("Telefon raqamini kiriting!")
-      return
-    }
-
+  const onSubmit = (data) => {
     const payload = {
-      fullName: formData.fullName.trim(),
-      phone: formData.phone.trim(),
-      status: formData.status,
+      fullName: data.fullName.trim(),
+      phone: data.phone.trim(),
+      status: data.status,
     }
 
-    if (formData.farmId) {
-      payload.farmId = Number(formData.farmId) || formData.farmId
+    if (data.farmId) {
+      payload.farmId = Number(data.farmId) || data.farmId
     }
-    const cleanPassword = (formData.password || "").trim()
+    const cleanPassword = (data.password || "").trim()
     if (cleanPassword) {
       payload.password = cleanPassword
     }
@@ -889,50 +919,69 @@ function EditBossModalContent({ opened, onClose, boss, onSave, isPending }) {
         },
       }}
     >
-      <form onSubmit={handleSubmit} noValidate className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
         <div className="space-y-1.5">
           <label className="text-xs font-semibold text-slate-700">F.I.Sh *</label>
           <Input
-            name="fullName"
-            value={formData.fullName}
-            onChange={handleChange}
             placeholder="Rahbar to'liq ismi"
+            disabled={isPending}
+            {...register("fullName")}
             className="h-10 rounded-xl text-sm border-slate-200"
           />
+          {errors.fullName && (
+            <p className="text-xs text-rose-500 font-medium mt-1">{errors.fullName.message}</p>
+          )}
         </div>
 
         <div className="space-y-1.5">
           <label className="text-xs font-semibold text-slate-700">Telefon raqam *</label>
           <Input
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
             placeholder="+998 90 123 45 67"
+            disabled={isPending}
+            autoComplete="username"
+            {...register("phone")}
             className="h-10 rounded-xl text-sm border-slate-200"
           />
+          {errors.phone && (
+            <p className="text-xs text-rose-500 font-medium mt-1">{errors.phone.message}</p>
+          )}
         </div>
 
         <div className="space-y-1.5">
           <label className="text-xs font-semibold text-slate-700">Biriktirilgan Ferma ID</label>
           <Input
-            name="farmId"
-            value={formData.farmId}
-            onChange={handleChange}
             placeholder="Ferma ID raqami"
+            disabled={isPending}
+            {...register("farmId")}
             className="h-10 rounded-xl text-sm border-slate-200"
           />
         </div>
 
         <div className="space-y-1.5">
           <label className="text-xs font-semibold text-slate-700">Yangi parol (ixtiyoriy)</label>
-          <Input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            placeholder="O'zgartirishni istamasangiz, bo'sh qoldiring"
-            className="h-10 rounded-xl text-sm border-slate-200"
-          />
+          <div className="relative">
+            <Input
+              type={showPassword ? "text" : "password"}
+              autoComplete="new-password"
+              placeholder="O'zgartirishni istamasangiz, bo'sh qoldiring"
+              disabled={isPending}
+              {...register("password")}
+              className="h-10 rounded-xl text-sm border-slate-200 pr-10"
+            />
+            <button
+              type="button"
+              tabIndex={-1}
+              onClick={() => setShowPassword((p) => !p)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none p-1 cursor-pointer transition-colors"
+              title={showPassword ? "Parolni yashirish" : "Parolni ko'rsatish"}
+            >
+              {showPassword ? (
+                <EyeOff className="size-4" />
+              ) : (
+                <Eye className="size-4" />
+              )}
+            </button>
+          </div>
         </div>
 
         <div className="space-y-2 pt-2 border-t border-slate-100">
@@ -941,9 +990,10 @@ function EditBossModalContent({ opened, onClose, boss, onSave, isPending }) {
             <Button
               type="button"
               variant="outline"
-              onClick={() => setFormData((prev) => ({ ...prev, status: "ACTIVE" }))}
+              disabled={isPending}
+              onClick={() => setValue("status", "ACTIVE", { shouldValidate: true })}
               className={`h-10 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer transition-all ${
-                formData.status === "ACTIVE"
+                currentStatus === "ACTIVE"
                   ? "border-blue-600 bg-blue-50 text-blue-700 shadow-2xs"
                   : "border-slate-200 text-slate-600 hover:bg-slate-50"
               }`}
@@ -954,9 +1004,10 @@ function EditBossModalContent({ opened, onClose, boss, onSave, isPending }) {
             <Button
               type="button"
               variant="outline"
-              onClick={() => setFormData((prev) => ({ ...prev, status: "BLOCKED" }))}
+              disabled={isPending}
+              onClick={() => setValue("status", "BLOCKED", { shouldValidate: true })}
               className={`h-10 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer transition-all ${
-                formData.status === "BLOCKED"
+                currentStatus === "BLOCKED"
                   ? "border-rose-600 bg-rose-50 text-rose-700 shadow-2xs"
                   : "border-slate-200 text-slate-600 hover:bg-slate-50"
               }`}
