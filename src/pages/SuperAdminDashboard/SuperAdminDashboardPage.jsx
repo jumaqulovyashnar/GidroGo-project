@@ -77,7 +77,7 @@ export function SuperAdminDashboardPage() {
           {[...Array(5)].map((_, i) => (
             <div
               key={i}
-              className="border border-slate-200 bg-white rounded-2xl p-4 animate-pulse min-h-[110px] flex flex-col justify-between"
+              className="border border-slate-200 bg-white rounded-2xl p-4 animate-pulse min-h-27.5 flex flex-col justify-between"
             >
               <div className="flex items-center justify-between pb-1 min-h-12">
                 <div className="h-4 w-24 bg-slate-200 rounded" />
@@ -98,7 +98,7 @@ export function SuperAdminDashboardPage() {
             return (
               <Card
                 key={index}
-                className="border border-slate-200 bg-white hover:border-slate-300 hover:shadow-xs transition-all duration-200 rounded-2xl p-4 min-h-[110px]"
+                className="border border-slate-200 bg-white hover:border-slate-300 hover:shadow-xs transition-all duration-200 rounded-2xl p-4 min-h-27.5"
               >
                 <CardHeader className="flex flex-row items-center justify-between pb-1 space-y-0 min-h-12 p-0">
                   <CardTitle className="text-xs sm:text-sm font-medium text-neutral-900 leading-snug">
@@ -135,7 +135,7 @@ export function SuperAdminDashboardPage() {
               </p>
             </div>
           </CardHeader>
-          <CardContent className="pt-2 min-h-[365px]">
+          <CardContent className="pt-2 min-h-91.25">
             <BrushAnalyticsChart dashboard={dashboard} />
           </CardContent>
         </Card>
@@ -149,7 +149,7 @@ export function SuperAdminDashboardPage() {
               {regionalStats?.regions?.length > 0 ? "Hududlar bo'yicha fermalar ulushi" : "Faol va bloklangan fermalar nisbati"}
             </p>
           </CardHeader>
-          <CardContent className="pt-4 flex-1 flex items-center justify-center min-h-[365px]">
+          <CardContent className="pt-4 flex-1 flex items-center justify-center min-h-91.25">
             <SalesTeamDonutChart dashboard={dashboard} regionalStats={regionalStats} />
           </CardContent>
         </Card>
