@@ -24,9 +24,19 @@ export function AdjustBottleBalanceModal({
     // Double-submit protection
     if (isPending) return
 
+    if (!clientId) {
+      toast.error("Mijoz identifikatori (ID) topilmadi!")
+      return
+    }
+
     const parsedAmount = Math.abs(Number(amount) || 0)
     if (parsedAmount === 0) {
       toast.error("Iltimos, noldan farqli miqdor kiriting!")
+      return
+    }
+
+    if (!note.trim()) {
+      toast.error("Iltimos, idish balansini o'zgartirish sababini (izoh) yozing!")
       return
     }
 

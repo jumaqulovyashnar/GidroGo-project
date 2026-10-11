@@ -101,197 +101,8 @@ const CustomDropdown = ({ value, onChange, options }) => {
     )
 }
 
-const _MOCK_AUDIT_METRICS_CARDS = [
-    {
-        id: "total-actions",
-        title: "JAMI AMALLAR",
-        value: "1,428",
-        unit: "ta qayd",
-        badge: "+8.4%",
-        subtitle: "oxirgi 30 kunda",
-        icon: History,
-    },
-    {
-        id: "security-risks",
-        title: "XAVFSIZLIK XAVFI",
-        value: "0",
-        unit: "kritik hodisa",
-        badge: "STABLE",
-        subtitle: "Tizim holati barqaror",
-        icon: ShieldCheck,
-    },
-    {
-        id: "approvals",
-        title: "TASDIQLASHLAR",
-        value: "14",
-        unit: "amaliyot",
-        badge: null,
-        subtitle: "Farm & Boss verifikatsiyalari",
-        icon: ListFilter,
-    },
-    {
-        id: "settings-permissions",
-        title: "SOZLAMALAR & HUQUQ",
-        value: "6",
-        unit: "o'zgarish",
-        badge: null,
-        subtitle: "SMS Gateway & API rotatsiyasi",
-        icon: ShieldAlert,
-    },
-]
 
-const _MOCK_AUDIT_LOGS = [
-    {
-        id: "log-001",
-        time: "15:42:10",
-        date: "24-Apr-2025",
-        dayLabel: "Bugun",
-        admin: {
-            name: "Azizbek Rahimov",
-            role: "ROOT",
-            avatarText: "AR",
-        },
-        action: {
-            label: "Ferma tasdiqlandi",
-            badgeClass: "bg-blue-600 text-white",
-        },
-        target: {
-            name: "Chashma Pure Water MCHJ",
-            code: "#FRM-9021",
-            codeClass: "text-blue-600",
-        },
-        clientInfo: {
-            ip: "195.158.24.12",
-            device: "Chrome / macOS",
-        },
-        description: "Sanitariya litsenziyasi to'liq tekshirildi va tasdiqlandi",
-    },
-    {
-        id: "log-002",
-        time: "11:20:05",
-        date: "24-Apr-2025",
-        dayLabel: "Bugun",
-        admin: {
-            name: "Azizbek Rahimov",
-            role: "ROOT",
-            avatarText: "AR",
-        },
-        action: {
-            label: "Ferma bloklandi",
-            badgeClass: "bg-red-600 text-white",
-        },
-        target: {
-            name: "Andijon Vodiy Bulog'i",
-            code: "#FRM-7704",
-            codeClass: "text-red-600",
-        },
-        clientInfo: {
-            ip: "195.158.24.12",
-            device: "Chrome / macOS",
-        },
-        description: "Mijoz shikoyatlari 5% dan oshgani sababli bloklandi",
-    },
-    {
-        id: "log-003",
-        time: "18:04:12",
-        date: "23-Apr-2025",
-        dayLabel: "Kecha",
-        admin: {
-            name: "Sardor Aliyev",
-            role: "SECURITY",
-            avatarText: "SA",
-        },
-        action: {
-            label: "Boss arizasi rad etildi",
-            badgeClass: "bg-red-600 text-white",
-        },
-        target: {
-            name: "Ilhom Karimov",
-            code: "#BOS-104",
-            codeClass: "text-blue-600",
-        },
-        clientInfo: {
-            ip: "84.54.72.10",
-            device: "Firefox / Linux",
-        },
-        description: "STIR va shartnoma ma'lumotlarida nomuvofiqlik aniqlandi",
-    },
-    {
-        id: "log-004",
-        time: "09:15:30",
-        date: "18-Apr-2025",
-        dayLabel: "18-Apr",
-        admin: {
-            name: "Azizbek Rahimov",
-            role: "ROOT",
-            avatarText: "AR",
-        },
-        action: {
-            label: "Tizim sozlamasi yangilandi",
-            badgeClass: "bg-blue-600 text-white",
-        },
-        target: {
-            name: "SMS Gateway konfiguratsiyasi",
-            code: "#SYS-SMS-CONF",
-            codeClass: "text-blue-600",
-        },
-        clientInfo: {
-            ip: "195.158.24.12",
-            device: "Chrome / macOS",
-        },
-        description: "Kesh tozalash va zaxira nusxa yaratildi",
-    },
-    {
-        id: "log-005",
-        time: "22:40:11",
-        date: "17-Apr-2025",
-        dayLabel: "17-Apr",
-        admin: {
-            name: "Sardor Aliyev",
-            role: "SECURITY",
-            avatarText: "SA",
-        },
-        action: {
-            label: "API kaliti yangilandi",
-            badgeClass: "bg-blue-600 text-white",
-        },
-        target: {
-            name: "To'lov Klasteri Payme / Click",
-            code: "#SEC-API-ROT",
-            codeClass: "text-blue-600",
-        },
-        clientInfo: {
-            ip: "84.54.72.10",
-            device: "Firefox / Linux",
-        },
-        description: "90 kunlik rejaviy kalitlar rotatsiyasi",
-    },
-    {
-        id: "log-006",
-        time: "14:10:48",
-        date: "15-Apr-2025",
-        dayLabel: "15-Apr",
-        admin: {
-            name: "Azizbek Rahimov",
-            role: "ROOT",
-            avatarText: "AR",
-        },
-        action: {
-            label: "Boss tasdiqlandi",
-            badgeClass: "bg-blue-600 text-white",
-        },
-        target: {
-            name: "Farrux Saidov",
-            code: "#BOS-089",
-            codeClass: "text-blue-600",
-        },
-        clientInfo: {
-            ip: "195.158.24.12",
-            device: "Chrome / macOS",
-        },
-        description: "Barcha rasmiy litsenziya va shartnomalar tasdiqlandi",
-    },
-]
+
 
 const AuditLogPage = () => {
     const [searchTerm, setSearchTerm] = useState("")
@@ -396,20 +207,20 @@ const formatAuditMetadata = (metadata, action) => {
                     date: formattedDate,
                     time: formattedTime,
                     admin: {
-                        name: `SuperAdmin #${log.actorId || 1}`,
-                        role: "ROOT",
-                        avatarText: "SA",
+                        name: log.actorName || log.adminName || (log.actorId ? `SuperAdmin #${log.actorId}` : "SuperAdmin"),
+                        role: log.actorRole || "ROOT",
+                        avatarText: (log.actorName || log.adminName || "SA").slice(0, 2).toUpperCase(),
                     },
                     action: {
                         label: log.action ? log.action.replaceAll("_", " ") : "Amal bajarildi",
                     },
                     target: {
-                        name: `${entityLabel} #${entityId}`,
-                        type: entityLabel,
+                        name: entityLabel && entityId ? `${entityLabel} #${entityId}` : (log.targetName || "—"),
+                        type: entityLabel || "—",
                     },
                     clientInfo: {
-                        ip: "127.0.0.1",
-                        device: "Chrome / Web",
+                        ip: log.ipAddress || log.ip || "—",
+                        device: log.userAgent || log.device || "—",
                     },
                     description,
                 }

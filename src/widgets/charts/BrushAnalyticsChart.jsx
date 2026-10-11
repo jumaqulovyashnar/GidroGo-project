@@ -1,53 +1,6 @@
 import { useState, useMemo } from "react"
 import Chart from "react-apexcharts"
-
-function generateDataFromDashboard(days, totalOrders = 0) {
-  const data1 = []
-  const data2 = []
-  const now = Date.now()
-  let ts = now - days * 86400000
-
-  const safeOrders = Number(totalOrders) || 0
-
-  if (safeOrders <= 1) {
-    for (let i = 0; i < days; i++) {
-      const isToday = i === days - 1
-      data1.push([ts, isToday ? safeOrders : 0])
-      data2.push([ts, isToday ? Math.round(safeOrders * 35) : 0])
-      ts += 86400000
-    }
-    return { data1, data2 }
-  }
-
-  // Kunlik o'rtacha buyurtma soni
-  const avgOrdersPerDay = Math.max(0.8, safeOrders / Math.min(days, 30))
-
-  for (let i = 0; i < days; i++) {
-    // Trend: vaqt o'tishi bilan o'sib borish koeffitsiyenti
-    const progress = (i + 1) / days
-    const trendFactor = 0.7 + progress * 0.6
-    
-    // Hafta kunlari tebranishi (dam olish kunlari ozroq pasayish)
-    const dayOfWeek = new Date(ts).getDay()
-    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6
-    const weekendFactor = isWeekend ? 0.75 : 1.1
-
-    // Pseudo-variatsiya (sana asosida barqaror tebranish)
-    const pseudoNoise = 0.85 + ((Math.sin(i * 1.5) + 1) / 2) * 0.3
-
-    // Kunlik buyurtma (haqiqiy tizim buyurtmalariga mos)
-    const dailyOrders = Math.max(0, Math.round(avgOrdersPerDay * trendFactor * weekendFactor * pseudoNoise))
-
-    // O'rtacha buyurtma qiymati bo'yicha daromad (ming so'mda, masalan 35 ming so'm / dona)
-    const dailyRevenue = Math.round(dailyOrders * 35)
-
-    data1.push([ts, dailyOrders])
-    data2.push([ts, dailyRevenue])
-    ts += 86400000
-  }
-
-  return { data1, data2 }
-}
+import { useDailyDynamics } from "@/shared/hooks"
 
 const DAYS_MAP = {
   "1W": 7,
@@ -56,14 +9,33 @@ const DAYS_MAP = {
   "1Y": 365,
 }
 
-export function BrushAnalyticsChart({ dashboard = {} }) {
+export function BrushAnalyticsChart({ dashboard: _dashboard = {} }) {
   const [timeRange, setTimeRange] = useState("1M")
-
-  const totalOrders = Number(dashboard?.totalOrders ?? 0)
+  const days = DAYS_MAP[timeRange] || 30
+  const { data: dynamicsRes } = useDailyDynamics({ days })
 
   const { series, options } = useMemo(() => {
-    const days = DAYS_MAP[timeRange] || 30
-    const { data1, data2 } = generateDataFromDashboard(days, totalOrders)
+    const rawData = dynamicsRes?.data || (Array.isArray(dynamicsRes) ? dynamicsRes : null)
+    let data1 = []
+    let data2 = []
+
+    if (Array.isArray(rawData) && rawData.length > 0) {
+      rawData.forEach((item) => {
+        const timestamp = new Date(item.date || item.createdAt || item.day).getTime()
+        const ordersCount = Number(item.ordersCount || item.orders || item.count || 0)
+        const revenue = Number(item.revenue || item.income || item.totalAmount || 0) / 1000 // ming so'mda
+        data1.push([timestamp, ordersCount])
+        data2.push([timestamp, revenue])
+      })
+    } else {
+      const now = Date.now()
+      let ts = now - days * 86400000
+      for (let i = 0; i < days; i++) {
+        data1.push([ts, 0])
+        data2.push([ts, 0])
+        ts += 86400000
+      }
+    }
 
     const seriesData = [
       {
@@ -217,7 +189,7 @@ export function BrushAnalyticsChart({ dashboard = {} }) {
     }
 
     return { series: seriesData, options: chartOpts }
-  }, [timeRange, totalOrders])
+  }, [dynamicsRes, days])
 
   return (
     <div className="w-full space-y-3">

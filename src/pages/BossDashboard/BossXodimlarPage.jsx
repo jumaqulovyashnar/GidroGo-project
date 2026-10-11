@@ -2,6 +2,7 @@ import { useState, useMemo } from "react"
 import { toast } from "sonner"
 import { Plus, Download } from "lucide-react"
 import { Button } from "@/shared/ui"
+import { exportToCsv } from "@/shared/lib"
 import { useStaff, useStaffSummary } from "@/shared/hooks"
 import { XodimlarStats } from "./components/XodimlarStats"
 import { XodimlarTable } from "./components/XodimlarTable"
@@ -201,6 +202,21 @@ export function BossXodimlarPage() {
   }
 
   const handleExportCSV = () => {
+    if (!filteredEmployees || filteredEmployees.length === 0) {
+      toast.error("Eksport qilish uchun xodimlar mavjud emas")
+      return
+    }
+    const headers = ["ID", "Ism", "Lavozim", "Telefon", "Holat", "Bugungi buyurtmalar", "Jami yetkazilgan"]
+    const rows = filteredEmployees.map((e) => [
+      e.id || "",
+      e.name || "",
+      e.role || "",
+      e.phone || "",
+      e.status || "",
+      e.todayOrders || 0,
+      e.totalDelivered || 0,
+    ])
+    exportToCsv("xodimlar_royxati", headers, rows)
     toast.success("Xodimlar ro'yxati CSV shaklida yuklab olindi!")
   }
 

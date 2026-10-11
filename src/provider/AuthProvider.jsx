@@ -1,7 +1,8 @@
 import { createContext, useContext, useCallback, useMemo } from "react"
-
+import { useQueryClient } from "@tanstack/react-query"
 import { useUserStore } from "@/entities/user"
 import { authService } from "@/services"
+import { api } from "@/shared/api"
 
 const AuthContext = createContext(null)
 
@@ -181,6 +182,7 @@ export const createUser = (userData, token) => {
 }
 
 export const AuthProvider = ({ children }) => {
+  const queryClient = useQueryClient()
   const user = useUserStore((state) => state.userInfo)
   const userToken = useUserStore((state) => state.userToken)
   const token = userToken?.accessToken || null
@@ -260,7 +262,14 @@ export const AuthProvider = ({ children }) => {
       }
     }
     useUserStore.getState().actions.clearUserInfoAndToken()
-  }, [])
+    try {
+      queryClient.cancelQueries()
+      queryClient.clear()
+    } catch {
+      // ignore
+    }
+    delete api.defaults.headers.common["Authorization"]
+  }, [queryClient])
 
   // User ma'lumotlarini qayta yangilash (agar kerak bo'lsa)
   const refetchUser = useCallback(async () => {
