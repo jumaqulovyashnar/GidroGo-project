@@ -8,6 +8,7 @@ import { toast } from "sonner"
 import { useFermaModalStore, fermaSchema } from "@/entities/farm"
 import { Button, Input, Spinner } from "@/shared/ui"
 import { useUpload, useCreateFarm } from "@/shared/hooks"
+import { NAME_REGEX, PHONE_REGEX } from "@/shared/lib"
 
 export function CreateFermaModal() {
   const {
@@ -830,10 +831,24 @@ export function EditBossModal({ opened, onClose, boss, onSave, isPending }) {
 }
 
 const editBossSchema = z.object({
-  fullName: z.string().trim().min(3, "Rahbar to'liq ismini kiriting (kamida 3 ta belgi)"),
-  phone: z.string().trim().min(1, "Telefon raqamini kiriting"),
+  fullName: z
+    .string()
+    .trim()
+    .min(3, "Rahbar to'liq ismini kiriting (kamida 3 ta belgi)")
+    .regex(NAME_REGEX, "Faqat harflar kiritilishi mumkin"),
+  phone: z
+    .string()
+    .trim()
+    .min(1, "Telefon raqamini kiriting")
+    .regex(PHONE_REGEX, "Telefon raqamini to'g'ri formatda kiriting (Masalan: +998 90 123 45 67)"),
   farmId: z.string().optional().default(""),
-  password: z.string().optional().default(""),
+  password: z
+    .string()
+    .optional()
+    .default("")
+    .refine((val) => !val || /^\S{4,50}$/.test(val), {
+      message: "Parolda probel bo'lmasligi va kamida 4 ta belgidan iborat bo'lishi kerak",
+    }),
   status: z.enum(["ACTIVE", "BLOCKED"]).default("ACTIVE"),
 })
 

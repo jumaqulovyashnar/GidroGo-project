@@ -4,13 +4,17 @@ import { z } from "zod"
 import { Modal as MantineModal } from "@mantine/core"
 import { Banknote, Loader2 } from "lucide-react"
 import { useDirectCashHandover } from "@/shared/hooks"
-import { cn } from "@/shared/lib"
+import { cn, AMOUNT_REGEX } from "@/shared/lib"
 
 const directHandoverSchema = z.object({
-  amount: z.coerce
-    .number({ invalid_type_error: "Summani raqamda kiriting" })
-    .min(1, "Topshirilgan summa noldan katta bo'lishi kerak!"),
-  note: z.string().max(250, "Izoh 250 ta belgidan oshmasligi kerak").optional().default(""),
+  amount: z
+    .any()
+    .transform((val) => String(val ?? "").trim())
+    .refine((val) => AMOUNT_REGEX.test(val), {
+      message: "Summani to'g'ri musbat son shaklida kiriting (Masalan: 100000)",
+    })
+    .transform((val) => Number(val)),
+  note: z.string().trim().max(250, "Izoh 250 ta belgidan oshmasligi kerak").optional().default(""),
 })
 
 export function ManagerDirectHandoverModal({

@@ -16,7 +16,7 @@ import {
   User,
 } from "lucide-react"
 import { Button } from "@/shared/ui"
-import { cn } from "@/shared/lib"
+import { cn, NAME_REGEX, PHONE_REGEX } from "@/shared/lib"
 
 const addXodimSchema = z.object({
   role: z.enum(["MANAGER", "COURIER"], {
@@ -27,25 +27,19 @@ const addXodimSchema = z.object({
     .trim()
     .min(1, "Ism va familiyani kiriting")
     .min(3, "Ism va familiya kamida 3 ta belgidan iborat bo'lishi kerak")
-    .max(60, "Ism va familiya 60 ta belgidan oshmasligi kerak"),
+    .max(60, "Ism va familiya 60 ta belgidan oshmasligi kerak")
+    .regex(NAME_REGEX, "Ism va familiyada faqat harflar qatnashishi kerak"),
   phone: z
     .string()
     .trim()
     .min(1, "Telefon raqamini kiriting")
-    .refine(
-      (val) => {
-        const digits = val.replace(/\D/g, "")
-        return digits.length === 9 || (digits.length === 12 && digits.startsWith("998"))
-      },
-      {
-        message: "Telefon raqamini to'g'ri formatda kiriting (Masalan: +998901234567)",
-      }
-    ),
+    .regex(PHONE_REGEX, "Telefon raqamini to'g'ri formatda kiriting (Masalan: +998901234567)"),
   password: z
     .string()
     .min(1, "Kirish parolini kiriting")
     .min(4, "Parol kamida 4 ta belgidan iborat bo'lishi kerak")
-    .max(50, "Parol 50 ta belgidan oshmasligi kerak"),
+    .max(50, "Parol 50 ta belgidan oshmasligi kerak")
+    .regex(/^\S+$/, "Parolda bo'sh joy (probel) bo'lmasligi kerak"),
 })
 
 const defaultValues = {

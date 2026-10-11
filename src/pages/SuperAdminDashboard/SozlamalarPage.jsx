@@ -12,14 +12,32 @@ import {
     useUploadFile,
 } from "@/shared/hooks"
 import { useUserStore } from "@/entities/user"
-import { cn } from "@/shared/lib"
+import { cn, NAME_REGEX, PHONE_REGEX, EMAIL_REGEX, PASSWORD_STRONG_REGEX } from "@/shared/lib"
 
 const settingsSchema = z
     .object({
-        firstName: z.string().trim().min(1, "Ismni kiriting"),
-        lastName: z.string().trim().min(1, "Familiyani kiriting"),
-        phone: z.string().trim().min(1, "Telefon raqamini kiriting"),
-        email: z.string().trim().email("E-mail manzilini to'g'ri kiriting").or(z.literal("")),
+        firstName: z
+            .string()
+            .trim()
+            .min(1, "Ismni kiriting")
+            .regex(NAME_REGEX, "Ism faqat harflardan iborat bo'lishi kerak"),
+        lastName: z
+            .string()
+            .trim()
+            .min(1, "Familiyani kiriting")
+            .regex(NAME_REGEX, "Familiya faqat harflardan iborat bo'lishi kerak"),
+        phone: z
+            .string()
+            .trim()
+            .min(1, "Telefon raqamini kiriting")
+            .regex(PHONE_REGEX, "Telefon raqamini to'g'ri formatda kiriting (Masalan: +998 90 123 45 67)"),
+        email: z
+            .string()
+            .trim()
+            .refine(
+                (val) => !val || EMAIL_REGEX.test(val),
+                { message: "E-mail manzilini to'g'ri kiriting (Masalan: info@gidrogo.uz)" }
+            ),
         role: z.string().optional().default("Bosh Platforma Administratori"),
         currentPassword: z.string().optional().default(""),
         newPassword: z.string().optional().default(""),
@@ -37,11 +55,11 @@ const settingsSchema = z
                     message: "Joriy parolingizni kiriting",
                 })
             }
-            if (!data.newPassword || data.newPassword.length < 8) {
+            if (!data.newPassword || !PASSWORD_STRONG_REGEX.test(data.newPassword)) {
                 ctx.addIssue({
                     code: z.ZodIssueCode.custom,
                     path: ["newPassword"],
-                    message: "Yangi parol kamida 8 ta belgidan iborat bo'lishi kerak",
+                    message: "Yangi parol kamida 8 ta belgi, harf va raqamlardan iborat bo'lishi kerak",
                 })
             }
             if (data.newPassword !== data.confirmPassword) {
