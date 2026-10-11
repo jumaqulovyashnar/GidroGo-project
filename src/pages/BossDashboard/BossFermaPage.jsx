@@ -4,6 +4,7 @@ import { Warehouse, RefreshCw, Droplet, Filter, FileText } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent, Button } from "@/shared/ui"
 import { useBossDashboard, useBossFarmPassport } from "@/shared/hooks"
 import { useUserStore } from "@/entities/user"
+import { exportToCsv } from "@/shared/lib"
 
 export function BossFermaPage() {
   const [isRefreshing, setIsRefreshing] = useState(false)
@@ -22,7 +23,19 @@ export function BossFermaPage() {
   }
 
   const handleDownloadPassport = () => {
-    toast.success("PDF pasport muvaffaqiyatli yuklab olindi!")
+    const headers = ["Parametr", "Qiymat"]
+    const rows = [
+      ["Ferma nomi", farm.name || "—"],
+      ["Manzil", farm.address || "—"],
+      ["Telefon", farm.phone || "—"],
+      ["Holati", farm.status || "Faol"],
+      ["Ombordagi idishlar", db.warehouseBottles ?? 0],
+      ["Toza suv zaxirasi (L)", db.waterReservoirLiters ?? 0],
+      ["Kunlik quvvat (dona)", db.dailyCapacityBottles ?? 0],
+      ["Bugungi buyurtmalar", db.todayOrders ?? 0],
+    ]
+    exportToCsv(`ferma_pasport_${farm.name || "gidrogo"}`, headers, rows)
+    toast.success("Ferma pasporti muvaffaqiyatli yuklab olindi!")
   }
 
   const formatNumber = (num) => Number(num || 0).toLocaleString("ru-RU")

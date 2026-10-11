@@ -191,9 +191,11 @@ export default function ManagerOrderDetailPage() {
             <div className="p-3 bg-slate-50 rounded-lg border border-slate-100 space-y-1 text-xs">
               <span className="text-[10px] uppercase font-semibold text-slate-400">Aniq Manzil</span>
               <p className="font-semibold text-slate-800 text-sm">{currentOrder.address}</p>
-              <p className="text-[11px] text-slate-500 font-mono">
-                GPS Koordinatalar: 38.8912° N, 66.0592° E
-              </p>
+              {currentOrder.coords && (
+                <p className="text-[11px] text-slate-500 font-mono">
+                  GPS Koordinatalar: {currentOrder.coords[0]}, {currentOrder.coords[1]}
+                </p>
+              )}
             </div>
 
             {/* Interactive Map Preview for this order */}
@@ -201,7 +203,7 @@ export default function ManagerOrderDetailPage() {
               <GoogleMap
                 center={{ lat: currentOrder.coords?.[0] || 38.8986231, lng: currentOrder.coords?.[1] || 66.0463534 }}
                 zoom={14}
-                couriers={MOCK_COURIERS}
+                couriers={couriersList}
                 selectedCourierId={currentOrder.courierId}
                 className="w-full h-full min-h-[250px]"
               />
@@ -484,10 +486,10 @@ export default function ManagerOrderDetailPage() {
       <AdjustBottleBalanceModal
         isOpen={isBottleModalOpen}
         onClose={() => setIsBottleModalOpen(false)}
-        clientId={currentOrder.clientId || currentOrder.customer_id || 1}
-        customerName={currentOrder.customer}
-        productId={1}
-        productName={currentOrder.product || "18.9L Kapsula"}
+        clientId={currentOrder.clientId || currentOrder.customerId || currentOrder.customer_id || currentOrder.client?.id}
+        customerName={currentOrder.customer || currentOrder.clientName || currentOrder.client?.name}
+        productId={currentOrder.productId || currentOrder.items?.[0]?.productId || currentOrder.items?.[0]?.product_id || 1}
+        productName={currentOrder.product || currentOrder.items?.[0]?.productName || "18.9L Kapsula"}
       />
     </div>
   )

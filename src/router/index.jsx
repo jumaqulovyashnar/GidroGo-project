@@ -3,7 +3,7 @@ import { createBrowserRouter, Navigate } from "react-router-dom"
 import AuthLayout from "../layout/AuthLayout"
 import MainLayout from "../layout/MainLayout"
 import { AuthGuard, RoleGuard } from "./guards"
-import { Spinner } from "@/shared/ui"
+import { Spinner, RouteError } from "@/shared/ui"
 
 const PageFallback = () => (
   <div className="flex h-[60vh] w-full items-center justify-center">
@@ -50,11 +50,13 @@ const BossXodimDetailPage = lazy(() => import("@/pages/BossDashboard/BossXodimDe
 const router = createBrowserRouter([
   {
     path: "/",
+    errorElement: <RouteError />,
     element: <Navigate to="/login" replace />,
   },
   // auth section uchun route
   {
     element: <AuthLayout />,
+    errorElement: <RouteError />,
     children: [
       {
         path: "/login",
@@ -65,9 +67,11 @@ const router = createBrowserRouter([
   // Himoyalangan boshqaruv paneli (MainLayout: DoubleNavbar + Header + Outlet)
   {
     element: <AuthGuard />,
+    errorElement: <RouteError />,
     children: [
       {
         element: <MainLayout />,
+        errorElement: <RouteError />,
         children: [
           // Super Admin
           {

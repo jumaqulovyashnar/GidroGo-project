@@ -3,7 +3,7 @@ import Chart from "react-apexcharts"
 import { Card, CardHeader, CardTitle, CardContent } from "@/shared/ui"
 import { Select } from "@mantine/core"
 import { ChevronDown } from "lucide-react"
-import { useBossOrders, useBossDashboard } from "@/shared/hooks"
+import { useBossOrders, useBossDashboard, useBossFinanceChart } from "@/shared/hooks"
 
 const rangeOptions = [
   { value: "7days", label: "Oxirgi 7 kun" },
@@ -15,29 +15,42 @@ export function SyncingChart() {
   const [range, setRange] = useState("7days")
   const { data: ordersRes } = useBossOrders({ all: true })
   const { data: dashboardRes } = useBossDashboard()
+  const financePeriod = range === "7days" ? "week" : "month"
+  const { data: financeChartRes } = useBossFinanceChart(financePeriod)
 
   const rawOrders = ordersRes?.data || ordersRes || []
   const orders = Array.isArray(rawOrders) ? rawOrders : []
   const db = dashboardRes?.data || dashboardRes || {}
+  const finChart = financeChartRes?.data || financeChartRes || {}
 
   const categories = ["Dush", "Sesh", "Chor", "Pay", "Jum", "Shan", "Yak"]
   const incomeByDay = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 0: 0 }
+  const expenseByDay = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 0: 0 }
 
-  orders.forEach((o) => {
-    if (o.createdAt) {
-      const day = new Date(o.createdAt).getDay()
-      const amount = Number(o.totalAmount || 0)
-      incomeByDay[day] = (incomeByDay[day] || 0) + amount
+  if (Array.isArray(finChart?.items)) {
+    finChart.items.forEach((item) => {
+      const day = item.day != null ? item.day : (item.date ? new Date(item.date).getDay() : null)
+      if (day != null && incomeByDay[day] !== undefined) {
+        incomeByDay[day] = Number(item.income || 0)
+        expenseByDay[day] = Number(item.expense || item.expenses || 0)
+      }
+    })
+  } else {
+    orders.forEach((o) => {
+      if (o.createdAt) {
+        const day = new Date(o.createdAt).getDay()
+        const amount = Number(o.totalAmount || o.price || 0)
+        incomeByDay[day] = (incomeByDay[day] || 0) + amount
+      }
+    })
+
+    const todayDay = new Date().getDay()
+    if (orders.length === 0 && db.todayIncome) {
+      incomeByDay[todayDay] = Number(db.todayIncome)
     }
-  })
-
-  // Agar orders bo'sh bo'lsa, dashboarddagi bugungi tushumni bugungi kunga o'rnatish
-  const todayDay = new Date().getDay()
-  if (orders.length === 0 && db.todayIncome) {
-    incomeByDay[todayDay] = Number(db.todayIncome)
   }
 
-  // Mln so'mda ifodalash
+  // Mln so'mda ifodalash (aniq haqiqiy sonlar, hech qanday sun'iy ko'paytiruvchisiz)
   const tushumData = [
     +(incomeByDay[1] / 1000000).toFixed(1),
     +(incomeByDay[2] / 1000000).toFixed(1),
@@ -48,7 +61,16 @@ export function SyncingChart() {
     +(incomeByDay[0] / 1000000).toFixed(1),
   ]
 
-  const xarajatData = tushumData.map((val) => +(val * 0.35).toFixed(1))
+  const xarajatData = [
+    +(expenseByDay[1] / 1000000).toFixed(1),
+    +(expenseByDay[2] / 1000000).toFixed(1),
+    +(expenseByDay[3] / 1000000).toFixed(1),
+    +(expenseByDay[4] / 1000000).toFixed(1),
+    +(expenseByDay[5] / 1000000).toFixed(1),
+    +(expenseByDay[6] / 1000000).toFixed(1),
+    +(expenseByDay[0] / 1000000).toFixed(1),
+  ]
+
   const sofFoydaData = tushumData.map((val, idx) => +(val - xarajatData[idx]).toFixed(1))
 
   const series = [

@@ -5,6 +5,7 @@ import { Calendar, ChevronDown, FileText, Wallet, Truck, Users, TrendingUp, Spar
 import { Card, CardHeader, CardTitle, CardContent, Button } from "@/shared/ui"
 import { CustomerGrowthAreaChart } from "@/widgets"
 import { useBossDashboard, useBossClients, useBossClientSegments, useBossBusinessGrowth } from "@/shared/hooks"
+import { exportToCsv } from "@/shared/lib"
 
 const quarterOptions = [
   { value: "2026_q1", label: "2026-yil 1-Chorak" },
@@ -35,7 +36,15 @@ export function BossOsishPage() {
   const totalClients = Number(segments.total || db.totalClients || clients.length || 0)
 
   const handleExportPDF = () => {
-    toast.success("PDF hisobot muvaffaqiyatli yuklab olindi!")
+    const headers = ["Metrika", "Qiymat"]
+    const rows = [
+      ["Oylik jami tushum", `${formatNumber(db.monthIncome || db.todayIncome)} so'm`],
+      ["Jami faol mijozlar", totalClients],
+      ["O'rtacha buyurtma qiymati", `${formatNumber(db.avgOrderValue || 0)} so'm`],
+      ["Kechikkan buyurtmalar", db.lateDeliveries ?? 0],
+    ]
+    exportToCsv("osish_dinamikasi_hisoboti", headers, rows)
+    toast.success("Hisobot CSV shaklida muvaffaqiyatli yuklab olindi!")
   }
 
   const formatNumber = (num) => Number(num || 0).toLocaleString("ru-RU")

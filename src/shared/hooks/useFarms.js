@@ -1,5 +1,5 @@
 import { farmService } from "@/services"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 
 export const useFarms = (params) => {
   return useQuery({
@@ -16,6 +16,16 @@ export const useFarm = (id) => {
       return res?.data || res
     },
     enabled: Boolean(id),
+  })
+}
+
+export const useDeleteFarm = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id) => farmService.deleteFarm(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["farms"] })
+    },
   })
 }
 

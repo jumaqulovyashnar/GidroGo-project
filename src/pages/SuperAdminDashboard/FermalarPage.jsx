@@ -6,11 +6,12 @@ import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbS
 import { useFermaModalStore } from "@/entities/farm"
 import { Button, CreateFermaModal, EditFermaModal, DeleteFermaModal, Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext, PaginationEllipsis, Spinner } from "@/shared/ui"
 import { FilterBar } from "@/widgets"
-import { useFarms, useUpdateFarmStatus } from "@/shared/hooks"
+import { useFarms, useUpdateFarmStatus, useDeleteFarm } from "@/shared/hooks"
 
 const FermalarPage = () => {
     const { data, isPending, isError, error } = useFarms()
     const updateFarmStatusMutation = useUpdateFarmStatus()
+    const deleteFarmMutation = useDeleteFarm()
     const navigate = useNavigate()
     const { openModal } = useFermaModalStore()
     const [search, setSearch] = useState("")
@@ -49,9 +50,15 @@ const FermalarPage = () => {
         setDeletingFarm(farm)
     }
 
-    const handleConfirmDelete = (farmToDelete) => {
-        toast.success(`${farmToDelete.name} fermasi muvaffaqiyatli o'chirildi!`)
-        setDeletingFarm(null)
+    const handleConfirmDelete = async (farmToDelete) => {
+        try {
+            await deleteFarmMutation.mutateAsync(farmToDelete.id)
+            toast.success(`${farmToDelete.name} fermasi muvaffaqiyatli o'chirildi!`)
+        } catch (err) {
+            toast.error(err?.message || "Ferma o'chirishda xatolik yuz berdi")
+        } finally {
+            setDeletingFarm(null)
+        }
     }
 
     const handleSaveEdit = (updatedFarm) => {

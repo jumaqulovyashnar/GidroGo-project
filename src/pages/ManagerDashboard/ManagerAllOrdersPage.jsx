@@ -5,7 +5,14 @@ import { Select } from "@mantine/core"
 import { TablePagination, Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbPage, BreadcrumbSeparator } from "@/shared/ui"
 import { toast } from "sonner"
 import { useManagerAllOrders } from "@/shared/hooks"
+import { exportToCsv } from "@/shared/lib"
 
+const PAYMENT_OPTIONS = [
+  { value: "all", label: "To'lov: Barchasi" },
+  { value: "cash", label: "Naqd pul" },
+  { value: "card", label: "Plastik karta" },
+  { value: "transfer", label: "Hisob raqam / O'tkazma" },
+]
 
 const TIME_PERIOD_OPTIONS = [
   { value: "all", label: "Vaqt: Barchasi" },
@@ -72,8 +79,10 @@ export default function ManagerAllOrdersPage() {
     return true
   })
 
-  const totalPages = Math.ceil(filteredOrders.length / pageSize) || 1
-  const paginatedOrders = filteredOrders.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+  const totalItems = allOrdersRes?.data?.total || allOrdersRes?.total || orders.length
+  const totalPages = allOrdersRes?.data?.totalPages || allOrdersRes?.totalPages || Math.ceil(totalItems / pageSize) || 1
+  const isServerPaginated = Boolean(allOrdersRes?.data?.totalPages || allOrdersRes?.totalPages || (allOrdersRes?.data?.total && allOrdersRes?.data?.total > orders.length))
+  const paginatedOrders = isServerPaginated ? filteredOrders : filteredOrders.slice((currentPage - 1) * pageSize, currentPage * pageSize)
 
   const handleCopyPhone = (phone) => {
     navigator.clipboard?.writeText(phone)
@@ -81,7 +90,24 @@ export default function ManagerAllOrdersPage() {
   }
 
   const handleExport = () => {
-    toast.success("Barcha buyurtmalar ro'yxati Excel (XLSX) formatida yuklab olindi!")
+    if (!orders || orders.length === 0) {
+      toast.error("Eksport qilish uchun buyurtmalar mavjud emas")
+      return
+    }
+    const headers = ["ID", "Mijoz", "Telefon", "Manzil", "Miqdor", "Summa (so'm)", "Holat", "To'lov turi", "Sana"]
+    const rows = orders.map((o) => [
+      o.id || "",
+      o.customer || o.clientName || "",
+      o.phone || o.clientPhone || "",
+      o.address || o.deliveryAddress || "",
+      o.bottles || o.quantity || o.qty || 0,
+      o.price || o.total || 0,
+      o.statusText || o.status || "",
+      o.paymentType || o.paymentMethod || "",
+      o.date || o.created_at || "",
+    ])
+    exportToCsv("manager_barcha_buyurtmalar", headers, rows)
+    toast.success("Barcha buyurtmalar ro'yxati CSV faylga yuklab olindi!")
   }
 
   return (

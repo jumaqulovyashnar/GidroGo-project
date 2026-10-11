@@ -5,6 +5,7 @@ import { Droplet, CheckCircle2, Truck, FileSpreadsheet, ChevronDown, Calendar, P
 import { Card, CardHeader, CardTitle, CardContent, Button } from "@/shared/ui"
 import { WeeklySalesDynamicsChart } from "@/widgets"
 import { useBossDashboard, useBossSalesSummary, useBossSalesProductsSummary } from "@/shared/hooks"
+import { exportToCsv } from "@/shared/lib"
 
 const periodOptions = [
   { value: "today", label: "Bugun" },
@@ -36,7 +37,19 @@ export function BossSavdoPage() {
   ]
 
   const handleExport = () => {
-    toast.success("XLSX hisobot muvaffaqiyatli yuklab olindi!")
+    const headers = ["Mahsulot", "Sotilgan idishlar", "Jami hajm (L)", "Tushum (so'm)"]
+    const rows = products.length > 0 
+      ? products.map((p) => [
+          p.name || p.title || "—",
+          p.bottlesSold ?? p.quantity ?? 0,
+          p.totalVolumeLiters ?? Math.round(Number(p.bottlesSold || 0) * 18.9),
+          p.revenue ?? p.totalAmount ?? 0,
+        ])
+      : [
+          ["Jami sotuv", salesData.totalBottlesSold ?? 0, salesData.totalWaterVolumeLiters ?? 0, Number(db.todayIncome || 0)]
+        ]
+    exportToCsv(`savdo_hisoboti_${activePeriod}`, headers, rows)
+    toast.success("Savdo hisoboti CSV formatida muvaffaqiyatli yuklab olindi!")
   }
 
   const formatNumber = (num) => Number(num || 0).toLocaleString("ru-RU")

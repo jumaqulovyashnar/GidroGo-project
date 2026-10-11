@@ -5,6 +5,7 @@ import { Select } from "@mantine/core"
 import { TablePagination, Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbPage, BreadcrumbSeparator } from "@/shared/ui"
 import { toast } from "sonner"
 import { useManagerTodayOrders, useManagerDashboard } from "@/shared/hooks"
+import { exportToCsv } from "@/shared/lib"
 
 export default function ManagerOrdersPage() {
   const navigate = useNavigate()
@@ -95,12 +96,27 @@ export default function ManagerOrdersPage() {
           <button
             type="button"
             onClick={() => {
-              toast.success("Excel hisobot yuklab olindi")
+              if (!orders || orders.length === 0) {
+                toast.error("Eksport qilish uchun buyurtmalar mavjud emas")
+                return
+              }
+              const headers = ["ID", "Mijoz", "Telefon", "Manzil", "Miqdor", "Summa (so'm)", "Holat"]
+              const rows = orders.map((o) => [
+                o.id || "",
+                o.customer || o.clientName || "",
+                o.phone || o.clientPhone || "",
+                o.address || o.deliveryAddress || "",
+                o.bottles || o.quantity || o.qty || 0,
+                o.price || o.total || 0,
+                o.statusText || o.status || "",
+              ])
+              exportToCsv("bugungi_buyurtmalar", headers, rows)
+              toast.success("Buyurtmalar ro'yxati CSV shaklida yuklab olindi!")
             }}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-xs"
           >
             <Download className="w-3.5 h-3.5 text-slate-500" />
-            <span>Eksport (Excel)</span>
+            <span>Eksport (CSV)</span>
           </button>
         </div>
       </div>

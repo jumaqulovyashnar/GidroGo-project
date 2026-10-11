@@ -26,6 +26,15 @@ class FarmService {
       throw new Error(handleApiError(error))
     }
   }
+
+  async deleteFarm(id) {
+    try {
+      const response = await api.delete(`/superadmin/farms/${id}`)
+      return response.data
+    } catch (error) {
+      throw new Error(handleApiError(error))
+    }
+  }
 }
 
 export const farmService = new FarmService()

@@ -19,6 +19,8 @@ export const LineColumn = ({ dashboard = {} }) => {
     const ordersData = []
     const clientsData = []
 
+    const monthlyBreakdown = Array.isArray(dashboard?.monthlyData) ? dashboard.monthlyData : null
+
     // So'nggi 12 oy dinamikasi
     for (let i = 11; i >= 0; i--) {
       const d = new Date(currentYear, currentMonth - i, 1)
@@ -29,12 +31,15 @@ export const LineColumn = ({ dashboard = {} }) => {
       categories.push(i === 0 ? `${mName} '${yrShort}` : mName)
 
       const isCurrentMonth = i === 0
-      const progress = (12 - i) / 12
-      const monthOrder = totalOrders > 1 ? Math.round((totalOrders / 12) * (0.35 + progress * 0.95)) : (isCurrentMonth ? totalOrders : 0)
-      const monthClient = totalClients > 1 ? Math.round((totalClients / 12) * (0.3 + progress * 1.05)) : (isCurrentMonth ? totalClients : 0)
-
-      ordersData.push(monthOrder)
-      clientsData.push(monthClient)
+      if (monthlyBreakdown && monthlyBreakdown[11 - i]) {
+        const item = monthlyBreakdown[11 - i]
+        ordersData.push(Number(item.orders || item.ordersCount || 0))
+        clientsData.push(Number(item.clients || item.clientsCount || 0))
+      } else {
+        // Haqiqiy ma'lumot: agar oylik taqsimot kelmagan bo'lsa, joriy oy joriy ko'rsatkich, oldingi oylar esa 0
+        ordersData.push(isCurrentMonth ? totalOrders : 0)
+        clientsData.push(isCurrentMonth ? totalClients : 0)
+      }
     }
 
     const chartOptions = {
@@ -166,7 +171,7 @@ export const LineColumn = ({ dashboard = {} }) => {
       ],
       options: chartOptions,
     }
-  }, [totalOrders, totalClients])
+  }, [totalOrders, totalClients, dashboard?.monthlyData])
 
   return (
     <div className="w-full bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs">

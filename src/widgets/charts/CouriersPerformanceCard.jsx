@@ -194,4 +194,4 @@ export function CouriersPerformanceCard() {
   )
 }
 
-export default CouriersPerformanceCard
+export default CouriersPerformanceCard;

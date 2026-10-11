@@ -62,11 +62,11 @@ export function FermaDetailPage() {
   const chartSeries = [
     {
       name: "Buyurtmalar",
-      data: farm?.ordersChartData || [31, 40, 28, 51, 42, 85, 77],
+      data: farm?.ordersChartData || [0, 0, 0, 0, 0, 0, 0],
     },
     {
       name: "Daromad",
-      data: farm?.revenueChartData || [11, 32, 45, 32, 34, 52, 41],
+      data: farm?.revenueChartData || [0, 0, 0, 0, 0, 0, 0],
     },
   ]
 

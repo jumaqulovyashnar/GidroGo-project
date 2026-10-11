@@ -1,8 +1,9 @@
 import axios from "axios"
 import { useUserStore } from "@/entities/user/userStore"
 
+const rawBaseURL = import.meta.env.VITE_API_URL || ""
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: rawBaseURL.trim().replace(/;+$/, ""),
   headers: {
     "Content-Type": "application/json",
   },
