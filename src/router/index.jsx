@@ -3,22 +3,17 @@ import { createBrowserRouter, Navigate } from "react-router-dom"
 import AuthLayout from "../layout/AuthLayout"
 import MainLayout from "../layout/MainLayout"
 import { AuthGuard, RoleGuard } from "./guards"
-import { Spinner, RouteError } from "@/shared/ui"
+import { RouteError } from "@/shared/ui"
 
-const PageFallback = () => (
-  <div className="flex h-[60vh] w-full items-center justify-center">
-    <Spinner size="lg" className="text-blue-600" />
-  </div>
-)
+import LoginPage from "@/pages/authentication/LoginPage"
+
+const PageFallback = () => null
 
 const withSuspense = (Component) => (
   <Suspense fallback={<PageFallback />}>
     <Component />
   </Suspense>
 )
-
-// Auth
-const LoginPage = lazy(() => import("@/pages/authentication/LoginPage"))
 
 // Super Admin
 const SuperAdminDashboardPage = lazy(() => import("@/pages/SuperAdminDashboard/SuperAdminDashboardPage"))
@@ -60,7 +55,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/login",
-        element: withSuspense(LoginPage),
+        element: <LoginPage />,
       },
     ],
   },

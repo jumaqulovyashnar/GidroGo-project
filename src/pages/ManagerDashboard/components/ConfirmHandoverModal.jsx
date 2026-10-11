@@ -1,60 +1,95 @@
-import { useState } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
 import { Modal as MantineModal } from "@mantine/core"
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react"
-import { toast } from "sonner"
 import { useConfirmCashHandover, useRejectCashHandover } from "@/shared/hooks"
+import { cn } from "@/shared/lib"
+
+const handoverSchema = z
+  .object({
+    actionType: z.enum(["confirm", "reject"]),
+    confirmedAmount: z.coerce.number({
+      invalid_type_error: "Summani raqamda kiriting",
+    }),
+    note: z.string().max(250, "Izoh 250 ta belgidan oshmasligi kerak").optional().default(""),
+    reason: z.string().max(250, "Sabab 250 ta belgidan oshmasligi kerak").optional().default(""),
+  })
+  .superRefine((data, ctx) => {
+    if (data.actionType === "confirm") {
+      if (!data.confirmedAmount || data.confirmedAmount <= 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["confirmedAmount"],
+          message: "Tasdiqlash summasi noldan katta bo'lishi kerak!",
+        })
+      }
+    } else if (data.actionType === "reject") {
+      if (!data.reason || !data.reason.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["reason"],
+          message: "Iltimos, rad etish sababini yozing!",
+        })
+      }
+    }
+  })
 
 function ConfirmHandoverModalContent({ isOpen, onClose, handover }) {
-  const [actionType, setActionType] = useState("confirm") // "confirm" or "reject"
-  const [confirmedAmount, setConfirmedAmount] = useState(
-    handover?.declaredAmount ? String(handover.declaredAmount) : ""
-  )
-  const [note, setNote] = useState("")
-  const [reason, setReason] = useState("")
   const { mutate: confirmHandover, isPending: isConfirming } = useConfirmCashHandover()
   const { mutate: rejectHandover, isPending: isRejecting } = useRejectCashHandover()
   const isPending = isConfirming || isRejecting
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(handoverSchema),
+    defaultValues: {
+      actionType: "confirm",
+      confirmedAmount: Number(handover?.declaredAmount || 0),
+      note: "",
+      reason: "",
+    },
+    mode: "onBlur",
+  })
 
-    // 1. Double request protection
+  const actionType = watch("actionType")
+
+  const handleClose = () => {
+    if (isPending) return
+    reset()
+    onClose()
+  }
+
+  const onSubmit = (data) => {
     if (isPending || !handover?.id) return
 
-    if (actionType === "confirm") {
-      const amountNum = Number(confirmedAmount)
-      if (!amountNum || amountNum <= 0) {
-        toast.error("Tasdiqlash summasi noldan katta bo'lishi kerak!")
-        return
-      }
-
-      // Faqat Swagger talab qilgan fildlar: { confirmedAmount, note }
+    if (data.actionType === "confirm") {
       const payload = {
         id: handover.id,
-        confirmedAmount: amountNum,
-        ...(note.trim() ? { note: note.trim() } : {}),
+        confirmedAmount: Number(data.confirmedAmount),
+        ...(data.note?.trim() ? { note: data.note.trim() } : {}),
       }
 
       confirmHandover(payload, {
         onSuccess: () => {
-          onClose()
+          handleClose()
         },
       })
     } else {
-      if (!reason.trim()) {
-        toast.error("Iltimos, rad etish sababini yozing!")
-        return
-      }
-
-      // Faqat Swagger talab qilgan fildlar: { reason }
       const payload = {
         id: handover.id,
-        reason: reason.trim(),
+        reason: data.reason.trim(),
       }
 
       rejectHandover(payload, {
         onSuccess: () => {
-          onClose()
+          handleClose()
         },
       })
     }
@@ -63,15 +98,28 @@ function ConfirmHandoverModalContent({ isOpen, onClose, handover }) {
   return (
     <MantineModal
       opened={isOpen}
-      onClose={() => !isPending && onClose()}
+      onClose={handleClose}
       title={
         <div className="flex items-center gap-2">
-          <div className={`size-8 rounded-lg flex items-center justify-center ${actionType === "confirm" ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"}`}>
-            {actionType === "confirm" ? <CheckCircle2 className="size-4.5" /> : <XCircle className="size-4.5" />}
+          <div
+            className={cn(
+              "size-8 rounded-lg flex items-center justify-center",
+              actionType === "confirm"
+                ? "bg-emerald-50 text-emerald-600"
+                : "bg-rose-50 text-rose-600"
+            )}
+          >
+            {actionType === "confirm" ? (
+              <CheckCircle2 className="size-4.5" />
+            ) : (
+              <XCircle className="size-4.5" />
+            )}
           </div>
           <div>
             <h3 className="text-sm font-bold text-slate-900">
-              {actionType === "confirm" ? "Kassa topshirishni tasdiqlash" : "Kassa topshirishni rad etish"}
+              {actionType === "confirm"
+                ? "Kassa topshirishni tasdiqlash"
+                : "Kassa topshirishni rad etish"}
             </h3>
             <p className="text-[11px] text-slate-500">So'rov #{handover?.id}</p>
           </div>
@@ -85,26 +133,32 @@ function ConfirmHandoverModalContent({ isOpen, onClose, handover }) {
         body: "!p-4",
       }}
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         {/* Switch tab */}
         <div className="grid grid-cols-2 gap-1 p-1 bg-slate-100 rounded-xl">
           <button
             type="button"
             disabled={isPending}
-            onClick={() => setActionType("confirm")}
-            className={`py-1.5 text-xs font-semibold rounded-lg transition-all ${
-              actionType === "confirm" ? "bg-white text-emerald-700 shadow-xs" : "text-slate-600 hover:text-slate-900"
-            }`}
+            onClick={() => setValue("actionType", "confirm", { shouldValidate: true })}
+            className={cn(
+              "py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer",
+              actionType === "confirm"
+                ? "bg-white text-emerald-700 shadow-xs"
+                : "text-slate-600 hover:text-slate-900"
+            )}
           >
             Tasdiqlash
           </button>
           <button
             type="button"
             disabled={isPending}
-            onClick={() => setActionType("reject")}
-            className={`py-1.5 text-xs font-semibold rounded-lg transition-all ${
-              actionType === "reject" ? "bg-white text-rose-700 shadow-xs" : "text-slate-600 hover:text-slate-900"
-            }`}
+            onClick={() => setValue("actionType", "reject", { shouldValidate: true })}
+            className={cn(
+              "py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer",
+              actionType === "reject"
+                ? "bg-white text-rose-700 shadow-xs"
+                : "text-slate-600 hover:text-slate-900"
+            )}
           >
             Rad etish
           </button>
@@ -117,7 +171,9 @@ function ConfirmHandoverModalContent({ isOpen, onClose, handover }) {
           </div>
           <div className="flex justify-between">
             <span className="text-slate-500">Kuryer bildirgan summa:</span>
-            <span className="font-bold text-blue-600">{Number(handover?.declaredAmount || 0).toLocaleString()} so'm</span>
+            <span className="font-bold text-blue-600">
+              {Number(handover?.declaredAmount || 0).toLocaleString()} so'm
+            </span>
           </div>
           {handover?.note && (
             <div className="flex justify-between">
@@ -137,12 +193,20 @@ function ConfirmHandoverModalContent({ isOpen, onClose, handover }) {
                 type="number"
                 min="1"
                 step="any"
-                required
                 disabled={isPending}
-                value={confirmedAmount}
-                onChange={(e) => setConfirmedAmount(e.target.value)}
-                className="w-full h-10 px-3 rounded-xl border border-slate-200 text-sm font-bold text-slate-900 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 disabled:bg-slate-50"
+                {...register("confirmedAmount")}
+                className={cn(
+                  "w-full h-10 px-3 rounded-xl border text-sm font-bold text-slate-900 focus:outline-none transition-all disabled:bg-slate-50",
+                  errors.confirmedAmount
+                    ? "border-rose-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10"
+                    : "border-slate-200 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                )}
               />
+              {errors.confirmedAmount && (
+                <p className="text-xs text-rose-500 font-medium mt-1">
+                  {errors.confirmedAmount.message}
+                </p>
+              )}
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1.5">
@@ -151,11 +215,13 @@ function ConfirmHandoverModalContent({ isOpen, onClose, handover }) {
               <textarea
                 rows={2}
                 disabled={isPending}
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
+                {...register("note")}
                 placeholder="Tasdiqlash izohi..."
                 className="w-full p-2.5 rounded-xl border border-slate-200 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 resize-none disabled:bg-slate-50"
               />
+              {errors.note && (
+                <p className="text-xs text-rose-500 font-medium mt-1">{errors.note.message}</p>
+              )}
             </div>
           </>
         ) : (
@@ -165,13 +231,19 @@ function ConfirmHandoverModalContent({ isOpen, onClose, handover }) {
             </label>
             <textarea
               rows={3}
-              required
               disabled={isPending}
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
+              {...register("reason")}
               placeholder="Masalan: Kassa summasi kam chiqdi..."
-              className="w-full p-2.5 rounded-xl border border-slate-200 text-xs text-slate-800 focus:outline-none focus:border-rose-500 resize-none disabled:bg-slate-50"
+              className={cn(
+                "w-full p-2.5 rounded-xl border text-xs text-slate-800 focus:outline-none resize-none disabled:bg-slate-50 transition-all",
+                errors.reason
+                  ? "border-rose-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10"
+                  : "border-slate-200 focus:border-rose-500"
+              )}
             />
+            {errors.reason && (
+              <p className="text-xs text-rose-500 font-medium mt-1">{errors.reason.message}</p>
+            )}
           </div>
         )}
 
@@ -179,7 +251,7 @@ function ConfirmHandoverModalContent({ isOpen, onClose, handover }) {
           <button
             type="button"
             disabled={isPending}
-            onClick={onClose}
+            onClick={handleClose}
             className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors disabled:opacity-50 cursor-pointer"
           >
             Bekor qilish
@@ -187,9 +259,12 @@ function ConfirmHandoverModalContent({ isOpen, onClose, handover }) {
           <button
             type="submit"
             disabled={isPending}
-            className={`px-5 py-2 rounded-xl text-xs font-semibold text-white transition-all flex items-center gap-1.5 shadow-xs disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer ${
-              actionType === "confirm" ? "bg-emerald-600 hover:bg-emerald-700" : "bg-rose-600 hover:bg-rose-700"
-            }`}
+            className={cn(
+              "px-5 py-2 rounded-xl text-xs font-semibold text-white transition-all flex items-center gap-1.5 shadow-xs disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer",
+              actionType === "confirm"
+                ? "bg-emerald-600 hover:bg-emerald-700"
+                : "bg-rose-600 hover:bg-rose-700"
+            )}
           >
             {isPending ? (
               <>

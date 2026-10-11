@@ -1,11 +1,8 @@
-import { lazy, Suspense } from "react"
 import { useAuth } from "@/provider/AuthProvider"
 import { Card, CardHeader, CardTitle, CardContent, Button } from "@/shared/ui"
 import { Building2, Users, ShoppingCart, Truck, CheckCircle2, RefreshCw } from "lucide-react"
 import { useSuperAdminDashboard, useRegionalStatistics } from "@/shared/hooks"
-
-const BrushAnalyticsChart = lazy(() => import("@/widgets/charts/BrushAnalyticsChart"))
-const SalesTeamDonutChart = lazy(() => import("@/widgets/charts/SalesTeamDonutChart"))
+import { BrushAnalyticsChart, SalesTeamDonutChart } from "@/widgets/charts"
 
 export function SuperAdminDashboardPage() {
   const { user: _user } = useAuth()
@@ -139,16 +136,7 @@ export function SuperAdminDashboardPage() {
             </div>
           </CardHeader>
           <CardContent className="pt-2 min-h-[365px]">
-            <Suspense
-              fallback={
-                <div className="w-full h-[320px] bg-slate-50/70 rounded-xl animate-pulse flex flex-col items-center justify-center p-6 gap-3">
-                  <div className="w-48 h-4 bg-slate-200 rounded" />
-                  <div className="w-full flex-1 bg-slate-100 rounded-lg" />
-                </div>
-              }
-            >
-              <BrushAnalyticsChart dashboard={dashboard} />
-            </Suspense>
+            <BrushAnalyticsChart dashboard={dashboard} />
           </CardContent>
         </Card>
 
@@ -162,13 +150,7 @@ export function SuperAdminDashboardPage() {
             </p>
           </CardHeader>
           <CardContent className="pt-4 flex-1 flex items-center justify-center min-h-[365px]">
-            <Suspense
-              fallback={
-                <div className="size-48 rounded-full border-8 border-slate-100 border-t-slate-200 animate-spin opacity-50" />
-              }
-            >
-              <SalesTeamDonutChart dashboard={dashboard} regionalStats={regionalStats} />
-            </Suspense>
+            <SalesTeamDonutChart dashboard={dashboard} regionalStats={regionalStats} />
           </CardContent>
         </Card>
       </div>
