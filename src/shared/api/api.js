@@ -2,8 +2,24 @@ import axios from "axios"
 import { useUserStore } from "@/entities/user/userStore"
 
 const rawBaseURL = import.meta.env.VITE_API_URL || ""
+const cleanBaseURL = rawBaseURL.trim().replace(/;+$/, "")
+
+// Agar sahifa HTTPS orqali ochilgan bo'lsa (masalan, Vercel: https://gidrogo-project.vercel.app),
+// lekin API URL http:// bo'lsa, brauzer Mixed Content qoidasi bilan so'rovni BLOKLAYDI.
+// Shuning uchun HTTPS muhitda Vercel proxy rewrite (/api) dan foydalanamiz.
+export const getBaseURL = () => {
+  if (
+    typeof window !== "undefined" &&
+    window.location.protocol === "https:" &&
+    cleanBaseURL.startsWith("http://")
+  ) {
+    return "/api"
+  }
+  return cleanBaseURL || "/api"
+}
+
 export const api = axios.create({
-  baseURL: rawBaseURL.trim().replace(/;+$/, ""),
+  baseURL: getBaseURL(),
   headers: {
     "Content-Type": "application/json",
   },
@@ -137,7 +153,7 @@ api.interceptors.response.use(
       try {
         // Asosiy api instansiyasidan emas, toza axios orqali chaqiramiz (loop bo'lmasligi uchun)
         const refreshResponse = await axios.post(
-          `${import.meta.env.VITE_API_URL}/auth/refresh`,
+          `${getBaseURL()}/auth/refresh`,
           { refreshToken },
           { headers: { "Content-Type": "application/json" } }
         )
