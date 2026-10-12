@@ -59,16 +59,16 @@ function LoginPage() {
     mode: "onBlur",
   })
 
-  // O'zbekiston telefon raqamini formatlash (+998 XX XXX XX XX)
-  const normalizePhone = (val) => {
+  // Backend uchun telefon raqamini ixcham formatlash (+998901234567, probellarsiz)
+  const cleanPhoneForBackend = (val) => {
     if (!val) return ""
     const trimmed = val.trim()
     const digits = trimmed.replace(/\D/g, "")
     if (digits.length === 9) {
-      return `+998 ${digits.slice(0, 2)} ${digits.slice(2, 5)} ${digits.slice(5, 7)} ${digits.slice(7, 9)}`
+      return `+998${digits}`
     }
     if (digits.length === 12 && digits.startsWith("998")) {
-      return `+${digits.slice(0, 3)} ${digits.slice(3, 5)} ${digits.slice(5, 8)} ${digits.slice(8, 10)} ${digits.slice(10, 12)}`
+      return `+${digits}`
     }
     return trimmed
   }
@@ -79,11 +79,14 @@ function LoginPage() {
     const phone = data.phone?.trim() || ""
     const password = data.password
 
-    const loginIdentifier = phone ? normalizePhone(phone) : name
+    const compactPhone = cleanPhoneForBackend(phone)
+    // Agar foydalanuvchi "admin" loginini kiritgan bo'lsa, login sifatida 'admin' ketadi.
+    // Agar faqat telefon raqami kiritilgan bo'lsa, ixcham telefon raqami (+998901234567) ketadi.
+    const loginIdentifier = name || compactPhone
 
     loginMutation.mutate({
       login: loginIdentifier,
-      phone: phone ? normalizePhone(phone) : loginIdentifier,
+      ...(compactPhone ? { phone: compactPhone } : {}),
       password,
     })
   }
