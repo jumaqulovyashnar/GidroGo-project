@@ -6,17 +6,27 @@ import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { useLogin } from "@/shared"
 import { Button, Field, Input, Label } from "@/shared/ui"
 
-const loginSchema = z.object({
-  identifier: z
-    .string()
-    .trim()
-    .min(1, "Iltimos, login yoki telefon raqamingizni kiriting."),
-  password: z
-    .string()
-    .min(1, "Iltimos, parolingizni kiriting.")
-    .min(3, "Parol kamida 3 ta belgidan iborat bo'lishi kerak.")
-    .regex(/^\S+$/, "Parolda bo'sh joy (probel) bo'lmasligi kerak."),
-})
+const loginSchema = z
+  .object({
+    name: z.string().optional(),
+    phone: z.string().optional(),
+    password: z
+      .string()
+      .min(1, "Iltimos, parolingizni kiriting.")
+      .min(3, "Parol kamida 3 ta belgidan iborat bo'lishi kerak.")
+      .regex(/^\S+$/, "Parolda bo'sh joy (probel) bo'lmasligi kerak."),
+  })
+  .superRefine((data, ctx) => {
+    const hasName = Boolean(data.name && data.name.trim().length > 0)
+    const hasPhone = Boolean(data.phone && data.phone.trim().length > 0)
+    if (!hasName && !hasPhone) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Admin logini yoki telefon raqamidan birini kiriting.",
+        path: ["phone"],
+      })
+    }
+  })
 
 function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
@@ -29,17 +39,19 @@ function LoginPage() {
   } = useForm({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      identifier: "",
+      name: "",
+      phone: "",
       password: "",
     },
     mode: "onBlur",
   })
 
-  // Backend uchun telefon raqamini ixcham formatlash (+998901234567)
+  // Backend uchun telefon raqamini to'g'ri formatga keltirish (+998901234567)
   const cleanPhoneForBackend = (val) => {
     if (!val) return ""
-    const trimmed = val.trim()
+    const trimmed = String(val).trim()
     const digits = trimmed.replace(/\D/g, "")
+    if (!digits) return ""
     if (digits.length === 9) {
       return `+998${digits}`
     }
@@ -49,21 +61,33 @@ function LoginPage() {
     return trimmed
   }
 
+  const isPhonePattern = (val) => {
+    if (!val) return false
+    const digits = val.replace(/\D/g, "")
+    return digits.length >= 9 && (/^\+/.test(val) || digits.startsWith("998") || digits.length === 9)
+  }
+
   const onSubmit = (data) => {
     if (loginMutation.isPending) return
-    const raw = data.identifier?.trim() || ""
+
+    const rawPhone = data.phone?.trim() || ""
+    const rawName = data.name?.trim() || ""
     const password = data.password
 
-    const digits = raw.replace(/\D/g, "")
-    const isPhoneNumber =
-      digits.length >= 9 && (/^\+/.test(raw) || digits.startsWith("998") || digits.length === 9)
+    // 1. Agar telefon kiritilgan bo'lsa
+    let cleanPhone = cleanPhoneForBackend(rawPhone)
 
-    const compactPhone = isPhoneNumber ? cleanPhoneForBackend(raw) : ""
-    const loginValue = isPhoneNumber ? compactPhone : raw
+    // 2. Agar telefon kiritilmagan bo'lsa, lekin nomer admin/ism maydoniga yozilgan bo'lsa
+    if (!cleanPhone && isPhonePattern(rawName)) {
+      cleanPhone = cleanPhoneForBackend(rawName)
+    }
+
+    // Telefon bo'lsa telefon, bo'lmasa admin nomi
+    const loginValue = cleanPhone || rawName
 
     loginMutation.mutate({
       login: loginValue,
-      ...(compactPhone ? { phone: compactPhone } : {}),
+      ...(cleanPhone ? { phone: cleanPhone } : {}),
       password,
     })
   }
@@ -85,26 +109,42 @@ function LoginPage() {
         onSubmit={handleSubmit(onSubmit)}
         className="space-y-4 border-none"
       >
+        {/* 1. Admin / Login input */}
         <Field>
-          <Label htmlFor="identifier" className="font-medium text-sm text-slate-700">
-            Login yoki Telefon raqam
+          <Label htmlFor="name" className="font-medium text-sm text-slate-700">
+            Admin / Login (Super admin uchun)
           </Label>
           <Input
-            id="identifier"
+            id="name"
             type="text"
             autoComplete="off"
-            autoFocus
-            placeholder="admin yoki +998 90 123 45 67"
-            {...register("identifier")}
+            placeholder="admin"
+            {...register("name")}
             className="h-10 rounded-xl bg-white text-sm"
           />
-          {errors.identifier && (
+        </Field>
+
+        {/* 2. Telefon raqam input */}
+        <Field>
+          <Label htmlFor="phone" className="font-medium text-sm text-slate-700">
+            Telefon raqam (Ferma rahbari / Haydovchi uchun)
+          </Label>
+          <Input
+            id="phone"
+            type="tel"
+            autoComplete="off"
+            placeholder="+998 90 123 45 67"
+            {...register("phone")}
+            className="h-10 rounded-xl bg-white text-sm"
+          />
+          {errors.phone && (
             <p className="text-xs text-rose-500 font-medium mt-1">
-              {errors.identifier.message}
+              {errors.phone.message}
             </p>
           )}
         </Field>
 
+        {/* 3. Parol input */}
         <Field>
           <Label htmlFor="password" className="font-medium text-sm text-slate-700">
             Parol
@@ -144,7 +184,7 @@ function LoginPage() {
           <p className="text-xs text-rose-500 font-medium mt-1 bg-rose-50 p-2.5 rounded-lg border border-rose-100">
             {loginMutation.error?.response?.data?.message ||
               loginMutation.error?.message ||
-              "Telefon raqami yoki parol noto'g'ri."}
+              "Login, telefon raqami yoki parol noto'g'ri."}
           </p>
         )}
 
