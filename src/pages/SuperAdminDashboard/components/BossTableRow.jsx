@@ -59,7 +59,7 @@ export const BossTableRow = memo(function BossTableRow({
           />
           <span
             className={`w-16 shrink-0 text-xs font-semibold select-none ${
-              boss.isActive ? "text-blue-600" : "text-slate-400"
+              boss.isActive ? "text-[#2563EB]" : "text-slate-400"
             }`}
           >
             {isToggling ? "O'zgarmoqda..." : boss.isActive ? "Faol" : "Bloklangan"}

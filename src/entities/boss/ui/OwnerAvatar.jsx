@@ -3,56 +3,58 @@ import { resolveFileUrl } from "@/shared/lib"
 
 /**
  * Ferma egasi / Ferma logotipi avatari komponenti
- * Rasm bo'lmasa, ko'k fonda fermaning bosh harfi ko'rsatiladi
+ * Rasm bo'lmasa, Togglening ko'k rangida (#2563EB) rounded-full doirada initsiallar ko'rsatiladi
  * 
  * @param {Object} props
  * @param {string} [props.image] - Logotip yoki rasm URL
- * @param {string} [props.farmName] - Ferma nomi (bosh harf uchun)
- * @param {string} [props.name] - Qo'shimcha F.I.Sh (fallback)
+ * @param {string} [props.farmName] - Ferma nomi
+ * @param {string} [props.name] - F.I.Sh
  */
 export const OwnerAvatar = memo(function OwnerAvatar({ image, farmName = "", name = "" }) {
   const [hasError, setHasError] = useState(false)
   const safeImage = useMemo(() => resolveFileUrl(image), [image])
 
-  // Rasm bo'lmasa fermaning nomini bosh harfini olish
-  const initial = useMemo(() => {
-    // 1. Agar ferma nomi bo'lsa va u standart placeholder bo'lmasa
-    const target = (
-      farmName && farmName !== "Ferma biriktirilmagan"
-        ? farmName
-        : name || ""
-    ).trim()
-
+  // Initsiallarni hisoblash: F.I.Sh bo'lsa 2 ta so'zning bosh harflari (masalan: Jonijon Joniyivich -> JJ)
+  const initials = useMemo(() => {
+    const target = (name && name !== "—" ? name : farmName || "").trim()
     if (!target || target === "—") return "F"
 
-    // Maxsus belgilarni tozalash (masalan: Ko'kdala -> Kokdala, O'zbekiston -> Ozbekiston)
+    // Maxsus belgilarni olib tashlash
     const clean = target.replace(/['`ʻ’"«»]/g, "").trim()
-    return clean.charAt(0).toUpperCase() || "F"
+    const parts = clean.split(/\s+/).filter(Boolean)
+
+    if (parts.length >= 2) {
+      const first = parts[0].charAt(0).toUpperCase()
+      const second = parts[1].charAt(0).toUpperCase()
+      return `${first}${second}`
+    }
+
+    return clean.slice(0, 2).toUpperCase() || "F"
   }, [farmName, name])
 
-  // Rasm mavjud bo'lsa va xatolik bermasa
+  // Rasm mavjud bo'lsa va yuklanishda xato bermasa
   if (safeImage && !hasError) {
     return (
       <img
         src={safeImage}
-        alt={farmName || name || "Ferma logotipi"}
+        alt={name || farmName || "Avatar"}
         width="40"
         height="40"
         loading="lazy"
         decoding="async"
         onError={() => setHasError(true)}
-        className="size-10 rounded-full object-cover object-center border border-slate-200 shrink-0 shadow-2xs"
+        className="w-10 h-10 min-w-10 min-h-10 rounded-full object-cover object-center border border-slate-200 shrink-0 shadow-2xs aspect-square"
       />
     )
   }
 
-  // Rasm bo'lmasa: To'q ko'k rang (#2563EB), rounded-full va fermaning bosh harfi
+  // Rasm bo'lmasa: Aynan togglening yorqin ko'k rangi (#2563EB), to'liq doira (rounded-full)
   return (
     <div
-      aria-label={farmName || name}
-      className="size-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm border border-blue-700/20 shrink-0 select-none shadow-xs"
+      aria-label={name || farmName}
+      className="w-10 h-10 min-w-10 min-h-10 rounded-full bg-[#2563EB] text-white flex items-center justify-center font-bold text-xs sm:text-sm tracking-wide shrink-0 select-none shadow-xs aspect-square"
     >
-      {initial}
+      {initials}
     </div>
   )
 })
