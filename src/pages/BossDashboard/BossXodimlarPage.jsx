@@ -4,9 +4,7 @@ import { Plus, Download } from "lucide-react"
 import { Button } from "@/shared/ui"
 import { exportToCsv } from "@/shared/lib"
 import { useStaff, useStaffSummary } from "@/shared/hooks"
-import { XodimlarStats } from "./components/XodimlarStats"
-import { XodimlarTable } from "./components/XodimlarTable"
-import { AddXodimModal } from "./components/AddXodimModal"
+import { XodimlarStats, XodimlarTable, AddXodimModal } from "@/components"
 
 export function BossXodimlarPage() {
   // 1. Dinamik API Hook: GET, POST (create), PATCH (status), DELETE

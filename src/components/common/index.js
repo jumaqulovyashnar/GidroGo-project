@@ -1,0 +1,6 @@
+export * from "./XodimlarStats"
+export * from "./XodimlarTable"
+export * from "./FermaEgalariStats"
+export * from "./BossTableRow"
+export * from "./bossTableConfig"
+export * from "./useBossesTable"
