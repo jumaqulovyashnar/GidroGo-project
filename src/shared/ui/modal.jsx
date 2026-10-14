@@ -76,9 +76,16 @@ export function CreateFermaModal() {
       const uploadedUrl =
         res?.data?.url ||
         res?.url ||
+        res?.data?.fileUrl ||
+        res?.fileUrl ||
+        res?.data?.photoUrl ||
+        res?.photoUrl ||
+        res?.data?.fileDownloadUri ||
+        res?.fileDownloadUri ||
         res?.data?.path ||
         res?.path ||
         (typeof res?.data === "string" ? res.data : "") ||
+        (typeof res === "string" ? res : "") ||
         ""
 
       if (uploadedUrl) {
@@ -244,10 +251,10 @@ export function CreateFermaModal() {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-slate-800">
-                    Click or drag file to this area to upload
+                    Rasmni shu yerga tashlang yoki tanlang
                   </p>
                   <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto leading-relaxed">
-                    Support for a single or bulk upload. Strictly prohibited from uploading company data or other banned files.
+                    PNG, JPG, WEBP formatlaridagi rasm (maksimal 5MB)
                   </p>
                 </div>
               </div>

@@ -237,14 +237,12 @@ const formatAuditMetadata = (metadata, action) => {
             const term = (searchTerm || "").toLowerCase().trim()
             const targetName = (log.target?.name || "").toLowerCase()
             const targetCode = (log.target?.code || "").toLowerCase()
-            const ip = log.clientInfo?.ip || ""
             const actionLabel = (log.action?.label || "").toLowerCase()
 
             const matchesSearch =
                 !term ||
                 targetName.includes(term) ||
                 targetCode.includes(term) ||
-                ip.includes(term) ||
                 actionLabel.includes(term)
 
             const matchesAction = selectedAction === "all" || actionLabel.includes((selectedAction || "").toLowerCase())
@@ -273,15 +271,6 @@ const formatAuditMetadata = (metadata, action) => {
                 badge: "REAL-TIME",
                 subtitle: "Tizimdagi jami audit jurnali",
                 icon: History,
-            },
-            {
-                id: "security-risks",
-                title: "XAVFSIZLIK HOLATI",
-                value: "Barqaror",
-                unit: "",
-                badge: "STABLE",
-                subtitle: "Tizim holati normal",
-                icon: ShieldCheck,
             },
             {
                 id: "approvals",
@@ -384,8 +373,8 @@ const formatAuditMetadata = (metadata, action) => {
                     </div>
                 </div>
 
-                {/* 4 ta Metrika Card */}
-                <div className="pt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* 3 ta Haqiqiy Metrika Card */}
+                <div className="pt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {auditStats.map((audit) => {
                         const Icon = audit.icon
                         return (
@@ -428,7 +417,7 @@ const formatAuditMetadata = (metadata, action) => {
                                 setSearchTerm(e.target.value)
                                 setCurrentPage(1)
                             }}
-                            placeholder="obyekt yoki IP-manzil bo'yicha..."
+                            placeholder="Obyekt yoki amal bo'yicha qidirish..."
                             className="pl-9 h-10 w-full rounded-xl border-slate-200 bg-white placeholder:text-slate-400 text-xs font-medium focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-blue-100"
                         />
                     </div>
@@ -482,9 +471,6 @@ const formatAuditMetadata = (metadata, action) => {
                                     <TableHead className="py-3.5 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap w-48">
                                         Ta'sir etilgan obyekt
                                     </TableHead>
-                                    <TableHead className="py-3.5 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap w-40">
-                                        IP & Qurilma
-                                    </TableHead>
                                     <TableHead className="py-3.5 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap w-48">
                                         Tavsif va sabab
                                     </TableHead>
@@ -493,7 +479,7 @@ const formatAuditMetadata = (metadata, action) => {
                             <TableBody>
                                 {isPending ? (
                                     <TableRow>
-                                        <TableCell colSpan={5} className="py-14 text-center">
+                                        <TableCell colSpan={4} className="py-14 text-center">
                                             <div className="flex flex-col items-center justify-center gap-3">
                                                 <Spinner size="md" />
                                                 <p className="text-sm font-medium text-slate-500">Audit loglari yuklanmoqda...</p>
@@ -502,7 +488,7 @@ const formatAuditMetadata = (metadata, action) => {
                                     </TableRow>
                                 ) : paginatedLogs.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={5} className="py-14 text-center text-sm text-slate-500">
+                                        <TableCell colSpan={4} className="py-14 text-center text-sm text-slate-500">
                                             Qaydlar topilmadi
                                         </TableCell>
                                     </TableRow>
@@ -541,17 +527,7 @@ const formatAuditMetadata = (metadata, action) => {
                                                 </span>
                                             </TableCell>
 
-                                            {/* 4. IP & Qurilma */}
-                                            <TableCell className="py-3 px-4 whitespace-nowrap w-36 align-middle">
-                                                <div className="text-xs font-medium text-slate-700 font-mono">
-                                                    {log.clientInfo.ip}
-                                                </div>
-                                                <div className="text-[11px] text-slate-400 mt-0.5">
-                                                    {log.clientInfo.device}
-                                                </div>
-                                            </TableCell>
-
-                                            {/* 5. Tavsif va sabab */}
+                                            {/* 4. Tavsif va sabab */}
                                             <TableCell className="py-3 px-4 align-middle min-w-[200px]">
                                                 <p className="text-xs text-slate-700 font-medium truncate max-w-sm" title={log.description}>
                                                     {log.description}

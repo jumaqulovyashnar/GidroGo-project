@@ -10,7 +10,7 @@ export function normalizeBoss(raw) {
   const avatarUrl = raw.avatarUrl || raw.profile?.avatar || ""
   const phone = raw.phone || raw.profile?.phone || "—"
   const farmName = raw.farmName || raw.farm?.name || "Ferma biriktirilmagan"
-  const farmId = raw.farmId || raw.farm?.id || raw.id || "—"
+  const farmId = raw.farmId || raw.farm?.id || "—"
   const farmImage = raw.farmLogoUrl || raw.logoUrl || avatarUrl || raw.farm?.logoUrl || ""
   
   const isActive = raw.active !== undefined
