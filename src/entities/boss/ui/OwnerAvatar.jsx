@@ -48,11 +48,12 @@ export const OwnerAvatar = memo(function OwnerAvatar({ image, farmName = "", nam
     )
   }
 
-  // Rasm bo'lmasa: Aynan togglening yorqin ko'k rangi (#2563EB), to'liq doira (rounded-full)
+  // Rasm bo'lmasa: Foydalanuvchi so'ragan #155DFC ko'k rangi, to'liq doira (rounded-full)
   return (
     <div
       aria-label={name || farmName}
-      className="w-10 h-10 min-w-10 min-h-10 rounded-full bg-[#2563EB] text-white flex items-center justify-center font-bold text-xs sm:text-sm tracking-wide shrink-0 select-none shadow-xs aspect-square"
+      style={{ backgroundColor: "#155DFC" }}
+      className="w-10 h-10 min-w-10 min-h-10 rounded-full bg-[#155DFC] text-white flex items-center justify-center font-bold text-xs sm:text-sm tracking-wide shrink-0 select-none shadow-xs aspect-square border border-transparent"
     >
       {initials}
     </div>
