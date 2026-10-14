@@ -112,7 +112,7 @@ function LoginPage() {
         {/* 1. Admin / Login input */}
         <Field>
           <Label htmlFor="name" className="font-medium text-sm text-slate-700">
-            Admin 
+            Ismingizni kiriting.
           </Label>
           <Input
             id="name"
