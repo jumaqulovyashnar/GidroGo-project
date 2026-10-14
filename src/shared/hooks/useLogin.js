@@ -18,12 +18,13 @@ export const useLogin = () => {
         mutationFn: authService.login,
         onSuccess: (response) => {
             const data = getResponseData(response)
+            const payload = data?.data || data?.user || data
             const tokens = getAuthTokens(data)
             const accessToken = tokens.accessToken
             const refreshToken = tokens.refreshToken || ""
 
-            const userObj = createUser(data?.user || data?.data || data, accessToken)
-            const role = userObj?.role || data?.data?.role || data?.role
+            const userObj = createUser(payload, accessToken)
+            const role = userObj?.role || payload?.role || data?.role
 
             if (accessToken) {
                 useUserStore.getState().actions.setUserInfoAndToken(userObj, {
@@ -34,7 +35,7 @@ export const useLogin = () => {
 
             const route = ROLE_ROUTES[role]
             if (!route) {
-                toast.error("Foydalanuvchi roli aniqlanmadi.")
+                toast.error(`Foydalanuvchi roli (${role || "noma'lum"}) aniqlanmadi.`)
                 return
             }
 

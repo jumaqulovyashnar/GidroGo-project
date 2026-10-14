@@ -66,34 +66,42 @@ export const getUserIdFromToken = (token) => {
 }
 
 export const getAuthTokens = (data) => {
+  const root = data?.data || data
   return {
     accessToken:
-      data?.access?.accessToken ||
+      root?.accessToken ||
+      root?.access?.accessToken ||
       data?.accessToken ||
+      data?.access?.accessToken ||
       data?.token ||
       data?.jwt ||
       null,
 
     refreshToken:
-      data?.access?.refreshToken ||
+      root?.refreshToken ||
+      root?.access?.refreshToken ||
       data?.refreshToken ||
+      data?.access?.refreshToken ||
       null,
   }
 }
 
 export const createUser = (userData, token) => {
+  const root = userData?.data || userData
   const decodedToken = decodeJwt(token)
 
   const rawRole =
-    userData?.roleName ||
-    userData?.rawRole ||
-    userData?.role ||
-    decodedToken?.roleName ||
+    root?.role ||
+    root?.roleName ||
+    root?.rawRole ||
     decodedToken?.role ||
+    decodedToken?.roleName ||
+    decodedToken?.roles?.[0] ||
     "ROLE_ADMIN"
 
   const userId =
-    userData?.id ||
+    root?.userId ||
+    root?.id ||
     decodedToken?.userId ||
     decodedToken?.sub ||
     "usr-1"
@@ -107,9 +115,14 @@ export const createUser = (userData, token) => {
 
     ROLE_BOSS: "BOSS",
     BOSS: "BOSS",
+    ROLE_FERMA_RAHBARI: "BOSS",
+    FERMA_RAHBARI: "BOSS",
+
+    ROLE_COURIER: "COURIER",
+    COURIER: "COURIER",
   }
 
-  const role = roleMap[rawRole] || rawRole || "VILOYAT_ADMIN"
+  const role = roleMap[rawRole] || rawRole || "SUPER_ADMIN"
 
   let roleLabel = userData?.roleLabel
   if (role === "BOSS") {

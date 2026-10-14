@@ -5,8 +5,7 @@ import MainLayout from "../layout/MainLayout"
 import { AuthGuard, RoleGuard } from "./guards"
 import { RouteError, PageLoading } from "@/shared/ui"
 import { lazyWithRetry } from "@/shared/lib"
-
-const LoginPage = lazyWithRetry(() => import("@/pages/authentication/LoginPage"))
+import LoginPage from "@/pages/authentication/LoginPage"
 
 const withSuspense = (Component, message) => (
   <Suspense fallback={<PageLoading message={message} />}>
@@ -54,7 +53,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/login",
-        element: withSuspense(LoginPage, "Tizimga kirish..."),
+        element: <LoginPage />,
       },
     ],
   },
