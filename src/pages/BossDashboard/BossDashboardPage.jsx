@@ -1,9 +1,13 @@
-import { useState } from "react"
+import { useState, lazy, Suspense } from "react"
 import { Select } from "@mantine/core"
 import { Banknote, Calendar, ChevronDown, Droplet, Receipt, ShoppingBag, TrendingUp, Truck, Users } from "lucide-react"
-import { Card, CardHeader, CardTitle, CardContent } from "@/shared/ui"
-import { SyncingChart, OrdersWeeklyChart, WaterSalesVolumeChart, CouriersPerformanceCard } from "@/widgets"
+import { Card, CardHeader, CardTitle, CardContent, Spinner } from "@/shared/ui"
 import { useBossDashboard } from "@/shared/hooks"
+
+const SyncingChart = lazy(() => import("@/widgets").then((m) => ({ default: m.SyncingChart })))
+const OrdersWeeklyChart = lazy(() => import("@/widgets").then((m) => ({ default: m.OrdersWeeklyChart })))
+const WaterSalesVolumeChart = lazy(() => import("@/widgets").then((m) => ({ default: m.WaterSalesVolumeChart })))
+const CouriersPerformanceCard = lazy(() => import("@/widgets").then((m) => ({ default: m.CouriersPerformanceCard })))
 
 const dateOptions = [
   { value: "today", label: "Bugun" },
@@ -194,16 +198,24 @@ export const BossDashboardPage = () => {
       </div>
 
       {/* 3-Qism: Moliyaviy Holat Grafigi (SyncingChart) */}
-      <SyncingChart />
+      <Suspense fallback={<div className="h-72 bg-white rounded-2xl border border-slate-200 p-6 flex flex-col items-center justify-center gap-2"><Spinner size="md" /><span className="text-xs text-slate-400">Moliyaviy grafik yuklanmoqda...</span></div>}>
+        <SyncingChart />
+      </Suspense>
 
       {/* 4-Qism: 2 ta grafik (Buyurtmalar haftalik dinamikasi + Suv va zaxira balansi) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <OrdersWeeklyChart />
-        <WaterSalesVolumeChart />
+        <Suspense fallback={<div className="h-64 bg-white rounded-2xl border border-slate-200 p-6 flex flex-col items-center justify-center gap-2"><Spinner size="md" /><span className="text-xs text-slate-400">Haftalik grafik yuklanmoqda...</span></div>}>
+          <OrdersWeeklyChart />
+        </Suspense>
+        <Suspense fallback={<div className="h-64 bg-white rounded-2xl border border-slate-200 p-6 flex flex-col items-center justify-center gap-2"><Spinner size="md" /><span className="text-xs text-slate-400">Suv sotuvi grafigi yuklanmoqda...</span></div>}>
+          <WaterSalesVolumeChart />
+        </Suspense>
       </div>
 
       {/* 5-Qism: Dastavkachilar faoliyati jadvali */}
-      <CouriersPerformanceCard />
+      <Suspense fallback={<div className="h-64 bg-white rounded-2xl border border-slate-200 p-6 flex flex-col items-center justify-center gap-2"><Spinner size="md" /><span className="text-xs text-slate-400">Dastavkachilar jadvali yuklanmoqda...</span></div>}>
+        <CouriersPerformanceCard />
+      </Suspense>
     </div>
   )
 }

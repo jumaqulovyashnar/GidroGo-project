@@ -1,6 +1,8 @@
+import { Suspense } from "react"
 import { Outlet } from "react-router-dom"
 import { DoubleNavbar } from "@/widgets/sidebar"
 import { Header } from "@/widgets/header"
+import { PageLoading } from "@/shared/ui"
 
 export function MainLayout() {
   return (
@@ -15,8 +17,10 @@ export function MainLayout() {
         <Header />
 
         <main className="flex-1 p-6 sm:p-8 overflow-y-auto">
-           {/* Sahifalar (SuperAdmin, Manager, Boss) shu yerda almashadi  */}
-          <Outlet />
+          {/* Sahifalar (SuperAdmin, Manager, Boss) shu yerda almashadi  */}
+          <Suspense fallback={<PageLoading message="Sahifa yuklanmoqda..." />}>
+            <Outlet />
+          </Suspense>
         </main>
       </div>
     </div>

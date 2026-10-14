@@ -1,11 +1,12 @@
-import { useState } from "react"
+import { useState, lazy, Suspense } from "react"
 import { Select } from "@mantine/core"
 import { toast } from "sonner"
 import { Calendar, ChevronDown, FileText, Wallet, Truck, Users, TrendingUp, Sparkles } from "lucide-react"
-import { Card, CardHeader, CardTitle, CardContent, Button } from "@/shared/ui"
-import { CustomerGrowthAreaChart } from "@/widgets"
+import { Card, CardHeader, CardTitle, CardContent, Button, Spinner } from "@/shared/ui"
 import { useBossDashboard, useBossClients, useBossClientSegments, useBossBusinessGrowth } from "@/shared/hooks"
 import { exportToCsv } from "@/shared/lib"
+
+const CustomerGrowthAreaChart = lazy(() => import("@/widgets").then((m) => ({ default: m.CustomerGrowthAreaChart })))
 
 const quarterOptions = [
   { value: "2026_q1", label: "2026-yil 1-Chorak" },
@@ -177,7 +178,16 @@ export function BossOsishPage() {
         })}
       </div>
     {/* 3. O'sish Tendensiyasi Grafigi */}
-      <CustomerGrowthAreaChart />
+      <Suspense
+        fallback={
+          <div className="h-72 bg-white rounded-2xl border border-slate-200/90 p-6 flex flex-col items-center justify-center gap-2">
+            <Spinner size="md" />
+            <span className="text-xs text-slate-400">O'sish tendensiyasi grafigi yuklanmoqda...</span>
+          </div>
+        }
+      >
+        <CustomerGrowthAreaChart />
+      </Suspense>
       {/* 4. Pastki Qism: Mijozlar va Yetkazish ko'rsatkichlari */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         <div className="lg:col-span-7 flex">
