@@ -327,12 +327,15 @@ const SozlamalarPage = () => {
                     </div>
 
                     <div className="flex flex-col sm:flex-row items-center sm:items-stretch gap-6 sm:gap-8 pt-8">
-                        {/* Avatar Skeleton */}
+                        {/* Avatar Skeleton / Pending */}
                         <div className="w-full sm:w-48 shrink-0 flex flex-col items-center text-center sm:pr-6 sm:border-r sm:border-slate-100 sm:justify-center">
-                            <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-slate-100 animate-pulse border-2 border-slate-200 flex items-center justify-center">
-                                <Spinner size="md" />
+                            <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-slate-100 border-2 border-slate-200 flex items-center justify-center relative aspect-square shadow-xs">
+                                <UserRound className="w-14 h-14 text-slate-300 stroke-[1.5]" />
+                                <div className="absolute inset-0 flex items-center justify-center bg-white/40 rounded-full">
+                                    <Spinner size="sm" />
+                                </div>
                             </div>
-                            <div className="mt-4 w-28 h-8 bg-slate-100 rounded-xl animate-pulse" />
+                            <div className="mt-3.5 w-28 h-9 bg-slate-100 rounded-xl animate-pulse" />
                         </div>
 
                         {/* Form Skeletons */}
@@ -464,14 +467,8 @@ const SozlamalarPage = () => {
                                         </div>
                                     </>
                                 ) : (
-                                    <div className="w-full h-full bg-slate-100 text-slate-600 flex items-center justify-center select-none rounded-full aspect-square">
-                                        {userInitials && userInitials !== "SA" ? (
-                                            <span className="font-bold text-2xl sm:text-3xl text-slate-700">
-                                                {userInitials}
-                                            </span>
-                                        ) : (
-                                            <UserRound className="w-14 h-14 stroke-[1.5] text-slate-400" />
-                                        )}
+                                    <div className="w-full h-full bg-slate-100 text-slate-400 flex items-center justify-center select-none rounded-full aspect-square">
+                                        <UserRound className="w-14 h-14 stroke-[1.5] text-slate-400" />
                                     </div>
                                 )}
                             </div>
