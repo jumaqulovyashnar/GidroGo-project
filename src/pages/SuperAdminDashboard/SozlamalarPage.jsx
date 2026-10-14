@@ -448,7 +448,7 @@ const SozlamalarPage = () => {
                         <div className="w-full sm:w-48 shrink-0 flex flex-col items-center text-center sm:pr-6 sm:border-r sm:border-slate-100 sm:justify-center">
                             <div
                                 onClick={() => fileInputRef.current?.click()}
-                                className="w-28 h-28 sm:w-32 sm:h-32 rounded-full border-2 border-slate-200 overflow-hidden bg-[#155DFC] flex items-center justify-center shadow-xs shrink-0 relative group cursor-pointer hover:border-blue-400 transition-colors aspect-square"
+                                className="w-28 h-28 sm:w-32 sm:h-32 rounded-full border-2 border-slate-200 overflow-hidden bg-slate-100 flex items-center justify-center shadow-xs shrink-0 relative group cursor-pointer hover:border-blue-400 transition-colors aspect-square"
                             >
                                 {avatarPreview && !hasImageError ? (
                                     <>
@@ -464,11 +464,14 @@ const SozlamalarPage = () => {
                                         </div>
                                     </>
                                 ) : (
-                                    <div
-                                        style={{ backgroundColor: "#155DFC" }}
-                                        className="w-full h-full bg-[#155DFC] text-white flex items-center justify-center font-bold text-3xl sm:text-4xl select-none transition-colors rounded-full shadow-inner aspect-square"
-                                    >
-                                        {userInitials}
+                                    <div className="w-full h-full bg-slate-100 text-slate-600 flex items-center justify-center select-none rounded-full aspect-square">
+                                        {userInitials && userInitials !== "SA" ? (
+                                            <span className="font-bold text-2xl sm:text-3xl text-slate-700">
+                                                {userInitials}
+                                            </span>
+                                        ) : (
+                                            <UserRound className="w-14 h-14 stroke-[1.5] text-slate-400" />
+                                        )}
                                     </div>
                                 )}
                             </div>
