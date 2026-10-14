@@ -4,6 +4,7 @@ import { Pencil, MapPin, Calendar, Layers, CheckCircle2, DollarSign, TrendingUp,
 import { Card, CardHeader, CardTitle, CardContent, Switch, Spinner, Button } from "@/shared/ui"
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/shared/ui/breadcrumb"
 import { useFarm, useUpdateFarmStatus } from "@/shared/hooks"
+import { resolveFileUrl } from "@/shared/lib"
 import Chart from "react-apexcharts"
 
 export function FermaDetailPage() {
@@ -170,23 +171,39 @@ export function FermaDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Chap tomon: Yagona Katta Ferma Rasmi */}
           <div className="lg:col-span-5">
-            <div className="w-full h-80 sm:h-96 lg:h-95 rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 shadow-xs relative">
-              {farm.logoUrl || farm.bannerUrl ? (
-                <img
-                  src={farm.logoUrl || farm.bannerUrl}
-                  alt={farm.name}
-                  width="480"
-                  height="380"
-                  loading="lazy"
-                  decoding="async"
-                  className="w-full h-full object-cover transition-all duration-300 hover:scale-105"
-                />
-              ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 gap-2 bg-slate-100">
-                  <Building2 className="size-16 stroke-1 text-slate-400" />
-                  <span className="text-xs font-medium">Rasm mavjud emas</span>
-                </div>
-              )}
+            <div className="w-full h-80 sm:h-96 lg:h-95 rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 shadow-xs relative flex items-center justify-center">
+              {(() => {
+                const farmImage = resolveFileUrl(
+                  farm.logoUrl || farm.photoUrl || farm.bannerUrl || farm.farmLogoUrl || farm.logo || ""
+                )
+                return (
+                  <>
+                    {farmImage && (
+                      <img
+                        src={farmImage}
+                        alt={farm.name}
+                        width="480"
+                        height="380"
+                        loading="lazy"
+                        decoding="async"
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none"
+                          const fallback = e.currentTarget.parentElement?.querySelector(".detail-placeholder")
+                          if (fallback) fallback.style.display = "flex"
+                        }}
+                        className="w-full h-full object-cover transition-all duration-300 hover:scale-105"
+                      />
+                    )}
+                    <div
+                      style={{ display: farmImage ? "none" : "flex" }}
+                      className="detail-placeholder w-full h-full flex flex-col items-center justify-center text-slate-400 gap-2 bg-gradient-to-br from-slate-50 to-slate-100"
+                    >
+                      <Building2 className="size-16 stroke-1 text-slate-400" />
+                      <span className="text-xs font-medium text-slate-400">Rasm mavjud emas</span>
+                    </div>
+                  </>
+                )
+              })()}
             </div>
           </div>
 

@@ -7,6 +7,7 @@ import { useFermaModalStore } from "@/entities/farm"
 import { Button, CreateFermaModal, EditFermaModal, DeleteFermaModal, Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext, PaginationEllipsis, Spinner } from "@/shared/ui"
 import { FilterBar } from "@/widgets"
 import { useFarms, useUpdateFarmStatus, useDeleteFarm } from "@/shared/hooks"
+import { resolveFileUrl } from "@/shared/lib"
 
 const FermalarPage = () => {
     const { data, isPending, isError, error } = useFarms()
@@ -275,16 +276,39 @@ const FermalarPage = () => {
                             }
                             className="group bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between cursor-pointer"
                         >
-                            <div className="relative w-full h-48 sm:h-52 overflow-hidden bg-slate-100">
-                                <img
-                                    src={farm.logoUrl || farm.bannerUrl}
-                                    alt={farm.name}
-                                    width="400"
-                                    height="208"
-                                    loading="lazy"
-                                    decoding="async"
-                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                />
+                            <div className="relative w-full h-48 sm:h-52 overflow-hidden bg-slate-100 flex items-center justify-center">
+                                {(() => {
+                                    const farmImage = resolveFileUrl(
+                                        farm.logoUrl || farm.photoUrl || farm.bannerUrl || farm.farmLogoUrl || farm.logo || ""
+                                    )
+                                    return (
+                                        <>
+                                            {farmImage && (
+                                                <img
+                                                    src={farmImage}
+                                                    alt={farm.name}
+                                                    width="400"
+                                                    height="208"
+                                                    loading="lazy"
+                                                    decoding="async"
+                                                    onError={(e) => {
+                                                        e.currentTarget.style.display = "none"
+                                                        const fallback = e.currentTarget.parentElement?.querySelector(".farm-placeholder")
+                                                        if (fallback) fallback.style.display = "flex"
+                                                    }}
+                                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                                />
+                                            )}
+                                            <div
+                                                style={{ display: farmImage ? "none" : "flex" }}
+                                                className="farm-placeholder w-full h-full flex flex-col items-center justify-center text-slate-400 gap-2 bg-gradient-to-br from-slate-50 to-slate-100"
+                                            >
+                                                <Building2 className="size-12 stroke-[1.2] text-slate-400" />
+                                                <span className="text-xs font-medium text-slate-400">Rasm mavjud emas</span>
+                                            </div>
+                                        </>
+                                    )
+                                })()}
                             </div>
 
                             <div className="p-5 flex-1 flex flex-col justify-between space-y-4">

@@ -1,4 +1,5 @@
 import { useState, useMemo, memo } from "react"
+import { resolveFileUrl } from "@/shared/lib"
 
 /**
  * Ferma egasi / Ferma logotipi avatari komponenti
@@ -11,6 +12,7 @@ import { useState, useMemo, memo } from "react"
  */
 export const OwnerAvatar = memo(function OwnerAvatar({ image, farmName = "", name = "" }) {
   const [hasError, setHasError] = useState(false)
+  const safeImage = useMemo(() => resolveFileUrl(image), [image])
 
   // Rasm bo'lmasa fermaning nomini bosh harfini olish
   const initial = useMemo(() => {
@@ -29,10 +31,10 @@ export const OwnerAvatar = memo(function OwnerAvatar({ image, farmName = "", nam
   }, [farmName, name])
 
   // Rasm mavjud bo'lsa va xatolik bermasa
-  if (image && !hasError) {
+  if (safeImage && !hasError) {
     return (
       <img
-        src={image}
+        src={safeImage}
         alt={farmName || name || "Ferma logotipi"}
         width="40"
         height="40"
