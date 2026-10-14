@@ -12,7 +12,6 @@ const withSuspense = (Component, message) => (
     <Component />
   </Suspense>
 )
-
 // Super Admin
 const SuperAdminDashboardPage = lazyWithRetry(() => import("@/pages/SuperAdminDashboard/SuperAdminDashboardPage"))
 const FermalarPage = lazyWithRetry(() => import("@/pages/SuperAdminDashboard/FermalarPage"))

@@ -15,4 +15,4 @@ export const AuthGuard = () => {
   return <Outlet />
 }
 
-export default AuthGuard
+export default AuthGuard;
