@@ -1,11 +1,12 @@
-import { lazy, Suspense } from "react"
+import { Suspense } from "react"
 import { createBrowserRouter, Navigate } from "react-router-dom"
 import AuthLayout from "../layout/AuthLayout"
 import MainLayout from "../layout/MainLayout"
 import { AuthGuard, RoleGuard } from "./guards"
 import { RouteError, PageLoading } from "@/shared/ui"
+import { lazyWithRetry } from "@/shared/lib"
 
-const LoginPage = lazy(() => import("@/pages/authentication/LoginPage"))
+const LoginPage = lazyWithRetry(() => import("@/pages/authentication/LoginPage"))
 
 const withSuspense = (Component, message) => (
   <Suspense fallback={<PageLoading message={message} />}>
@@ -14,31 +15,31 @@ const withSuspense = (Component, message) => (
 )
 
 // Super Admin
-const SuperAdminDashboardPage = lazy(() => import("@/pages/SuperAdminDashboard/SuperAdminDashboardPage"))
-const FermalarPage = lazy(() => import("@/pages/SuperAdminDashboard/FermalarPage"))
-const FermaDetailPage = lazy(() => import("@/pages/SuperAdminDashboard/FermaDetailPage"))
-const FermaEgalariPage = lazy(() => import("@/pages/SuperAdminDashboard/FermaEgalariPage"))
-const AuditLogPage = lazy(() => import("@/pages/SuperAdminDashboard/AuditLogPage"))
-const StatistikaPage = lazy(() => import("@/pages/SuperAdminDashboard/StatistikaPage"))
-const SozlamalarPage = lazy(() => import("@/pages/SuperAdminDashboard/SozlamalarPage"))
-const TasdiqlashPage = lazy(() => import("@/pages/SuperAdminDashboard/TasdiqlashPage"))
+const SuperAdminDashboardPage = lazyWithRetry(() => import("@/pages/SuperAdminDashboard/SuperAdminDashboardPage"))
+const FermalarPage = lazyWithRetry(() => import("@/pages/SuperAdminDashboard/FermalarPage"))
+const FermaDetailPage = lazyWithRetry(() => import("@/pages/SuperAdminDashboard/FermaDetailPage"))
+const FermaEgalariPage = lazyWithRetry(() => import("@/pages/SuperAdminDashboard/FermaEgalariPage"))
+const AuditLogPage = lazyWithRetry(() => import("@/pages/SuperAdminDashboard/AuditLogPage"))
+const StatistikaPage = lazyWithRetry(() => import("@/pages/SuperAdminDashboard/StatistikaPage"))
+const SozlamalarPage = lazyWithRetry(() => import("@/pages/SuperAdminDashboard/SozlamalarPage"))
+const TasdiqlashPage = lazyWithRetry(() => import("@/pages/SuperAdminDashboard/TasdiqlashPage"))
 
 // Manager
-const ManagerDashboardPage = lazy(() => import("@/pages/ManagerDashboard/ManagerDashboardPage"))
-const ManagerOrdersPage = lazy(() => import("@/pages/ManagerDashboard/ManagerOrdersPage"))
-const ManagerAllOrdersPage = lazy(() => import("@/pages/ManagerDashboard/ManagerAllOrdersPage"))
-const ManagerOrderDetailPage = lazy(() => import("@/pages/ManagerDashboard/ManagerOrderDetailPage"))
-const ManagerCouriersMapPage = lazy(() => import("@/pages/ManagerDashboard/ManagerCouriersMapPage"))
-const ManagerXodimlarPage = lazy(() => import("@/pages/ManagerDashboard/ManagerXodimlarPage"))
+const ManagerDashboardPage = lazyWithRetry(() => import("@/pages/ManagerDashboard/ManagerDashboardPage"))
+const ManagerOrdersPage = lazyWithRetry(() => import("@/pages/ManagerDashboard/ManagerOrdersPage"))
+const ManagerAllOrdersPage = lazyWithRetry(() => import("@/pages/ManagerDashboard/ManagerAllOrdersPage"))
+const ManagerOrderDetailPage = lazyWithRetry(() => import("@/pages/ManagerDashboard/ManagerOrderDetailPage"))
+const ManagerCouriersMapPage = lazyWithRetry(() => import("@/pages/ManagerDashboard/ManagerCouriersMapPage"))
+const ManagerXodimlarPage = lazyWithRetry(() => import("@/pages/ManagerDashboard/ManagerXodimlarPage"))
 
 // Boss
-const BossDashboardPage = lazy(() => import("@/pages/BossDashboard/BossDashboardPage"))
-const BossMoliyaPage = lazy(() => import("@/pages/BossDashboard/BossMoliyaPage"))
-const BossSavdoPage = lazy(() => import("@/pages/BossDashboard/BossSavdoPage"))
-const BossOsishPage = lazy(() => import("@/pages/BossDashboard/BossOsishPage"))
-const BossFermaPage = lazy(() => import("@/pages/BossDashboard/BossFermaPage"))
-const BossXodimlarPage = lazy(() => import("@/pages/BossDashboard/BossXodimlarPage"))
-const BossXodimDetailPage = lazy(() => import("@/pages/BossDashboard/BossXodimDetailPage"))
+const BossDashboardPage = lazyWithRetry(() => import("@/pages/BossDashboard/BossDashboardPage"))
+const BossMoliyaPage = lazyWithRetry(() => import("@/pages/BossDashboard/BossMoliyaPage"))
+const BossSavdoPage = lazyWithRetry(() => import("@/pages/BossDashboard/BossSavdoPage"))
+const BossOsishPage = lazyWithRetry(() => import("@/pages/BossDashboard/BossOsishPage"))
+const BossFermaPage = lazyWithRetry(() => import("@/pages/BossDashboard/BossFermaPage"))
+const BossXodimlarPage = lazyWithRetry(() => import("@/pages/BossDashboard/BossXodimlarPage"))
+const BossXodimDetailPage = lazyWithRetry(() => import("@/pages/BossDashboard/BossXodimDetailPage"))
 
 const router = createBrowserRouter([
   {

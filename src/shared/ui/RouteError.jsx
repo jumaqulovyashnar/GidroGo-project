@@ -1,3 +1,4 @@
+import { useEffect } from "react"
 import { useRouteError, useNavigate } from "react-router-dom"
 import { AlertTriangle, RefreshCw, Home } from "lucide-react"
 
@@ -9,6 +10,21 @@ export function RouteError() {
     error?.statusText ||
     error?.message ||
     (typeof error === "string" ? error : "Kutilmagan xatolik yuz berdi")
+
+  const isChunkError =
+    errorMessage?.includes("Failed to fetch dynamically imported module") ||
+    errorMessage?.includes("Importing a module script failed") ||
+    errorMessage?.includes("dynamically imported")
+
+  useEffect(() => {
+    if (isChunkError && typeof window !== "undefined") {
+      const hasReloaded = window.sessionStorage.getItem("route_chunk_reload")
+      if (!hasReloaded) {
+        window.sessionStorage.setItem("route_chunk_reload", "true")
+        window.location.reload()
+      }
+    }
+  }, [isChunkError])
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
