@@ -12,7 +12,7 @@ export default function ManagerCouriersMapPage() {
   const couriers = Array.isArray(rawCouriers) ? rawCouriers : []
 
   return (
-    <div className="w-full h-[calc(100vh-125px)] min-h-[580px]">
+    <div className="w-full h-[calc(100vh-125px)] min-h-145">
       <Suspense
         fallback={
           <div className="w-full h-full flex flex-col items-center justify-center gap-3 bg-white border border-slate-200 rounded-2xl">
