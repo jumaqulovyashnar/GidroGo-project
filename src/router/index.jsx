@@ -3,14 +3,12 @@ import { createBrowserRouter, Navigate } from "react-router-dom"
 import AuthLayout from "../layout/AuthLayout"
 import MainLayout from "../layout/MainLayout"
 import { AuthGuard, RoleGuard } from "./guards"
-import { RouteError } from "@/shared/ui"
+import { RouteError, PageLoading } from "@/shared/ui"
 
-import LoginPage from "@/pages/authentication/LoginPage"
+const LoginPage = lazy(() => import("@/pages/authentication/LoginPage"))
 
-const PageFallback = () => null
-
-const withSuspense = (Component) => (
-  <Suspense fallback={<PageFallback />}>
+const withSuspense = (Component, message) => (
+  <Suspense fallback={<PageLoading message={message} />}>
     <Component />
   </Suspense>
 )
@@ -55,7 +53,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/login",
-        element: <LoginPage />,
+        element: withSuspense(LoginPage, "Tizimga kirish..."),
       },
     ],
   },

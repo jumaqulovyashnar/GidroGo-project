@@ -5,7 +5,8 @@ import { Card, CardHeader, CardTitle, CardContent, Switch, Spinner, Button } fro
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/shared/ui/breadcrumb"
 import { useFarm, useUpdateFarmStatus } from "@/shared/hooks"
 import { resolveFileUrl } from "@/shared/lib"
-import Chart from "react-apexcharts"
+
+const Chart = React.lazy(() => import("react-apexcharts"))
 
 export function FermaDetailPage() {
   const { id } = useParams()
@@ -374,13 +375,22 @@ export function FermaDetailPage() {
           </div>
         </CardHeader>
         <CardContent className="p-0 pt-4">
-          <Chart
-            options={chartOptions}
-            series={chartSeries}
-            type="area"
-            height={300}
-            width="100%"
-          />
+          <React.Suspense
+            fallback={
+              <div className="h-[300px] flex flex-col items-center justify-center gap-2 text-slate-400">
+                <Spinner size="md" />
+                <span className="text-xs">Grafik yuklanmoqda...</span>
+              </div>
+            }
+          >
+            <Chart
+              options={chartOptions}
+              series={chartSeries}
+              type="area"
+              height={300}
+              width="100%"
+            />
+          </React.Suspense>
         </CardContent>
       </Card>
     </div>

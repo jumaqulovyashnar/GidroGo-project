@@ -1,12 +1,13 @@
-import { useState } from "react"
+import { useState, lazy, Suspense } from "react"
 import { useParams, useNavigate, Link } from "react-router-dom"
 import { ArrowLeft, Copy, MapPin, Package, Clock, CheckCircle2, CreditCard, UserCheck, AlertCircle, Truck, Home, Droplet } from "lucide-react"
 import { Modal as MantineModal } from "@mantine/core"
-import { GoogleMap } from "@/widgets"
-import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbPage, BreadcrumbSeparator } from "@/shared/ui"
+import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbPage, BreadcrumbSeparator, Spinner } from "@/shared/ui"
 import { toast } from "sonner"
 import { AdjustBottleBalanceModal } from "./components/AdjustBottleBalanceModal"
 import { useManagerOrderDetail, useManagerCouriers, useManagerReassignOrder } from "@/shared/hooks"
+
+const GoogleMap = lazy(() => import("@/widgets/map").then((mod) => ({ default: mod.GoogleMap })))
 
 export default function ManagerOrderDetailPage() {
   const { id } = useParams()
@@ -200,13 +201,22 @@ export default function ManagerOrderDetailPage() {
 
             {/* Interactive Map Preview for this order */}
             <div className="rounded-lg overflow-hidden border border-slate-200 h-64">
-              <GoogleMap
-                center={{ lat: currentOrder.coords?.[0] || 38.8986231, lng: currentOrder.coords?.[1] || 66.0463534 }}
-                zoom={14}
-                couriers={couriersList}
-                selectedCourierId={currentOrder.courierId}
-                className="w-full h-full min-h-[250px]"
-              />
+              <Suspense
+                fallback={
+                  <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-slate-50 text-slate-400">
+                    <Spinner size="md" />
+                    <span className="text-xs">Xarita yuklanmoqda...</span>
+                  </div>
+                }
+              >
+                <GoogleMap
+                  center={{ lat: currentOrder.coords?.[0] || 38.8986231, lng: currentOrder.coords?.[1] || 66.0463534 }}
+                  zoom={14}
+                  couriers={couriersList}
+                  selectedCourierId={currentOrder.courierId}
+                  className="w-full h-full min-h-[250px]"
+                />
+              </Suspense>
             </div>
           </div>
 

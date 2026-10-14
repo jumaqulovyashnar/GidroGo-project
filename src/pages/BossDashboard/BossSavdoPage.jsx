@@ -1,11 +1,12 @@
-import { useState } from "react"
+import { useState, lazy, Suspense } from "react"
 import { Select } from "@mantine/core"
 import { toast } from "sonner"
 import { Droplet, CheckCircle2, Truck, FileSpreadsheet, ChevronDown, Calendar, Package, Zap } from "lucide-react"
-import { Card, CardHeader, CardTitle, CardContent, Button } from "@/shared/ui"
-import { WeeklySalesDynamicsChart } from "@/widgets"
+import { Card, CardHeader, CardTitle, CardContent, Button, Spinner } from "@/shared/ui"
 import { useBossDashboard, useBossSalesSummary, useBossSalesProductsSummary } from "@/shared/hooks"
 import { exportToCsv } from "@/shared/lib"
+
+const WeeklySalesDynamicsChart = lazy(() => import("@/widgets").then((m) => ({ default: m.WeeklySalesDynamicsChart })))
 
 const periodOptions = [
   { value: "today", label: "Bugun" },
@@ -292,7 +293,16 @@ export function BossSavdoPage() {
       </div>
 
       {/* 3. Haftalik Savdo va Buyurtmalar Dinamikasi Grafigi */}
-      <WeeklySalesDynamicsChart />
+      <Suspense
+        fallback={
+          <div className="h-72 bg-white rounded-2xl border border-slate-200/90 p-6 flex flex-col items-center justify-center gap-2">
+            <Spinner size="md" />
+            <span className="text-xs text-slate-400">Haftalik savdo grafigi yuklanmoqda...</span>
+          </div>
+        }
+      >
+        <WeeklySalesDynamicsChart />
+      </Suspense>
 
       {/* 4. Pastki Qism: Mahsulotlar Kesimida Savdo Tahlili */}
       <Card className="border border-slate-200/90 bg-white shadow-xs rounded-2xl w-full">

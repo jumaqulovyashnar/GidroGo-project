@@ -1,10 +1,11 @@
-import { useState } from "react"
+import { useState, lazy, Suspense } from "react"
 import { Link } from "react-router-dom"
 import { Select } from "@mantine/core"
 import { CreditCard, Receipt, Landmark, ShoppingBag, Download, Plus, ChevronRight, Calendar, ChevronDown, HandCoins, ArrowDownToLine, Wallet, Users } from "lucide-react"
-import { Card, CardHeader, CardTitle, CardContent, Button } from "@/shared/ui"
-import { FinanceDynamicChart } from "@/widgets"
+import { Card, CardHeader, CardTitle, CardContent, Button, Spinner } from "@/shared/ui"
 import { useBossFinanceSummary, useBossOrders, useBossCashSummary } from "@/shared/hooks"
+
+const FinanceDynamicChart = lazy(() => import("@/widgets").then((m) => ({ default: m.FinanceDynamicChart })))
 
 const periodOptions = [
   { value: "today", label: "Bugun" },
@@ -286,7 +287,16 @@ export function BossMoliyaPage() {
       </div>
 
       {/* 5. Asosiy Daromad va Xarajatlar Dinamikasi Grafigi */}
-      <FinanceDynamicChart period={periodParam} />
+      <Suspense
+        fallback={
+          <div className="h-72 bg-white rounded-2xl border border-slate-200 p-6 flex flex-col items-center justify-center gap-2">
+            <Spinner size="md" />
+            <span className="text-xs text-slate-400">Moliyaviy dinamika grafigi yuklanmoqda...</span>
+          </div>
+        }
+      >
+        <FinanceDynamicChart period={periodParam} />
+      </Suspense>
     </div>
   )
 }

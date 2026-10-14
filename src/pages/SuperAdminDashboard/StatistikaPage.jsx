@@ -1,9 +1,10 @@
-import { useState, useMemo } from "react"
-import { LineColumn } from "@/widgets"
-import { Button, Card, CardContent, CardHeader, CardTitle, TablePagination } from "@/shared/ui"
+import { useState, useMemo, lazy, Suspense } from "react"
+import { Button, Card, CardContent, CardHeader, CardTitle, TablePagination, Spinner } from "@/shared/ui"
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/shared/ui/table"
 import { Filter, Tractor, Users, BadgeCheck, Gauge, RefreshCw } from "lucide-react"
 import { useRegionalStatistics, useSuperAdminDashboard } from "@/shared/hooks"
+
+const LineColumn = lazy(() => import("@/widgets").then((m) => ({ default: m.LineColumn })))
 
 const ITEMS_PER_PAGE = 4
 
@@ -153,7 +154,16 @@ export const StatistikaPage = () => {
 
                 {/* Diagramma section */}
                 <div className="mt-8">
-                    <LineColumn dashboard={dashboard} />
+                    <Suspense
+                        fallback={
+                            <div className="h-72 bg-white rounded-2xl border border-slate-200/80 p-6 flex flex-col items-center justify-center gap-2 text-slate-400">
+                                <Spinner size="md" />
+                                <span className="text-xs">Diagramma yuklanmoqda...</span>
+                            </div>
+                        }
+                    >
+                        <LineColumn dashboard={dashboard} />
+                    </Suspense>
                 </div>
 
                 {/* Hududiy Taqsimot va Fermalar Faollik Matritsasi Table */}

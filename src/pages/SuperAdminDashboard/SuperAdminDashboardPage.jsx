@@ -1,8 +1,15 @@
+import { lazy, Suspense } from "react"
 import { useAuth } from "@/provider/AuthProvider"
-import { Card, CardHeader, CardTitle, CardContent, Button } from "@/shared/ui"
+import { Card, CardHeader, CardTitle, CardContent, Button, Spinner } from "@/shared/ui"
 import { Building2, Users, ShoppingCart, Truck, CheckCircle2, RefreshCw } from "lucide-react"
 import { useSuperAdminDashboard, useRegionalStatistics } from "@/shared/hooks"
-import { BrushAnalyticsChart, SalesTeamDonutChart } from "@/widgets/charts"
+
+const BrushAnalyticsChart = lazy(() =>
+  import("@/widgets/charts").then((m) => ({ default: m.BrushAnalyticsChart }))
+)
+const SalesTeamDonutChart = lazy(() =>
+  import("@/widgets/charts").then((m) => ({ default: m.SalesTeamDonutChart }))
+)
 
 export function SuperAdminDashboardPage() {
   const { user: _user } = useAuth()
@@ -136,7 +143,16 @@ export function SuperAdminDashboardPage() {
             </div>
           </CardHeader>
           <CardContent className="pt-2 min-h-91.25">
-            <BrushAnalyticsChart dashboard={dashboard} />
+            <Suspense
+              fallback={
+                <div className="h-64 flex flex-col items-center justify-center gap-2 text-slate-400">
+                  <Spinner size="md" />
+                  <span className="text-xs">Grafik yuklanmoqda...</span>
+                </div>
+              }
+            >
+              <BrushAnalyticsChart dashboard={dashboard} />
+            </Suspense>
           </CardContent>
         </Card>
 
@@ -150,7 +166,16 @@ export function SuperAdminDashboardPage() {
             </p>
           </CardHeader>
           <CardContent className="pt-4 flex-1 flex items-center justify-center min-h-91.25">
-            <SalesTeamDonutChart dashboard={dashboard} regionalStats={regionalStats} />
+            <Suspense
+              fallback={
+                <div className="h-64 flex flex-col items-center justify-center gap-2 text-slate-400">
+                  <Spinner size="md" />
+                  <span className="text-xs">Grafik yuklanmoqda...</span>
+                </div>
+              }
+            >
+              <SalesTeamDonutChart dashboard={dashboard} regionalStats={regionalStats} />
+            </Suspense>
           </CardContent>
         </Card>
       </div>
