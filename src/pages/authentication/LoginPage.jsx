@@ -112,7 +112,7 @@ function LoginPage() {
         {/* 1. Admin / Login input */}
         <Field>
           <Label htmlFor="name" className="font-medium text-sm text-slate-700">
-            Admin / Login (Super admin uchun)
+            Admin 
           </Label>
           <Input
             id="name"
@@ -127,7 +127,7 @@ function LoginPage() {
         {/* 2. Telefon raqam input */}
         <Field>
           <Label htmlFor="phone" className="font-medium text-sm text-slate-700">
-            Telefon raqam (Ferma rahbari / Haydovchi uchun)
+            Telefon raqam 
           </Label>
           <Input
             id="phone"
