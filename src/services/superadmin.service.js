@@ -33,7 +33,12 @@ class SuperAdminService {
       const response = await api.get("/superadmin/settings/profile")
       return response.data
     } catch (error) {
-      throw new Error(handleApiError(error))
+      try {
+        const fallback = await api.get("/superadmin/profile")
+        return fallback.data
+      } catch {
+        throw new Error(handleApiError(error))
+      }
     }
   }
 
@@ -42,7 +47,12 @@ class SuperAdminService {
       const response = await api.put("/superadmin/settings/profile", data)
       return response.data
     } catch (error) {
-      throw new Error(handleApiError(error))
+      try {
+        const fallback = await api.put("/superadmin/profile", data)
+        return fallback.data
+      } catch {
+        throw new Error(handleApiError(error))
+      }
     }
   }
 

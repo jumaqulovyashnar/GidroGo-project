@@ -2,8 +2,8 @@ import { useState, useRef, useEffect, useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { Button, Input, Label } from "@/shared/ui"
-import { UserRound, Contact, KeyRound, Eye, EyeOff, Upload, Loader2 } from "lucide-react"
+import { Button, Input, Label, Spinner } from "@/shared/ui"
+import { UserRound, Contact, KeyRound, Eye, EyeOff, Upload, Loader2, AlertCircle, RefreshCw } from "lucide-react"
 import { toast } from "sonner"
 import {
     useSuperAdminProfile,
@@ -84,14 +84,17 @@ const defaultFormValues = {
 }
 
 const SozlamalarPage = () => {
-    const { data: rawProfile, isLoading: isProfileLoading } = useSuperAdminProfile()
+    const { data: rawProfile, isLoading: isProfileLoading, isError, error, refetch } = useSuperAdminProfile()
     const updateProfileMutation = useUpdateSuperAdminProfile()
     const changePasswordMutation = useSuperAdminChangePassword()
     const uploadMutation = useUploadFile()
+    const currentUser = useUserStore((state) => state.userInfo)
 
-    const [avatarPreview, setAvatarPreview] = useState(null)
+    const profile = rawProfile?.data || rawProfile
+
+    const [avatarPreview, setAvatarPreview] = useState(currentUser?.avatarUrl || null)
     const [selectedFile, setSelectedFile] = useState(null)
-    const [savedAvatarUrl, setSavedAvatarUrl] = useState("")
+    const [savedAvatarUrl, setSavedAvatarUrl] = useState(currentUser?.avatarUrl || "")
     const fileInputRef = useRef(null)
 
     // Parol ko'rsatish/yashirish holatlari
@@ -101,6 +104,20 @@ const SozlamalarPage = () => {
         confirmPass: false,
     })
 
+    const initialFormValues = useMemo(() => {
+        const nameParts = (currentUser?.name || "").trim().split(/\s+/)
+        return {
+            firstName: currentUser?.firstName || nameParts[0] || "",
+            lastName: currentUser?.lastName || nameParts.slice(1).join(" ") || "",
+            phone: currentUser?.phone || "",
+            email: currentUser?.email || "",
+            role: currentUser?.roleLabel || currentUser?.role || "Bosh Platforma Administratori",
+            currentPassword: "",
+            newPassword: "",
+            confirmPassword: "",
+        }
+    }, [currentUser])
+
     const {
         register,
         handleSubmit,
@@ -109,7 +126,7 @@ const SozlamalarPage = () => {
         formState: { errors },
     } = useForm({
         resolver: zodResolver(settingsSchema),
-        defaultValues: defaultFormValues,
+        defaultValues: initialFormValues,
         mode: "onBlur",
     })
 
@@ -127,26 +144,33 @@ const SozlamalarPage = () => {
     }, [watchedFirstName, watchedLastName])
 
     // Serverdan profil kelganda formani to'ldirish
-    const profile = rawProfile?.data || rawProfile
     useEffect(() => {
         if (profile) {
+            const fullNameParts = (profile.fullName || "").trim().split(/\s+/)
+            const fName = profile.firstName || fullNameParts[0] || currentUser?.firstName || ""
+            const lName = profile.lastName || fullNameParts.slice(1).join(" ") || currentUser?.lastName || ""
+            const phone = profile.phone || currentUser?.phone || ""
+            const email = profile.email || currentUser?.email || ""
+            const role = profile.roleTitle || profile.role || currentUser?.roleLabel || "Bosh Platforma Administratori"
+
             reset({
-                firstName: profile.firstName || "",
-                lastName: profile.lastName || "",
-                phone: profile.phone || "",
-                email: profile.email || "",
-                role: profile.roleTitle || profile.role || "Bosh Platforma Administratori",
+                firstName: fName,
+                lastName: lName,
+                phone: phone,
+                email: email,
+                role: role,
                 currentPassword: "",
                 newPassword: "",
                 confirmPassword: "",
             })
-            if (profile.avatarUrl) {
-                setAvatarPreview(profile.avatarUrl)
-                setSavedAvatarUrl(profile.avatarUrl)
+            const avatar = profile.avatarUrl || currentUser?.avatarUrl || null
+            if (avatar) {
+                setAvatarPreview(avatar)
+                setSavedAvatarUrl(avatar)
                 setHasImageError(false)
             }
         }
-    }, [profile, reset])
+    }, [profile, currentUser, reset])
 
     const isSaving =
         updateProfileMutation.isPending ||
@@ -277,6 +301,114 @@ const SozlamalarPage = () => {
         } catch (error) {
             toast.error(error?.message || "Sozlamalarni saqlashda xatolik yuz berdi")
         }
+    }
+
+    if (isProfileLoading && !profile) {
+        return (
+            <div className="pb-16 max-w-5xl">
+                {/* Page Header: Sarlavha va tavsif */}
+                <div className="pb-2">
+                    <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+                        Tizim Sozlamalari
+                    </h1>
+                    <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                        SuperAdmin shaxsiy profili, tizim identifikatorlari va hisob xavfsizligini boshqarish.
+                    </p>
+                </div>
+
+                {/* Skeleton Loading Card */}
+                <div className="mt-6 bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 sm:p-7">
+                    <div className="flex items-center gap-3 pb-5 border-b border-slate-100">
+                        <div className="w-9 h-9 rounded-xl bg-slate-100 animate-pulse" />
+                        <div className="space-y-1.5">
+                            <div className="w-48 h-4 bg-slate-200 rounded-md animate-pulse" />
+                            <div className="w-72 h-3 bg-slate-100 rounded-md animate-pulse" />
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row items-center sm:items-stretch gap-6 sm:gap-8 pt-8">
+                        {/* Avatar Skeleton */}
+                        <div className="w-full sm:w-48 shrink-0 flex flex-col items-center text-center sm:pr-6 sm:border-r sm:border-slate-100 sm:justify-center">
+                            <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-slate-100 animate-pulse border-2 border-slate-200 flex items-center justify-center">
+                                <Spinner size="md" />
+                            </div>
+                            <div className="mt-4 w-28 h-8 bg-slate-100 rounded-xl animate-pulse" />
+                        </div>
+
+                        {/* Form Skeletons */}
+                        <div className="flex-1 w-full space-y-4 sm:space-y-4.5 sm:pl-2">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                                <div className="space-y-2">
+                                    <div className="w-16 h-3 bg-slate-200 rounded-sm animate-pulse" />
+                                    <div className="h-10 bg-slate-100 rounded-xl animate-pulse" />
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="w-20 h-3 bg-slate-200 rounded-sm animate-pulse" />
+                                    <div className="h-10 bg-slate-100 rounded-xl animate-pulse" />
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                                <div className="space-y-2">
+                                    <div className="w-18 h-3 bg-slate-200 rounded-sm animate-pulse" />
+                                    <div className="h-10 bg-slate-100 rounded-xl animate-pulse" />
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="w-14 h-3 bg-slate-200 rounded-sm animate-pulse" />
+                                    <div className="h-10 bg-slate-100 rounded-xl animate-pulse" />
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                                <div className="space-y-2">
+                                    <div className="w-16 h-3 bg-slate-200 rounded-sm animate-pulse" />
+                                    <div className="h-10 bg-slate-100 rounded-xl animate-pulse" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="mt-8 pt-6 border-t border-slate-100 flex items-center justify-center gap-2 text-slate-400 text-xs">
+                        <Spinner size="xs" />
+                        <span>Profil ma'lumotlari yuklanmoqda...</span>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
+    if (isError && !profile) {
+        return (
+            <div className="pb-16 max-w-5xl">
+                {/* Page Header: Sarlavha va tavsif */}
+                <div className="pb-2">
+                    <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+                        Tizim Sozlamalari
+                    </h1>
+                    <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                        SuperAdmin shaxsiy profili, tizim identifikatorlari va hisob xavfsizligini boshqarish.
+                    </p>
+                </div>
+
+                <div className="mt-6 bg-white rounded-2xl border border-rose-200 shadow-xs p-10 flex flex-col items-center justify-center text-center gap-3">
+                    <div className="size-12 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center border border-rose-100">
+                        <AlertCircle className="size-6" />
+                    </div>
+                    <h3 className="text-base font-semibold text-slate-900">Ma'lumotlarni yuklab bo'lmadi</h3>
+                    <p className="text-xs sm:text-sm text-slate-500 max-w-md">
+                        {error?.response?.data?.message || error?.message || "Serverdan profil ma'lumotlarini olishda xatolik yuz berdi."}
+                    </p>
+                    <Button
+                        type="button"
+                        onClick={() => refetch()}
+                        className="mt-2 h-9 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold cursor-pointer inline-flex items-center gap-2"
+                    >
+                        <RefreshCw className="size-3.5" />
+                        <span>Qayta urinish</span>
+                    </Button>
+                </div>
+            </div>
+        )
     }
 
     return (
