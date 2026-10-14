@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -12,7 +12,7 @@ import {
     useUploadFile,
 } from "@/shared/hooks"
 import { useUserStore } from "@/entities/user"
-import { cn, NAME_REGEX, PHONE_REGEX, EMAIL_REGEX, PASSWORD_STRONG_REGEX } from "@/shared/lib"
+import { cn, NAME_REGEX, PHONE_REGEX, EMAIL_REGEX, PASSWORD_STRONG_REGEX, resolveFileUrl } from "@/shared/lib"
 
 const settingsSchema = z
     .object({
@@ -115,6 +115,16 @@ const SozlamalarPage = () => {
 
     const watchedRole = watch("role")
     const watchedFirstName = watch("firstName")
+    const watchedLastName = watch("lastName")
+    const [hasImageError, setHasImageError] = useState(false)
+
+    const userInitials = useMemo(() => {
+        const first = (watchedFirstName || "").trim().charAt(0).toUpperCase()
+        const last = (watchedLastName || "").trim().charAt(0).toUpperCase()
+        if (first && last) return `${first}${last}`
+        if (first) return first
+        return "SA"
+    }, [watchedFirstName, watchedLastName])
 
     // Serverdan profil kelganda formani to'ldirish
     const profile = rawProfile?.data || rawProfile
@@ -133,6 +143,7 @@ const SozlamalarPage = () => {
             if (profile.avatarUrl) {
                 setAvatarPreview(profile.avatarUrl)
                 setSavedAvatarUrl(profile.avatarUrl)
+                setHasImageError(false)
             }
         }
     }, [profile, reset])
@@ -302,42 +313,44 @@ const SozlamalarPage = () => {
                     {/* Layout: Avatar (Left) + Form (Right) */}
                     <div className="flex flex-col sm:flex-row items-start sm:items-stretch gap-6 sm:gap-8 pt-6">
                         {/* LEFT: Avatar Area */}
-                        <div className="w-full sm:w-44 shrink-0 flex flex-col items-center text-center sm:pr-6 sm:border-r sm:border-slate-100 sm:justify-center">
+                        <div className="w-full sm:w-48 shrink-0 flex flex-col items-center text-center sm:pr-6 sm:border-r sm:border-slate-100 sm:justify-center">
                             <div
                                 onClick={() => fileInputRef.current?.click()}
-                                className="w-28 h-28 sm:w-32 sm:h-32 rounded-full border-2 border-slate-200/90 overflow-hidden bg-blue-50 flex items-center justify-center shadow-xs shrink-0 relative group cursor-pointer hover:border-blue-400 transition-colors"
+                                className="w-28 h-28 sm:w-32 sm:h-32 rounded-full border-2 border-slate-200 overflow-hidden bg-[#155DFC] flex items-center justify-center shadow-xs shrink-0 relative group cursor-pointer hover:border-blue-400 transition-colors aspect-square"
                             >
-                                {avatarPreview ? (
+                                {avatarPreview && !hasImageError ? (
                                     <>
                                         <img
-                                            src={avatarPreview}
-                                            alt="SuperAdmin Avatar"
+                                            src={resolveFileUrl(avatarPreview)}
+                                            alt=""
+                                            onError={() => setHasImageError(true)}
                                             className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
                                         />
                                         <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white gap-1 rounded-full">
                                             <Upload className="w-5 h-5 drop-shadow-xs" />
-                                            <span className="text-[11px] font-medium drop-shadow-xs">Yuklash</span>
+                                            <span className="text-[11px] font-medium drop-shadow-xs">Almashtirish</span>
                                         </div>
                                     </>
                                 ) : (
-                                    <div className="w-full h-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-3xl select-none group-hover:bg-blue-100/70 transition-colors rounded-full">
-                                        {watchedFirstName?.[0]?.toUpperCase() || (
-                                            <UserRound className="w-14 h-14 stroke-[1.5] text-blue-600" />
-                                        )}
+                                    <div
+                                        style={{ backgroundColor: "#155DFC" }}
+                                        className="w-full h-full bg-[#155DFC] text-white flex items-center justify-center font-bold text-3xl sm:text-4xl select-none transition-colors rounded-full shadow-inner aspect-square"
+                                    >
+                                        {userInitials}
                                     </div>
                                 )}
                             </div>
 
-                            {/* Button: Faqat "Yuklash" */}
+                            {/* Button: Rasm yuklash */}
                             <div className="mt-3.5 flex justify-center w-full">
                                 <button
                                     type="button"
                                     onClick={() => fileInputRef.current?.click()}
                                     disabled={isSaving || isProfileLoading}
-                                    className="h-9 px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-all shadow-2xs cursor-pointer inline-flex items-center gap-1.5 disabled:opacity-50"
+                                    className="h-9 px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-all shadow-2xs cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap disabled:opacity-50"
                                 >
-                                    <Upload className="w-3.5 h-3.5 text-slate-500" />
-                                    <span>Rasm Yuklash</span>
+                                    <Upload className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                                    <span className="whitespace-nowrap">Rasm yuklash</span>
                                 </button>
                                 <input
                                     ref={fileInputRef}
@@ -639,4 +652,4 @@ const SozlamalarPage = () => {
     )
 }
 
-export default SozlamalarPage
+export default SozlamalarPage;
