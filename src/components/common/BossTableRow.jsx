@@ -1,7 +1,6 @@
 import { memo } from "react"
 import { TableRow, TableCell } from "@/shared/ui/table"
-import { Switch, Button } from "@/shared/ui"
-import { OwnerAvatar } from "@/entities/boss"
+import { Switch, Button, OwnerAvatar } from "@/shared/ui"
 
 /**
  * Ferma egasi jadval qatori komponenti

@@ -23,10 +23,13 @@ import {
   useDeleteBoss,
 } from "@/shared/hooks"
 import { normalizeBoss, calculateBossStats } from "@/entities/boss"
-import { useBossesTable } from "./hooks/useBossesTable"
-import { FermaEgalariStats } from "./components/FermaEgalariStats"
-import { BossTableRow } from "./components/BossTableRow"
-import { BOSS_TABLE_COLUMNS, STATUS_OPTIONS } from "./components/bossTableConfig"
+import {
+  useBossesTable,
+  FermaEgalariStats,
+  BossTableRow,
+  BOSS_TABLE_COLUMNS,
+  STATUS_OPTIONS,
+} from "@/components"
 
 const ITEMS_PER_PAGE = 8
 

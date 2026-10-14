@@ -2,8 +2,7 @@ import { create } from "zustand"
 import { persist } from "zustand/middleware"
 
 export const useUserStore = create(
-  persist(
-    (set) => ({
+  persist((set) => ({
       userInfo: null,
       userToken: null,
       actions: {

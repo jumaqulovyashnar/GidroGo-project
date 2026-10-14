@@ -1,3 +1,3 @@
-export { useFermaModalStore, default as useFermaModalStoreDefault } from "./modalStore"
-export * from "./modalStore"
-export * from "./fermaSchema"
+export { useFermaModalStore, default as useFermaModalStoreDefault } from "@/store/modalStore"
+export * from "@/store/modalStore"
+export * from "@/models/fermaSchema"

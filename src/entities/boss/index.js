@@ -1,3 +1,3 @@
-export * from "./model/boss.types"
-export * from "./model/boss.normalizer"
-export * from "./ui/OwnerAvatar"
+export * from "@/models/boss.types"
+export * from "@/models/boss.normalizer"
+export * from "@/shared/ui/OwnerAvatar"

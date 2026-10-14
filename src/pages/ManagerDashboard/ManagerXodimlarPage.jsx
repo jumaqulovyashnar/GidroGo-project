@@ -8,8 +8,7 @@ import {
   useManagerCouriers,
   useManagerCouriersDailySummary,
 } from "@/shared/hooks"
-import { ManagerDirectHandoverModal } from "./components/ManagerDirectHandoverModal"
-import { ConfirmHandoverModal } from "./components/ConfirmHandoverModal"
+import { ManagerDirectHandoverModal, ConfirmHandoverModal } from "@/components"
 
 export default function ManagerXodimlarPage() {
   const navigate = useNavigate()
