@@ -50,15 +50,38 @@ const Input = React.forwardRef(function Input(
       e.preventDefault()
       return
     }
+
+    // Telefon inputida + bosilganda +998 qilib berish
+    if (type === "tel" && (e.key === "+" || e.key === "=")) {
+      if (!e.target.value) {
+        e.preventDefault()
+        e.target.value = "+998"
+        const event = new Event("input", { bubbles: true })
+        e.target.dispatchEvent(event)
+        if (onChange) onChange(e)
+        return
+      }
+    }
+
+    // Telefon inputida +998 (yoki qisqa prefiks) qolganda Backspace bosilsa, inputni butunlay tozalash
+    if (type === "tel" && e.key === "Backspace") {
+      const val = e.target.value || ""
+      const digits = val.replace(/\D/g, "")
+      // Agar faqat +998 yoki prefiks belgilari bo'lsa
+      if (val === "+998" || val === "+99" || val === "+9" || val === "+" || (digits === "998" && val.length <= 4)) {
+        e.preventDefault()
+        e.target.value = ""
+        const event = new Event("input", { bubbles: true })
+        e.target.dispatchEvent(event)
+        if (onChange) onChange(e)
+        return
+      }
+    }
+
     if (onKeyDown) onKeyDown(e)
   }
 
   const handleFocus = (e) => {
-    // Telefon inputiga fokus bo'lganda, bo'sh bo'lsa darhol +998 ni chiqarish
-    if (type === "tel" && e.target && (!e.target.value || e.target.value.trim() === "")) {
-      e.target.value = "+998"
-      if (onChange) onChange(e)
-    }
     if (onFocus) onFocus(e)
   }
 

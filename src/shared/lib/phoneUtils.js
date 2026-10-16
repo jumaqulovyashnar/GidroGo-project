@@ -12,27 +12,33 @@
  * @returns {string}
  */
 export const formatPhoneInput = (val) => {
-  if (val === undefined || val === null) return "+998"
+  if (val === undefined || val === null) return ""
   
   // 1. Oraliqdagi va barcha bo'shliqlarni olib tashlaymiz
   let clean = String(val).replace(/\s+/g, "")
-  if (!clean) return "+998"
+  if (!clean) return ""
 
   // 2. Faqat + va raqamlarni qoldiramiz
   clean = clean.replace(/[^\d+]/g, "")
+
+  // Foydalanuvchi +998 ni o'chirayotganda (+, +9, +99) inputni to'liq tozalaymiz
+  if (!clean || clean === "+" || clean === "+9" || clean === "+99") {
+    return ""
+  }
 
   // 3. Oldiga +998 ni belgilaymiz
   if (clean.startsWith("+998")) {
     const after = clean.slice(4).replace(/\D/g, "")
     clean = `+998${after}`
   } else if (clean.startsWith("998")) {
-    clean = `+${clean.replace(/\D/g, "")}`
-  } else if (clean.startsWith("+")) {
-    const after = clean.slice(1).replace(/\D/g, "")
+    const after = clean.slice(3).replace(/\D/g, "")
     clean = `+998${after}`
+  } else if (clean.startsWith("+")) {
+    const digits = clean.slice(1).replace(/\D/g, "")
+    clean = digits ? `+998${digits}` : ""
   } else {
     const digits = clean.replace(/\D/g, "")
-    clean = `+998${digits}`
+    clean = digits ? `+998${digits}` : ""
   }
 
   // 4. Maksimal uzunlik: +998 va 9 ta raqam (+998901234567 = 13 ta belgi)
