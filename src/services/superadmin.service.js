@@ -87,13 +87,22 @@ class SuperAdminService {
   }
 
   // 9. PUT /api/superadmin/profile - SuperAdmin profilini yangilash
+  // OpenAPI Schema: SuperAdminProfileUpdateRequest { firstName?, lastName?, fullName?, phone?, email?, avatarUrl? }
   async updateProfile(data) {
+    const payload = {
+      ...(data.firstName ? { firstName: data.firstName.trim() } : {}),
+      ...(data.lastName ? { lastName: data.lastName.trim() } : {}),
+      ...(data.fullName ? { fullName: data.fullName.trim() } : {}),
+      ...(data.phone ? { phone: data.phone.trim() } : {}),
+      ...(data.email ? { email: data.email.trim() } : {}),
+      ...(data.avatarUrl ? { avatarUrl: data.avatarUrl } : {}),
+    }
     try {
-      const response = await api.put("/superadmin/profile", data)
+      const response = await api.put("/superadmin/profile", payload)
       return response.data
     } catch (error) {
       try {
-        const fallback = await api.put("/superadmin/settings/profile", data)
+        const fallback = await api.put("/superadmin/settings/profile", payload)
         return fallback.data
       } catch {
         throw new Error(handleApiError(error))
@@ -102,13 +111,19 @@ class SuperAdminService {
   }
 
   // 10. POST /api/superadmin/change-password - Parolni almashtirish
+  // OpenAPI Schema: ChangePasswordRequest { currentPassword, newPassword, confirmPassword }
   async changePassword(data) {
+    const payload = {
+      currentPassword: data.currentPassword,
+      newPassword: data.newPassword,
+      confirmPassword: data.confirmPassword,
+    }
     try {
-      const response = await api.post("/superadmin/change-password", data)
+      const response = await api.post("/superadmin/change-password", payload)
       return response.data
     } catch (error) {
       try {
-        const fallback = await api.post("/superadmin/settings/change-password", data)
+        const fallback = await api.post("/superadmin/settings/change-password", payload)
         return fallback.data
       } catch {
         throw new Error(handleApiError(error))

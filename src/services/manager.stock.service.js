@@ -12,19 +12,31 @@ class ManagerStockService {
   }
 
   // 2. PUT /api/manager/stock/warehouse - Ombordagi zaxirani yangilash
+  // OpenAPI Schema: { productId: number, quantity: number }
   async updateWarehouseStock(data) {
     try {
-      const response = await api.put("/manager/stock/warehouse", data);
+      const payload = {
+        productId: Number(data.productId),
+        quantity: Number(data.quantity),
+      };
+      const response = await api.put("/manager/stock/warehouse", payload);
       return response.data;
     } catch (error) {
       throw new Error(handleApiError(error));
     }
   }
 
-  // 3. PUT /api/manager/stock/vehicle - Mashina zaxirasini qo'lda o'zgartirish (band qilinganidan kamaytirish taqiqlangan)
-  async updateVehicleStock(data) {
+  // 3. PUT /api/manager/stock/vehicle - Mashina zaxirasini qo'lda o'zgartirish
+  // OpenAPI Parameter: courierId (query), productId (query), quantity (query)
+  async updateVehicleStock(params = {}) {
     try {
-      const response = await api.put("/manager/stock/vehicle", data);
+      const response = await api.put("/manager/stock/vehicle", null, {
+        params: {
+          courierId: Number(params.courierId),
+          productId: Number(params.productId),
+          quantity: Number(params.quantity),
+        },
+      });
       return response.data;
     } catch (error) {
       throw new Error(handleApiError(error));

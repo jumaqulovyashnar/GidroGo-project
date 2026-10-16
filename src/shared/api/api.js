@@ -60,6 +60,17 @@ api.interceptors.request.use(
       delete config.headers["Content-Type"]
     }
 
+    // Query parametrlardan undefined va null larni tozalash (ortiqcha query parametrlarni yubormaslik)
+    if (config.params && typeof config.params === "object" && !(config.params instanceof URLSearchParams)) {
+      const cleanParams = {}
+      for (const [key, val] of Object.entries(config.params)) {
+        if (val !== undefined && val !== null && val !== "") {
+          cleanParams[key] = val
+        }
+      }
+      config.params = cleanParams
+    }
+
     const isAuthRoute =
       config.url?.includes("/auth/login") ||
       config.url?.includes("auth/login") ||

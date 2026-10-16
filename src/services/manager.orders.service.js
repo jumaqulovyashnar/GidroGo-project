@@ -32,9 +32,11 @@ class ManagerOrdersService {
   }
 
   // 4. POST /api/manager/orders/{id}/reassign - Buyurtmani boshqa dastavkachiga qayta biriktirish
+  // OpenAPI Schema: { newCourierId: number }
   async reassignOrder(id, data) {
     try {
-      const response = await api.post(`/manager/orders/${id}/reassign`, data);
+      const newCourierId = Number(data?.newCourierId ?? data?.courierId ?? data);
+      const response = await api.post(`/manager/orders/${id}/reassign`, { newCourierId });
       return response.data;
     } catch (error) {
       throw new Error(handleApiError(error));
@@ -52,9 +54,22 @@ class ManagerOrdersService {
   }
 
   // 6. POST /api/manager/orders - Menejer tomonidan yangi buyurtma kiritish (Manual Order Create)
+  // OpenAPI Schema: { customerName, phone, address, latitude?, longitude?, bottlesCount?, productId?, paymentMethod?, notes?, courierId? }
   async createOrder(data) {
     try {
-      const response = await api.post("/manager/orders", data);
+      const payload = {
+        customerName: data.customerName?.trim(),
+        phone: data.phone?.trim(),
+        address: data.address?.trim(),
+        ...(data.latitude !== undefined ? { latitude: Number(data.latitude) } : {}),
+        ...(data.longitude !== undefined ? { longitude: Number(data.longitude) } : {}),
+        ...(data.bottlesCount !== undefined ? { bottlesCount: Number(data.bottlesCount) } : {}),
+        ...(data.productId !== undefined ? { productId: Number(data.productId) } : {}),
+        ...(data.paymentMethod ? { paymentMethod: data.paymentMethod } : {}),
+        ...(data.notes ? { notes: data.notes.trim() } : {}),
+        ...(data.courierId !== undefined ? { courierId: Number(data.courierId) } : {}),
+      };
+      const response = await api.post("/manager/orders", payload);
       return response.data;
     } catch (error) {
       throw new Error(handleApiError(error));
@@ -72,9 +87,11 @@ class ManagerOrdersService {
   }
 
   // 8. POST /api/manager/orders/{id}/assign - Buyurtmaga kuryer biriktirish (Assign Order API)
+  // OpenAPI Schema: { courierId: number }
   async assignOrder(id, data) {
     try {
-      const response = await api.post(`/manager/orders/${id}/assign`, data);
+      const courierId = Number(data?.courierId ?? data);
+      const response = await api.post(`/manager/orders/${id}/assign`, { courierId });
       return response.data;
     } catch (error) {
       throw new Error(handleApiError(error));
@@ -82,9 +99,11 @@ class ManagerOrdersService {
   }
 
   // 9. PATCH /api/manager/orders/{id}/status - Buyurtma holatini o'zgartirish
+  // OpenAPI Schema: { status: string }
   async updateOrderStatus(id, data) {
     try {
-      const response = await api.patch(`/manager/orders/${id}/status`, data);
+      const status = typeof data === "string" ? data : data?.status;
+      const response = await api.patch(`/manager/orders/${id}/status`, { status });
       return response.data;
     } catch (error) {
       throw new Error(handleApiError(error));

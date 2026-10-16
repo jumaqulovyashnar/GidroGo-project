@@ -32,9 +32,13 @@ class SuperAdminCrmService {
   }
 
   // 4. PATCH /api/superadmin/clients/{id}/status - Mijozni bloklash/faollashtirish
-  async updateClientStatus(id, status) {
+  // OpenAPI Schema: ClientStatusUpdateRequest { status, reason? }
+  async updateClientStatus(id, data) {
     try {
-      const response = await api.patch(`/superadmin/clients/${id}/status`, { status })
+      const payload = typeof data === "string"
+        ? { status: data }
+        : { status: data?.status, ...(data?.reason ? { reason: data.reason } : {}) }
+      const response = await api.patch(`/superadmin/clients/${id}/status`, payload)
       return response.data
     } catch (error) {
       throw new Error(handleApiError(error))

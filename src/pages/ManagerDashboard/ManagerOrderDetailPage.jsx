@@ -56,7 +56,7 @@ export default function ManagerOrderDetailPage() {
       if (apiOrder?.id) {
         await reassignMutation.mutateAsync({
           id: currentOrder.id,
-          data: { courierId: Number(selectedCourierId) },
+          data: { newCourierId: Number(selectedCourierId) },
         })
       }
       setReassignedOverride({
