@@ -80,7 +80,7 @@ function LoginPage() {
   return (
     <div className="min-h-screen w-full flex flex-col lg:flex-row bg-white text-slate-900">
       {/* ===================== CHAP TOMON: RASM (ORQA FONI OQ) ===================== */}
-      <div className="w-full lg:w-1/2 min-h-[320px] lg:min-h-screen bg-white flex items-center justify-center p-6 sm:p-10 lg:p-16 border-b lg:border-b-0 lg:border-r border-slate-100">
+      <div className="w-full lg:w-1/2 min-h-[320px] lg:min-h-screen bg-white flex items-center justify-center p-6 sm:p-10 lg:p-16 border-b lg:border-b-0 lg:border-r border-slate-200">
         <div className="w-full max-w-lg flex items-center justify-center">
           <img
             src={heroImg}
