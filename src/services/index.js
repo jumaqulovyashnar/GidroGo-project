@@ -27,3 +27,6 @@ export { managerClientsService } from "./manager.clients.service"
 export { managerCashService } from "./manager.cash.service"
 export { courierCashService } from "./courier.cash.service"
 export { bossCashService } from "./boss.cash.service"
+
+// Client API Services
+export { clientService } from "./client.service"

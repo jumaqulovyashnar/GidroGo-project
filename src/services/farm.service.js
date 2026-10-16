@@ -1,17 +1,27 @@
 import { api, handleApiError } from "@/shared"
 
 class FarmService {
-  async getFarms() {
+  async getFarms(params = {}) {
     try {
-      const response = await api.get("/superadmin/farms")
+      const response = await api.get("/superadmin/farms", { params })
       return response.data
     } catch (error) {
       throw new Error(handleApiError(error))
     } 
   }
+
   async getFarmById(id) {
     try {
       const response = await api.get(`/superadmin/farms/${id}`)
+      return response.data
+    } catch (error) {
+      throw new Error(handleApiError(error))
+    }
+  }
+
+  async getFarmAnalytics(id, params = {}) {
+    try {
+      const response = await api.get(`/superadmin/farms/${id}/analytics`, { params })
       return response.data
     } catch (error) {
       throw new Error(handleApiError(error))

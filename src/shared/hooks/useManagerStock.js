@@ -26,4 +26,18 @@ export const useManagerUpdateStockWarehouse = () => {
   });
 };
 
+// 3. PUT /api/manager/stock/vehicle - Mashina zaxirasini qo'lda o'zgartirish
+export const useManagerUpdateStockVehicle = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data) => managerStockService.updateVehicleStock(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["manager-stock-warehouse"] });
+      queryClient.invalidateQueries({ queryKey: ["manager-couriers"] });
+      queryClient.invalidateQueries({ queryKey: ["manager-dashboard"] });
+    },
+  });
+};
+
 export default useManagerStockWarehouse;

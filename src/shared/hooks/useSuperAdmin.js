@@ -15,7 +15,23 @@ export const useRegionalStatistics = () => {
   })
 }
 
-export const useAuditLogs = (params) => {
+// Holatlar bo'yicha buyurtmalar soni
+export const useOrdersByStatusStatistics = (params = {}) => {
+  return useQuery({
+    queryKey: ["orders-by-status-statistics", params],
+    queryFn: () => superAdminService.getOrdersByStatusStatistics(params),
+  })
+}
+
+// O'sish seriyasi: yangi mijozlar, faol mijozlar, buyurtmalar, yangi fermalar
+export const useGrowthStatistics = (params = {}) => {
+  return useQuery({
+    queryKey: ["growth-statistics", params],
+    queryFn: () => superAdminService.getGrowthStatistics(params),
+  })
+}
+
+export const useAuditLogs = (params = {}) => {
   return useQuery({
     queryKey: ["audit-logs", params],
     queryFn: () => superAdminService.getAuditLogs(params),
@@ -45,10 +61,18 @@ export const useSuperAdminChangePassword = () => {
   })
 }
 
-export const useDailyDynamics = (params) => {
+export const useDailyDynamics = (params = {}) => {
   return useQuery({
     queryKey: ["daily-dynamics", params],
     queryFn: () => superAdminService.getDailyDynamics(params),
   })
 }
 
+// Ferma analitikasi: tushum, tara, xarajat, foyda va h.k.
+export const useFarmAnalytics = (id, params = {}) => {
+  return useQuery({
+    queryKey: ["farm-analytics", id, params],
+    queryFn: () => superAdminService.getFarmAnalytics(id, params),
+    enabled: Boolean(id),
+  })
+}
