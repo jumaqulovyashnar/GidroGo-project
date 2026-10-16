@@ -150,7 +150,7 @@ const AuditLogPage = () => {
     const [selectedObject, setSelectedObject] = useState("all")
     const [selectedAdmin, setSelectedAdmin] = useState("all")
     const [currentPage, setCurrentPage] = useState(1)
-    const itemsPerPage = 5
+    const itemsPerPage = 10
 
     const queryParams = useMemo(() => {
         const params = {
@@ -472,7 +472,7 @@ const AuditLogPage = () => {
                             <TableBody>
                                 {isPending ? (
                                     <TableRow>
-                                        <TableCell colSpan={4} className="py-14 text-center">
+                                        <TableCell colSpan={4} className="py-16 text-center">
                                             <div className="flex flex-col items-center justify-center gap-3">
                                                 <Spinner size="md" />
                                                 <p className="text-sm font-medium text-slate-500">Audit loglari yuklanmoqda...</p>
@@ -481,7 +481,7 @@ const AuditLogPage = () => {
                                     </TableRow>
                                 ) : paginatedLogs.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={4} className="py-14 text-center text-sm text-slate-500">
+                                        <TableCell colSpan={4} className="py-16 text-center text-sm text-slate-500">
                                             Qaydlar topilmadi
                                         </TableCell>
                                     </TableRow>
@@ -492,7 +492,7 @@ const AuditLogPage = () => {
                                             className="hover:bg-slate-50/70 transition-colors border-b border-slate-100 last:border-b-0 h-16"
                                         >
                                             {/* 1. Sana va vaqt */}
-                                            <TableCell className="py-3 px-4 whitespace-nowrap w-36 align-middle">
+                                            <TableCell className="py-4 px-4 whitespace-nowrap w-36 align-middle">
                                                 <div className="text-xs font-semibold text-slate-800">
                                                     {log.date}
                                                 </div>
@@ -502,7 +502,7 @@ const AuditLogPage = () => {
                                             </TableCell>
 
                                             {/* 2. SuperAdmin */}
-                                            <TableCell className="py-3 px-4 whitespace-nowrap w-44 align-middle">
+                                            <TableCell className="py-4 px-4 whitespace-nowrap w-44 align-middle">
                                                 <div className="flex items-center gap-2.5">
                                                     <div className="w-8 h-8 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
                                                         {log.admin.avatarText}
@@ -514,14 +514,14 @@ const AuditLogPage = () => {
                                             </TableCell>
 
                                             {/* 3. Ta'sir etilgan obyekt */}
-                                            <TableCell className="py-3 px-4 whitespace-nowrap w-44 align-middle">
+                                            <TableCell className="py-4 px-4 whitespace-nowrap w-44 align-middle">
                                                 <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-100">
                                                     {log.target.name}
                                                 </span>
                                             </TableCell>
 
                                             {/* 4. Tavsif va sabab */}
-                                            <TableCell className="py-3 px-4 align-middle min-w-[200px]">
+                                            <TableCell className="py-4 px-4 align-middle min-w-[200px]">
                                                 <p className="text-xs text-slate-700 font-medium truncate max-w-sm" title={log.description}>
                                                     {log.description}
                                                 </p>

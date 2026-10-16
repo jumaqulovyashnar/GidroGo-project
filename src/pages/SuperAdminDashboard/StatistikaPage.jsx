@@ -6,7 +6,7 @@ import { useRegionalStatistics, useSuperAdminDashboard } from "@/shared/hooks"
 
 const LineColumn = lazy(() => import("@/widgets").then((m) => ({ default: m.LineColumn })))
 
-const ITEMS_PER_PAGE = 4
+const ITEMS_PER_PAGE = 8
 
 export const StatistikaPage = () => {
     const [currentPage, setCurrentPage] = useState(1)
@@ -221,7 +221,7 @@ export const StatistikaPage = () => {
                             <TableBody>
                                 {paginatedData.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={4} className="text-center py-12 text-slate-500 text-sm">
+                                        <TableCell colSpan={4} className="text-center py-16 text-slate-500 text-sm">
                                             {isFetchingReg
                                                 ? "Hududiy statistika yuklanmoqda..."
                                                 : "Hududiy statistika ma'lumotlari mavjud emas."}

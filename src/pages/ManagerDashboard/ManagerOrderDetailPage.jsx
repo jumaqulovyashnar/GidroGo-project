@@ -296,28 +296,28 @@ export default function ManagerOrderDetailPage() {
             </h2>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse">
+              <table className="w-full text-left text-sm border-collapse">
                 <thead>
-                  <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase text-[10px]">
-                    <th className="py-2.5 px-3">Mahsulot nomi</th>
-                    <th className="py-2.5 px-3">Miqdor</th>
-                    <th className="py-2.5 px-3">Narxi</th>
-                    <th className="py-2.5 px-3 text-right">Jami summa</th>
+                  <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase text-xs tracking-wider">
+                    <th className="py-3.5 px-4">Mahsulot nomi</th>
+                    <th className="py-3.5 px-4">Miqdor</th>
+                    <th className="py-3.5 px-4">Narxi</th>
+                    <th className="py-3.5 px-4 text-right">Jami summa</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  <tr>
-                    <td className="py-3 px-3">
+                  <tr className="hover:bg-slate-50/60 transition-colors">
+                    <td className="py-4 px-4">
                       <div className="font-semibold text-slate-900">{currentOrder.product}</div>
-                      <div className="text-[11px] text-slate-400">18.9 Litr toza filtrlangan tog' suvi</div>
+                      <div className="text-xs text-slate-400 mt-0.5">18.9 Litr toza filtrlangan tog' suvi</div>
                     </td>
-                    <td className="py-3 px-3 font-semibold text-slate-800">
+                    <td className="py-4 px-4 font-semibold text-slate-800">
                       {currentOrder.qty} dona
                     </td>
-                    <td className="py-3 px-3 text-slate-700">
+                    <td className="py-4 px-4 text-slate-700">
                       {(currentOrder.qty > 0 ? Math.round(currentOrder.total / currentOrder.qty) : currentOrder.total).toLocaleString()} so'm
                     </td>
-                    <td className="py-3 px-3 text-right font-bold text-blue-600">
+                    <td className="py-4 px-4 text-right font-bold text-blue-600">
                       {currentOrder.total.toLocaleString()} so'm
                     </td>
                   </tr>
