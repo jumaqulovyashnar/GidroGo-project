@@ -80,12 +80,12 @@ function LoginPage() {
   return (
     <div className="min-h-screen w-full flex flex-col lg:flex-row bg-white text-slate-900">
       {/* ===================== CHAP TOMON: RASM (ORQA FONI OQ) ===================== */}
-      <div className="w-full lg:w-1/2 min-h-[320px] lg:min-h-screen bg-white flex items-center justify-center p-6 sm:p-10 lg:p-16 border-b lg:border-b-0 lg:border-r border-slate-200">
-        <div className="w-full max-w-lg flex items-center justify-center">
+      <div className="w-full lg:w-1/2 min-h-[360px] lg:min-h-screen bg-white flex items-center justify-center p-6 sm:p-8 lg:p-12 border-b lg:border-b-0 lg:border-r border-slate-200">
+        <div className="w-full max-w-xl lg:max-w-2xl flex items-center justify-center">
           <img
             src={heroImg}
             alt="GidroGo"
-            className="w-full max-h-[420px] sm:max-h-[480px] object-contain"
+            className="w-full max-h-[500px] sm:max-h-[580px] lg:max-h-[640px] object-contain transition-transform duration-300"
           />
         </div>
       </div>
