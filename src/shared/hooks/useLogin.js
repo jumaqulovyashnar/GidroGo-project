@@ -7,8 +7,15 @@ import { createUser, getAuthTokens, getResponseData } from "@/provider/AuthProvi
 
 const ROLE_ROUTES = {
     SUPER_ADMIN: "/super-admin",
+    ROLE_SUPER_ADMIN: "/super-admin",
     MANAGER: "/manager",
+    ROLE_MANAGER: "/manager",
     BOSS: "/boss",
+    ROLE_BOSS: "/boss",
+    FERMA_RAHBARI: "/boss",
+    ROLE_FERMA_RAHBARI: "/boss",
+    COURIER: "/manager",
+    ROLE_COURIER: "/manager",
 }
 
 export const useLogin = () => {
