@@ -53,14 +53,14 @@ export function SuperAdminDashboardPage() {
   ]
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 sm:space-y-7">
       {/* Dashboard Sarlavhasi */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-black">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
             Boshqaruv Paneli
           </h1>
-          <p className="text-sm font-normal text-neutral-700 mt-1">
+          <p className="text-sm font-normal text-slate-500 mt-1">
             Tizimning umumiy operatsion ko'rsatkichlari va faollik hisoboti.
           </p>
         </div>
@@ -80,15 +80,15 @@ export function SuperAdminDashboardPage() {
 
       {/* 5 ta ko'rsatkich kartasi (Skeleton yoki Haqiqiy data - Layout Shift bo'lmasligi uchun bir xil o'lchamda) */}
       {isPending ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 lg:gap-5">
           {[...Array(5)].map((_, i) => (
             <div
               key={i}
-              className="border border-slate-200 bg-white rounded-2xl p-4 animate-pulse min-h-27.5 flex flex-col justify-between"
+              className="border border-slate-200/80 bg-white rounded-2xl p-5 sm:p-6 animate-pulse min-h-32 flex flex-col justify-between"
             >
               <div className="flex items-center justify-between pb-1 min-h-12">
                 <div className="h-4 w-24 bg-slate-200 rounded" />
-                <div className="size-9 rounded-xl bg-slate-100 border border-slate-200 shrink-0" />
+                <div className="w-12 h-12 rounded-full bg-slate-100 border border-slate-200/80 shrink-0" />
               </div>
               <div className="pt-2">
                 <div className="h-7 w-20 bg-slate-200 rounded" />
@@ -98,24 +98,31 @@ export function SuperAdminDashboardPage() {
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 lg:gap-5">
           {metrics.map((item, index) => {
             const Icon = item.icon
+            const isBlue = index % 2 === 0
 
             return (
               <Card
                 key={index}
-                className="border border-slate-200 bg-white hover:border-slate-300 hover:shadow-xs transition-all duration-200 rounded-2xl p-4 min-h-27.5"
+                className="border border-slate-200/80 bg-white hover:border-slate-300 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_14px_rgba(0,0,0,0.05)] transition-all duration-200 rounded-2xl p-5 sm:p-6 min-h-32 flex flex-col justify-between"
               >
-                <CardHeader className="flex flex-row items-center justify-between pb-1 space-y-0 min-h-12 p-0">
-                  <CardTitle className="text-xs sm:text-sm font-medium text-neutral-900 leading-snug">
+                <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0 p-0">
+                  <CardTitle className="text-xs sm:text-sm font-medium text-slate-600 leading-snug">
                     {item.title}
                   </CardTitle>
-                  <div className="size-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0">
-                    <Icon className="size-4.5 text-blue-600" strokeWidth={1.75} />
+                  <div
+                    className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 border ${
+                      isBlue
+                        ? "bg-blue-50 text-blue-600 border-blue-100/80"
+                        : "bg-slate-100 text-slate-600 border-slate-200/80"
+                    }`}
+                  >
+                    <Icon className="size-5.5" strokeWidth={1.75} />
                   </div>
                 </CardHeader>
-                <CardContent className="p-0 pt-3">
+                <CardContent className="p-0 pt-2">
                   <div className="text-2xl xl:text-3xl font-bold tracking-tight text-slate-900">
                     {item.value}
                   </div>
@@ -131,8 +138,8 @@ export function SuperAdminDashboardPage() {
 
       {/* Asosiy grafiklar maydoni */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <Card className="lg:col-span-8 border border-slate-200 bg-white shadow-xs rounded-2xl">
-          <CardHeader className="pb-2">
+        <Card className="lg:col-span-8 border border-slate-200/80 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)] rounded-2xl p-5 sm:p-6">
+          <CardHeader className="p-0 pb-3">
             <div>
               <CardTitle className="text-base font-semibold text-slate-900">
                 Kunlik Buyurtmalar va Daromad
@@ -142,7 +149,7 @@ export function SuperAdminDashboardPage() {
               </p>
             </div>
           </CardHeader>
-          <CardContent className="pt-2 min-h-91.25">
+          <CardContent className="p-0 pt-2 min-h-91.25">
             <Suspense
               fallback={
                 <div className="h-64 flex flex-col items-center justify-center gap-2 text-slate-400">
@@ -156,8 +163,8 @@ export function SuperAdminDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="lg:col-span-4 border border-slate-200 bg-white shadow-xs rounded-2xl flex flex-col justify-between">
-          <CardHeader className="pb-2">
+        <Card className="lg:col-span-4 border border-slate-200/80 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)] rounded-2xl p-5 sm:p-6 flex flex-col justify-between">
+          <CardHeader className="p-0 pb-3">
             <CardTitle className="text-base font-semibold text-slate-900">
               Fermalar Taqsimoti
             </CardTitle>
@@ -165,7 +172,7 @@ export function SuperAdminDashboardPage() {
               {regionalStats?.regions?.length > 0 ? "Hududlar bo'yicha fermalar ulushi" : "Faol va bloklangan fermalar nisbati"}
             </p>
           </CardHeader>
-          <CardContent className="pt-4 flex-1 flex items-center justify-center min-h-91.25">
+          <CardContent className="p-0 pt-4 flex-1 flex items-center justify-center min-h-91.25">
             <Suspense
               fallback={
                 <div className="h-64 flex flex-col items-center justify-center gap-2 text-slate-400">

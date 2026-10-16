@@ -117,7 +117,7 @@ export default function ManagerAllOrdersPage() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6 sm:space-y-7">
       {/* Breadcrumb Navigation */}
       <Breadcrumb>
         <BreadcrumbList className="text-xs">
@@ -137,7 +137,7 @@ export default function ManagerAllOrdersPage() {
       </Breadcrumb>
 
       {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-xl font-bold text-slate-900">Barcha buyurtmalar</h1>
@@ -145,7 +145,7 @@ export default function ManagerAllOrdersPage() {
               {orders.length} ta umumiy
             </span>
           </div>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
             Barcha davrlardagi suv buyurtmalari arxivi, to'lovlar va yetkazish monitoringi.
           </p>
         </div>
@@ -185,10 +185,10 @@ export default function ManagerAllOrdersPage() {
       </div>
 
       {/* 1-Qator: Bo'limlarga tezkor o'tish kartalari (4 ta bir xil karta) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
         <Link
           to="/manager"
-          className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between hover:border-blue-300 hover:shadow-sm transition-all group min-h-22.5"
+          className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_14px_rgba(0,0,0,0.05)] hover:border-slate-300 transition-all group flex items-center justify-between"
         >
           <div>
             <span className="text-xs font-medium text-slate-500">Bo'lim</span>
@@ -197,14 +197,14 @@ export default function ManagerAllOrdersPage() {
             </div>
             <p className="text-[11px] text-slate-400 mt-0.5">Kunlik ko'rsatkichlar</p>
           </div>
-          <div className="size-10 rounded-full bg-blue-100/70 border border-blue-200 text-blue-600 flex items-center justify-center shrink-0">
-            <LayoutDashboard className="w-5 h-5" />
+          <div className="w-12 h-12 rounded-full bg-blue-50 border border-blue-100/80 text-blue-600 flex items-center justify-center shrink-0">
+            <LayoutDashboard className="w-5.5 h-5.5" />
           </div>
         </Link>
 
         <Link
           to="/manager/buyurtmalar"
-          className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between hover:border-blue-300 hover:shadow-sm transition-all group min-h-22.5"
+          className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_14px_rgba(0,0,0,0.05)] hover:border-slate-300 transition-all group flex items-center justify-between"
         >
           <div>
             <span className="text-xs font-medium text-slate-500">Bo'lim</span>
@@ -213,14 +213,14 @@ export default function ManagerAllOrdersPage() {
             </div>
             <p className="text-[11px] text-slate-400 mt-0.5">Tezkor taqsimlash markazi</p>
           </div>
-          <div className="size-10 rounded-full bg-blue-100/70 border border-blue-200 text-blue-600 flex items-center justify-center shrink-0">
-            <Truck className="w-5 h-5" />
+          <div className="w-12 h-12 rounded-full bg-slate-100 border border-slate-200/80 text-slate-600 flex items-center justify-center shrink-0">
+            <Truck className="w-5.5 h-5.5" />
           </div>
         </Link>
 
         <Link
           to="/manager/dastavkachilar-xarita"
-          className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between hover:border-blue-300 hover:shadow-sm transition-all group min-h-22.5"
+          className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_14px_rgba(0,0,0,0.05)] hover:border-slate-300 transition-all group flex items-center justify-between"
         >
           <div>
             <span className="text-xs font-medium text-slate-500">Bo'lim</span>
@@ -229,14 +229,14 @@ export default function ManagerAllOrdersPage() {
             </div>
             <p className="text-[11px] text-slate-400 mt-0.5">Kuryerlar monitoringi</p>
           </div>
-          <div className="size-10 rounded-full bg-blue-100/70 border border-blue-200 text-blue-600 flex items-center justify-center shrink-0">
-            <MapPin className="w-5 h-5" />
+          <div className="w-12 h-12 rounded-full bg-blue-50 border border-blue-100/80 text-blue-600 flex items-center justify-center shrink-0">
+            <MapPin className="w-5.5 h-5.5" />
           </div>
         </Link>
 
         <Link
           to="/manager/xodimlar"
-          className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between hover:border-blue-300 hover:shadow-sm transition-all group min-h-22.5"
+          className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_14px_rgba(0,0,0,0.05)] hover:border-slate-300 transition-all group flex items-center justify-between"
         >
           <div>
             <span className="text-xs font-medium text-slate-500">Bo'lim</span>
@@ -245,70 +245,70 @@ export default function ManagerAllOrdersPage() {
             </div>
             <p className="text-[11px] text-slate-400 mt-0.5">Dastavkachilar ro'yxati</p>
           </div>
-          <div className="size-10 rounded-full bg-blue-100/70 border border-blue-200 text-blue-600 flex items-center justify-center shrink-0">
-            <Users className="w-5 h-5" />
+          <div className="w-12 h-12 rounded-full bg-slate-100 border border-slate-200/80 text-slate-600 flex items-center justify-center shrink-0">
+            <Users className="w-5.5 h-5.5" />
           </div>
         </Link>
       </div>
 
       {/* 2-Qator: Buyurtmalar statistikasi kartalari (4 ta bir xil karta) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between min-h-22.5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_14px_rgba(0,0,0,0.05)] transition-all duration-200 flex items-center justify-between">
           <div>
             <span className="text-xs font-medium text-slate-500">Jami buyurtmalar</span>
-            <div className="text-xl font-bold text-slate-900 mt-0.5">{orders.length} ta</div>
+            <div className="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">{orders.length} ta</div>
             <p className="text-[11px] text-slate-400 mt-0.5">Barcha davrlar arxivi</p>
           </div>
-          <div className="size-10 rounded-full bg-blue-100/70 border border-blue-200 text-blue-600 flex items-center justify-center shrink-0">
-            <Package className="w-5 h-5" />
+          <div className="w-12 h-12 rounded-full bg-blue-50 border border-blue-100/80 text-blue-600 flex items-center justify-center shrink-0">
+            <Package className="w-5.5 h-5.5" />
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between min-h-22.5">
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_14px_rgba(0,0,0,0.05)] transition-all duration-200 flex items-center justify-between">
           <div>
             <span className="text-xs font-medium text-slate-500">Yetkazilgan</span>
-            <div className="text-xl font-bold text-slate-900 mt-0.5">
+            <div className="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">
               {orders.filter((o) => o.status === "completed").length} ta
             </div>
             <p className="text-[11px] text-slate-400 mt-0.5">Muvaffaqiyatli topshirildi</p>
           </div>
-          <div className="size-10 rounded-full bg-blue-100/70 border border-blue-200 text-blue-600 flex items-center justify-center shrink-0">
-            <CheckCircle2 className="w-5 h-5" />
+          <div className="w-12 h-12 rounded-full bg-slate-100 border border-slate-200/80 text-slate-600 flex items-center justify-center shrink-0">
+            <CheckCircle2 className="w-5.5 h-5.5" />
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between min-h-22.5">
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_14px_rgba(0,0,0,0.05)] transition-all duration-200 flex items-center justify-between">
           <div>
             <span className="text-xs font-medium text-slate-500">Yetkazilmoqda</span>
-            <div className="text-xl font-bold text-slate-900 mt-0.5">
+            <div className="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">
               {orders.filter((o) => o.status === "delivering" || o.status === "processing").length} ta
             </div>
             <p className="text-[11px] text-slate-400 mt-0.5">Kuryerlar yo'nalishda</p>
           </div>
-          <div className="size-10 rounded-full bg-blue-100/70 border border-blue-200 text-blue-600 flex items-center justify-center shrink-0">
-            <Truck className="w-5 h-5" />
+          <div className="w-12 h-12 rounded-full bg-blue-50 border border-blue-100/80 text-blue-600 flex items-center justify-center shrink-0">
+            <Truck className="w-5.5 h-5.5" />
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between min-h-22.5">
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_14px_rgba(0,0,0,0.05)] transition-all duration-200 flex items-center justify-between">
           <div>
             <span className="text-xs font-medium text-slate-500">Yangi buyurtmalar</span>
-            <div className="text-xl font-bold text-slate-900 mt-0.5">
+            <div className="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">
               {orders.filter((o) => o.status === "new").length} ta
             </div>
             <p className="text-[11px] text-slate-400 mt-0.5">Taqsimot kutilmoqda</p>
           </div>
-          <div className="size-10 rounded-full bg-blue-100/70 border border-blue-200 text-blue-600 flex items-center justify-center shrink-0">
-            <Clock className="w-5 h-5" />
+          <div className="w-12 h-12 rounded-full bg-slate-100 border border-slate-200/80 text-slate-600 flex items-center justify-center shrink-0">
+            <Clock className="w-5.5 h-5.5" />
           </div>
         </div>
       </div>
 
       {/* Orders Table Container & Pagination */}
-      <div className="space-y-3">
-        <div className="bg-white rounded-xl border border-slate-200 shadow-xs flex flex-col overflow-hidden">
+      <div className="space-y-4">
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex flex-col overflow-hidden">
           {/* Controls Bar */}
-          <div className="p-4 border-b border-slate-200 space-y-3">
+          <div className="p-5 sm:p-6 border-b border-slate-200/80 space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-1.5">
                 <span className="text-sm font-bold text-slate-900">Buyurtmalar ro'yxati</span>

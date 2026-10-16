@@ -151,18 +151,18 @@ export function BossSavdoPage() {
       )}
 
       {/* 2. Top 4 ta KPI Ko'rsatkich Kartalari */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
         {/* Karta 1: Jami sotilgan suv hajmi */}
-        <Card className="border border-slate-200/90 bg-white hover:border-slate-300 hover:shadow-xs transition-all duration-200 rounded-2xl">
-          <CardHeader className="flex flex-row items-center justify-between pb-1 space-y-0 p-4">
-            <CardTitle className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+        <Card className="border border-slate-200/80 bg-white hover:border-slate-300 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_14px_rgba(0,0,0,0.05)] transition-all duration-200 rounded-2xl p-5 sm:p-6 flex flex-col justify-between">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0 p-0">
+            <CardTitle className="text-xs font-medium uppercase tracking-wider text-slate-500">
               Jami sotilgan suv hajmi
             </CardTitle>
-            <div className="size-8 rounded-full bg-cyan-50 border border-cyan-100 flex items-center justify-center shrink-0">
-              <Droplet className="size-4 text-cyan-600 stroke-2" />
+            <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 border border-blue-100/80 flex items-center justify-center shrink-0">
+              <Droplet className="size-5.5 stroke-2" />
             </div>
           </CardHeader>
-          <CardContent className="p-4 pt-1">
+          <CardContent className="p-0 pt-2">
             <div className="flex items-baseline gap-1.5">
               <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
                 {formatNumber(totalLiters)}
@@ -183,16 +183,16 @@ export function BossSavdoPage() {
         </Card>
 
         {/* Karta 2: Bajarilgan buyurtmalar */}
-        <Card className="border border-slate-200/90 bg-white hover:border-slate-300 hover:shadow-xs transition-all duration-200 rounded-2xl">
-          <CardHeader className="flex flex-row items-center justify-between pb-1 space-y-0 p-4">
-            <CardTitle className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+        <Card className="border border-slate-200/80 bg-white hover:border-slate-300 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_14px_rgba(0,0,0,0.05)] transition-all duration-200 rounded-2xl p-5 sm:p-6 flex flex-col justify-between">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0 p-0">
+            <CardTitle className="text-xs font-medium uppercase tracking-wider text-slate-500">
               Bajarilgan buyurtmalar
             </CardTitle>
-            <div className="size-8 rounded-full bg-cyan-50 border border-cyan-100 flex items-center justify-center shrink-0">
-              <CheckCircle2 className="size-4 text-cyan-600 stroke-2" />
+            <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-600 border border-slate-200/80 flex items-center justify-center shrink-0">
+              <CheckCircle2 className="size-5.5 stroke-2" />
             </div>
           </CardHeader>
-          <CardContent className="p-4 pt-1">
+          <CardContent className="p-0 pt-2">
             <div className="flex items-baseline gap-1.5">
               <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
                 {completedOrders}
@@ -221,16 +221,16 @@ export function BossSavdoPage() {
         </Card>
 
         {/* Karta 3: Faol Kuryerlar */}
-        <Card className="border border-slate-200/90 bg-white hover:border-slate-300 hover:shadow-xs transition-all duration-200 rounded-2xl">
-          <CardHeader className="flex flex-row items-center justify-between pb-1 space-y-0 p-4">
-            <CardTitle className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+        <Card className="border border-slate-200/80 bg-white hover:border-slate-300 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_14px_rgba(0,0,0,0.05)] transition-all duration-200 rounded-2xl p-5 sm:p-6 flex flex-col justify-between">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0 p-0">
+            <CardTitle className="text-xs font-medium uppercase tracking-wider text-slate-500">
               Faol Dastavkachilar
             </CardTitle>
-            <div className="size-8 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0">
-              <Truck className="size-4 text-blue-600 stroke-2" />
+            <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 border border-blue-100/80 flex items-center justify-center shrink-0">
+              <Truck className="size-5.5 stroke-2" />
             </div>
           </CardHeader>
-          <CardContent className="p-4 pt-1">
+          <CardContent className="p-0 pt-2">
             <div className="flex items-baseline gap-1.5">
               <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
                 {db.activeCouriers ?? 0}
@@ -252,16 +252,16 @@ export function BossSavdoPage() {
         </Card>
 
         {/* Karta 4: Mahsulot bo'yicha yetakchi */}
-        <Card className="border border-slate-200/90 bg-white hover:border-slate-300 hover:shadow-xs transition-all duration-200 rounded-2xl">
-          <CardHeader className="flex flex-row items-center justify-between pb-1 space-y-0 p-4">
-            <CardTitle className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+        <Card className="border border-slate-200/80 bg-white hover:border-slate-300 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_14px_rgba(0,0,0,0.05)] transition-all duration-200 rounded-2xl p-5 sm:p-6 flex flex-col justify-between">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0 p-0">
+            <CardTitle className="text-xs font-medium uppercase tracking-wider text-slate-500">
               Mahsulot bo'yicha yetakchi
             </CardTitle>
-            <div className="size-8 rounded-full bg-cyan-50 border border-cyan-100 flex items-center justify-center shrink-0">
-              <CheckCircle2 className="size-4 text-cyan-600 stroke-2" />
+            <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-600 border border-slate-200/80 flex items-center justify-center shrink-0">
+              <CheckCircle2 className="size-5.5 stroke-2" />
             </div>
           </CardHeader>
-          <CardContent className="p-4 pt-1">
+          <CardContent className="p-0 pt-2">
             {topProduct ? (
               <>
                 <div>
