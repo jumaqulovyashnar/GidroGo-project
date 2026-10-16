@@ -1,7 +1,7 @@
 import { useState, lazy, Suspense } from "react"
 import { Link } from "react-router-dom"
 import { Select } from "@mantine/core"
-import { CreditCard, Receipt, Landmark, ShoppingBag, Download, Plus, ChevronRight, Calendar, ChevronDown, HandCoins, ArrowDownToLine, Wallet, Users } from "lucide-react"
+import { CreditCard, Receipt, Landmark, ShoppingBag, Download, Plus, ChevronRight, Calendar, ChevronDown, HandCoins, ArrowDownToLine, Wallet, Users, AlertCircle } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent, Button, Spinner } from "@/shared/ui"
 import { useBossFinanceSummary, useBossOrders, useBossCashSummary } from "@/shared/hooks"
 
@@ -24,7 +24,12 @@ export function BossMoliyaPage() {
       ? "year"
       : activePeriod
 
-  const { data: financeRes } = useBossFinanceSummary(periodParam)
+  const {
+    data: financeRes,
+    isError: isFinanceError,
+    error: financeError,
+    refetch: refetchFinance,
+  } = useBossFinanceSummary(periodParam)
   const { data: ordersRes } = useBossOrders({ all: true })
   const { data: cashSummaryRes } = useBossCashSummary()
 
@@ -142,6 +147,23 @@ export function BossMoliyaPage() {
           </button>
         </div>
       </div>
+
+      {/* Error state banner */}
+      {isFinanceError && (
+        <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-center justify-between text-xs text-red-700">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
+            <span>Moliya ma'lumotlarini yuklashda xatolik yuz berdi: {financeError?.response?.data?.message || financeError?.message || "Server xatosi"}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => refetchFinance()}
+            className="px-3 py-1 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition cursor-pointer"
+          >
+            Qayta urinish
+          </button>
+        </div>
+      )}
 
       {/* 3. Top 4 ta Moliyaviy KPI Kartalari (100% Real API) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

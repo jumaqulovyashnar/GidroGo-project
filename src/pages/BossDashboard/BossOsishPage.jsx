@@ -1,7 +1,7 @@
 import { useState, lazy, Suspense } from "react"
 import { Select } from "@mantine/core"
 import { toast } from "sonner"
-import { Calendar, ChevronDown, FileText, Wallet, Truck, Users, TrendingUp, Sparkles } from "lucide-react"
+import { Calendar, ChevronDown, FileText, Wallet, Truck, Users, TrendingUp, Sparkles, AlertCircle } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent, Button, Spinner } from "@/shared/ui"
 import { useBossDashboard, useBossClients, useBossClientSegments, useBossBusinessGrowth } from "@/shared/hooks"
 import { exportToCsv } from "@/shared/lib"
@@ -25,7 +25,12 @@ export function BossOsishPage() {
   const [selectedQuarter, setSelectedQuarter] = useState("2026_q1")
   const [selectedMode, setSelectedMode] = useState("prev_quarter")
   const { data: growthRes } = useBossBusinessGrowth({ period: "quarter" })
-  const { data: dashboardRes } = useBossDashboard()
+  const {
+    data: dashboardRes,
+    isError: isDashboardError,
+    error: dashboardError,
+    refetch: refetchDashboard,
+  } = useBossDashboard()
   const { data: clientsRes } = useBossClients()
   const { data: segmentsRes } = useBossClientSegments()
 
@@ -145,6 +150,23 @@ export function BossOsishPage() {
           </Button>
         </div>
       </div>
+
+      {/* Error state banner */}
+      {isDashboardError && (
+        <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-center justify-between text-xs text-red-700">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
+            <span>O'sish tahlili ma'lumotlarini yuklashda xatolik yuz berdi: {dashboardError?.response?.data?.message || dashboardError?.message || "Server xatosi"}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => refetchDashboard()}
+            className="px-3 py-1 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition cursor-pointer"
+          >
+            Qayta urinish
+          </button>
+        </div>
+      )}
 
       {/* 2. Top 4 ta O'sish KPI Ko'rsatkich Kartalari */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

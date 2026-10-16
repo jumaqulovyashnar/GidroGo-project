@@ -1,6 +1,6 @@
 import { useState, lazy, Suspense } from "react"
 import { Select } from "@mantine/core"
-import { Banknote, Calendar, ChevronDown, Droplet, Receipt, ShoppingBag, TrendingUp, Truck, Users } from "lucide-react"
+import { Banknote, Calendar, ChevronDown, Droplet, Receipt, ShoppingBag, TrendingUp, Truck, Users, AlertCircle } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent, Spinner } from "@/shared/ui"
 import { useBossDashboard } from "@/shared/hooks"
 
@@ -19,7 +19,12 @@ const dateOptions = [
 
 export const BossDashboardPage = () => {
   const [date, setDate] = useState("today")
-  const { data: dashboardRes } = useBossDashboard()
+  const {
+    data: dashboardRes,
+    isError,
+    error,
+    refetch,
+  } = useBossDashboard()
   const db = dashboardRes?.data || dashboardRes || {}
 
   const formatNumber = (num) => Number(num || 0).toLocaleString("ru-RU")
@@ -124,6 +129,23 @@ export const BossDashboardPage = () => {
           />
         </div>
       </div>
+
+      {/* Error state */}
+      {isError && (
+        <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-center justify-between text-xs text-red-700">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
+            <span>Dashboard ma'lumotlarini yuklashda xatolik yuz berdi: {error?.response?.data?.message || error?.message || "Server xatosi"}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => refetch()}
+            className="px-3 py-1 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition cursor-pointer"
+          >
+            Qayta urinish
+          </button>
+        </div>
+      )}
 
       {/* 1-Qism: Asosiy Moliyaviy Kartochkalar (3 ta ustun) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

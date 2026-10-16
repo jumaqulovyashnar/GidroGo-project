@@ -14,50 +14,118 @@ export default function ManagerOrderDetailPage() {
   const navigate = useNavigate()
 
   // Real Manager Order Detail & Couriers API Hooks
-  const { data: orderRes } = useManagerOrderDetail(id)
+  const {
+    data: orderRes,
+    isPending: isOrderLoading,
+    isError: isOrderError,
+    error: orderError,
+    refetch: refetchOrder,
+  } = useManagerOrderDetail(id)
   const { data: couriersRes } = useManagerCouriers()
   const reassignMutation = useManagerReassignOrder()
 
   const apiOrder = orderRes?.data || orderRes
-  const fallbackOrder = {
-    id: id || "—",
-    customer: "—",
-    phone: "—",
-    address: "—",
-    status: "CREATED",
-    statusText: "Yangi",
-    total: 0,
-    qty: 0,
-    items: [],
-  }
 
   const [reassignedOverride, setReassignedOverride] = useState(null)
-  const currentOrder = {
-    ...(apiOrder?.id ? apiOrder : fallbackOrder),
-    ...(reassignedOverride || {}),
-  }
 
   const rawCouriers = couriersRes?.data || (Array.isArray(couriersRes) ? couriersRes : null)
   const couriersList = Array.isArray(rawCouriers) ? rawCouriers : []
 
   const [isReassignModalOpen, setIsReassignModalOpen] = useState(false)
   const [isBottleModalOpen, setIsBottleModalOpen] = useState(false)
-  const [selectedCourierId, setSelectedCourierId] = useState(currentOrder.courierId || 1)
+  const [selectedCourierId, setSelectedCourierId] = useState(null)
 
   const handleCopyPhone = (phone) => {
+    if (!phone || phone === "—") return
     navigator.clipboard?.writeText(phone)
     toast.success(`Telefon raqami nusxalandi: ${phone}`)
   }
 
+  if (isOrderLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-3 text-slate-500">
+        <Spinner size="lg" />
+        <p className="text-sm font-medium">Buyurtma ma'lumotlari yuklanmoqda...</p>
+      </div>
+    )
+  }
+
+  if (isOrderError) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-3 p-6 bg-red-50/50 rounded-2xl border border-red-200 text-center max-w-lg mx-auto mt-8">
+        <AlertCircle className="w-10 h-10 text-red-500" />
+        <h3 className="text-base font-bold text-red-800">Buyurtma yuklanmadi</h3>
+        <p className="text-xs text-red-600 max-w-sm">
+          {orderError?.response?.data?.message || orderError?.message || "Server bilan aloqada xatolik yuz berdi"}
+        </p>
+        <div className="flex items-center gap-2 mt-2">
+          <button
+            type="button"
+            onClick={() => refetchOrder()}
+            className="px-4 py-2 bg-red-600 text-white rounded-lg text-xs font-semibold hover:bg-red-700 transition"
+          >
+            Qayta urinish
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg text-xs font-semibold hover:bg-slate-50 transition"
+          >
+            Orqaga qaytish
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  if (!apiOrder || (!apiOrder.id && !apiOrder._id)) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-3 p-6 bg-slate-50 rounded-2xl border border-slate-200 text-center max-w-lg mx-auto mt-8">
+        <Package className="w-10 h-10 text-slate-400" />
+        <h3 className="text-base font-bold text-slate-800">Buyurtma topilmadi</h3>
+        <p className="text-xs text-slate-500 max-w-sm">
+          Kiritilgan identifikator ({id}) bo'yicha buyurtma mavjud emas yoki o'chirilgan.
+        </p>
+        <Link
+          to="/manager/buyurtmalar"
+          className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700 transition inline-block"
+        >
+          Buyurtmalar ro'yxatiga qaytish
+        </Link>
+      </div>
+    )
+  }
+
+  const currentOrder = {
+    ...apiOrder,
+    customer: apiOrder.customer || apiOrder.clientName || apiOrder.client?.name || "Mijoz",
+    phone: apiOrder.phone || apiOrder.clientPhone || apiOrder.client?.phone || "—",
+    address: apiOrder.address || apiOrder.deliveryAddress || "Manzil ko'rsatilmagan",
+    status: apiOrder.status || "CREATED",
+    statusText: apiOrder.statusText || apiOrder.status || "Yangi",
+    total: Number(apiOrder.total || apiOrder.totalPrice || apiOrder.amount || 0),
+    qty: Number(apiOrder.qty || apiOrder.quantity || apiOrder.bottlesCount || 1),
+    product: apiOrder.product || apiOrder.items?.[0]?.productName || "18.9L Kapsula",
+    sector: apiOrder.sector || apiOrder.region || "Markaz",
+    paymentType: apiOrder.paymentType || apiOrder.paymentMethod || "Naqd pul",
+    paymentStatus: apiOrder.paymentStatus || "To'langan",
+    courier: apiOrder.courier || apiOrder.courierName || apiOrder.courier?.name,
+    courierId: apiOrder.courierId || apiOrder.courier?.id,
+    vehicle: apiOrder.vehicle || apiOrder.courierVehicle || apiOrder.courier?.vehicle,
+    ...(reassignedOverride || {}),
+  }
+
+  const activeCourierId = selectedCourierId ?? (currentOrder.courierId || 1)
+
   const handleReassign = async () => {
-    const courier = couriersList.find((c) => c.id === Number(selectedCourierId))
+    const courier = couriersList.find((c) => c.id === Number(activeCourierId))
     if (!courier) return
 
     try {
       if (apiOrder?.id) {
         await reassignMutation.mutateAsync({
           id: currentOrder.id,
-          data: { newCourierId: Number(selectedCourierId) },
+          data: { newCourierId: Number(activeCourierId) },
         })
       }
       setReassignedOverride({
@@ -247,7 +315,7 @@ export default function ManagerOrderDetailPage() {
                       {currentOrder.qty} dona
                     </td>
                     <td className="py-3 px-3 text-slate-700">
-                      {(currentOrder.total / currentOrder.qty).toLocaleString()} so'm
+                      {(currentOrder.qty > 0 ? Math.round(currentOrder.total / currentOrder.qty) : currentOrder.total).toLocaleString()} so'm
                     </td>
                     <td className="py-3 px-3 text-right font-bold text-blue-600">
                       {currentOrder.total.toLocaleString()} so'm
@@ -371,8 +439,9 @@ export default function ManagerOrderDetailPage() {
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    onClick={() => handleCopyPhone("+998 90 412-12-88")}
-                    className="flex-1 py-2 rounded-lg text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors flex items-center justify-center gap-1.5 shadow-xs"
+                    onClick={() => handleCopyPhone(currentOrder.courierPhone || currentOrder.courier?.phone || "")}
+                    disabled={!currentOrder.courierPhone && !currentOrder.courier?.phone}
+                    className="flex-1 py-2 rounded-lg text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors flex items-center justify-center gap-1.5 shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
                     title="Kuryer raqamini nusxalash"
                   >
                     <Copy className="w-3.5 h-3.5 text-blue-600" />
@@ -450,14 +519,14 @@ export default function ManagerOrderDetailPage() {
               <label
                 key={c.id}
                 className={`flex items-center justify-between p-2.5 rounded-lg border cursor-pointer ${
-                  Number(selectedCourierId) === c.id ? "bg-blue-50 border-blue-300" : "bg-white border-slate-200 hover:bg-slate-50"
+                  Number(activeCourierId) === c.id ? "bg-blue-50 border-blue-300" : "bg-white border-slate-200 hover:bg-slate-50"
                 }`}
               >
                 <div className="flex items-center gap-2">
                   <input
                     type="radio"
                     name="courierModal"
-                    checked={Number(selectedCourierId) === c.id}
+                    checked={Number(activeCourierId) === c.id}
                     onChange={() => setSelectedCourierId(c.id)}
                     className="text-blue-600"
                   />
