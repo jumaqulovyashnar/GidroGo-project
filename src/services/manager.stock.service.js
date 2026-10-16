@@ -30,6 +30,16 @@ class ManagerStockService {
       throw new Error(handleApiError(error));
     }
   }
+
+  // 4. GET /api/manager/stock/vehicle/{courierId} - Kuryer mashinasidagi zaxira
+  async getCourierVehicleStock(courierId) {
+    try {
+      const response = await api.get(`/manager/stock/vehicle/${courierId}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  }
 }
 
 export const managerStockService = new ManagerStockService();

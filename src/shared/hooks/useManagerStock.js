@@ -40,4 +40,15 @@ export const useManagerUpdateStockVehicle = () => {
   });
 };
 
+// 4. GET /api/manager/stock/vehicle/{courierId} - Kuryer mashinasidagi zaxira
+export const useCourierVehicleStock = (courierId, options = {}) => {
+  return useQuery({
+    queryKey: ["courier-vehicle-stock", courierId],
+    queryFn: () => managerStockService.getCourierVehicleStock(courierId),
+    enabled: Boolean(courierId),
+    staleTime: 1000 * 60 * 2,
+    ...options,
+  });
+};
+
 export default useManagerStockWarehouse;
