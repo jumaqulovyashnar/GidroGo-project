@@ -92,7 +92,7 @@ function LoginPage() {
 
       {/* ===================== O'NG TOMON: LOGIN FORMASI ===================== */}
       <div className="w-full lg:w-1/2 min-h-screen flex flex-col justify-center items-center p-6 sm:p-12 lg:p-16 bg-slate-50/50">
-        <div className="w-full max-w-md mx-auto bg-white p-6 sm:p-8 rounded-2xl border border-slate-200/90 shadow-[0_8px_30px_rgb(0,0,0,0.06)]">
+        <div className="w-full max-w-lg mx-auto bg-white p-7 sm:p-9 rounded-2xl border border-slate-200/80 shadow-[0_2px_10px_rgba(0,0,0,0.03)]">
           {/* Forma sarlavhasi */}
           <div className="mb-6">
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
