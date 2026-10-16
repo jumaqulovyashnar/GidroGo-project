@@ -59,7 +59,7 @@ function TableRow({
     <tr
       data-slot="table-row"
       className={cn(
-        "border-b transition-colors hover:bg-muted/50 has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted",
+        "border-b border-slate-100 transition-colors hover:bg-slate-50/70 data-[state=selected]:bg-slate-50 min-h-14",
         className
       )}
       {...props} />
@@ -74,7 +74,7 @@ function TableHead({
     <th
       data-slot="table-head"
       className={cn(
-        "h-10 px-2 text-left align-middle font-medium whitespace-nowrap text-foreground has-[[role=checkbox]]:pr-0",
+        "h-12 px-4 py-3.5 text-left align-middle font-semibold text-xs text-slate-500 uppercase tracking-wider whitespace-nowrap bg-slate-50/75 border-b border-slate-200/80 has-[[role=checkbox]]:pr-0",
         className
       )}
       {...props} />
@@ -89,7 +89,7 @@ function TableCell({
     <td
       data-slot="table-cell"
       className={cn(
-        "p-2 align-middle whitespace-nowrap has-[[role=checkbox]]:pr-0",
+        "px-4 py-4 align-middle text-sm text-slate-700 whitespace-nowrap has-[[role=checkbox]]:pr-0",
         className
       )}
       {...props} />

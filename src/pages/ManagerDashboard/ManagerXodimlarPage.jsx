@@ -218,23 +218,23 @@ export default function ManagerXodimlarPage() {
 
         {/* Couriers Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
+          <table className="w-full text-left text-sm border-collapse">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase text-[10px] tracking-wider">
-                <th className="py-2.5 px-3">Kuryer</th>
-                <th className="py-2.5 px-3">Telefon raqam</th>
-                <th className="py-2.5 px-3">Transport</th>
-                <th className="py-2.5 px-3">Hudud / Sektor</th>
-                <th className="py-2.5 px-3">Yuk sig'imi</th>
-                <th className="py-2.5 px-3">Holat</th>
-                <th className="py-2.5 px-3">Kassa Balansi</th>
-                <th className="py-2.5 px-3 text-right">Amal</th>
+              <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase text-xs tracking-wider">
+                <th className="py-3.5 px-4">Kuryer</th>
+                <th className="py-3.5 px-4">Telefon raqam</th>
+                <th className="py-3.5 px-4">Transport</th>
+                <th className="py-3.5 px-4">Hudud / Sektor</th>
+                <th className="py-3.5 px-4">Yuk sig'imi</th>
+                <th className="py-3.5 px-4">Holat</th>
+                <th className="py-3.5 px-4">Kassa Balansi</th>
+                <th className="py-3.5 px-4 text-right">Amal</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {filteredCouriers.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-8 text-center text-slate-400">
+                  <td colSpan={8} className="py-16 text-center text-slate-400">
                     Kuryerlar topilmadi
                   </td>
                 </tr>
@@ -242,39 +242,39 @@ export default function ManagerXodimlarPage() {
                 filteredCouriers.map((courier) => {
                   const courierCash = getCourierCashBalance(courier.id)
                   return (
-                    <tr key={courier.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="py-3 px-3">
+                    <tr key={courier.id} className="hover:bg-slate-50/80 transition-colors min-h-14">
+                      <td className="py-4 px-4">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 font-bold text-xs flex items-center justify-center shrink-0">
+                          <div className="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 font-bold text-xs flex items-center justify-center shrink-0">
                             {courier.initials}
                           </div>
                           <div>
                             <div className="font-semibold text-slate-900 flex items-center gap-1.5">
                               <span>{courier.name}</span>
-                              <span className="text-[10px] text-amber-500 font-medium">
+                              <span className="text-xs text-amber-500 font-medium">
                                 ★ {courier.rating}
                               </span>
                             </div>
-                            <div className="text-[10px] text-slate-400">Dastavkachi xodim</div>
+                            <div className="text-xs text-slate-400">Dastavkachi xodim</div>
                           </div>
                         </div>
                       </td>
-                      <td className="py-3 px-3 font-mono text-slate-700">
+                      <td className="py-4 px-4 font-mono text-slate-700">
                         {courier.phone}
                       </td>
-                      <td className="py-3 px-3">
+                      <td className="py-4 px-4">
                         <div className="font-medium text-slate-800">{courier.vehicle}</div>
-                        <div className="text-[10px] text-slate-400 font-mono">{courier.plate}</div>
+                        <div className="text-xs text-slate-400 font-mono">{courier.plate}</div>
                       </td>
-                      <td className="py-3 px-3 text-slate-700">
+                      <td className="py-4 px-4 text-slate-700">
                         {courier.sector}
                       </td>
-                      <td className="py-3 px-3">
+                      <td className="py-4 px-4">
                         <span className="font-semibold text-blue-600">{courier.load}</span>
                       </td>
-                      <td className="py-3 px-3">
+                      <td className="py-4 px-4">
                         <span
-                          className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                          className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${
                             courier.status === "on_way"
                               ? "bg-blue-50 text-blue-700 border border-blue-200"
                               : courier.status === "free"
@@ -285,18 +285,18 @@ export default function ManagerXodimlarPage() {
                           {courier.statusText}
                         </span>
                       </td>
-                      <td className="py-3 px-3">
+                      <td className="py-4 px-4">
                         <span className={`font-bold font-mono ${courierCash > 0 ? "text-emerald-700" : "text-slate-500"}`}>
                           {courierCash.toLocaleString()} so'm
                         </span>
                       </td>
-                      <td className="py-3 px-3 text-right">
+                      <td className="py-4 px-4 text-right">
                         <div className="flex items-center justify-end gap-1.5">
                           {/* Direct Handover button (POST /api/manager/couriers/{courierId}/cash/handovers) */}
                           <button
                             type="button"
                             onClick={() => setSelectedCourierForHandover(courier)}
-                            className="px-2 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 transition-colors flex items-center gap-1 shadow-2xs cursor-pointer"
+                            className="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 transition-colors flex items-center gap-1 shadow-2xs cursor-pointer"
                             title="Kassani qabul qilish"
                           >
                             <Banknote className="w-3.5 h-3.5" />
@@ -316,7 +316,7 @@ export default function ManagerXodimlarPage() {
                           <button
                             type="button"
                             onClick={() => navigate("/manager/dastavkachilar-xarita")}
-                            className="px-2.5 py-1 rounded-lg text-xs font-medium bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors cursor-pointer"
+                            className="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors cursor-pointer"
                           >
                             Xaritada
                           </button>

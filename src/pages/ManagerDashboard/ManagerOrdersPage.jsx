@@ -28,7 +28,7 @@ export default function ManagerOrdersPage() {
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1)
-  const pageSize = 8
+  const pageSize = 10
 
   const statusOptions = [
     { value: "all", label: `Holat: Barchasi (${orders.length})` },
@@ -249,22 +249,22 @@ export default function ManagerOrdersPage() {
 
           {/* Orders Table */}
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
+            <table className="w-full text-left text-sm border-collapse">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase text-[10px] tracking-wider">
-                  <th className="py-3 px-4">Mijoz & Telefon</th>
-                  <th className="py-3 px-4">Manzil & Sektor</th>
-                  <th className="py-3 px-4">Mahsulot</th>
-                  <th className="py-3 px-4">Dastavkachi</th>
-                  <th className="py-3 px-4">Holat</th>
-                  <th className="py-3 px-4">Summa</th>
-                  <th className="py-3 px-4 text-center">Amal</th>
+                <tr className="bg-slate-50/80 border-b border-slate-200/80 text-slate-500 font-semibold uppercase text-xs tracking-wider">
+                  <th className="py-3.5 px-4">Mijoz & Telefon</th>
+                  <th className="py-3.5 px-4">Manzil & Sektor</th>
+                  <th className="py-3.5 px-4">Mahsulot</th>
+                  <th className="py-3.5 px-4">Dastavkachi</th>
+                  <th className="py-3.5 px-4">Holat</th>
+                  <th className="py-3.5 px-4">Summa</th>
+                  <th className="py-3.5 px-4 text-center">Amal</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {isOrdersLoading ? (
                   <tr>
-                    <td colSpan={7} className="py-12 text-center text-slate-400">
+                    <td colSpan={7} className="py-16 text-center text-slate-400">
                       <div className="flex items-center justify-center gap-2">
                         <span className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
                         <span>Buyurtmalar yuklanmoqda...</span>
@@ -273,7 +273,7 @@ export default function ManagerOrdersPage() {
                   </tr>
                 ) : isOrdersError ? (
                   <tr>
-                    <td colSpan={7} className="py-12 text-center text-red-600">
+                    <td colSpan={7} className="py-16 text-center text-red-600">
                       <div className="flex flex-col items-center justify-center gap-2">
                         <AlertCircle className="w-5 h-5 text-red-500" />
                         <span className="text-xs font-semibold">
@@ -291,7 +291,7 @@ export default function ManagerOrdersPage() {
                   </tr>
                 ) : paginatedOrders.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-12 text-center text-slate-400">
+                    <td colSpan={7} className="py-16 text-center text-slate-400">
                       Hech qanday buyurtma topilmadi
                     </td>
                   </tr>
@@ -300,9 +300,9 @@ export default function ManagerOrdersPage() {
                     <tr
                       key={order.id}
                       onClick={() => navigate(`/manager/buyurtmalar/${order.id}`)}
-                      className="cursor-pointer hover:bg-blue-50/60 transition-colors group"
+                      className="cursor-pointer hover:bg-blue-50/60 transition-colors group min-h-14"
                     >
-                      <td className="py-3 px-4">
+                      <td className="py-4 px-4">
                         <div className="font-semibold text-slate-900 group-hover:text-blue-600 transition-colors">
                           {order.customer}
                         </div>
@@ -322,30 +322,30 @@ export default function ManagerOrdersPage() {
                           </button>
                         </div>
                       </td>
-                      <td className="py-3 px-4 max-w-50">
+                      <td className="py-4 px-4 max-w-50">
                         <div className="truncate text-slate-800 font-medium">{order.address}</div>
-                        <div className="text-[11px] text-slate-400">{order.sector}</div>
+                        <div className="text-xs text-slate-400">{order.sector}</div>
                       </td>
-                      <td className="py-3 px-4">
+                      <td className="py-4 px-4">
                         <span className="font-medium text-slate-800">{order.product}</span>
                         <span className="text-slate-500 ml-1.5 font-semibold">× {order.qty}</span>
                       </td>
-                      <td className="py-3 px-4">
+                      <td className="py-4 px-4">
                         {order.courier ? (
                           <div>
                             <div className="font-medium text-slate-800">{order.courier}</div>
-                            <div className="text-[10px] text-slate-400">{order.vehicle}</div>
+                            <div className="text-xs text-slate-400">{order.vehicle}</div>
                           </div>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
                             <AlertCircle className="w-3.5 h-3.5 text-slate-400" />
                             Biriktirilmagan
                           </span>
                         )}
                       </td>
-                      <td className="py-3 px-4">
+                      <td className="py-4 px-4">
                         <span
-                          className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${
+                          className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold ${
                             order.status === "completed"
                               ? "bg-blue-50 text-blue-700 border border-blue-200"
                               : order.status === "delivering"
@@ -358,10 +358,10 @@ export default function ManagerOrdersPage() {
                           {order.statusText}
                         </span>
                       </td>
-                      <td className="py-3 px-4 font-bold text-slate-900 whitespace-nowrap">
+                      <td className="py-4 px-4 font-bold text-slate-900 whitespace-nowrap">
                         {order.total.toLocaleString()} so'm
                       </td>
-                      <td className="py-3 px-4 text-center">
+                      <td className="py-4 px-4 text-center">
                         <button
                           type="button"
                           onClick={(e) => {
