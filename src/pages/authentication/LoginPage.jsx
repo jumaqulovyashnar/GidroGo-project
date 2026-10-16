@@ -25,7 +25,7 @@ const loginSchema = z
     if (!hasName && !hasPhone) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Admin logini yoki telefon raqamidan birini kiriting.",
+        message: "Ismingiz yoki telefon raqamingizni kiriting.",
         path: ["phone"],
       })
     }
@@ -109,16 +109,16 @@ function LoginPage() {
             onSubmit={handleSubmit(onSubmit)}
             className="space-y-4"
           >
-            {/* 1. Admin input */}
+            {/* 1. Ism input */}
             <Field>
               <Label htmlFor="name" className="font-medium text-sm text-slate-700 mb-1.5 block">
-                Admin
+                Ismingizni kiriting
               </Label>
               <Input
                 id="name"
                 type="text"
                 autoComplete="off"
-                placeholder="admin"
+                placeholder="Ismingizni kiriting"
                 {...register("name")}
                 className="h-10 rounded-xl bg-white border-slate-200 shadow-xs focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 text-sm"
               />
