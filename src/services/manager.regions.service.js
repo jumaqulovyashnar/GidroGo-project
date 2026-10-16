@@ -12,9 +12,14 @@ class ManagerRegionsService {
   }
 
   // 2. POST /api/manager/regions - Yangi xizmat hududi (poligon) qo'shish
+  // OpenAPI Schema: { regionName: string, polygonJson: string }
   async createRegion(data) {
     try {
-      const response = await api.post("/manager/regions", data);
+      const payload = {
+        regionName: (data.regionName || data.name || "").trim(),
+        polygonJson: typeof data.polygonJson === "string" ? data.polygonJson : JSON.stringify(data.polygonJson || data.coordinates || []),
+      };
+      const response = await api.post("/manager/regions", payload);
       return response.data;
     } catch (error) {
       throw new Error(handleApiError(error));

@@ -22,9 +22,16 @@ class ManagerFinanceService {
   }
 
   // 3. POST /api/manager/finance/expenses - Xarajat kiritish (yoqilg'i, oylik, ta'mirlash va h.k.)
+  // OpenAPI Schema: { category: string, amount: number, note?: string, courierId?: number }
   async createExpense(data) {
     try {
-      const response = await api.post("/manager/finance/expenses", data);
+      const payload = {
+        category: data.category,
+        amount: Number(data.amount),
+        ...(data.note?.trim() ? { note: data.note.trim() } : {}),
+        ...(data.courierId !== undefined ? { courierId: Number(data.courierId) } : {}),
+      };
+      const response = await api.post("/manager/finance/expenses", payload);
       return response.data;
     } catch (error) {
       throw new Error(handleApiError(error));

@@ -12,12 +12,28 @@ class ClientService {
   }
 
   // 2. POST /api/client/cart/quote - Savatdagi mahsulotlar va tara to'lovini hisoblash (order yaratmasdan)
+  // OpenAPI Schema: CartCheckoutRequest { addressId, items: [{ productId, quantity }], paymentMethod, clientComment?, deliverySlot?, emptyBottlesReturned? }
   async calculateCartQuote(data) {
     try {
-      const response = await api.post("/client/cart/quote", data)
-      return response.data
+      const payload = {
+        addressId: Number(data.addressId),
+        paymentMethod: data.paymentMethod,
+        items: Array.isArray(data.items)
+          ? data.items.map((item) => ({
+              productId: Number(item.productId),
+              quantity: Number(item.quantity),
+            }))
+          : [],
+        ...(data.clientComment ? { clientComment: data.clientComment.trim() } : {}),
+        ...(data.deliverySlot ? { deliverySlot: data.deliverySlot } : {}),
+        ...(data.emptyBottlesReturned !== undefined
+          ? { emptyBottlesReturned: Number(data.emptyBottlesReturned) }
+          : {}),
+      };
+      const response = await api.post("/client/cart/quote", payload);
+      return response.data;
     } catch (error) {
-      throw new Error(handleApiError(error))
+      throw new Error(handleApiError(error));
     }
   }
 

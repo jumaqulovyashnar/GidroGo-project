@@ -12,9 +12,16 @@ class BossXodimlarService {
   }
 
   // 2. POST /api/boss/staff - Yangi Manager yoki Dastavkachi yaratish
+  // OpenAPI Schema: StaffCreateRequest { fullName, phone, password, role }
   async createXodim(payload) {
     try {
-      const response = await api.post("/boss/staff", payload);
+      const cleanPayload = {
+        fullName: payload.fullName?.trim(),
+        phone: payload.phone?.trim(),
+        password: payload.password?.trim(),
+        role: payload.role,
+      };
+      const response = await api.post("/boss/staff", cleanPayload);
       return response.data;
     } catch (error) {
       throw new Error(handleApiError(error));
@@ -22,9 +29,11 @@ class BossXodimlarService {
   }
 
   // 3. PATCH /api/boss/staff/{id}/status - Xodim holatini faol/bloklangan qilish
+  // OpenAPI Schema: StaffStatusUpdateRequest { status }
   async updateStaffStatus(id, status) {
     try {
-      const response = await api.patch(`/boss/staff/${id}/status`, { status });
+      const payload = typeof status === "object" ? { status: status.status } : { status };
+      const response = await api.patch(`/boss/staff/${id}/status`, payload);
       return response.data;
     } catch (error) {
       throw new Error(handleApiError(error));
