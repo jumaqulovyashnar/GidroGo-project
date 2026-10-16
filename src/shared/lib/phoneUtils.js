@@ -20,33 +20,33 @@ export const formatPhoneInput = (val) => {
 
   // 2. Faqat + va raqamlarni qoldiramiz
   clean = clean.replace(/[^\d+]/g, "")
+  if (!clean) return ""
 
-  // Foydalanuvchi +998 ni o'chirayotganda (+, +9, +99) inputni to'liq tozalaymiz
-  if (!clean || clean === "+" || clean === "+9" || clean === "+99") {
-    return ""
-  }
+  // Agar faqat + bo'lsa, foydalanuvchi endi kiritishni boshlagan
+  if (clean === "+") return "+"
 
-  // 3. Oldiga +998 ni belgilaymiz
-  if (clean.startsWith("+998")) {
-    const after = clean.slice(4).replace(/\D/g, "")
-    clean = `+998${after}`
-  } else if (clean.startsWith("998")) {
-    const after = clean.slice(3).replace(/\D/g, "")
-    clean = `+998${after}`
-  } else if (clean.startsWith("+")) {
+  // Agar + bilan boshlansa (masalan +9, +99, +998, +99890...)
+  if (clean.startsWith("+")) {
     const digits = clean.slice(1).replace(/\D/g, "")
-    clean = digits ? `+998${digits}` : ""
-  } else {
-    const digits = clean.replace(/\D/g, "")
-    clean = digits ? `+998${digits}` : ""
+    return `+${digits}`.slice(0, 13)
   }
 
-  // 4. Maksimal uzunlik: +998 va 9 ta raqam (+998901234567 = 13 ta belgi)
-  if (clean.length > 13) {
-    clean = clean.slice(0, 13)
+  // Agar + siz kiritilgan bo'lsa:
+  const digits = clean.replace(/\D/g, "")
+  if (!digits) return ""
+
+  // 998 bilan boshlansa (+998...)
+  if (digits.startsWith("998")) {
+    return `+${digits}`.slice(0, 13)
   }
 
-  return clean
+  // Mahalliy 9 xonali raqam to'liq kiritilsa (masalan: 901234567)
+  if (digits.length === 9) {
+    return `+998${digits}`
+  }
+
+  // Boshqa holatlarda + bilan formatlab boramiz
+  return `+${digits}`.slice(0, 13)
 }
 
 /**
