@@ -20,6 +20,16 @@ class ManagerStockService {
       throw new Error(handleApiError(error));
     }
   }
+
+  // 3. PUT /api/manager/stock/vehicle - Mashina zaxirasini qo'lda o'zgartirish (band qilinganidan kamaytirish taqiqlangan)
+  async updateVehicleStock(data) {
+    try {
+      const response = await api.put("/manager/stock/vehicle", data);
+      return response.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  }
 }
 
 export const managerStockService = new ManagerStockService();
