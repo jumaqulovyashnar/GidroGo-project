@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { Banknote, Package, CheckCircle2, Truck, TrendingUp, ExternalLink, ChevronRight, ChevronDown, Calendar, Filter, Copy } from "lucide-react"
+import { Banknote, Package, CheckCircle2, Truck, TrendingUp, ExternalLink, ChevronRight, ChevronDown, Calendar, Filter, Copy, AlertCircle } from "lucide-react"
 import { Select } from "@mantine/core"
 import { TablePagination } from "@/shared/ui"
 import { toast } from "sonner"
@@ -67,8 +67,13 @@ export default function ManagerDashboardPage() {
   const pageSize = 5
 
   // Real Manager API hooks
-  const { data: dashboardRes } = useManagerDashboard()
-  const { data: todayOrdersRes } = useManagerTodayOrders()
+  const {
+    data: dashboardRes,
+    isError: isDashboardError,
+    error: dashboardError,
+    refetch: refetchDashboard,
+  } = useManagerDashboard()
+  const { data: todayOrdersRes, isPending: isOrdersPending } = useManagerTodayOrders()
   const { data: couriersRes } = useManagerCouriers()
   const { data: stockRes } = useManagerStockWarehouse()
   const { data: financeRes } = useManagerFinanceSummary({
@@ -156,6 +161,23 @@ export default function ManagerDashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Error State Banner */}
+      {isDashboardError && (
+        <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-center justify-between text-xs text-red-700">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
+            <span>Dashboard ma'lumotlarini yuklashda xatolik yuz berdi: {dashboardError?.response?.data?.message || dashboardError?.message || "Server xatosi"}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => refetchDashboard()}
+            className="px-3 py-1 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition cursor-pointer"
+          >
+            Qayta urinish
+          </button>
+        </div>
+      )}
 
       {/* 4 Top KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
@@ -287,7 +309,23 @@ export default function ManagerDashboardPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {paginatedOrders.map((order) => (
+                {isOrdersPending ? (
+                  <tr>
+                    <td colSpan={7} className="py-10 text-center text-slate-400">
+                      <div className="flex items-center justify-center gap-2">
+                        <span className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                        <span>Buyurtmalar yuklanmoqda...</span>
+                      </div>
+                    </td>
+                  </tr>
+                ) : paginatedOrders.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="py-10 text-center text-slate-400">
+                      Hech qanday buyurtma topilmadi
+                    </td>
+                  </tr>
+                ) : (
+                  paginatedOrders.map((order) => (
                   <tr
                     key={order.id}
                     onClick={() => navigate(`/manager/buyurtmalar/${order.id}`)}
@@ -361,7 +399,8 @@ export default function ManagerDashboardPage() {
                       </button>
                     </td>
                   </tr>
-                ))}
+                ))
+              )}
               </tbody>
             </table>
           </div>
@@ -406,25 +445,25 @@ export default function ManagerDashboardPage() {
             <div className="grid grid-cols-4 gap-1.5 text-center mb-3">
               <div className="bg-slate-50 p-2 rounded-lg border border-slate-100">
                 <span className="block text-base font-bold text-slate-900">
-                  {couriersList.filter((c) => c.status === "free" || c.status === "AVAILABLE").length || 2}
+                  {couriersList.filter((c) => c.status === "free" || c.status === "AVAILABLE").length}
                 </span>
                 <span className="text-[10px] text-slate-500">Bo'sh</span>
               </div>
               <div className="bg-blue-50 p-2 rounded-lg border border-blue-100">
                 <span className="block text-base font-bold text-blue-700">
-                  {couriersList.filter((c) => c.status === "on_way" || c.status === "DELIVERING").length || 3}
+                  {couriersList.filter((c) => c.status === "on_way" || c.status === "DELIVERING").length}
                 </span>
                 <span className="text-[10px] text-blue-600">Yo'lda</span>
               </div>
               <div className="bg-slate-100 p-2 rounded-lg border border-slate-200">
                 <span className="block text-base font-bold text-slate-800">
-                  {couriersList.filter((c) => c.status === "loading" || c.status === "BUSY").length || 5}
+                  {couriersList.filter((c) => c.status === "loading" || c.status === "BUSY").length}
                 </span>
                 <span className="text-[10px] text-slate-600">Yukda</span>
               </div>
               <div className="bg-slate-50 p-2 rounded-lg border border-slate-100">
                 <span className="block text-base font-bold text-slate-400">
-                  {couriersList.filter((c) => c.status === "offline" || c.isOnline === false).length || 2}
+                  {couriersList.filter((c) => c.status === "offline" || c.isOnline === false).length}
                 </span>
                 <span className="text-[10px] text-slate-400">Offline</span>
               </div>
@@ -432,7 +471,10 @@ export default function ManagerDashboardPage() {
 
             {/* Couriers Mini Roster */}
             <div className="space-y-2">
-              {couriersList.slice(0, 3).map((courier) => (
+              {couriersList.length === 0 ? (
+                <p className="text-[11px] text-slate-400 text-center py-3">Kuryerlar mavjud emas</p>
+              ) : (
+                couriersList.slice(0, 3).map((courier) => (
                 <div
                   key={courier.id}
                   className="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100 text-xs"
@@ -458,7 +500,8 @@ export default function ManagerDashboardPage() {
                     {courier.statusText || (courier.status === "on_way" ? "Yo'lda" : "Faol")}
                   </span>
                 </div>
-              ))}
+              ))
+            )}
             </div>
           </div>
 

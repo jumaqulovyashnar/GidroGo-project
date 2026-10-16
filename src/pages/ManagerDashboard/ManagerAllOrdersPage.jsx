@@ -32,7 +32,13 @@ export default function ManagerAllOrdersPage() {
   const pageSize = 6
 
   // Real Manager All Orders API hook
-  const { data: allOrdersRes } = useManagerAllOrders({
+  const {
+    data: allOrdersRes,
+    isPending: isOrdersLoading,
+    isError: isOrdersError,
+    error: ordersError,
+    refetch: refetchOrders,
+  } = useManagerAllOrders({
     page: currentPage,
     limit: pageSize,
     status: activeTab !== "all" ? activeTab : undefined,
@@ -413,7 +419,34 @@ export default function ManagerAllOrdersPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {paginatedOrders.length === 0 ? (
+                {isOrdersLoading ? (
+                  <tr>
+                    <td colSpan={8} className="py-12 text-center text-slate-400">
+                      <div className="flex items-center justify-center gap-2">
+                        <span className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                        <span>Buyurtmalar yuklanmoqda...</span>
+                      </div>
+                    </td>
+                  </tr>
+                ) : isOrdersError ? (
+                  <tr>
+                    <td colSpan={8} className="py-12 text-center text-red-600">
+                      <div className="flex flex-col items-center justify-center gap-2">
+                        <AlertCircle className="w-5 h-5 text-red-500" />
+                        <span className="text-xs font-semibold">
+                          {ordersError?.response?.data?.message || ordersError?.message || "Buyurtmalarni yuklashda xatolik"}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => refetchOrders()}
+                          className="px-3 py-1 bg-red-600 text-white rounded-lg text-xs font-semibold hover:bg-red-700 transition cursor-pointer"
+                        >
+                          Qayta urinish
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ) : paginatedOrders.length === 0 ? (
                   <tr>
                     <td colSpan={8} className="py-12 text-center text-slate-400">
                       Hech qanday buyurtma topilmadi

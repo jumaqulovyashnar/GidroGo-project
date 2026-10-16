@@ -1,7 +1,7 @@
 import { useState, lazy, Suspense } from "react"
 import { Select } from "@mantine/core"
 import { toast } from "sonner"
-import { Droplet, CheckCircle2, Truck, FileSpreadsheet, ChevronDown, Calendar, Package, Zap } from "lucide-react"
+import { Droplet, CheckCircle2, Truck, FileSpreadsheet, ChevronDown, Calendar, Package, Zap, AlertCircle } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent, Button, Spinner } from "@/shared/ui"
 import { useBossDashboard, useBossSalesSummary, useBossSalesProductsSummary } from "@/shared/hooks"
 import { exportToCsv } from "@/shared/lib"
@@ -20,7 +20,12 @@ export function BossSavdoPage() {
   const [selectedProduct, setSelectedProduct] = useState("all")
   
   // Real API: Sales summary va Products summary
-  const { data: salesRes } = useBossSalesSummary({
+  const {
+    data: salesRes,
+    isError: isSalesError,
+    error: salesError,
+    refetch: refetchSales,
+  } = useBossSalesSummary({
     period: activePeriod,
     productId: selectedProduct !== "all" ? Number(selectedProduct) : undefined,
   })
@@ -127,6 +132,23 @@ export function BossSavdoPage() {
           </Button>
         </div>
       </div>
+
+      {/* Error state banner */}
+      {isSalesError && (
+        <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-center justify-between text-xs text-red-700">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
+            <span>Savdo tahlili ma'lumotlarini yuklashda xatolik yuz berdi: {salesError?.response?.data?.message || salesError?.message || "Server xatosi"}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => refetchSales()}
+            className="px-3 py-1 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition cursor-pointer"
+          >
+            Qayta urinish
+          </button>
+        </div>
+      )}
 
       {/* 2. Top 4 ta KPI Ko'rsatkich Kartalari */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
