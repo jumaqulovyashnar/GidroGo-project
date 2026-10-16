@@ -43,7 +43,7 @@ function LoginPage() {
     resolver: zodResolver(loginSchema),
     defaultValues: {
       name: "",
-      phone: "+998",
+      phone: "",
       password: "",
     },
     mode: "onBlur",
