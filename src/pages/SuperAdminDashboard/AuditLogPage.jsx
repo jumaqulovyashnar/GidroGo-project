@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect, useMemo } from "react"
 import { Button, Card, CardContent, CardHeader, CardTitle, Input, Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext, PaginationEllipsis, Spinner } from "@/shared/ui"
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/shared/ui/table"
-import { ChevronDown, Upload, RotateCw, Calendar, History, ShieldCheck, ListFilter, ShieldAlert, Search } from "lucide-react"
-import { useAuditLogs } from "@/shared/hooks"
+import { ChevronDown, Upload, RotateCw, Calendar, History, ListFilter, ShieldAlert, Search } from "lucide-react"
+import { useAuditLogs, useDebounce } from "@/shared/hooks"
+import { parseSafeDate, formatDate, formatTime } from "@/shared/lib"
 
 const ACTION_OPTIONS = [
     { value: "all", label: "Amal turi: Barchasi" },
@@ -104,26 +105,6 @@ const CustomDropdown = ({ value, onChange, options }) => {
 
 
 
-const AuditLogPage = () => {
-    const [searchTerm, setSearchTerm] = useState("")
-    const [selectedAction, setSelectedAction] = useState("all")
-    const [selectedObject, setSelectedObject] = useState("all")
-    const [selectedAdmin, setSelectedAdmin] = useState("all")
-    const [currentPage, setCurrentPage] = useState(1)
-    const itemsPerPage = 5
-
-    const queryParams = useMemo(() => {
-        const params = {
-            page: currentPage - 1,
-            size: itemsPerPage,
-        }
-        if (selectedAction !== "all") params.action = selectedAction
-        if (searchTerm.trim()) params.search = searchTerm.trim()
-        return params
-    }, [currentPage, itemsPerPage, selectedAction, searchTerm])
-
-    const { data: auditData, isPending, isFetching, refetch } = useAuditLogs(queryParams)
-
 const formatAuditMetadata = (metadata, action) => {
     if (!metadata) {
         if (!action) return "Muvaffaqiyatli amalga oshirildi"
@@ -162,6 +143,27 @@ const formatAuditMetadata = (metadata, action) => {
     }
 }
 
+const AuditLogPage = () => {
+    const [searchTerm, setSearchTerm] = useState("")
+    const debouncedSearch = useDebounce(searchTerm, 400)
+    const [selectedAction, setSelectedAction] = useState("all")
+    const [selectedObject, setSelectedObject] = useState("all")
+    const [selectedAdmin, setSelectedAdmin] = useState("all")
+    const [currentPage, setCurrentPage] = useState(1)
+    const itemsPerPage = 5
+
+    const queryParams = useMemo(() => {
+        const params = {
+            page: currentPage - 1,
+            size: itemsPerPage,
+        }
+        if (selectedAction !== "all") params.action = selectedAction
+        if (debouncedSearch.trim()) params.search = debouncedSearch.trim()
+        return params
+    }, [currentPage, itemsPerPage, selectedAction, debouncedSearch])
+
+    const { data: auditData, isPending, isFetching, refetch } = useAuditLogs(queryParams)
+
     const isServerPaginated = Boolean(
         auditData?.data?.content ||
         auditData?.data?.totalElements !== undefined ||
@@ -179,18 +181,9 @@ const formatAuditMetadata = (metadata, action) => {
     const logsList = useMemo(() => {
         if (Array.isArray(rawLogs) && rawLogs.length > 0) {
             return rawLogs.map((log, index) => {
-                const dateObj = log.createdAt ? new Date(log.createdAt) : new Date()
-
-                const formattedDate = dateObj.toLocaleDateString("ru-RU", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                })
-                const formattedTime = dateObj.toLocaleTimeString("uz-UZ", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    second: "2-digit",
-                })
+                const dateObj = parseSafeDate(log.createdAt)
+                const formattedDate = dateObj ? formatDate(dateObj) : "—"
+                const formattedTime = dateObj ? formatTime(dateObj, true) : "—"
 
                 const entityType = log.entityType || "FERMA"
                 const entityId = log.entityId || log.id || ""

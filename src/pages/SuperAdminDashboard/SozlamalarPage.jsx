@@ -469,8 +469,8 @@ const SozlamalarPage = () => {
                                         </div>
                                     </>
                                 ) : (
-                                    <div className="w-full h-full bg-slate-100 text-slate-400 flex items-center justify-center select-none rounded-full aspect-square">
-                                        <UserRound className="w-14 h-14 stroke-[1.5] text-slate-400" />
+                                    <div className="w-full h-full bg-blue-50 text-blue-600 font-bold text-xl sm:text-2xl flex items-center justify-center select-none rounded-full aspect-square border border-blue-100">
+                                        {userInitials}
                                     </div>
                                 )}
                             </div>

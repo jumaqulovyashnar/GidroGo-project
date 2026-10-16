@@ -1,3 +1,4 @@
+import { useMemo } from "react"
 import Chart from "react-apexcharts"
 import { Card, CardHeader, CardTitle, CardContent } from "@/shared/ui"
 import { useBossOrders, useBossDashboard, useBossSalesSummary } from "@/shared/hooks"
@@ -7,59 +8,62 @@ export function WeeklySalesDynamicsChart() {
   const { data: ordersRes } = useBossOrders({ all: true })
   const { data: dashboardRes } = useBossDashboard()
 
-  const salesData = salesRes?.data || salesRes || {}
-  const rawOrders = ordersRes?.data || ordersRes || []
-  const orders = Array.isArray(rawOrders) ? rawOrders : []
-  const db = dashboardRes?.data || dashboardRes || {}
+  const { categories, actualOrders, waterKL } = useMemo(() => {
+    const salesData = salesRes?.data || salesRes || {}
+    const rawOrders = ordersRes?.data || ordersRes || []
+    const orders = Array.isArray(rawOrders) ? rawOrders : []
+    const db = dashboardRes?.data || dashboardRes || {}
 
-  let categories = ["Dush", "Sesh", "Chor", "Pay", "Juma", "Shan", "Yak"]
-  let actualOrders = []
-  let waterKL = []
+    let cats = ["Dush", "Sesh", "Chor", "Pay", "Juma", "Shan", "Yak"]
+    let ordersList = []
+    let waterList = []
 
-  if (Array.isArray(salesData.weeklyDynamics) && salesData.weeklyDynamics.length > 0) {
-    categories = salesData.weeklyDynamics.map((d) => d.day || d.date || "Kun")
-    waterKL = salesData.weeklyDynamics.map((d) => +(Number(d.waterVolumeKl || 0).toFixed(1)))
-    actualOrders = salesData.weeklyDynamics.map((d) => Number(d.ordersCount || 0))
-  } else {
-    const countByDay = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 0: 0 }
-    const litersByDay = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 0: 0 }
+    if (Array.isArray(salesData.weeklyDynamics) && salesData.weeklyDynamics.length > 0) {
+      cats = salesData.weeklyDynamics.map((d) => d.day || d.date || "Kun")
+      waterList = salesData.weeklyDynamics.map((d) => +(Number(d.waterVolumeKl || 0).toFixed(1)))
+      ordersList = salesData.weeklyDynamics.map((d) => Number(d.ordersCount || 0))
+    } else {
+      const countByDay = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 0: 0 }
+      const litersByDay = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 0: 0 }
 
-    orders.forEach((o) => {
-      if (o.createdAt) {
-        const day = new Date(o.createdAt).getDay()
-        countByDay[day] = (countByDay[day] || 0) + 1
-        const bottles = Number(o.bottleCount || 1)
-        litersByDay[day] = (litersByDay[day] || 0) + bottles * 18.9
+      orders.forEach((o) => {
+        if (o.createdAt) {
+          const day = new Date(o.createdAt).getDay()
+          countByDay[day] = (countByDay[day] || 0) + 1
+          const bottles = Number(o.bottleCount || 1)
+          litersByDay[day] = (litersByDay[day] || 0) + bottles * 18.9
+        }
+      })
+
+      const todayDay = new Date().getDay()
+      if (orders.length === 0 && db.todayOrders) {
+        countByDay[todayDay] = db.todayOrders
+        litersByDay[todayDay] = (db.bottlesSoldToday || db.todayOrders) * 18.9
       }
-    })
 
-    // Agar orders bo'sh bo'lsa, dashboard ma'lumotlaridan foydalanish
-    const todayDay = new Date().getDay()
-    if (orders.length === 0 && db.todayOrders) {
-      countByDay[todayDay] = db.todayOrders
-      litersByDay[todayDay] = (db.bottlesSoldToday || db.todayOrders) * 18.9
+      ordersList = [
+        countByDay[1] || 0,
+        countByDay[2] || 0,
+        countByDay[3] || 0,
+        countByDay[4] || 0,
+        countByDay[5] || 0,
+        countByDay[6] || 0,
+        countByDay[0] || 0,
+      ]
+
+      waterList = [
+        +(litersByDay[1] / 1000).toFixed(1),
+        +(litersByDay[2] / 1000).toFixed(1),
+        +(litersByDay[3] / 1000).toFixed(1),
+        +(litersByDay[4] / 1000).toFixed(1),
+        +(litersByDay[5] / 1000).toFixed(1),
+        +(litersByDay[6] / 1000).toFixed(1),
+        +(litersByDay[0] / 1000).toFixed(1),
+      ]
     }
 
-    actualOrders = [
-      countByDay[1] || 0,
-      countByDay[2] || 0,
-      countByDay[3] || 0,
-      countByDay[4] || 0,
-      countByDay[5] || 0,
-      countByDay[6] || 0,
-      countByDay[0] || 0,
-    ]
-
-    waterKL = [
-      +(litersByDay[1] / 1000).toFixed(1),
-      +(litersByDay[2] / 1000).toFixed(1),
-      +(litersByDay[3] / 1000).toFixed(1),
-      +(litersByDay[4] / 1000).toFixed(1),
-      +(litersByDay[5] / 1000).toFixed(1),
-      +(litersByDay[6] / 1000).toFixed(1),
-      +(litersByDay[0] / 1000).toFixed(1),
-    ]
-  }
+    return { categories: cats, actualOrders: ordersList, waterKL: waterList }
+  }, [salesRes, ordersRes, dashboardRes])
 
   const totalWeeklyOrders = actualOrders.reduce((a, b) => a + b, 0)
   const totalWeeklyLiters = (waterKL.reduce((a, b) => a + b, 0) * 1000).toLocaleString("ru-RU")

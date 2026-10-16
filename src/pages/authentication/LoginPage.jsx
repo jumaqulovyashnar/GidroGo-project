@@ -5,9 +5,11 @@ import { z } from "zod"
 import { Eye, EyeOff, Loader2, ShieldCheck, Droplets, Truck, Sparkles, CheckCircle2 } from "lucide-react"
 import { useLogin } from "@/shared"
 import { Button, Field, Input, Label } from "@/shared/ui"
-import { formatPhoneInput, cleanPhoneForBackend } from "@/shared/lib"
+import { cleanPhoneForBackend } from "@/shared/lib"
 import heroImg from "@/shared/assets/login-hero.png"
 import logoImg from "@/shared/assets/Logo.png"
+
+const CURRENT_YEAR = new Date().getFullYear()
 
 const loginSchema = z
   .object({
@@ -312,7 +314,7 @@ function LoginPage() {
 
         {/* Footer */}
         <div className="text-center py-2 text-xs text-slate-400">
-          © {new Date().getFullYear()} GidroGo. Barcha huquqlar himoyalangan.
+          © {CURRENT_YEAR} GidroGo. Barcha huquqlar himoyalangan.
         </div>
       </div>
     </div>

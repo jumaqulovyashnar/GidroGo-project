@@ -171,7 +171,7 @@ export const LineColumn = ({ dashboard = {} }) => {
       ],
       options: chartOptions,
     }
-  }, [totalOrders, totalClients, dashboard?.monthlyData])
+  }, [totalOrders, totalClients, dashboard])
 
   return (
     <div className="w-full bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs">

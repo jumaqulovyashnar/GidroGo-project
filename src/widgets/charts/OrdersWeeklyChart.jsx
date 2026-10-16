@@ -1,3 +1,4 @@
+import { useMemo } from "react"
 import Chart from "react-apexcharts"
 import { Card, CardHeader, CardTitle, CardContent } from "@/shared/ui"
 import { useBossOrders, useBossDashboard } from "@/shared/hooks"
@@ -6,42 +7,42 @@ export function OrdersWeeklyChart() {
   const { data: ordersRes } = useBossOrders({ all: true })
   const { data: dashboardRes } = useBossDashboard()
 
-  const rawOrders = ordersRes?.data || ordersRes || []
-  const orders = Array.isArray(rawOrders) ? rawOrders : []
-  const db = dashboardRes?.data || dashboardRes || {}
-
   const categories = ["Dush", "Sesh", "Chor", "Pay", "Jum", "Shan", "Yak"]
 
-  // Hafta kunlari bo'yicha hisoblash
-  const countsByDayIndex = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 0: 0 }
+  const { data, totalWeekly, avgPerDay } = useMemo(() => {
+    const rawOrders = ordersRes?.data || ordersRes || []
+    const orders = Array.isArray(rawOrders) ? rawOrders : []
+    const db = dashboardRes?.data || dashboardRes || {}
 
-  orders.forEach((order) => {
-    if (order.createdAt) {
-      const d = new Date(order.createdAt)
-      const day = d.getDay()
-      countsByDayIndex[day] = (countsByDayIndex[day] || 0) + 1
+    const countsByDayIndex = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 0: 0 }
+
+    orders.forEach((order) => {
+      if (order.createdAt) {
+        const d = new Date(order.createdAt)
+        const day = d.getDay()
+        countsByDayIndex[day] = (countsByDayIndex[day] || 0) + 1
+      }
+    })
+
+    const todayDay = new Date().getDay()
+    if (orders.length === 0 && db.todayOrders) {
+      countsByDayIndex[todayDay] = db.todayOrders
     }
-  })
 
-  // Agar orders ro'yxati bo'sh bo'lsa, bugungi buyurtmalar sonini bugungi kunga qo'yamiz
-  const todayDay = new Date().getDay()
-  if (orders.length === 0 && db.todayOrders) {
-    countsByDayIndex[todayDay] = db.todayOrders
-  }
+    const seriesData = [
+      countsByDayIndex[1] || 0, // Dush
+      countsByDayIndex[2] || 0, // Sesh
+      countsByDayIndex[3] || 0, // Chor
+      countsByDayIndex[4] || 0, // Pay
+      countsByDayIndex[5] || 0, // Jum
+      countsByDayIndex[6] || 0, // Shan
+      countsByDayIndex[0] || 0, // Yak
+    ]
 
-  const data = [
-    countsByDayIndex[1] || 0, // Dush
-    countsByDayIndex[2] || 0, // Sesh
-    countsByDayIndex[3] || 0, // Chor
-    countsByDayIndex[4] || 0, // Pay
-    countsByDayIndex[5] || 0, // Jum
-    countsByDayIndex[6] || 0, // Shan
-    countsByDayIndex[0] || 0, // Yak
-  ]
-
-  const maxVal = Math.max(...data, 1)
-  const totalWeekly = data.reduce((a, b) => a + b, 0) || db.todayOrders || 0
-  const avgPerDay = Math.round(totalWeekly / 7)
+    const total = seriesData.reduce((a, b) => a + b, 0) || db.todayOrders || 0
+    const avg = Math.round(total / 7)
+    return { data: seriesData, totalWeekly: total, avgPerDay: avg }
+  }, [ordersRes, dashboardRes])
 
   const series = [
     {
