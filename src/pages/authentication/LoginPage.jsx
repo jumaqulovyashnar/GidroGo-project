@@ -91,8 +91,8 @@ function LoginPage() {
       </div>
 
       {/* ===================== O'NG TOMON: LOGIN FORMASI ===================== */}
-      <div className="w-full lg:w-1/2 min-h-screen flex flex-col justify-center items-center p-6 sm:p-12 lg:p-16 bg-white">
-        <div className="w-full max-w-md mx-auto">
+      <div className="w-full lg:w-1/2 min-h-screen flex flex-col justify-center items-center p-6 sm:p-12 lg:p-16 bg-slate-50/50">
+        <div className="w-full max-w-md mx-auto bg-white p-6 sm:p-8 rounded-2xl border border-slate-200/90 shadow-[0_8px_30px_rgb(0,0,0,0.06)]">
           {/* Forma sarlavhasi */}
           <div className="mb-6">
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
@@ -120,7 +120,7 @@ function LoginPage() {
                 autoComplete="off"
                 placeholder="admin"
                 {...register("name")}
-                className="h-10 rounded-xl bg-white text-sm"
+                className="h-10 rounded-xl bg-white border-slate-200 shadow-xs focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 text-sm"
               />
             </Field>
 
@@ -135,7 +135,7 @@ function LoginPage() {
                 autoComplete="off"
                 placeholder="+998901234567"
                 {...register("phone")}
-                className="h-10 rounded-xl bg-white text-sm font-mono"
+                className="h-10 rounded-xl bg-white border-slate-200 shadow-xs focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 text-sm font-mono"
               />
               {errors.phone && (
                 <p className="text-xs text-rose-500 font-medium mt-1">
@@ -156,7 +156,7 @@ function LoginPage() {
                   placeholder="Parolingizni kiriting"
                   autoComplete="new-password"
                   {...register("password")}
-                  className="h-10 rounded-xl bg-white text-sm pr-11"
+                  className="h-10 rounded-xl bg-white border-slate-200 shadow-xs focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 text-sm pr-11"
                 />
                 <button
                   type="button"
