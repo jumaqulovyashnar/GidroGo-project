@@ -105,7 +105,7 @@ const router = createBrowserRouter([
           },
           // Manager
           {
-            element: <RoleGuard allowedRoles={["MANAGER", "COURIER"]} />,
+            element: <RoleGuard allowedRoles={["MANAGER"]} />,
             children: [
               {
                 path: "/manager",
