@@ -21,7 +21,8 @@ const loginSchema = z
   .superRefine((data, ctx) => {
     const hasName = Boolean(data.name && data.name.trim().length > 0)
     const phoneDigits = (data.phone || "").replace(/\D/g, "")
-    const hasPhone = Boolean(phoneDigits.length >= 9)
+    // +998 dan tashqari to'liq 9 ta raqam kiritilgan bo'lsa (jami 12 ta raqam)
+    const hasPhone = Boolean(phoneDigits.length >= 12)
     if (!hasName && !hasPhone) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -43,7 +44,7 @@ function LoginPage() {
     resolver: zodResolver(loginSchema),
     defaultValues: {
       name: "",
-      phone: "",
+      phone: "+998",
       password: "",
     },
     mode: "onBlur",

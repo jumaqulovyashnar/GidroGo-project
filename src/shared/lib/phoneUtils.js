@@ -12,41 +12,19 @@
  * @returns {string}
  */
 export const formatPhoneInput = (val) => {
-  if (val === undefined || val === null) return ""
+  if (val === undefined || val === null || val === "") return "+998"
   
   // 1. Oraliqdagi va barcha bo'shliqlarni olib tashlaymiz
-  let clean = String(val).replace(/\s+/g, "")
-  if (!clean) return ""
+  let clean = String(val).replace(/\s+/g, "").replace(/[^\d+]/g, "")
+  if (!clean || clean === "+") return "+998"
 
-  // 2. Faqat + va raqamlarni qoldiramiz
-  clean = clean.replace(/[^\d+]/g, "")
-  if (!clean) return ""
-
-  // Agar faqat + bo'lsa, foydalanuvchi endi kiritishni boshlagan
-  if (clean === "+") return "+"
-
-  // Agar + bilan boshlansa (masalan +9, +99, +998, +99890...)
-  if (clean.startsWith("+")) {
-    const digits = clean.slice(1).replace(/\D/g, "")
-    return `+${digits}`.slice(0, 13)
-  }
-
-  // Agar + siz kiritilgan bo'lsa:
   const digits = clean.replace(/\D/g, "")
-  if (!digits) return ""
-
-  // 998 bilan boshlansa (+998...)
   if (digits.startsWith("998")) {
-    return `+${digits}`.slice(0, 13)
+    const after = digits.slice(3)
+    return `+998${after}`.slice(0, 13)
   }
 
-  // Mahalliy 9 xonali raqam to'liq kiritilsa (masalan: 901234567)
-  if (digits.length === 9) {
-    return `+998${digits}`
-  }
-
-  // Boshqa holatlarda + bilan formatlab boramiz
-  return `+${digits}`.slice(0, 13)
+  return `+998${digits}`.slice(0, 13)
 }
 
 /**

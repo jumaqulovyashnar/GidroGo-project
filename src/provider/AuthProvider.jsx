@@ -128,6 +128,8 @@ export const createUser = (userData, token) => {
   let roleLabel = userData?.roleLabel
   if (role === "BOSS") {
     roleLabel = "Ferma rahbari"
+  } else if (role === "COURIER") {
+    roleLabel = "Kuryer"
   } else if (!roleLabel) {
     if (role === "SUPER_ADMIN") roleLabel = "Super Admin"
     else if (role === "MANAGER") roleLabel = "Menejer"
