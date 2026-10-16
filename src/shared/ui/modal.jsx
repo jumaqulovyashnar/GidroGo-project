@@ -8,7 +8,7 @@ import { toast } from "sonner"
 import { useFermaModalStore, fermaSchema } from "@/entities/farm"
 import { Button, Input, Spinner } from "@/shared/ui"
 import { useUpload, useCreateFarm } from "@/shared/hooks"
-import { NAME_REGEX, PHONE_REGEX } from "@/shared/lib"
+import { NAME_REGEX, PHONE_REGEX, formatPhoneInput, cleanPhoneForBackend } from "@/shared/lib"
 
 export function CreateFermaModal() {
   const {
@@ -37,7 +37,8 @@ export function CreateFermaModal() {
 
   const handleChange = (e) => {
     const { name, value } = e.target
-    setFormField(name, value)
+    const finalValue = (name === "phone" || name === "bossPhone") ? formatPhoneInput(value) : value
+    setFormField(name, finalValue)
     if (errors[name]) {
       setErrors((prev) => {
         const next = { ...prev }
@@ -328,9 +329,10 @@ export function CreateFermaModal() {
               <Input
                 id="modal-phone"
                 name="phone"
+                type="tel"
                 value={formData.phone}
                 onChange={handleChange}
-                placeholder="+998 75 221 40 50"
+                placeholder="+998752214050"
                 className={`h-10 rounded-xl text-sm ${
                   errors.phone
                     ? "border-rose-400 focus-visible:border-rose-500 focus-visible:ring-rose-100"
@@ -441,7 +443,7 @@ export function CreateFermaModal() {
                 autoComplete="username"
                 value={formData.bossPhone}
                 onChange={handleChange}
-                placeholder="+998 90 123 45 67"
+                placeholder="+998901234567"
                 className={`h-10 rounded-xl text-sm ${
                   errors.bossPhone
                     ? "border-rose-400 focus-visible:border-rose-500 focus-visible:ring-rose-100"
@@ -846,8 +848,10 @@ const editBossSchema = z.object({
   phone: z
     .string()
     .trim()
-    .min(1, "Telefon raqamini kiriting")
-    .regex(PHONE_REGEX, "Telefon raqamini to'g'ri formatda kiriting (Masalan: +998 90 123 45 67)"),
+    .transform((val) => formatPhoneInput(val))
+    .refine((val) => PHONE_REGEX.test(val), {
+      message: "Telefon raqamini to'g'ri formatda kiriting (Masalan: +998901234567)",
+    }),
   farmId: z.string().optional().default(""),
   password: z
     .string()
@@ -871,7 +875,7 @@ function EditBossModalContent({ opened, onClose, boss, onSave, isPending }) {
     resolver: zodResolver(editBossSchema),
     defaultValues: {
       fullName: boss?.fullName || boss?.profile?.fullName || "",
-      phone: boss?.phone || boss?.profile?.phone || "",
+      phone: formatPhoneInput(boss?.phone || boss?.profile?.phone || "+998"),
       farmId: String(boss?.farmId || boss?.farm?.id || ""),
       status:
         boss?.active || boss?.status === "ACTIVE" || boss?.profile?.status === "active"
@@ -887,7 +891,7 @@ function EditBossModalContent({ opened, onClose, boss, onSave, isPending }) {
   const onSubmit = (data) => {
     const payload = {
       fullName: data.fullName.trim(),
-      phone: data.phone.trim(),
+      phone: cleanPhoneForBackend(data.phone),
       status: data.status,
     }
 
@@ -958,7 +962,8 @@ function EditBossModalContent({ opened, onClose, boss, onSave, isPending }) {
         <div className="space-y-1.5">
           <label className="text-xs font-semibold text-slate-700">Telefon raqam *</label>
           <Input
-            placeholder="+998 90 123 45 67"
+            type="tel"
+            placeholder="+998901234567"
             disabled={isPending}
             autoComplete="username"
             {...register("phone")}

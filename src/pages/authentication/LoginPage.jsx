@@ -5,6 +5,7 @@ import { z } from "zod"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { useLogin } from "@/shared"
 import { Button, Field, Input, Label } from "@/shared/ui"
+import { formatPhoneInput, cleanPhoneForBackend } from "@/shared/lib"
 
 const loginSchema = z
   .object({
@@ -18,7 +19,8 @@ const loginSchema = z
   })
   .superRefine((data, ctx) => {
     const hasName = Boolean(data.name && data.name.trim().length > 0)
-    const hasPhone = Boolean(data.phone && data.phone.trim().length > 0)
+    const phoneDigits = (data.phone || "").replace(/\D/g, "")
+    const hasPhone = Boolean(phoneDigits.length >= 9)
     if (!hasName && !hasPhone) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -40,26 +42,11 @@ function LoginPage() {
     resolver: zodResolver(loginSchema),
     defaultValues: {
       name: "",
-      phone: "",
+      phone: "+998",
       password: "",
     },
     mode: "onBlur",
   })
-
-  // Backend uchun telefon raqamini to'g'ri formatga keltirish (+998901234567)
-  const cleanPhoneForBackend = (val) => {
-    if (!val) return ""
-    const trimmed = String(val).trim()
-    const digits = trimmed.replace(/\D/g, "")
-    if (!digits) return ""
-    if (digits.length === 9) {
-      return `+998${digits}`
-    }
-    if (digits.length === 12 && digits.startsWith("998")) {
-      return `+${digits}`
-    }
-    return trimmed
-  }
 
   const isPhonePattern = (val) => {
     if (!val) return false
@@ -70,7 +57,7 @@ function LoginPage() {
   const onSubmit = (data) => {
     if (loginMutation.isPending) return
 
-    const rawPhone = data.phone?.trim() || ""
+    const rawPhone = data.phone || ""
     const rawName = data.name?.trim() || ""
     const password = data.password
 
@@ -112,7 +99,7 @@ function LoginPage() {
         {/* 1. Admin / Login input */}
         <Field>
           <Label htmlFor="name" className="font-medium text-sm text-slate-700">
-            Ismingizni kiriting.
+            Admin / Login (Super admin uchun)
           </Label>
           <Input
             id="name"
@@ -127,13 +114,13 @@ function LoginPage() {
         {/* 2. Telefon raqam input */}
         <Field>
           <Label htmlFor="phone" className="font-medium text-sm text-slate-700">
-            Telefon raqam 
+            Telefon raqam (Ferma rahbari / Haydovchi uchun)
           </Label>
           <Input
             id="phone"
             type="tel"
             autoComplete="off"
-            placeholder="+998 90 123 45 67"
+            placeholder="+998901234567"
             {...register("phone")}
             className="h-10 rounded-xl bg-white text-sm"
           />

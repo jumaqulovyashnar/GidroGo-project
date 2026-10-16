@@ -1,5 +1,6 @@
 import { farmService } from "@/services"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { cleanPhoneForBackend } from "@/shared/lib"
 
 /**
  * FarmCreateRequest (OpenAPI shartnomasi bo'yicha):
@@ -23,13 +24,13 @@ export const useCreateFarm = () => {
 
       return await farmService.createFarm({
         name: cleanPayload.name?.trim() || "",
-        phone: cleanPayload.phone?.trim() || "",
+        phone: cleanPhoneForBackend(cleanPayload.phone) || cleanPayload.phone?.trim() || "",
         address: cleanPayload.address?.trim() || "",
         latitude: Number(cleanPayload.latitude) || 0,
         longitude: Number(cleanPayload.longitude) || 0,
         logoUrl: cleanPayload.logoUrl || "",
         bossFullName: cleanPayload.bossFullName?.trim() || "",
-        bossPhone: cleanPayload.bossPhone?.trim() || "",
+        bossPhone: cleanPhoneForBackend(cleanPayload.bossPhone) || cleanPayload.bossPhone?.trim() || "",
         bossPassword: cleanPayload.bossPassword || "",
       })
     },

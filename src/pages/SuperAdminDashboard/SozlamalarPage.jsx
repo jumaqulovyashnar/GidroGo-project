@@ -11,8 +11,8 @@ import {
     useSuperAdminChangePassword,
     useUploadFile,
 } from "@/shared/hooks"
-import { useUserStore } from "@/entities/user"
-import { cn, NAME_REGEX, PHONE_REGEX, EMAIL_REGEX, PASSWORD_STRONG_REGEX, resolveFileUrl } from "@/shared/lib"
+import { useUserStore } from "@/store"
+import { cn, NAME_REGEX, PHONE_REGEX, EMAIL_REGEX, PASSWORD_STRONG_REGEX, resolveFileUrl, formatPhoneInput, cleanPhoneForBackend } from "@/shared/lib"
 
 const settingsSchema = z
     .object({
@@ -29,8 +29,10 @@ const settingsSchema = z
         phone: z
             .string()
             .trim()
-            .min(1, "Telefon raqamini kiriting")
-            .regex(PHONE_REGEX, "Telefon raqamini to'g'ri formatda kiriting (Masalan: +998 90 123 45 67)"),
+            .transform((val) => formatPhoneInput(val))
+            .refine((val) => PHONE_REGEX.test(val), {
+                message: "Telefon raqamini to'g'ri formatda kiriting (Masalan: +998901234567)",
+            }),
         email: z
             .string()
             .trim()
@@ -75,7 +77,7 @@ const settingsSchema = z
 const defaultFormValues = {
     firstName: "",
     lastName: "",
-    phone: "",
+    phone: "+998",
     email: "",
     role: "Bosh Platforma Administratori",
     currentPassword: "",
@@ -109,7 +111,7 @@ const SozlamalarPage = () => {
         return {
             firstName: currentUser?.firstName || nameParts[0] || "",
             lastName: currentUser?.lastName || nameParts.slice(1).join(" ") || "",
-            phone: currentUser?.phone || "",
+            phone: formatPhoneInput(currentUser?.phone || "+998"),
             email: currentUser?.email || "",
             role: currentUser?.roleLabel || currentUser?.role || "Bosh Platforma Administratori",
             currentPassword: "",
@@ -149,7 +151,7 @@ const SozlamalarPage = () => {
             const fullNameParts = (profile.fullName || "").trim().split(/\s+/)
             const fName = profile.firstName || fullNameParts[0] || currentUser?.firstName || ""
             const lName = profile.lastName || fullNameParts.slice(1).join(" ") || currentUser?.lastName || ""
-            const phone = profile.phone || currentUser?.phone || ""
+            const phone = formatPhoneInput(profile.phone || currentUser?.phone || "+998")
             const email = profile.email || currentUser?.email || ""
             const role = profile.roleTitle || profile.role || currentUser?.roleLabel || "Bosh Platforma Administratori"
 
@@ -204,7 +206,7 @@ const SozlamalarPage = () => {
             reset({
                 firstName: profile.firstName || "",
                 lastName: profile.lastName || "",
-                phone: profile.phone || "",
+                phone: formatPhoneInput(profile.phone || "+998"),
                 email: profile.email || "",
                 role: profile.roleTitle || profile.role || "Bosh Platforma Administratori",
                 currentPassword: "",
@@ -254,7 +256,7 @@ const SozlamalarPage = () => {
                 firstName: data.firstName?.trim() || "",
                 lastName: data.lastName?.trim() || "",
                 fullName: `${data.firstName?.trim() || ""} ${data.lastName?.trim() || ""}`.trim(),
-                phone: data.phone?.trim() || "",
+                phone: cleanPhoneForBackend(data.phone) || formatPhoneInput(data.phone),
                 email: data.email?.trim() || "",
                 avatarUrl: finalAvatarUrl,
             }
@@ -563,7 +565,7 @@ const SozlamalarPage = () => {
                                         id="phone"
                                         type="tel"
                                         autoComplete="tel"
-                                        placeholder="+998 (__) ___-__-__"
+                                        placeholder="+998901234567"
                                         disabled={isProfileLoading || isSaving}
                                         {...register("phone")}
                                         className={cn(
