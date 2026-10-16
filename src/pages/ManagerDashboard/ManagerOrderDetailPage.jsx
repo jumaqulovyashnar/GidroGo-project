@@ -1,6 +1,7 @@
 import { useState, lazy, Suspense } from "react"
 import { useParams, useNavigate, Link } from "react-router-dom"
 import { ArrowLeft, Copy, MapPin, Package, Clock, CheckCircle2, CreditCard, UserCheck, AlertCircle, Truck, Home, Droplet } from "lucide-react"
+import { Modal as MantineModal } from "@mantine/core"
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbPage, BreadcrumbSeparator, Spinner } from "@/shared/ui"
 import { toast } from "sonner"
 import { AdjustBottleBalanceModal } from "@/components"

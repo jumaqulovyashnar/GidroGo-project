@@ -2,10 +2,10 @@ import { useMemo } from "react"
 import Chart from "react-apexcharts"
 
 export function SalesTeamDonutChart({ dashboard = {}, regionalStats = {} }) {
-  const regions = regionalStats?.regions || []
-  const hasRegions = Array.isArray(regions) && regions.length > 0
-
   const { series, labels, colors, totalCount, totalLabel } = useMemo(() => {
+    const regions = regionalStats?.regions || []
+    const hasRegions = Array.isArray(regions) && regions.length > 0
+
     // 1. Agar hududlar kesimida statistika kelsa (API: /superadmin/statistics/regions)
     if (hasRegions) {
       const regionLabels = regions.map((r) => r.regionName || r.name || "Hudud")
