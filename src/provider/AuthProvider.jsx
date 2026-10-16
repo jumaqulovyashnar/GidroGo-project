@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useUserStore } from "@/entities/user"
 import { authService } from "@/services"
 import { api } from "@/shared/api"
+import { cleanPhoneForBackend } from "@/shared/lib"
 
 const AuthContext = createContext(null)
 
@@ -206,7 +207,7 @@ export const AuthProvider = ({ children }) => {
   const login = useCallback(
     async (phoneInput, passwordInput) => {
       try {
-        const cleanPhone = (phoneInput || "").trim()
+        const cleanPhone = cleanPhoneForBackend(phoneInput) || (phoneInput || "").trim()
         const cleanPassword = (passwordInput || "").trim()
 
         if (!cleanPhone || !cleanPassword) {

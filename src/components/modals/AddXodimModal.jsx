@@ -15,8 +15,8 @@ import {
   Loader2,
   User,
 } from "lucide-react"
-import { Button } from "@/shared/ui"
-import { cn, NAME_REGEX, PHONE_REGEX } from "@/shared/lib"
+import { Button, Input } from "@/shared/ui"
+import { cn, NAME_REGEX, PHONE_REGEX, formatPhoneInput, cleanPhoneForBackend } from "@/shared/lib"
 
 const addXodimSchema = z.object({
   role: z.enum(["MANAGER", "COURIER"], {
@@ -32,8 +32,10 @@ const addXodimSchema = z.object({
   phone: z
     .string()
     .trim()
-    .min(1, "Telefon raqamini kiriting")
-    .regex(PHONE_REGEX, "Telefon raqamini to'g'ri formatda kiriting (Masalan: +998901234567)"),
+    .transform((val) => formatPhoneInput(val))
+    .refine((val) => PHONE_REGEX.test(val), {
+      message: "Telefon raqamini to'g'ri formatda kiriting (Masalan: +998901234567)",
+    }),
   password: z
     .string()
     .min(1, "Kirish parolini kiriting")
@@ -74,8 +76,7 @@ export function AddXodimModal({ opened, onClose, onAddEmployee, isSubmitting }) 
   }
 
   const onSubmit = (data) => {
-    const digits = data.phone.replace(/\D/g, "")
-    const formattedPhone = digits.length === 9 ? `+998${digits}` : `+${digits}`
+    const formattedPhone = cleanPhoneForBackend(data.phone)
 
     const payload = {
       fullName: data.fullName.trim(),
@@ -223,8 +224,8 @@ export function AddXodimModal({ opened, onClose, onAddEmployee, isSubmitting }) 
             <Phone className="size-3.5 text-blue-600" />
             <span>Telefon Raqam (Login) *</span>
           </label>
-          <input
-            type="text"
+          <Input
+            type="tel"
             disabled={isSubmitting}
             autoComplete="username"
             placeholder="+998901234567"

@@ -5,14 +5,17 @@ import {
   BUSINESS_NAME_REGEX,
   COORDINATE_REGEX,
   PASSWORD_STRONG_REGEX,
+  formatPhoneInput,
 } from "@/shared/lib"
 
-// O'zbekiston telefon raqamlari formati
+// O'zbekiston telefon raqamlari formati: oraliq bo'shliqlar tozalanadi va +998 bilan ta'minlanadi
 const uzPhone = z
   .string()
   .trim()
-  .min(1, "Telefon raqamini kiriting")
-  .regex(PHONE_REGEX, "Telefon raqami noto'g'ri (Format: +998 90 123 45 67)")
+  .transform((val) => formatPhoneInput(val))
+  .refine((val) => PHONE_REGEX.test(val), {
+    message: "Telefon raqami noto'g'ri (Format: +998901234567)",
+  })
 
 // Koordinatalarni tekshirish (Regex + min/max chegaralar)
 const coordinate = (min, max, label) =>
@@ -52,12 +55,12 @@ export const fermaSchema = z.object({
 export const fermaDefaultValues = {
   logoUrl: "",
   name: "",
-  phone: "",
+  phone: "+998",
   address: "",
   latitude: "",
   longitude: "",
   bossFullName: "",
-  bossPhone: "",
+  bossPhone: "+998",
   bossPassword: "",
 }
 
