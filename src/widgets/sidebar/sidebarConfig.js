@@ -51,7 +51,6 @@ export const SIDEBAR_MENU = {
   SUPER_ADMIN: SUPER_ADMIN_MENU,
   BOSS: BOSS_MENU,
   MANAGER: MANAGER_MENU,
-  COURIER: MANAGER_MENU,
 
   // Katta harfli alias'lar
   ADMIN: SUPER_ADMIN_MENU,
@@ -60,18 +59,16 @@ export const SIDEBAR_MENU = {
   FERMA_RAHBARI: BOSS_MENU,
   ROLE_FERMA_RAHBARI: BOSS_MENU,
   ROLE_MANAGER: MANAGER_MENU,
-  ROLE_COURIER: MANAGER_MENU,
 
   // Kichik harfli alias'lar
   admin: SUPER_ADMIN_MENU,
   super_admin: SUPER_ADMIN_MENU,
   boss: BOSS_MENU,
   manager: MANAGER_MENU,
-  courier: MANAGER_MENU,
 }
 
 export const getSidebarMenu = (role) => {
-  if (!role) return SIDEBAR_MENU.SUPER_ADMIN
+  if (!role) return []
   const normalized = String(role).trim().toUpperCase()
-  return SIDEBAR_MENU[normalized] || SIDEBAR_MENU[role] || SIDEBAR_MENU.SUPER_ADMIN
+  return SIDEBAR_MENU[normalized] || SIDEBAR_MENU[role] || []
 }

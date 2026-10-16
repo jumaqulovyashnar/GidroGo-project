@@ -14,8 +14,8 @@ export const RoleGuard = ({ allowedRoles = [] }) => {
 
     // Roliga mos asosiy sahifaga yo'naltirish
     if (user?.role === "SUPER_ADMIN") return <Navigate to="/super-admin" replace />
-    if (user?.role === "MANAGER" || user?.role === "COURIER") return <Navigate to="/manager" replace />
     if (user?.role === "BOSS") return <Navigate to="/boss" replace />
+    if (user?.role === "MANAGER") return <Navigate to="/manager" replace />
     return <Navigate to="/login" replace />
   }
 
