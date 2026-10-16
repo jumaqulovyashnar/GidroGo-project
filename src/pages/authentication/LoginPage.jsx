@@ -80,8 +80,8 @@ function LoginPage() {
 
   return (
     <div className="min-h-screen w-full flex flex-col lg:flex-row bg-white text-slate-900">
-      {/* ===================== CHAP TOMON: RASM (ORQA FONI OQ) ===================== */}
-      <div className="w-full lg:w-1/2 min-h-[360px] lg:min-h-screen bg-white flex items-center justify-center p-6 sm:p-8 lg:p-12 border-b lg:border-b-0 lg:border-r border-slate-200">
+      {/* ===================== CHAP TOMON: RASM (FAQAT LAPTOP VA MONITORDA KO'RINADI) ===================== */}
+      <div className="hidden lg:flex lg:w-1/2 min-h-screen bg-white items-center justify-center p-8 lg:p-12 border-r border-slate-200">
         <div className="w-full max-w-xl lg:max-w-2xl flex items-center justify-center">
           <img
             src={heroImg}
@@ -92,7 +92,7 @@ function LoginPage() {
       </div>
 
       {/* ===================== O'NG TOMON: LOGIN FORMASI ===================== */}
-      <div className="w-full lg:w-1/2 min-h-screen flex flex-col justify-center items-center p-6 sm:p-12 lg:p-16 bg-slate-50/50">
+      <div className="w-full lg:w-1/2 min-h-screen flex flex-col justify-center items-center p-4 sm:p-8 lg:p-16 bg-slate-50/50">
         <div className="w-full max-w-lg mx-auto bg-white p-7 sm:p-9 rounded-2xl border border-slate-200/80 shadow-[0_2px_10px_rgba(0,0,0,0.03)]">
           {/* Forma sarlavhasi */}
           <div className="mb-6 text-center">
