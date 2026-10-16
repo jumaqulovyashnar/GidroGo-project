@@ -116,18 +116,28 @@ export const StatistikaPage = () => {
                 </div>
 
                 {/* 4 ta KPI card */}
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 pt-6">
-                    {auditMetrics.map((audit) => {
+                <div className="grid grid-cols-1 gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4 pt-6">
+                    {auditMetrics.map((audit, index) => {
                         const Icon = audit.icon
+                        const isBlue = index % 2 === 0
 
                         return (
-                            <Card key={audit.id} className="shadow-xs border border-slate-200/80 rounded-2xl p-5 bg-white">
+                            <Card
+                                key={audit.id}
+                                className="border border-slate-200/80 rounded-2xl p-5 sm:p-6 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_14px_rgba(0,0,0,0.05)] transition-all duration-200 flex flex-col justify-between"
+                            >
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 p-0 pb-2">
                                     <CardTitle className="text-xs font-medium uppercase tracking-wider text-slate-500">
                                         {audit.title}
                                     </CardTitle>
-                                    <div className="size-9 flex items-center justify-center rounded-xl bg-slate-50 border border-slate-200/80 text-slate-600 shrink-0">
-                                        <Icon className="size-4.5" />
+                                    <div
+                                        className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 border ${
+                                            isBlue
+                                                ? "bg-blue-50 text-blue-600 border-blue-100/80"
+                                                : "bg-slate-100 text-slate-600 border-slate-200/80"
+                                        }`}
+                                    >
+                                        <Icon className="size-5.5" strokeWidth={1.75} />
                                     </div>
                                 </CardHeader>
 
@@ -143,7 +153,7 @@ export const StatistikaPage = () => {
                                             </span>
                                         )}
                                     </div>
-                                    <p className="mt-1 text-xs text-gray-500">
+                                    <p className="mt-1 text-xs text-slate-500">
                                         {audit.description}
                                     </p>
                                 </CardContent>

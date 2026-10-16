@@ -52,7 +52,7 @@ export function BossMoliyaPage() {
       value: formatNumber(totalInc),
       unit: "so'm",
       icon: CreditCard,
-      iconBg: "bg-blue-50 text-blue-600 border border-blue-100",
+      iconBg: "bg-blue-50 text-blue-600 border-blue-100/80",
       subtext: "Tanlangan davrdagi jami tushum",
     },
     {
@@ -61,7 +61,7 @@ export function BossMoliyaPage() {
       value: formatNumber(totalExp),
       unit: "so'm",
       icon: Receipt,
-      iconBg: "bg-blue-50 text-blue-600 border border-blue-100",
+      iconBg: "bg-slate-100 text-slate-600 border-slate-200/80",
       subtext: "Fermaning operatsion sarf-xarajatlari",
     },
     {
@@ -70,7 +70,7 @@ export function BossMoliyaPage() {
       value: formatNumber(netProf),
       unit: "so'm",
       icon: Landmark,
-      iconBg: "bg-blue-50 text-blue-600 border border-blue-100",
+      iconBg: "bg-blue-50 text-blue-600 border-blue-100/80",
       subtext: "Tushumdan xarajat chegirilgan sof foyda",
     },
     {
@@ -79,7 +79,7 @@ export function BossMoliyaPage() {
       value: formatNumber(avgCheck),
       unit: "so'm",
       icon: ShoppingBag,
-      iconBg: "bg-blue-50 text-blue-600 border border-blue-100",
+      iconBg: "bg-slate-100 text-slate-600 border-slate-200/80",
       subtext: orders.length > 0 ? `${orders.length} ta buyurtma asosida` : "Buyurtmalar asosida hisoblanadi",
     },
   ]
@@ -166,24 +166,24 @@ export function BossMoliyaPage() {
       )}
 
       {/* 3. Top 4 ta Moliyaviy KPI Kartalari (100% Real API) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
         {topMetrics.map((item) => {
           const Icon = item.icon
           return (
             <Card
               key={item.id}
-              className="border border-slate-200/80 bg-white hover:border-slate-300 hover:shadow-xs transition-all duration-200 rounded-2xl"
+              className="border border-slate-200/80 bg-white hover:border-slate-300 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_14px_rgba(0,0,0,0.05)] transition-all duration-200 rounded-2xl p-5 sm:p-6 flex flex-col justify-between"
             >
-              <CardHeader className="flex flex-row items-start justify-between gap-3 pb-1 space-y-0 p-4">
-                <CardTitle className="text-[11px] font-bold uppercase tracking-wider text-slate-500 flex-1 leading-snug">
+              <CardHeader className="flex flex-row items-start justify-between gap-3 pb-2 space-y-0 p-0">
+                <CardTitle className="text-xs font-medium uppercase tracking-wider text-slate-500 flex-1 leading-snug">
                   {item.title}
                 </CardTitle>
-                <div className={`size-8 rounded-full flex items-center justify-center shrink-0 ml-1.5 ${item.iconBg}`}>
-                  <Icon className="size-4 stroke-[1.8]" />
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ml-1.5 border ${item.iconBg}`}>
+                  <Icon className="size-5.5 stroke-[1.8]" />
                 </div>
               </CardHeader>
 
-              <CardContent className="p-4 pt-1">
+              <CardContent className="p-0 pt-2">
                 <div className="flex items-baseline gap-1.5">
                   <span className="text-xl sm:text-2xl font-bold tracking-tight text-blue-600">
                     {item.value}
@@ -202,7 +202,7 @@ export function BossMoliyaPage() {
       </div>
  
       {/* 4. Kassa va Inkassatsiya Monitoringi (GET /api/boss/cash/summary) */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-base font-bold text-slate-900">
@@ -217,11 +217,11 @@ export function BossMoliyaPage() {
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="border border-slate-200/80 bg-white hover:border-slate-300 hover:shadow-xs transition-all duration-200 rounded-2xl p-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+          <Card className="border border-slate-200/80 bg-white hover:border-slate-300 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_14px_rgba(0,0,0,0.05)] transition-all duration-200 rounded-2xl p-5 sm:p-6 flex flex-col justify-between">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
                   Jami Yig'ilgan Naqd Pul
                 </p>
                 <div className="flex items-baseline gap-1 mt-2">
@@ -231,8 +231,8 @@ export function BossMoliyaPage() {
                   <span className="text-xs font-medium text-slate-500">so'm</span>
                 </div>
               </div>
-              <div className="size-8 rounded-full bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center shrink-0">
-                <HandCoins className="size-4" />
+              <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 border border-blue-100/80 flex items-center justify-center shrink-0">
+                <HandCoins className="size-5.5" />
               </div>
             </div>
             <p className="text-xs text-slate-500 mt-2">
@@ -240,10 +240,10 @@ export function BossMoliyaPage() {
             </p>
           </Card>
 
-          <Card className="border border-slate-200/80 bg-white hover:border-slate-300 hover:shadow-xs transition-all duration-200 rounded-2xl p-4">
+          <Card className="border border-slate-200/80 bg-white hover:border-slate-300 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_14px_rgba(0,0,0,0.05)] transition-all duration-200 rounded-2xl p-5 sm:p-6 flex flex-col justify-between">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
                   Kassaga Topshirilgan
                 </p>
                 <div className="flex items-baseline gap-1 mt-2">
@@ -253,8 +253,8 @@ export function BossMoliyaPage() {
                   <span className="text-xs font-medium text-slate-500">so'm</span>
                 </div>
               </div>
-              <div className="size-8 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center shrink-0">
-                <ArrowDownToLine className="size-4" />
+              <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-600 border border-slate-200/80 flex items-center justify-center shrink-0">
+                <ArrowDownToLine className="size-5.5" />
               </div>
             </div>
             <p className="text-xs text-slate-500 mt-2">
@@ -262,10 +262,10 @@ export function BossMoliyaPage() {
             </p>
           </Card>
 
-          <Card className="border border-slate-200/80 bg-white hover:border-slate-300 hover:shadow-xs transition-all duration-200 rounded-2xl p-4">
+          <Card className="border border-slate-200/80 bg-white hover:border-slate-300 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_14px_rgba(0,0,0,0.05)] transition-all duration-200 rounded-2xl p-5 sm:p-6 flex flex-col justify-between">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
                   Dastavkachilar Qo'lida
                 </p>
                 <div className="flex items-baseline gap-1 mt-2">
@@ -275,8 +275,8 @@ export function BossMoliyaPage() {
                   <span className="text-xs font-medium text-slate-500">so'm</span>
                 </div>
               </div>
-              <div className="size-8 rounded-full bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center shrink-0">
-                <Wallet className="size-4" />
+              <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 border border-blue-100/80 flex items-center justify-center shrink-0">
+                <Wallet className="size-5.5" />
               </div>
             </div>
             <p className="text-xs text-slate-500 mt-2">
@@ -284,10 +284,10 @@ export function BossMoliyaPage() {
             </p>
           </Card>
 
-          <Card className="border border-slate-200/80 bg-white hover:border-slate-300 hover:shadow-xs transition-all duration-200 rounded-2xl p-4">
+          <Card className="border border-slate-200/80 bg-white hover:border-slate-300 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_14px_rgba(0,0,0,0.05)] transition-all duration-200 rounded-2xl p-5 sm:p-6 flex flex-col justify-between">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
                   Kassasi Bor Kuryerlar
                 </p>
                 <div className="flex items-baseline gap-1 mt-2">
@@ -297,8 +297,8 @@ export function BossMoliyaPage() {
                   <span className="text-xs font-medium text-slate-500">nafar</span>
                 </div>
               </div>
-              <div className="size-8 rounded-full bg-purple-50 text-purple-600 border border-purple-100 flex items-center justify-center shrink-0">
-                <Users className="size-4" />
+              <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-600 border border-slate-200/80 flex items-center justify-center shrink-0">
+                <Users className="size-5.5" />
               </div>
             </div>
             <p className="text-xs text-slate-500 mt-2">

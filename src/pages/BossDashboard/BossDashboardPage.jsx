@@ -148,28 +148,33 @@ export const BossDashboardPage = () => {
       )}
 
       {/* 1-Qism: Asosiy Moliyaviy Kartochkalar (3 ta ustun) */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {financialMetrics.map((item) => {
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
+        {financialMetrics.map((item, idx) => {
           const Icon = item.icon
+          const isBlue = idx % 2 === 0
           return (
             <Card
               key={item.id}
-              className="border border-slate-200 bg-white hover:border-slate-300 hover:shadow-xs transition-all duration-200"
+              className="border border-slate-200/80 bg-white hover:border-slate-300/80 hover:shadow-md transition-all duration-200 rounded-2xl"
             >
               <CardHeader className="flex flex-row items-center justify-between pb-1 space-y-0">
-                <CardTitle className="text-xs sm:text-sm font-medium text-slate-600">
+                <CardTitle className="text-xs sm:text-sm font-semibold text-slate-500 uppercase tracking-wider">
                   {item.title}
                 </CardTitle>
-                <div className="size-9 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0">
-                  <Icon className="size-4.5 text-blue-600" strokeWidth={1.75} />
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 shadow-2xs ${
+                  isBlue
+                    ? "bg-blue-50 text-blue-600 border border-blue-100/80"
+                    : "bg-slate-100 text-slate-600 border border-slate-200/80"
+                }`}>
+                  <Icon className="w-6 h-6" strokeWidth={2} />
                 </div>
               </CardHeader>
               <CardContent className="pt-2">
                 <div className="flex items-baseline gap-2">
-                  <span className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
+                  <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
                     {item.value}
                   </span>
-                  <span className="text-sm font-medium text-slate-500">
+                  <span className="text-xs sm:text-sm font-semibold text-slate-500">
                     {item.unit}
                   </span>
                 </div>
@@ -183,29 +188,34 @@ export const BossDashboardPage = () => {
       </div>
 
       {/* 2-Qism: Operatsion Ko'rsatkichlar Kartochkalari (4 ta ustun) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {operationalMetrics.map((item) => {
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+        {operationalMetrics.map((item, idx) => {
           const Icon = item.icon
+          const isBlue = idx % 2 === 0
           return (
             <Card
               key={item.id}
-              className="border border-slate-200 bg-white hover:border-slate-300 hover:shadow-xs transition-all duration-200"
+              className="border border-slate-200/80 bg-white hover:border-slate-300/80 hover:shadow-md transition-all duration-200 rounded-2xl"
             >
               <CardHeader className="flex flex-row items-center justify-between pb-1 space-y-0">
-                <CardTitle className="text-xs sm:text-sm font-medium text-slate-600">
+                <CardTitle className="text-xs sm:text-sm font-semibold text-slate-500">
                   {item.title}
                 </CardTitle>
-                <div className="size-9 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0">
-                  <Icon className="size-4.5 text-blue-600" strokeWidth={1.75} />
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 shadow-2xs ${
+                  isBlue
+                    ? "bg-blue-50 text-blue-600 border border-blue-100/80"
+                    : "bg-slate-100 text-slate-600 border border-slate-200/80"
+                }`}>
+                  <Icon className="w-6 h-6" strokeWidth={2} />
                 </div>
               </CardHeader>
               <CardContent className="pt-2">
                 <div className="flex items-baseline gap-1.5">
-                  <span className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
+                  <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
                     {item.value}
                   </span>
                   {item.unit && (
-                    <span className="text-sm font-medium text-slate-500">
+                    <span className="text-xs sm:text-sm font-semibold text-slate-500">
                       {item.unit}
                     </span>
                   )}

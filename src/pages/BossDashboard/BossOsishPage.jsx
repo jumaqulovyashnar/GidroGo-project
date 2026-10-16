@@ -169,24 +169,31 @@ export function BossOsishPage() {
       )}
 
       {/* 2. Top 4 ta O'sish KPI Ko'rsatkich Kartalari */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {kpiMetrics.map((item) => {
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+        {kpiMetrics.map((item, index) => {
           const Icon = item.icon
+          const isBlue = index % 2 === 0
           return (
             <Card
               key={item.id}
-              className="border border-slate-200/90 bg-white hover:border-slate-300 hover:shadow-xs transition-all duration-200 rounded-2xl"
+              className="border border-slate-200/80 bg-white hover:border-slate-300 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_14px_rgba(0,0,0,0.05)] transition-all duration-200 rounded-2xl p-5 sm:p-6 flex flex-col justify-between"
             >
-              <CardHeader className="flex flex-row items-center justify-between pb-1 space-y-0 p-4">
-                <CardTitle className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+              <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0 p-0">
+                <CardTitle className="text-xs font-medium uppercase tracking-wider text-slate-500">
                   {item.title}
                 </CardTitle>
-                <div className="size-8 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0 text-blue-600">
-                  <Icon className="size-4 stroke-2" />
+                <div
+                  className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 border ${
+                    isBlue
+                      ? "bg-blue-50 text-blue-600 border-blue-100/80"
+                      : "bg-slate-100 text-slate-600 border-slate-200/80"
+                  }`}
+                >
+                  <Icon className="size-5.5 stroke-2" />
                 </div>
               </CardHeader>
 
-              <CardContent className="p-4 pt-1">
+              <CardContent className="p-0 pt-2">
                 <div className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 truncate" title={item.value}>
                   {item.value}
                 </div>
