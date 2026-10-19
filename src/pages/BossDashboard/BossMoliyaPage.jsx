@@ -277,9 +277,6 @@ export function BossMoliyaPage() {
               Kuryerlardan yig'ilgan naqd pul, kassaga topshirilgan va qoldiq summalar monitoringi
             </p>
           </div>
-          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">
-            Real vaqt
-          </span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
