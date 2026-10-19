@@ -66,18 +66,27 @@ export default function ManagerDashboardPage() {
 
   const pageSize = 8
 
+  const periodParam =
+    timeFilter === "Bugun"
+      ? "today"
+      : timeFilter === "Kecha"
+      ? "yesterday"
+      : timeFilter === "Hafta"
+      ? "week"
+      : "month"
+
   // Real Manager API hooks
   const {
     data: dashboardRes,
     isError: isDashboardError,
     error: dashboardError,
     refetch: refetchDashboard,
-  } = useManagerDashboard()
+  } = useManagerDashboard({ period: periodParam })
   const { data: todayOrdersRes, isPending: isOrdersPending } = useManagerTodayOrders()
   const { data: couriersRes } = useManagerCouriers()
   const { data: stockRes } = useManagerStockWarehouse()
   const { data: financeRes } = useManagerFinanceSummary({
-    period: timeFilter === "Bugun" ? "today" : timeFilter === "Kecha" ? "yesterday" : timeFilter === "Hafta" ? "week" : "month",
+    period: periodParam,
   })
 
   const dbData = dashboardRes?.data || dashboardRes || {}
@@ -189,7 +198,9 @@ export default function ManagerDashboardPage() {
             </div>
             <div className="text-xs text-blue-600 font-medium mt-1.5 flex items-center gap-1">
               <TrendingUp className="w-3.5 h-3.5 text-blue-600" />
-              <span>{currentPeriod.tushumChange}</span>
+              <span>
+                {dbData.growthRate != null ? `${dbData.growthRate >= 0 ? "+" : ""}${dbData.growthRate}% o'sish` : "Operatsion daromad"}
+              </span>
             </div>
           </div>
           <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 border border-blue-100/80 flex items-center justify-center shrink-0 shadow-2xs">

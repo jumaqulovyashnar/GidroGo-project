@@ -2,9 +2,9 @@ import { api, handleApiError } from "@/shared";
 
 class ManagerDashboardService {
   // GET /api/manager/dashboard - Manager operatsion boshqaruv ko'rsatkichlari (tushum, xarajat, buyurtmalar, zaxira, kuryerlar)
-  async getDashboard() {
+  async getDashboard(params = {}) {
     try {
-      const response = await api.get("/manager/dashboard");
+      const response = await api.get("/manager/dashboard", { params });
       return response.data;
     } catch (error) {
       throw new Error(handleApiError(error));
