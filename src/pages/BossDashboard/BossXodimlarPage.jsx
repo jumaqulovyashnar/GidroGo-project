@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react"
 import { toast } from "sonner"
 import { Plus, Download } from "lucide-react"
-import { Button } from "@/shared/ui"
+import { Button, DeleteXodimModal } from "@/shared/ui"
 import { exportToCsv } from "@/shared/lib"
 import { useStaff, useStaffSummary } from "@/shared/hooks"
 import { XodimlarStats, XodimlarTable, AddXodimModal } from "@/components"
@@ -95,8 +95,9 @@ export function BossXodimlarPage() {
     setCurrentPage(1)
   }
 
-  // 3. Yangi xodim qo'shish modali
+  // 3. Yangi xodim qo'shish modali va o'chirish modali
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+  const [deletingEmployee, setDeletingEmployee] = useState(null)
 
   // 4. Statistika (KPI lar) - Faqat backend ma'lumotlaridan (GET /api/boss/staff/summary)
   const stats = useMemo(() => {
@@ -190,13 +191,19 @@ export function BossXodimlarPage() {
     )
   }
 
-  // 9. DELETE /api/boss/staff/{id} - Xodimni o'chirish (Double-request protected)
+  // 9. DELETE /api/boss/staff/{id} - Xodimni o'chirish (Modal orqali)
   const handleDeleteEmployee = (emp) => {
     if (isDeleting) return
-    const confirmed = window.confirm(`Haqiqatan ham "${emp.name}" xodimini tizimdan o'chirmoqchimisiz?`)
-    if (confirmed) {
-      deleteStaff(emp.id)
-    }
+    setDeletingEmployee(emp)
+  }
+
+  const handleConfirmDelete = (emp) => {
+    if (!emp || isDeleting) return
+    deleteStaff(emp.id, {
+      onSuccess: () => {
+        setDeletingEmployee(null)
+      },
+    })
   }
 
   const handleExportCSV = () => {
@@ -285,6 +292,15 @@ export function BossXodimlarPage() {
         onClose={() => setIsAddModalOpen(false)}
         onAddEmployee={handleAddEmployee}
         isSubmitting={isCreating}
+      />
+
+      {/* 5. Xodimni o'chirishni tasdiqlash Modali */}
+      <DeleteXodimModal
+        opened={Boolean(deletingEmployee)}
+        onClose={() => setDeletingEmployee(null)}
+        employee={deletingEmployee}
+        onConfirm={handleConfirmDelete}
+        isPending={isDeleting}
       />
     </div>
   )

@@ -1,4 +1,4 @@
-import React, { useMemo } from "react"
+import React, { useState, useMemo } from "react"
 import { useParams, Link, useNavigate } from "react-router-dom"
 import {
   User,
@@ -12,7 +12,7 @@ import {
   Trash2,
 } from "lucide-react"
 import { toast } from "sonner"
-import { Card, Switch, Button } from "@/shared/ui"
+import { Card, Switch, Button, DeleteXodimModal } from "@/shared/ui"
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -78,19 +78,22 @@ export function BossXodimDetailPage() {
     )
   }
 
-  // Xodimni o'chirish: DELETE /api/boss/staff/{id} (Double request protected, 409 CASH_BALANCE_NOT_ZERO qo'llab-quvvatlaydi)
+  // Xodimni o'chirish: DELETE /api/boss/staff/{id} (Double request protected, modal orqali)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+
   const handleDeleteEmployee = () => {
     if (isDeleting || !employee) return
-    const confirmed = window.confirm(
-      `Haqiqatan ham "${employee.fullName || employee.name}" xodimini tizimdan o'chirmoqchimisiz?`
-    )
-    if (confirmed) {
-      deleteStaff(employee.id, {
-        onSuccess: () => {
-          navigate("/boss/xodimlar")
-        },
-      })
-    }
+    setIsDeleteModalOpen(true)
+  }
+
+  const handleConfirmDelete = () => {
+    if (!employee || isDeleting) return
+    deleteStaff(employee.id, {
+      onSuccess: () => {
+        setIsDeleteModalOpen(false)
+        navigate("/boss/xodimlar")
+      },
+    })
   }
 
   // Sana formatlash (kun.oy.yil, soat:daqiqa)
@@ -336,6 +339,15 @@ export function BossXodimDetailPage() {
           </div>
         </Card>
       </div>
+
+      {/* Xodimni o'chirish tasdiqlash Modali */}
+      <DeleteXodimModal
+        opened={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        employee={employee}
+        onConfirm={handleConfirmDelete}
+        isPending={isDeleting}
+      />
     </div>
   )
 }
