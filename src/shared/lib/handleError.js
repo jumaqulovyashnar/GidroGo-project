@@ -1,6 +1,11 @@
 const handleApiError = (error) => {
+    // 1. Agar backenddan aniq xabar kelgan bo'lsa, har doim birinchi navbatda shuni qaytaramiz
+    const serverMessage = error?.response?.data?.message
+    if (typeof serverMessage === "string" && serverMessage.trim().length > 0) {
+        return serverMessage.trim()
+    }
+
     const status = error?.response?.status
-    const message = error?.response?.data?.message || error?.message || "Noma'lum xatolik yuz berdi"
 
     if (status === 400) {
         return "Noto'g'ri so'rov yuborildi"
@@ -34,7 +39,7 @@ const handleApiError = (error) => {
         return "Serverda xatolik yuz berdi"
     }
 
-    return message
+    return error?.message || "Noma'lum xatolik yuz berdi"
 }
 
 export { handleApiError }

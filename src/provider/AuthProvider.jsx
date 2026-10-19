@@ -278,13 +278,10 @@ export const AuthProvider = ({ children }) => {
 
   // LOGOUT
   const logout = useCallback(() => {
-    const currentToken = useUserStore.getState().userToken?.accessToken
-    if (currentToken) {
-      if (typeof authService.logout === "function") {
-        authService.logout(currentToken).catch(() => {})
-      } else if (typeof authService.logOut === "function") {
-        authService.logOut(currentToken).catch(() => {})
-      }
+    const userToken = useUserStore.getState().userToken
+    const refreshToken = userToken?.refreshToken
+    if (refreshToken && typeof authService.logout === "function") {
+      authService.logout({ refreshToken }).catch(() => {})
     }
     useUserStore.getState().actions.clearUserInfoAndToken()
     try {

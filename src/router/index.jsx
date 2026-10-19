@@ -2,7 +2,7 @@ import { Suspense } from "react"
 import { createBrowserRouter, Navigate } from "react-router-dom"
 import AuthLayout from "../layout/AuthLayout"
 import MainLayout from "../layout/MainLayout"
-import { AuthGuard, RoleGuard } from "./guards"
+import { AuthGuard, RoleGuard, GuestGuard } from "./guards"
 import { RouteError, PageLoading } from "@/shared/ui"
 import { lazyWithRetry } from "@/shared/lib"
 import LoginPage from "@/pages/authentication/LoginPage"
@@ -45,14 +45,19 @@ const router = createBrowserRouter([
     errorElement: <RouteError />,
     element: <Navigate to="/login" replace />,
   },
-  // auth section uchun route
+  // auth section uchun route (faqat mehmonlar uchun)
   {
-    element: <AuthLayout />,
+    element: <GuestGuard />,
     errorElement: <RouteError />,
     children: [
       {
-        path: "/login",
-        element: <LoginPage />,
+        element: <AuthLayout />,
+        children: [
+          {
+            path: "/login",
+            element: <LoginPage />,
+          },
+        ],
       },
     ],
   },

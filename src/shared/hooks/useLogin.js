@@ -46,19 +46,28 @@ export const useLogin = () => {
                 return
             }
 
-            if (accessToken) {
-                useUserStore.getState().actions.setUserInfoAndToken(userObj, {
-                    accessToken,
-                    refreshToken,
-                })
+            if (!accessToken) {
+                useUserStore.getState().actions.clearUserInfoAndToken()
+                toast.error(data?.message || "Avtorizatsiya tokeni olinmadi. Qayta urinib ko'ring.")
+                return
             }
+
+            useUserStore.getState().actions.setUserInfoAndToken(userObj, {
+                accessToken,
+                refreshToken,
+            })
 
             toast.success("Tizimga muvaffaqiyatli kirildi!")
             navigate(route, { replace: true })
         },
 
         onError: (error) => {
-            const message = error?.response?.data?.message || "Telefon raqami yoki parol noto'g'ri."
+            // Xato yuz berganda avvalgi stale sessiyani tozalash
+            useUserStore.getState().actions.clearUserInfoAndToken()
+            const message =
+                error?.response?.data?.message ||
+                error?.message ||
+                "Telefon raqami yoki parol noto'g'ri."
             toast.error(message)
         },
     })
