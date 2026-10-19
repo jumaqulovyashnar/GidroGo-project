@@ -171,6 +171,12 @@ const SozlamalarPage = () => {
                 setSavedAvatarUrl(avatar)
                 setHasImageError(false)
             }
+            if (currentUser && profile?.avatarUrl && currentUser.avatarUrl !== profile.avatarUrl) {
+                useUserStore.getState().actions.setUserInfo({
+                    ...currentUser,
+                    avatarUrl: profile.avatarUrl,
+                })
+            }
         }
     }, [profile, currentUser, reset])
 

@@ -38,10 +38,11 @@ export const useAuditLogs = (params = {}) => {
   })
 }
 
-export const useSuperAdminProfile = () => {
+export const useSuperAdminProfile = (options = {}) => {
   return useQuery({
     queryKey: ["superadmin-profile"],
     queryFn: () => superAdminService.getProfile(),
+    ...options,
   })
 }
 

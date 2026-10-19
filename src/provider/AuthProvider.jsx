@@ -194,6 +194,13 @@ export const createUser = (userData, token) => {
       userData?.attachmentPath ||
       userData?.avatar,
 
+    avatarUrl:
+      userData?.avatarUrl ||
+      userData?.avatar ||
+      userData?.photoUrl ||
+      userData?.attachmentPath ||
+      "",
+
     permissions:
       userData?.permissions || [],
   }
