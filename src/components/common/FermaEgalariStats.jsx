@@ -1,10 +1,10 @@
 import { useMemo } from "react"
-import { Card, CardHeader } from "@/shared/ui"
+import { Card } from "@/shared/ui"
 import { User, ShieldCheck, TrendingUpIcon, Hammer } from "lucide-react"
 
 /**
- * Ferma egalari sahifasi 4 ta metrika kartochkalari (default holatda)
- * Barcha iconlar ko'k rangda (bg-blue-50 text-blue-600 border-blue-100)
+ * Ferma egalari sahifasi 4 ta metrika kartochkalari
+ * Barcha elementlar startda (chapda) bir xil tekislangan
  * @param {Object} props
  * @param {import("@/entities/boss").BossStats} props.stats
  * @param {boolean} props.isLoading
@@ -21,22 +21,27 @@ export function FermaEgalariStats({ stats, isLoading = false }) {
   )
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 pt-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 pt-2">
       {cards.map((card) => {
         const Icon = card.icon
         return (
-          <Card key={card.id} className="p-3 sm:p-3.5 border border-slate-200/80 rounded-xl bg-white shadow-xs">
-            <CardHeader className="flex items-center justify-between p-0">
+          <Card
+            key={card.id}
+            className="p-4 sm:p-5 border border-slate-200/80 rounded-2xl bg-white shadow-xs flex flex-col justify-between min-h-[130px] transition-all hover:border-slate-300"
+          >
+            {/* Yuqori qism: Sarlavha va Ikona (chapdan startda tekislangan) */}
+            <div className="flex items-center justify-between gap-2">
               <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                 {card.title}
               </span>
-              <span className="flex size-11 sm:size-12 items-center justify-center rounded-full bg-blue-50 text-blue-600 border border-blue-100/80 shrink-0">
-                <Icon className="size-5.5 sm:size-6 text-blue-600" strokeWidth={1.75} />
-              </span>
-            </CardHeader>
+              <div className="size-10 sm:size-11 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100/80 shadow-2xs shrink-0">
+                <Icon className="size-5 text-blue-600" strokeWidth={1.75} />
+              </div>
+            </div>
 
-            <div className="mt-1.5 flex items-baseline gap-1.5">
-              <span className="text-xl sm:text-2xl font-bold text-slate-900">
+            {/* Pastki qism: Qiymat va label (chapdan startda yuqori sarlavha bilan bir xil tekislangan) */}
+            <div className="mt-3 flex items-baseline gap-1.5">
+              <span className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
                 {isLoading ? "—" : card.value}
               </span>
               <span className="text-xs text-slate-500 font-medium">

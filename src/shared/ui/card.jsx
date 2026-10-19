@@ -18,7 +18,7 @@ function CardHeader({ className, ...props }) {
   return (
     <div
       data-slot="card-header"
-      className={cn("flex flex-row items-center justify-between space-y-0 p-5 sm:p-6 pb-2", className)}
+      className={cn("flex flex-row items-center justify-between space-y-0 p-6 pb-2", className)}
       {...props}
     />
   )
@@ -48,7 +48,7 @@ function CardContent({ className, ...props }) {
   return (
     <div
       data-slot="card-content"
-      className={cn("p-5 sm:p-6 pt-0", className)}
+      className={cn("p-6 pt-0", className)}
       {...props}
     />
   )
