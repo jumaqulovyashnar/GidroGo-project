@@ -14,6 +14,8 @@ import {
 } from "lucide-react"
 import { Button } from "@/shared/ui"
 
+const MAX_EXPENSE_AMOUNT = 10_000_000_000 // 10 milliard so'm
+
 const addExpenseSchema = z.object({
   category: z
     .string()
@@ -23,10 +25,15 @@ const addExpenseSchema = z.object({
   amount: z
     .string()
     .min(1, "Xarajat summasini kiriting")
+    .max(11, "Summa uzunligi 11 ta raqamdan oshmasligi kerak")
     .refine((val) => {
       const num = Number(val.replace(/\s/g, ""))
       return !isNaN(num) && num > 0
-    }, "Summa 0 dan katta bo'lishi kerak"),
+    }, "Summa 0 dan katta bo'lishi kerak")
+    .refine((val) => {
+      const num = Number(val.replace(/\s/g, ""))
+      return num <= MAX_EXPENSE_AMOUNT
+    }, "Xarajat summasi ko'pi bilan 10 milliard so'm bo'lishi mumkin"),
   note: z.string().max(250, "Izoh 250 ta belgidan oshmasligi kerak").optional(),
 })
 
@@ -60,11 +67,19 @@ export function AddExpenseModal({ opened, onClose, onAddExpense, isSubmitting })
   }
 
   const handleAmountChange = (e) => {
-    const rawVal = e.target.value.replace(/\D/g, "")
+    let rawVal = e.target.value.replace(/\D/g, "")
+    // 10 milliard (11 ta raqam: 10 000 000 000) dan oshmasligi uchun uzunlikni cheklash
+    if (rawVal.length > 11) {
+      rawVal = rawVal.slice(0, 11)
+    }
     if (!rawVal) {
       setFormattedAmount("")
       setValue("amount", "", { shouldValidate: true })
       return
+    }
+    const num = Number(rawVal)
+    if (num > MAX_EXPENSE_AMOUNT) {
+      rawVal = String(MAX_EXPENSE_AMOUNT)
     }
     const formatted = Number(rawVal).toLocaleString("ru-RU")
     setFormattedAmount(formatted)
@@ -159,6 +174,7 @@ export function AddExpenseModal({ opened, onClose, onAddExpense, isSubmitting })
             <input
               type="text"
               inputMode="numeric"
+              maxLength={15}
               placeholder="Masalan: 250 000"
               value={formattedAmount}
               onChange={handleAmountChange}
