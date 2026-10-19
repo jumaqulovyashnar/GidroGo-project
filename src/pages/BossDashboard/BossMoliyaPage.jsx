@@ -270,10 +270,10 @@ export function BossMoliyaPage() {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-base font-bold text-slate-900">
+            <h2 className="text-base sm:text-lg font-bold text-slate-900 leading-tight">
               Kassa va Inkassatsiya Hisoboti
             </h2>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs sm:text-sm text-slate-500 font-medium mt-1 leading-relaxed">
               Kuryerlardan yig'ilgan naqd pul, kassaga topshirilgan va qoldiq summalar monitoringi
             </p>
           </div>
