@@ -1,5 +1,5 @@
 import { useState, useMemo, lazy, Suspense } from "react"
-import { Button, TablePagination, Spinner, StatCard } from "@/shared/ui"
+import { Button, Card, CardHeader, CardTitle, CardContent, TablePagination, Spinner } from "@/shared/ui"
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/shared/ui/table"
 import { Filter, Tractor, Users, BadgeCheck, Gauge, RefreshCw } from "lucide-react"
 import { useRegionalStatistics, useSuperAdminDashboard } from "@/shared/hooks"
@@ -130,17 +130,39 @@ export const StatistikaPage = () => {
 
                 {/* 4 ta KPI card */}
                 <div className="grid grid-cols-1 gap-4 lg:gap-5 sm:grid-cols-2 lg:grid-cols-4 pt-6">
-                    {auditMetrics.map((audit) => (
-                        <StatCard
-                            key={audit.id}
-                            title={audit.title}
-                            value={audit.value}
-                            subText={audit.description}
-                            badge={audit.badge}
-                            icon={audit.icon}
-                            percentage={audit.percentage}
-                        />
-                    ))}
+                    {auditMetrics.map((audit) => {
+                        const Icon = audit.icon
+
+                        return (
+                            <Card
+                                key={audit.id}
+                                className="border border-slate-200/80 rounded-2xl p-4 sm:p-5 bg-white shadow-xs hover:shadow-sm transition-all duration-200 flex flex-col justify-between"
+                            >
+                                <CardHeader className="flex flex-row items-center justify-between space-y-0 p-0 pb-2">
+                                    <CardTitle className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                        {audit.title}
+                                    </CardTitle>
+                                    <div className="size-9 rounded-xl flex items-center justify-center shrink-0 border bg-blue-50 text-blue-600 border-blue-100">
+                                        <Icon className="size-4.5 text-blue-600" />
+                                    </div>
+                                </CardHeader>
+
+                                <CardContent className="p-0 pt-2">
+                                    <div className="flex items-baseline gap-2">
+                                        <span className="text-2xl font-extrabold text-slate-900">{audit.value}</span>
+                                        {audit.badge && (
+                                            <span className="rounded-md bg-blue-50 px-1.5 py-0.5 text-[10px] font-semibold text-blue-600 border border-blue-100">
+                                                {audit.badge}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <p className="mt-1.5 text-xs text-slate-500">
+                                        {audit.description}
+                                    </p>
+                                </CardContent>
+                            </Card>
+                        )
+                    })}
                 </div>
 
                 {/* Diagramma section */}
