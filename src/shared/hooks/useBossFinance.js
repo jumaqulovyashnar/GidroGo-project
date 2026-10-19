@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import bossFinanceService from "@/services/boss.finance.service";
 
 // 1. GET /api/boss/finance/summary (1 marta so'rov, 5 daqiqa kesh)
@@ -25,4 +25,20 @@ export const useBossFinanceChart = (period = "week", options = {}) => {
   });
 };
 
+// 3. POST /api/manager/finance/expenses - Xarajat kiritish
+export const useBossCreateExpense = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data) => bossFinanceService.createExpense(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["boss-finance-summary"] });
+      queryClient.invalidateQueries({ queryKey: ["boss-finance-chart"] });
+      queryClient.invalidateQueries({ queryKey: ["boss-dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["manager-finance-summary"] });
+    },
+  });
+};
+
 export default useBossFinanceSummary;
+

@@ -2,8 +2,15 @@ import { useState, lazy, Suspense } from "react"
 import { Link } from "react-router-dom"
 import { Select } from "@mantine/core"
 import { CreditCard, Receipt, Landmark, ShoppingBag, Download, Plus, ChevronRight, Calendar, ChevronDown, HandCoins, ArrowDownToLine, Wallet, Users, AlertCircle } from "lucide-react"
+import { toast } from "sonner"
 import { Card, Button, Spinner } from "@/shared/ui"
-import { useBossFinanceSummary, useBossOrders, useBossCashSummary } from "@/shared/hooks"
+import {
+  useBossFinanceSummary,
+  useBossOrders,
+  useBossCashSummary,
+  useBossCreateExpense,
+} from "@/shared/hooks"
+import { AddExpenseModal } from "@/components"
 
 const FinanceDynamicChart = lazy(() => import("@/widgets").then((m) => ({ default: m.FinanceDynamicChart })))
 
@@ -32,6 +39,22 @@ export function BossMoliyaPage() {
   } = useBossFinanceSummary(periodParam)
   const { data: ordersRes } = useBossOrders({ all: true })
   const { data: cashSummaryRes } = useBossCashSummary()
+
+  const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false)
+  const { mutate: createExpense, isPending: isCreatingExpense } = useBossCreateExpense()
+
+  const handleAddExpense = (payload, onSuccessCallback) => {
+    createExpense(payload, {
+      onSuccess: () => {
+        toast.success("Xarajat muvaffaqiyatli qo'shildi!")
+        onSuccessCallback?.()
+        refetchFinance()
+      },
+      onError: (err) => {
+        toast.error(err.message || "Xarajat qo'shishda xatolik yuz berdi!")
+      },
+    })
+  }
 
   const finance = financeRes?.data || financeRes || {}
   const rawOrders = ordersRes?.data || ordersRes || []
@@ -212,6 +235,7 @@ export function BossMoliyaPage() {
 
           <button
             type="button"
+            onClick={() => setIsExpenseModalOpen(true)}
             className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold gap-1.5 shadow-2xs h-9 px-4 flex items-center transition-colors cursor-pointer"
           >
             <Plus className="size-3.5 stroke-[2.5]" />
@@ -274,6 +298,14 @@ export function BossMoliyaPage() {
       >
         <FinanceDynamicChart period={periodParam} />
       </Suspense>
+
+      {/* 6. Xarajat qo'shish Modali */}
+      <AddExpenseModal
+        opened={isExpenseModalOpen}
+        onClose={() => setIsExpenseModalOpen(false)}
+        onAddExpense={handleAddExpense}
+        isSubmitting={isCreatingExpense}
+      />
     </div>
   )
 }

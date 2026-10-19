@@ -20,6 +20,21 @@ class BossFinanceService {
       throw new Error(handleApiError(error));
     }
   }
+
+  // POST /api/manager/finance/expenses - Xarajat kiritish
+  async createExpense(data) {
+    try {
+      const payload = {
+        category: data.category,
+        amount: Number(data.amount),
+        ...(data.note?.trim() ? { note: data.note.trim() } : {}),
+      };
+      const response = await api.post("/manager/finance/expenses", payload);
+      return response.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  }
 }
 
 export const bossFinanceService = new BossFinanceService();
