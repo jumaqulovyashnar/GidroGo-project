@@ -1,7 +1,7 @@
 import { useState, lazy, Suspense } from "react"
 import { Select } from "@mantine/core"
 import { toast } from "sonner"
-import { Calendar, ChevronDown, FileText, Wallet, Truck, Users, TrendingUp, Sparkles, AlertCircle } from "lucide-react"
+import { Calendar, ChevronDown, FileText, Wallet, Truck, Users, TrendingUp, AlertCircle } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent, Button, Spinner } from "@/shared/ui"
 import { useBossDashboard, useBossClients, useBossClientSegments, useBossBusinessGrowth } from "@/shared/hooks"
 import { exportToCsv } from "@/shared/lib"
@@ -15,16 +15,12 @@ const quarterOptions = [
   { value: "2025_q2", label: "2025-yil 2-Chorak" },
 ]
 
-const modeOptions = [
-  { value: "prev_quarter", label: "O'tgan chorak" },
-  { value: "prev_year", label: "O'tgan yil" },
-  { value: "plan", label: "Reja bo'yicha" },
-]
-
 export function BossOsishPage() {
   const [selectedQuarter, setSelectedQuarter] = useState("2026_q1")
-  const [selectedMode, setSelectedMode] = useState("prev_quarter")
-  const { data: growthRes } = useBossBusinessGrowth({ period: "quarter" })
+  const [yearStr, quarterStr] = (selectedQuarter || "2026_q1").split("_q")
+  const year = Number(yearStr) || 2026
+  const quarter = Number(quarterStr) || 1
+  const { data: growthRes } = useBossBusinessGrowth({ period: "quarter", year, quarter })
   const {
     data: dashboardRes,
     isError: isDashboardError,
@@ -120,25 +116,6 @@ export function BossOsishPage() {
             }}
           />
 
-          <Select
-            value={selectedMode}
-            onChange={(val) => setSelectedMode(val || "prev_quarter")}
-            data={modeOptions}
-            allowDeselect={false}
-            maxDropdownHeight={300}
-            leftSection={<Sparkles className="size-3.5 text-slate-400 pointer-events-none" />}
-            rightSection={<ChevronDown className="size-3.5 text-slate-400 pointer-events-none" />}
-            classNames={{
-              root: "w-40 sm:w-44",
-              input:
-                "!h-9 !rounded-xl !border-slate-200 !bg-white hover:!bg-slate-50 !text-slate-800 !text-xs !font-semibold !cursor-pointer transition-colors focus:!border-blue-500 shadow-2xs !select-none caret-transparent",
-              dropdown:
-                "!rounded-xl !border-slate-200 !shadow-lg !p-1.5 !bg-white [&_.mantine-ScrollArea-scrollbar]:!hidden",
-              option:
-                "!rounded-lg !text-xs !font-medium !py-1.5 !px-2.5 !cursor-pointer hover:!bg-slate-100 data-[checked=true]:!bg-blue-50 data-[checked=true]:!text-blue-600 data-[checked=true]:!font-bold",
-            }}
-          />
-
           <Button
             variant="default"
             size="sm"
@@ -208,7 +185,7 @@ export function BossOsishPage() {
           </div>
         }
       >
-        <CustomerGrowthAreaChart />
+        <CustomerGrowthAreaChart period="quarter" year={year} quarter={quarter} />
       </Suspense>
       {/* 4. Pastki Qism: Mijozlar va Yetkazish ko'rsatkichlari */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">

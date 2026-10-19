@@ -2,8 +2,12 @@ import Chart from "react-apexcharts"
 import { Card, CardHeader, CardTitle, CardContent } from "@/shared/ui"
 import { useBossClients, useBossDashboard, useBossBusinessGrowth } from "@/shared/hooks"
 
-export function CustomerGrowthAreaChart({ period = "quarter" }) {
-  const { data: growthRes } = useBossBusinessGrowth({ period })
+export function CustomerGrowthAreaChart({ period = "quarter", year, quarter }) {
+  const { data: growthRes } = useBossBusinessGrowth({
+    period,
+    ...(year ? { year } : {}),
+    ...(quarter ? { quarter } : {}),
+  })
   const { data: clientsRes } = useBossClients()
   const { data: dashboardRes } = useBossDashboard()
 
