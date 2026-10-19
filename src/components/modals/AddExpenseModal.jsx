@@ -2,7 +2,7 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { Modal as MantineModal, Select } from "@mantine/core"
+import { Modal as MantineModal } from "@mantine/core"
 import {
   Receipt,
   Coins,
@@ -10,21 +10,16 @@ import {
   AlertCircle,
   Loader2,
   Plus,
+  Tag,
 } from "lucide-react"
 import { Button } from "@/shared/ui"
 
-const expenseCategories = [
-  { value: "Yoqilg'i va transport", label: "Yoqilg'i va transport (benzin, gaz, yo'l)" },
-  { value: "Xomashyo va materiallar", label: "Suv filtrlash va xomashyo (qopqoq, filtr, etiketka)" },
-  { value: "Oylik va ish haqi", label: "Oylik va ish haqi (xodimlar maoshi, bonuslar)" },
-  { value: "Elektr va kommunal", label: "Elektr energiyasi va kommunal to'lovlar" },
-  { value: "Ta'mirlash va texnik xizmat", label: "Avtopark va uskunalar ta'miri" },
-  { value: "Ijara va boshqaruv", label: "Ijara va ma'muriy kantselyariya" },
-  { value: "Boshqa xarajatlar", label: "Boshqa operatsion xarajatlar" },
-]
-
 const addExpenseSchema = z.object({
-  category: z.string().min(1, "Xarajat toifasini tanlang"),
+  category: z
+    .string()
+    .trim()
+    .min(1, "Xarajat toifasi yoki nomini kiriting")
+    .max(100, "Xarajat toifasi 100 ta belgidan oshmasligi kerak"),
   amount: z
     .string()
     .min(1, "Xarajat summasini kiriting")
@@ -42,23 +37,24 @@ export function AddExpenseModal({ opened, onClose, onAddExpense, isSubmitting })
     register,
     handleSubmit,
     setValue,
-    watch,
     reset,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(addExpenseSchema),
     defaultValues: {
-      category: "Yoqilg'i va transport",
+      category: "",
       amount: "",
       note: "",
     },
     mode: "onBlur",
   })
 
-  const currentCategory = watch("category")
-
   const handleClose = () => {
-    reset()
+    reset({
+      category: "",
+      amount: "",
+      note: "",
+    })
     setFormattedAmount("")
     onClose()
   }
@@ -78,7 +74,7 @@ export function AddExpenseModal({ opened, onClose, onAddExpense, isSubmitting })
   const onSubmit = (data) => {
     const cleanAmount = Number(data.amount.replace(/\s/g, ""))
     const payload = {
-      category: data.category,
+      category: data.category.trim(),
       amount: cleanAmount,
       ...(data.note?.trim() ? { note: data.note.trim() } : {}),
     }
@@ -127,25 +123,25 @@ export function AddExpenseModal({ opened, onClose, onAddExpense, isSubmitting })
       }}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4.5" noValidate>
-        {/* 1. Xarajat toifasi */}
+        {/* 1. Xarajat toifasi yoki nomi (Foydalanuvchi o'zi kiritadi, soxta mock datalarsiz) */}
         <div className="space-y-1.5">
           <label className="text-xs font-semibold text-slate-700 flex items-center justify-between">
-            <span>Xarajat toifasi (Kategoriya)</span>
+            <span>Xarajat toifasi yoki nomi</span>
             <span className="text-rose-500 text-[11px] font-bold">*majburiy</span>
           </label>
-          <Select
-            data={expenseCategories}
-            value={currentCategory}
-            onChange={(val) => setValue("category", val || "", { shouldValidate: true })}
-            placeholder="Toifani tanlang..."
-            classNames={{
-              input:
-                "h-11 rounded-xl border border-slate-200 bg-slate-50/50 text-sm font-medium text-slate-800 focus:border-blue-500 focus:bg-white transition-all",
-              dropdown: "rounded-xl border border-slate-200 shadow-lg p-1.5",
-              option:
-                "!rounded-lg !text-xs !font-medium !py-2 !px-3 !cursor-pointer hover:!bg-slate-100 data-[checked=true]:!bg-blue-50 data-[checked=true]:!text-blue-600 data-[checked=true]:!font-bold",
-            }}
-          />
+          <div className="relative">
+            <Tag className="size-4.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              {...register("category")}
+              placeholder="Masalan: Yoqilg'i, Oylik, Ta'mirlash, Kommunal..."
+              className={`w-full h-11 pl-10.5 pr-4 rounded-xl border text-sm font-medium text-slate-900 bg-slate-50/50 placeholder:text-slate-400 focus:outline-none focus:bg-white transition-all ${
+                errors.category
+                  ? "border-rose-300 focus:border-rose-500"
+                  : "border-slate-200 focus:border-blue-500"
+              }`}
+            />
+          </div>
           {errors.category && (
             <p className="text-xs font-medium text-rose-500 flex items-center gap-1 mt-1">
               <AlertCircle className="size-3.5 shrink-0" />
@@ -197,7 +193,7 @@ export function AddExpenseModal({ opened, onClose, onAddExpense, isSubmitting })
             <textarea
               {...register("note")}
               rows={3}
-              placeholder="Masalan: Damas 01 A 777 AA avtomobili uchun 40L metan gaz..."
+              placeholder="Masalan: Cobalt avtomobili uchun 40L metan gaz..."
               className="w-full pl-10.5 pr-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white transition-all resize-none"
             />
           </div>
