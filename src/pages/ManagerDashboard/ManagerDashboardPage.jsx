@@ -302,7 +302,7 @@ export default function ManagerDashboardPage() {
           </div>
 
           {/* Table Content (No ID column, clean and readable) */}
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto min-h-[320px]">
             <table className="w-full text-left text-sm border-collapse">
               <thead>
                 <tr className="bg-slate-50/80 border-b border-slate-200/80 text-slate-500 font-semibold uppercase text-xs tracking-wider">
@@ -318,7 +318,7 @@ export default function ManagerDashboardPage() {
               <tbody className="divide-y divide-slate-100">
                 {isOrdersPending ? (
                   <tr>
-                    <td colSpan={7} className="py-16 text-center text-slate-400">
+                    <td colSpan={7} className="py-[89px] text-center text-slate-400">
                       <div className="flex items-center justify-center gap-2">
                         <span className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
                         <span>Buyurtmalar yuklanmoqda...</span>
@@ -327,7 +327,7 @@ export default function ManagerDashboardPage() {
                   </tr>
                 ) : paginatedOrders.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-16 text-center text-slate-400">
+                    <td colSpan={7} className="py-[89px] text-center text-slate-400">
                       Hech qanday buyurtma topilmadi
                     </td>
                   </tr>
