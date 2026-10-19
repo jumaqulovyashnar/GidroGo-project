@@ -8,10 +8,10 @@ export const useSuperAdminDashboard = () => {
   })
 }
 
-export const useRegionalStatistics = () => {
+export const useRegionalStatistics = (params = {}) => {
   return useQuery({
-    queryKey: ["regional-statistics"],
-    queryFn: () => superAdminService.getRegionalStatistics(),
+    queryKey: ["regional-statistics", params],
+    queryFn: () => superAdminService.getRegionalStatistics(params),
   })
 }
 
@@ -50,8 +50,12 @@ export const useUpdateSuperAdminProfile = () => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (data) => superAdminService.updateProfile(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["superadmin-profile"] })
+    onSuccess: (data) => {
+      queryClient.setQueryData(["superadmin-profile"], (old) => {
+        if (!data) return old
+        if (old?.data && data?.data) return { ...old, data: { ...old.data, ...data.data } }
+        return { ...(old || {}), ...data }
+      })
     },
   })
 }

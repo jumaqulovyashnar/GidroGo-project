@@ -1,21 +1,97 @@
-import { useState, useMemo, lazy, Suspense } from "react"
+import { useState, useMemo, useRef, useEffect, lazy, Suspense } from "react"
 import { Button, Card, CardHeader, CardTitle, CardContent, TablePagination, Spinner } from "@/shared/ui"
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/shared/ui/table"
-import { Filter, Tractor, Users, BadgeCheck, Gauge, RefreshCw } from "lucide-react"
+import { Filter, Tractor, Users, BadgeCheck, Gauge, RefreshCw, Calendar, MapPin, X, RotateCcw } from "lucide-react"
 import { useRegionalStatistics, useSuperAdminDashboard } from "@/shared/hooks"
 
 const LineColumn = lazy(() => import("@/widgets").then((m) => ({ default: m.LineColumn })))
 
 const ITEMS_PER_PAGE = 8
 
+const formatDateYMD = (date) => {
+    const y = date.getFullYear()
+    const m = String(date.getMonth() + 1).padStart(2, "0")
+    const d = String(date.getDate()).padStart(2, "0")
+    return `${y}-${m}-${d}`
+}
+
 export const StatistikaPage = () => {
     const [currentPage, setCurrentPage] = useState(1)
+    const [isFilterOpen, setIsFilterOpen] = useState(false)
+    const filterRef = useRef(null)
 
-    const { data: regData, isFetching: isFetchingReg, refetch: refetchReg } = useRegionalStatistics()
+    const [filters, setFilters] = useState({
+        region: "all",
+        from: "",
+        to: "",
+    })
+
+    const [draftFilters, setDraftFilters] = useState({
+        region: "all",
+        from: "",
+        to: "",
+    })
+
+    // Click outside va Escape tugmasi orqali popoverni yopish
+    useEffect(() => {
+        if (!isFilterOpen) return
+
+        const handleClickOutside = (e) => {
+            if (filterRef.current && !filterRef.current.contains(e.target)) {
+                setIsFilterOpen(false)
+            }
+        }
+        const handleKeyDown = (e) => {
+            if (e.key === "Escape") {
+                setIsFilterOpen(false)
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside)
+        document.addEventListener("keydown", handleKeyDown)
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside)
+            document.removeEventListener("keydown", handleKeyDown)
+        }
+    }, [isFilterOpen])
+
+    const activeFilterCount = useMemo(() => {
+        let count = 0
+        if (filters.region && filters.region !== "all") count++
+        if (filters.from) count++
+        if (filters.to) count++
+        return count
+    }, [filters])
+
+    // Backend so'rovi uchun parametrlar (OpenAPI: region, from, to)
+    const queryParams = useMemo(() => {
+        const p = {}
+        if (filters.region && filters.region !== "all") {
+            p.region = filters.region
+        }
+        if (filters.from) {
+            p.from = filters.from
+        }
+        if (filters.to) {
+            p.to = filters.to
+        }
+        return p
+    }, [filters])
+
+    const { data: regData, isFetching: isFetchingReg, refetch: refetchReg } = useRegionalStatistics(queryParams)
     const { data: dashData } = useSuperAdminDashboard()
 
     const regResponse = regData?.data || regData
     const dashboard = useMemo(() => dashData?.data || dashData || {}, [dashData])
+
+    // Mavjud hududlar ro'yxati (Dropdown uchun)
+    const availableRegions = useMemo(() => {
+        const rawList = Array.isArray(regResponse?.regions)
+            ? regResponse.regions.map((r) => r.regionName || r.name).filter(Boolean)
+            : []
+        const unique = Array.from(new Set(rawList))
+        return unique.length > 0 ? unique : ["Toshkent", "Samarqand", "Qarshi", "Belgilanmagan"]
+    }, [regResponse])
 
     // Faqat haqiqiy API dan kelgan hududlar ro'yxati (hech qanday mock yo'q)
     const regionsList = useMemo(() => {
@@ -35,6 +111,49 @@ export const StatistikaPage = () => {
         }
         return []
     }, [regResponse])
+
+    // Client-side xavfsiz filtrlash (agar backend barcha hududlarni qaytarsa ham UI to'g'ri filtrlanadi)
+    const filteredRegionsList = useMemo(() => {
+        if (!filters.region || filters.region === "all") return regionsList
+        const target = filters.region.trim().toLowerCase()
+        return regionsList.filter((r) => r.name.toLowerCase().includes(target))
+    }, [regionsList, filters.region])
+
+    // Tezkor sana tanlash yordamchisi
+    const handleQuickDateSelect = (type) => {
+        const now = new Date()
+        if (type === "all") {
+            setDraftFilters((prev) => ({ ...prev, from: "", to: "" }))
+        } else if (type === "month") {
+            const firstDay = new Date(now.getFullYear(), now.getMonth(), 1)
+            setDraftFilters((prev) => ({
+                ...prev,
+                from: formatDateYMD(firstDay),
+                to: formatDateYMD(now),
+            }))
+        } else if (type === "30days") {
+            const past30 = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+            setDraftFilters((prev) => ({
+                ...prev,
+                from: formatDateYMD(past30),
+                to: formatDateYMD(now),
+            }))
+        }
+    }
+
+    const handleApplyFilters = () => {
+        setFilters(draftFilters)
+        setCurrentPage(1)
+        setIsFilterOpen(false)
+    }
+
+    const handleResetFilters = () => {
+        const empty = { region: "all", from: "", to: "" }
+        setDraftFilters(empty)
+        setFilters(empty)
+        setCurrentPage(1)
+        setIsFilterOpen(false)
+    }
 
     // Faqat haqiqiy API dan kelgan ko'rsatkichlar (hech qanday mock yo'q)
     const auditMetrics = useMemo(() => {
@@ -95,11 +214,11 @@ export const StatistikaPage = () => {
         ]
     }, [regResponse, dashboard])
 
-    const totalPages = Math.max(1, Math.ceil(regionsList.length / ITEMS_PER_PAGE))
+    const totalPages = Math.max(1, Math.ceil(filteredRegionsList.length / ITEMS_PER_PAGE))
     const paginatedData = useMemo(() => {
         const start = (currentPage - 1) * ITEMS_PER_PAGE
-        return regionsList.slice(start, start + ITEMS_PER_PAGE)
-    }, [regionsList, currentPage])
+        return filteredRegionsList.slice(start, start + ITEMS_PER_PAGE)
+    }, [filteredRegionsList, currentPage])
 
     return (
         <section>
@@ -191,14 +310,173 @@ export const StatistikaPage = () => {
                                 Viloyatlar kesimida infratuzilma zichligi va buyurtmalar quvvati
                             </p>
                         </div>
-                        <div>
-                            <button
-                                type="button"
-                                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-blue-100 bg-blue-50/60 text-xs font-semibold text-blue-600 hover:bg-blue-100 hover:text-blue-700 transition-colors shadow-2xs cursor-pointer"
-                            >
-                                <Filter className="w-3.5 h-3.5" />
-                                <span>Filtrlash</span>
-                            </button>
+
+                        {/* Interactive Filter Button & Popover */}
+                        <div className="relative" ref={filterRef}>
+                            <div className="flex items-center gap-2">
+                                {activeFilterCount > 0 && (
+                                    <button
+                                        type="button"
+                                        onClick={handleResetFilters}
+                                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs font-semibold transition-colors shadow-2xs cursor-pointer"
+                                        title="Filtrlarni tozalash"
+                                    >
+                                        <RotateCcw className="w-3.5 h-3.5" />
+                                        <span className="hidden sm:inline">Tozalash</span>
+                                    </button>
+                                )}
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setDraftFilters(filters)
+                                        setIsFilterOpen((prev) => !prev)
+                                    }}
+                                    aria-expanded={isFilterOpen}
+                                    className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border text-xs font-semibold transition-all shadow-2xs cursor-pointer ${
+                                        activeFilterCount > 0
+                                            ? "border-blue-300 bg-blue-50 text-blue-700 ring-2 ring-blue-500/20"
+                                            : "border-blue-100 bg-blue-50/60 text-blue-600 hover:bg-blue-100 hover:text-blue-700"
+                                    }`}
+                                >
+                                    <Filter className="w-3.5 h-3.5" />
+                                    <span>Filtrlash</span>
+                                    {activeFilterCount > 0 && (
+                                        <span className="size-4.5 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center shrink-0">
+                                            {activeFilterCount}
+                                        </span>
+                                    )}
+                                </button>
+                            </div>
+
+                            {/* Dropdown Popover */}
+                            {isFilterOpen && (
+                                <div className="absolute right-0 top-full mt-2 z-30 w-80 sm:w-96 bg-white rounded-2xl border border-slate-200/90 shadow-xl p-4.5 animate-in fade-in zoom-in-95 duration-150">
+                                    {/* Popover Header */}
+                                    <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                                        <div className="flex items-center gap-2">
+                                            <div className="size-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100/60">
+                                                <Filter className="size-3.5" />
+                                            </div>
+                                            <span className="text-xs sm:text-sm font-bold text-slate-900">
+                                                Jadvalni filtrlash
+                                            </span>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsFilterOpen(false)}
+                                            className="size-7 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center cursor-pointer transition-colors"
+                                        >
+                                            <X className="size-4" />
+                                        </button>
+                                    </div>
+
+                                    {/* Form Fields */}
+                                    <div className="mt-3.5 space-y-3.5">
+                                        {/* 1. Hudud tanlash */}
+                                        <div>
+                                            <label className="text-[11px] font-semibold text-slate-700 block mb-1.5 flex items-center gap-1.5">
+                                                <MapPin className="size-3.5 text-blue-600" />
+                                                <span>Hudud / Viloyat</span>
+                                            </label>
+                                            <select
+                                                value={draftFilters.region}
+                                                onChange={(e) =>
+                                                    setDraftFilters((prev) => ({ ...prev, region: e.target.value }))
+                                                }
+                                                className="w-full h-9.5 px-3 rounded-xl border border-slate-200 bg-white text-xs text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer"
+                                            >
+                                                <option value="all">Barcha hududlar</option>
+                                                {availableRegions.map((reg) => (
+                                                    <option key={reg} value={reg}>
+                                                        {reg}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+
+                                        {/* 2. Davr / Sana oralig'i */}
+                                        <div>
+                                            <label className="text-[11px] font-semibold text-slate-700 block mb-1.5 flex items-center gap-1.5">
+                                                <Calendar className="size-3.5 text-blue-600" />
+                                                <span>Sana oralig'i (from / to)</span>
+                                            </label>
+
+                                            {/* Quick Presets */}
+                                            <div className="flex items-center gap-1.5 mb-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleQuickDateSelect("all")}
+                                                    className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-colors cursor-pointer ${
+                                                        !draftFilters.from && !draftFilters.to
+                                                            ? "bg-blue-50 text-blue-600 border border-blue-200"
+                                                            : "bg-slate-50 text-slate-600 border border-slate-200/70 hover:bg-slate-100"
+                                                    }`}
+                                                >
+                                                    Barchasi
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleQuickDateSelect("month")}
+                                                    className="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-slate-50 text-slate-600 border border-slate-200/70 hover:bg-slate-100 transition-colors cursor-pointer"
+                                                >
+                                                    Shu oy
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleQuickDateSelect("30days")}
+                                                    className="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-slate-50 text-slate-600 border border-slate-200/70 hover:bg-slate-100 transition-colors cursor-pointer"
+                                                >
+                                                    Oxirgi 30 kun
+                                                </button>
+                                            </div>
+
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <div>
+                                                    <span className="text-[10px] text-slate-400 block mb-1">Dan (from):</span>
+                                                    <input
+                                                        type="date"
+                                                        value={draftFilters.from}
+                                                        onChange={(e) =>
+                                                            setDraftFilters((prev) => ({ ...prev, from: e.target.value }))
+                                                        }
+                                                        className="w-full h-9 px-2.5 rounded-xl border border-slate-200 bg-white text-xs text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <span className="text-[10px] text-slate-400 block mb-1">Gacha (to):</span>
+                                                    <input
+                                                        type="date"
+                                                        value={draftFilters.to}
+                                                        onChange={(e) =>
+                                                            setDraftFilters((prev) => ({ ...prev, to: e.target.value }))
+                                                        }
+                                                        className="w-full h-9 px-2.5 rounded-xl border border-slate-200 bg-white text-xs text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Popover Actions */}
+                                    <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={handleResetFilters}
+                                            className="h-8.5 px-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-medium cursor-pointer transition-colors shadow-2xs"
+                                        >
+                                            Tozalash
+                                        </button>
+                                        <Button
+                                            type="button"
+                                            size="sm"
+                                            onClick={handleApplyFilters}
+                                            className="h-8.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold cursor-pointer shadow-xs inline-flex items-center gap-1.5"
+                                        >
+                                            <span>Qo'llash</span>
+                                        </Button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -227,7 +505,21 @@ export const StatistikaPage = () => {
                                         <TableCell colSpan={4} className="text-center py-16 text-slate-500 text-sm">
                                             {isFetchingReg
                                                 ? "Hududiy statistika yuklanmoqda..."
+                                                : activeFilterCount > 0
+                                                ? "Tanlangan filtrlar bo'yicha hech qanday hudud topilmadi."
                                                 : "Hududiy statistika ma'lumotlari mavjud emas."}
+                                            {activeFilterCount > 0 && !isFetchingReg && (
+                                                <div className="mt-3">
+                                                    <button
+                                                        type="button"
+                                                        onClick={handleResetFilters}
+                                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-medium text-slate-700 hover:bg-slate-50 cursor-pointer shadow-2xs"
+                                                    >
+                                                        <RotateCcw className="size-3 text-slate-500" />
+                                                        <span>Filtrlarni tozalash</span>
+                                                    </button>
+                                                </div>
+                                            )}
                                         </TableCell>
                                     </TableRow>
                                 ) : (
@@ -288,13 +580,13 @@ export const StatistikaPage = () => {
                     </div>
 
                     {/* Pagination */}
-                    {regionsList.length > 0 && (
+                    {filteredRegionsList.length > 0 && (
                         <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
                             <div>
-                                Jami <span className="font-semibold text-slate-800">{regionsList.length}</span> ta hududdan{" "}
+                                Jami <span className="font-semibold text-slate-800">{filteredRegionsList.length}</span> ta hududdan{" "}
                                 <span className="font-semibold text-slate-800">
                                     {(currentPage - 1) * ITEMS_PER_PAGE + 1} -{" "}
-                                    {Math.min(currentPage * ITEMS_PER_PAGE, regionsList.length)}
+                                    {Math.min(currentPage * ITEMS_PER_PAGE, filteredRegionsList.length)}
                                 </span> ko'rsatilmoqda
                             </div>
 

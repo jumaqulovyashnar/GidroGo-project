@@ -12,9 +12,9 @@ class SuperAdminService {
   }
 
   // 2. GET /api/superadmin/statistics/regions - Hududlar bo'yicha statistika
-  async getRegionalStatistics() {
+  async getRegionalStatistics(params = {}) {
     try {
-      const response = await api.get("/superadmin/statistics/regions")
+      const response = await api.get("/superadmin/statistics/regions", { params })
       return response.data
     } catch (error) {
       throw new Error(handleApiError(error))
@@ -77,12 +77,7 @@ class SuperAdminService {
       const response = await api.get("/superadmin/profile")
       return response.data
     } catch (error) {
-      try {
-        const fallback = await api.get("/superadmin/settings/profile")
-        return fallback.data
-      } catch {
-        throw new Error(handleApiError(error))
-      }
+      throw new Error(handleApiError(error))
     }
   }
 
@@ -95,18 +90,13 @@ class SuperAdminService {
       ...(data.fullName ? { fullName: data.fullName.trim() } : {}),
       ...(data.phone ? { phone: data.phone.trim() } : {}),
       ...(data.email ? { email: data.email.trim() } : {}),
-      ...(data.avatarUrl ? { avatarUrl: data.avatarUrl } : {}),
+      ...(data.avatarUrl !== undefined ? { avatarUrl: data.avatarUrl } : {}),
     }
     try {
       const response = await api.put("/superadmin/profile", payload)
       return response.data
     } catch (error) {
-      try {
-        const fallback = await api.put("/superadmin/settings/profile", payload)
-        return fallback.data
-      } catch {
-        throw new Error(handleApiError(error))
-      }
+      throw new Error(handleApiError(error))
     }
   }
 

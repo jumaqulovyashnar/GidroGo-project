@@ -216,45 +216,9 @@ const SozlamalarPage = () => {
                 throw new Error("Serverdan rasm manzili qaytmadi")
             }
 
-            // B) Profilga yangi rasm manzilini biriktirish (PUT /api/superadmin/profile)
-            const currentProfile = profile || {}
-            const fName = (watch("firstName") || currentProfile.firstName || currentUser?.firstName || "").trim()
-            const lName = (watch("lastName") || currentProfile.lastName || currentUser?.lastName || "").trim()
-            const phone = cleanPhoneForBackend(watch("phone")) || currentProfile.phone || currentUser?.phone || ""
-            const email = (watch("email") || currentProfile.email || currentUser?.email || "").trim()
-
-            const profilePayload = {
-                firstName: fName,
-                lastName: lName,
-                fullName: `${fName} ${lName}`.trim(),
-                phone: phone,
-                email: email,
-                avatarUrl: uploadedUrl,
-            }
-
-            const updated = await updateProfileMutation.mutateAsync(profilePayload)
-            const updatedData = updated?.data || updated || profilePayload
-
-            // C) Zustand store va Header'ni zudlik bilan sinxronlash
-            const curUser = useUserStore.getState().userInfo
-            if (curUser) {
-                useUserStore.getState().actions.setUserInfo({
-                    ...curUser,
-                    avatarUrl: uploadedUrl,
-                })
-            }
-
-            // D) React Query keshini yangilash (Header komponentidagi rasm shu zahoti o'zgaradi)
-            queryClient.setQueryData(["superadmin-profile"], (old) => {
-                if (!old) return { data: updatedData }
-                if (old.data) return { ...old, data: { ...old.data, ...updatedData } }
-                return { ...old, ...updatedData }
-            })
-            queryClient.invalidateQueries({ queryKey: ["superadmin-profile"] })
-
             setSavedAvatarUrl(uploadedUrl)
             setAvatarPreview(uploadedUrl)
-            toast.success("Profil rasmi muvaffaqiyatli yangilandi!")
+            toast.success("Rasm yuklandi! O'zgarishlarni saqlash uchun 'Ma'lumotlarni saqlash' tugmasini bosing.")
         } catch (err) {
             setAvatarPreview(savedAvatarUrl || profile?.avatarUrl || currentUser?.avatarUrl || null)
             toast.error("Rasmni yuklashda xatolik: " + (err?.message || "Serverga yuklanmadi"))
@@ -309,7 +273,6 @@ const SozlamalarPage = () => {
                 if (old.data) return { ...old, data: { ...old.data, ...updatedData } }
                 return { ...old, ...updatedData }
             })
-            queryClient.invalidateQueries({ queryKey: ["superadmin-profile"] })
 
             toast.success("Profil ma'lumotlari muvaffaqiyatli saqlandi!")
         } catch (error) {
