@@ -125,9 +125,8 @@ export function AddExpenseModal({ opened, onClose, onAddExpense, isSubmitting })
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4.5" noValidate>
         {/* 1. Xarajat toifasi yoki nomi (Foydalanuvchi o'zi kiritadi, soxta mock datalarsiz) */}
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-slate-700 flex items-center justify-between">
-            <span>Xarajat toifasi yoki nomi</span>
-            <span className="text-rose-500 text-[11px] font-bold">*majburiy</span>
+          <label className="text-xs font-semibold text-slate-700 block">
+            Xarajat toifasi yoki nomi
           </label>
           <div className="relative">
             <Tag className="size-4.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -152,9 +151,8 @@ export function AddExpenseModal({ opened, onClose, onAddExpense, isSubmitting })
 
         {/* 2. Summa */}
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-slate-700 flex items-center justify-between">
-            <span>Xarajat summasi</span>
-            <span className="text-rose-500 text-[11px] font-bold">*majburiy</span>
+          <label className="text-xs font-semibold text-slate-700 block">
+            Xarajat summasi
           </label>
           <div className="relative">
             <Coins className="size-4.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -184,9 +182,8 @@ export function AddExpenseModal({ opened, onClose, onAddExpense, isSubmitting })
 
         {/* 3. Izoh / Tavsif */}
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-slate-700 flex items-center justify-between">
-            <span>Xarajat tavsifi (Izoh)</span>
-            <span className="text-slate-400 text-[11px]">ixtiyoriy</span>
+          <label className="text-xs font-semibold text-slate-700 block">
+            Xarajat tavsifi (Izoh)
           </label>
           <div className="relative">
             <FileText className="size-4.5 text-slate-400 absolute left-3.5 top-3" />
