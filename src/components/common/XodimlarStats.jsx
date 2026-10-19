@@ -15,8 +15,8 @@ export function XodimlarStats({ stats, isLoading }) {
           </div>
         </CardHeader>
         <CardContent className="p-5 pt-1">
-          <div className="flex items-baseline gap-2">
-            <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900">
+          <div className="flex items-center gap-2">
+            <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 leading-none">
               {isLoading ? "..." : stats.total}
             </span>
             <span className="text-sm font-semibold text-slate-500">nafar</span>
@@ -39,13 +39,13 @@ export function XodimlarStats({ stats, isLoading }) {
           </div>
         </CardHeader>
         <CardContent className="p-5 pt-1">
-          <div className="flex items-baseline gap-2">
-            <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900">
+          <div className="flex items-center gap-2">
+            <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 leading-none">
               {isLoading ? "..." : stats.activeCount}
             </span>
             <span className="text-sm font-semibold text-slate-500">nafar</span>
           </div>
-          <div className="mt-3">
+          <div className="flex items-center text-sm text-slate-600 font-medium mt-3 pt-3 border-t border-slate-100">
             <span className="inline-block text-xs font-bold px-3 py-1 rounded-lg bg-blue-50 text-blue-700 border border-blue-100">
               Yo'nalishda &amp; Navbatchi
             </span>
@@ -64,17 +64,19 @@ export function XodimlarStats({ stats, isLoading }) {
           </div>
         </CardHeader>
         <CardContent className="p-5 pt-1">
-          <div className="flex items-baseline gap-2">
-            <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900">
+          <div className="flex items-center gap-2">
+            <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 leading-none">
               {isLoading ? "..." : (stats.blockedCount ?? 0)}
             </span>
             <span className="text-sm font-semibold text-slate-500">nafar</span>
           </div>
-          <p className="text-sm text-slate-600 mt-3 leading-tight font-medium">
-            {stats.blockedCount > 0
-              ? `${stats.blockedCount} ta hisob faoliyati to'xtatilgan`
-              : "Barcha xodimlar faol holatda"}
-          </p>
+          <div className="flex items-center text-sm text-slate-600 font-medium mt-3 pt-3 border-t border-slate-100">
+            <span>
+              {stats.blockedCount > 0
+                ? `${stats.blockedCount} ta hisob faoliyati to'xtatilgan`
+                : "Barcha xodimlar faol holatda"}
+            </span>
+          </div>
         </CardContent>
       </Card>
     </div>
