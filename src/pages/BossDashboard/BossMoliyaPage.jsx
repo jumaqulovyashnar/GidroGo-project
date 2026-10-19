@@ -9,7 +9,9 @@ import {
   useBossOrders,
   useBossCashSummary,
   useBossCreateExpense,
+  useManagerFinanceTransactions,
 } from "@/shared/hooks"
+import { exportToCsv } from "@/shared/lib"
 import { AddExpenseModal } from "@/components"
 
 const FinanceDynamicChart = lazy(() => import("@/widgets").then((m) => ({ default: m.FinanceDynamicChart })))
@@ -39,6 +41,7 @@ export function BossMoliyaPage() {
   } = useBossFinanceSummary(periodParam)
   const { data: ordersRes } = useBossOrders({ all: true })
   const { data: cashSummaryRes } = useBossCashSummary()
+  const { data: transactionsRes, isLoading: isTransactionsLoading } = useManagerFinanceTransactions()
 
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false)
   const { mutate: createExpense, isPending: isCreatingExpense } = useBossCreateExpense()
@@ -60,6 +63,8 @@ export function BossMoliyaPage() {
   const rawOrders = ordersRes?.data || ordersRes || []
   const orders = Array.isArray(rawOrders) ? rawOrders : []
   const cashSummary = cashSummaryRes?.data || cashSummaryRes || {}
+  const rawTransactions = transactionsRes?.data?.transactions || transactionsRes?.data || (Array.isArray(transactionsRes) ? transactionsRes : null)
+  const transactions = Array.isArray(rawTransactions) ? rawTransactions : []
 
   const formatNumber = (num) => Number(num || 0).toLocaleString("ru-RU")
 
@@ -67,6 +72,23 @@ export function BossMoliyaPage() {
   const totalExp = Number(finance.totalExpense || 0)
   const netProf = Number(finance.netProfit || 0)
   const avgCheck = orders.length > 0 && totalInc > 0 ? Math.round(totalInc / orders.length) : 0
+
+  const handleExportFinance = () => {
+    const headers = ["Ko'rsatkich", "Qiymat"]
+    const rows = [
+      ["Davr", activePeriod],
+      ["Umumiy tushum", `${formatNumber(totalInc)} so'm`],
+      ["Operatsion xarajatlar", `${formatNumber(totalExp)} so'm`],
+      ["Sof foyda (EBITDA)", `${formatNumber(netProf)} so'm`],
+      ["O'rtacha buyurtma cheki", `${formatNumber(avgCheck)} so'm`],
+      ["Jami yig'ilgan naqd pul", `${formatNumber(cashSummary.totalCollected)} so'm`],
+      ["Kassaga topshirilgan", `${formatNumber(cashSummary.totalHandedOver)} so'm`],
+      ["Dastavkachilar qo'lida", `${formatNumber(cashSummary.remainingWithCouriers)} so'm`],
+      ["Kassasi bor kuryerlar", `${cashSummary.activeCouriersWithCash ?? 0} nafar`],
+    ]
+    exportToCsv(`moliya_hisoboti_${periodParam}`, headers, rows)
+    toast.success("Moliya hisoboti muvaffaqiyatli yuklab olindi!")
+  }
 
   const topMetrics = [
     {
@@ -227,7 +249,8 @@ export function BossMoliyaPage() {
 
           <Button
             variant="outline"
-            className="rounded-xl border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-xs font-semibold gap-1.5 shadow-2xs h-9 px-3.5"
+            onClick={handleExportFinance}
+            className="rounded-xl border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-xs font-semibold gap-1.5 shadow-2xs h-9 px-3.5 cursor-pointer"
           >
             <Download className="size-3.5 text-slate-500" />
             <span>Hisobot (PDF/Excel)</span>
@@ -295,6 +318,95 @@ export function BossMoliyaPage() {
       >
         <FinanceDynamicChart period={periodParam} />
       </Suspense>
+
+      {/* 6. Oxirgi Xarajatlar va Tranzaksiyalar Jadvali */}
+      <Card className="border border-slate-200/90 bg-white shadow-xs rounded-2xl overflow-hidden">
+        <div className="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h3 className="text-base font-bold text-slate-900">Oxirgi Xarajatlar va Tranzaksiyalar</h3>
+            <p className="text-xs text-slate-500 mt-0.5">Fermaning kiritilgan operatsion xarajatlari va kassa harakati tarixi</p>
+          </div>
+          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-700">
+            Jami {transactions.length} ta yozuv
+          </span>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr className="bg-slate-50/80 border-b border-slate-200/80 text-slate-500 font-semibold uppercase tracking-wider">
+                <th className="py-3 px-4">Kategoriya / Nomi</th>
+                <th className="py-3 px-4">Turi</th>
+                <th className="py-3 px-4">Izoh</th>
+                <th className="py-3 px-4">Sana</th>
+                <th className="py-3 px-4 text-right">Summa</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {isTransactionsLoading ? (
+                <tr>
+                  <td colSpan={5} className="py-10 text-center text-slate-400">
+                    <div className="flex items-center justify-center gap-2">
+                      <Spinner size="sm" />
+                      <span>Tranzaksiyalar yuklanmoqda...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : transactions.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="py-10 text-center text-slate-400">
+                    Hozircha xarajatlar kiritilmagan. Yuqoridagi "Xarajat qo'shish" tugmasi orqali yangi xarajat kiritishingiz mumkin.
+                  </td>
+                </tr>
+              ) : (
+                transactions.slice(0, 10).map((t, idx) => {
+                  const isExpense = t.type === "EXPENSE" || t.category || Number(t.amount) < 0
+                  let dateText = "—"
+                  if (t.createdAt) {
+                    try {
+                      dateText = new Date(t.createdAt).toLocaleDateString("uz-UZ", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })
+                    } catch {
+                      dateText = String(t.createdAt)
+                    }
+                  }
+
+                  return (
+                    <tr key={t.id || idx} className="hover:bg-slate-50/80 transition-colors">
+                      <td className="py-3.5 px-4 font-bold text-slate-900">
+                        {t.category || t.title || "Operatsion xarajat"}
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <span className={`px-2 py-0.5 rounded-full font-semibold text-[11px] ${
+                          isExpense ? "bg-rose-50 text-rose-700 border border-rose-200" : "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                        }`}>
+                          {isExpense ? "Xarajat" : "Tushum"}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4 text-slate-600 max-w-xs truncate">
+                        {t.note || t.description || "—"}
+                      </td>
+                      <td className="py-3.5 px-4 text-slate-500 font-mono text-[11px]">
+                        {dateText}
+                      </td>
+                      <td className={`py-3.5 px-4 text-right font-extrabold whitespace-nowrap ${
+                        isExpense ? "text-rose-600" : "text-emerald-600"
+                      }`}>
+                        {isExpense ? "-" : "+"}{formatNumber(Math.abs(Number(t.amount || 0)))} so'm
+                      </td>
+                    </tr>
+                  )
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
 
       {/* 6. Xarajat qo'shish Modali */}
       <AddExpenseModal

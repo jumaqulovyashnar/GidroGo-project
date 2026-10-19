@@ -12,6 +12,7 @@ export const useBossCouriersTracking = (options = {}) => {
     ...options,
   });
 };
+export const useBossCouriersLiveTracking = useBossCouriersTracking;
 
 // 2. Kuryerlarning kunlik suv statistikasi (1 marta so'rov, 5 daqiqa kesh)
 export const useBossCouriersDailySummary = (date, options = {}) => {

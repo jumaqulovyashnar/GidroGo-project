@@ -35,6 +35,7 @@ const BOSS_MENU = [
   { title: "O'sish", path: "/boss/osish", icon: BarChart3 },
   { title: "Ferma", path: "/boss/ferma", icon: Tractor },
   { title: "Xodimlar", path: "/boss/xodimlar", icon: Contact },
+  { title: "Jonli xarita", path: "/boss/xarita", icon: MapPin },
 ]
 
 // 3. Manager (Menejer) menyusi

@@ -38,6 +38,7 @@ const BossOsishPage = lazyWithRetry(() => import("@/pages/BossDashboard/BossOsis
 const BossFermaPage = lazyWithRetry(() => import("@/pages/BossDashboard/BossFermaPage"))
 const BossXodimlarPage = lazyWithRetry(() => import("@/pages/BossDashboard/BossXodimlarPage"))
 const BossXodimDetailPage = lazyWithRetry(() => import("@/pages/BossDashboard/BossXodimDetailPage"))
+const BossCouriersMapPage = lazyWithRetry(() => import("@/pages/BossDashboard/BossCouriersMapPage"))
 
 const router = createBrowserRouter([
   {
@@ -173,6 +174,10 @@ const router = createBrowserRouter([
               {
                 path: "/boss/xodimlar/:id",
                 element: withSuspense(BossXodimDetailPage),
+              },
+              {
+                path: "/boss/xarita",
+                element: withSuspense(BossCouriersMapPage),
               },
             ],
           },
