@@ -436,7 +436,7 @@ export default function ManagerDashboardPage() {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="text-base font-bold text-slate-900">Dastavkachilar holati</h3>
-                <p className="text-xs text-slate-500 mt-0.5">Qarshi hududi bo'yicha kuryerlar operatsiyasi</p>
+                <p className="text-xs text-slate-500 mt-0.5">Faol kuryerlar va logistika operatsiyasi</p>
               </div>
               <button
                 type="button"
@@ -528,7 +528,7 @@ export default function ManagerDashboardPage() {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="text-base font-bold text-slate-900">Suv zaxirasi</h3>
-                <p className="text-xs text-slate-500 mt-0.5">Qarshi filial idishlar va hajm ko'rsatkichi</p>
+                <p className="text-xs text-slate-500 mt-0.5">Ombordagi idishlar va hajm ko'rsatkichi</p>
               </div>
               <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
                 Me'yorda

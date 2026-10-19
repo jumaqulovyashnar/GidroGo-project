@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { useNavigate } from "react-router-dom"
 import { Users, Truck, Copy, Search, CheckCircle2, Banknote, Clock, ArrowRight } from "lucide-react"
 import { toast } from "sonner"
@@ -17,10 +17,17 @@ export default function ManagerXodimlarPage() {
 
   // Real Couriers & Daily Summary API hooks
   const { data: couriersRes } = useManagerCouriers()
-  const { data: _dailySummaryRes } = useManagerCouriersDailySummary()
+  const { data: dailySummaryRes } = useManagerCouriersDailySummary()
 
-  const rawCouriers = couriersRes?.data || (Array.isArray(couriersRes) ? couriersRes : null)
-  const couriers = Array.isArray(rawCouriers) ? rawCouriers : []
+  const couriers = useMemo(() => {
+    const raw = couriersRes?.data || (Array.isArray(couriersRes) ? couriersRes : null)
+    return Array.isArray(raw) ? raw : []
+  }, [couriersRes])
+
+  const summaries = useMemo(() => {
+    const raw = dailySummaryRes?.data || (Array.isArray(dailySummaryRes) ? dailySummaryRes : [])
+    return Array.isArray(raw) ? raw : []
+  }, [dailySummaryRes])
 
   // Real Cash & Handover API hooks
   const { data: cashBalancesRes } = useCourierCashBalances()
@@ -47,24 +54,77 @@ export default function ManagerXodimlarPage() {
 
   const totalCourierCash = cashBalances.reduce((sum, b) => sum + Number(b.balance || 0), 0)
 
-  const filteredCouriers = couriers.filter((courier) => {
-    const name = String(courier.name || courier.fullName || "")
-    const phone = String(courier.phone || "")
-    const vehicle = String(courier.vehicle || "")
-    const plate = String(courier.plate || "")
-    const sector = String(courier.sector || courier.regionName || "")
+  const normalizedCouriers = useMemo(() => {
+    return couriers.map((courier) => {
+      const id = courier.id || courier.courierId
+      const name = courier.fullName || courier.name || "Kuryer"
+      const initials =
+        name
+          .split(" ")
+          .filter(Boolean)
+          .map((w) => w[0])
+          .join("")
+          .slice(0, 2)
+          .toUpperCase() || "KR"
+
+      const phone = courier.phone || "-"
+      const vehicle = courier.vehicleModel || courier.vehicle || "-"
+      const plate = courier.vehiclePlateNumber || courier.plate || ""
+      const sector = courier.regionName || courier.sector || "-"
+      const load = courier.maxCapacity ? `${courier.maxCapacity} dona` : (courier.load || "-")
+      const isOnline = Boolean(
+        courier.online ||
+        courier.status === "ACTIVE" ||
+        courier.status === "on_way" ||
+        courier.status === "DELIVERING" ||
+        courier.status === "delivering" ||
+        courier.status === "free" ||
+        courier.status === "AVAILABLE"
+      )
+      const statusText = courier.statusLabel || (isOnline ? "Onlayn" : "Oflayn")
+
+      return {
+        ...courier,
+        id,
+        name,
+        initials,
+        phone,
+        vehicle,
+        plate,
+        sector,
+        load,
+        isOnline,
+        statusText,
+      }
+    })
+  }, [couriers])
+
+  const activeCouriersCount = normalizedCouriers.filter((c) => c.isOnline).length
+  const totalDeliveredOrders = summaries.reduce((sum, s) => sum + Number(s.completedOrdersCount || 0), 0)
+  const totalDeliveredBottles =
+    summaries.reduce((sum, s) => sum + Number(s.soldBottlesToday || 0), 0) ||
+    couriers.reduce((sum, c) => sum + Number(c.todayDeliveredBottles || 0), 0)
+
+  const filteredCouriers = normalizedCouriers.filter((courier) => {
+    const name = courier.name.toLowerCase()
+    const phone = courier.phone
+    const vehicle = courier.vehicle.toLowerCase()
+    const plate = courier.plate.toLowerCase()
+    const sector = courier.sector.toLowerCase()
+    const query = searchQuery.toLowerCase().trim()
 
     const matchesSearch =
-      name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      phone.includes(searchQuery) ||
-      vehicle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      plate.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      sector.toLowerCase().includes(searchQuery.toLowerCase())
+      !query ||
+      name.includes(query) ||
+      phone.includes(query) ||
+      vehicle.includes(query) ||
+      plate.includes(query) ||
+      sector.includes(query)
 
     if (!matchesSearch) return false
-    if (statusFilter === "on_way") return courier.status === "on_way" || courier.status === "DELIVERING"
-    if (statusFilter === "free") return courier.status === "free" || courier.status === "AVAILABLE"
-    if (statusFilter === "loading") return courier.status === "loading" || courier.status === "BUSY"
+    if (statusFilter === "on_way") return courier.status === "on_way" || courier.status === "DELIVERING" || courier.status === "delivering"
+    if (statusFilter === "free") return courier.status === "free" || courier.status === "AVAILABLE" || courier.status === "available"
+    if (statusFilter === "loading") return courier.status === "loading" || courier.status === "BUSY" || courier.status === "busy"
     return true
   })
 
@@ -91,7 +151,9 @@ export default function ManagerXodimlarPage() {
               <span className="text-2xl font-bold text-slate-900">{couriers.length}</span>
               <span className="text-xs font-semibold text-slate-400">nafar</span>
             </div>
-            <p className="text-[11px] text-slate-500 font-medium mt-1">Barcha transportlar texnik soz</p>
+            <p className="text-[11px] text-slate-500 font-medium mt-1">
+              {couriers.length > 0 ? "Barcha ro'yxatdan o'tgan kuryerlar" : "Kuryerlar mavjud emas"}
+            </p>
           </div>
           <div className="w-12 h-12 rounded-full bg-blue-50 border border-blue-100/80 text-blue-600 flex items-center justify-center shrink-0">
             <Users className="w-5.5 h-5.5" />
@@ -102,10 +164,12 @@ export default function ManagerXodimlarPage() {
           <div>
             <span className="text-xs font-medium text-slate-500">Faol liniyada</span>
             <div className="flex items-baseline gap-1 mt-1">
-              <span className="text-2xl font-bold text-slate-900">8</span>
+              <span className="text-2xl font-bold text-slate-900">{activeCouriersCount}</span>
               <span className="text-xs font-semibold text-slate-400">nafar</span>
             </div>
-            <p className="text-[11px] text-slate-500 mt-1">2 kuryer navbatchilikda</p>
+            <p className="text-[11px] text-slate-500 mt-1">
+              {activeCouriersCount > 0 ? `${activeCouriersCount} kuryer liniyada ishlamoqda` : "Hozirda faol kuryer yo'q"}
+            </p>
           </div>
           <div className="w-12 h-12 rounded-full bg-slate-100 border border-slate-200/80 text-slate-600 flex items-center justify-center shrink-0">
             <Truck className="w-5.5 h-5.5" />
@@ -116,10 +180,12 @@ export default function ManagerXodimlarPage() {
           <div>
             <span className="text-xs font-medium text-slate-500">Bugun yetkazilgan</span>
             <div className="flex items-baseline gap-1 mt-1">
-              <span className="text-2xl font-bold text-slate-900">94</span>
+              <span className="text-2xl font-bold text-slate-900">{totalDeliveredOrders}</span>
               <span className="text-xs font-semibold text-slate-400">buyurtma</span>
             </div>
-            <p className="text-[11px] text-blue-600 font-medium mt-1">1,780 Litr toza suv</p>
+            <p className="text-[11px] text-blue-600 font-medium mt-1">
+              {totalDeliveredBottles > 0 ? `${totalDeliveredBottles.toLocaleString()} ta suv idishi` : "Hozircha yetkazilgan buyurtma yo'q"}
+            </p>
           </div>
           <div className="w-12 h-12 rounded-full bg-blue-50 border border-blue-100/80 text-blue-600 flex items-center justify-center shrink-0">
             <CheckCircle2 className="w-5.5 h-5.5" />
@@ -190,7 +256,7 @@ export default function ManagerXodimlarPage() {
                 statusFilter === "all" ? "bg-blue-600 text-white shadow-xs" : "bg-slate-100 text-slate-600 hover:text-slate-900"
               }`}
             >
-              Barchasi ({couriers.length})
+              Barchasi ({normalizedCouriers.length})
             </button>
             <button
               type="button"
@@ -199,7 +265,7 @@ export default function ManagerXodimlarPage() {
                 statusFilter === "on_way" ? "bg-blue-600 text-white shadow-xs" : "bg-slate-100 text-slate-600 hover:text-slate-900"
               }`}
             >
-              Yo'lda ({couriers.filter((c) => c.status === "on_way").length})
+              Yo'lda ({normalizedCouriers.filter((c) => c.status === "on_way" || c.status === "DELIVERING" || c.status === "delivering").length})
             </button>
             <button
               type="button"
@@ -208,7 +274,7 @@ export default function ManagerXodimlarPage() {
                 statusFilter === "free" ? "bg-blue-600 text-white shadow-xs" : "bg-slate-100 text-slate-600 hover:text-slate-900"
               }`}
             >
-              Bo'sh ({couriers.filter((c) => c.status === "free").length})
+              Bo'sh ({normalizedCouriers.filter((c) => c.status === "free" || c.status === "AVAILABLE" || c.status === "available").length})
             </button>
           </div>
         </div>
@@ -248,9 +314,11 @@ export default function ManagerXodimlarPage() {
                           <div>
                             <div className="font-semibold text-slate-900 flex items-center gap-1.5">
                               <span>{courier.name}</span>
-                              <span className="text-xs text-amber-500 font-medium">
-                                ★ {courier.rating}
-                              </span>
+                              {courier.rating != null && (
+                                <span className="text-xs text-amber-500 font-medium">
+                                  ★ {courier.rating}
+                                </span>
+                              )}
                             </div>
                             <div className="text-xs text-slate-400">Dastavkachi xodim</div>
                           </div>
@@ -261,7 +329,9 @@ export default function ManagerXodimlarPage() {
                       </td>
                       <td className="py-4 px-4">
                         <div className="font-medium text-slate-800">{courier.vehicle}</div>
-                        <div className="text-xs text-slate-400 font-mono">{courier.plate}</div>
+                        {courier.plate && (
+                          <div className="text-xs text-slate-400 font-mono">{courier.plate}</div>
+                        )}
                       </td>
                       <td className="py-4 px-4 text-slate-700">
                         {courier.sector}
@@ -272,11 +342,9 @@ export default function ManagerXodimlarPage() {
                       <td className="py-4 px-4">
                         <span
                           className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${
-                            courier.status === "on_way"
-                              ? "bg-blue-50 text-blue-700 border border-blue-200"
-                              : courier.status === "free"
-                              ? "bg-slate-100 text-slate-700 border border-slate-200"
-                              : "bg-slate-50 text-slate-600 border border-slate-200"
+                            courier.isOnline
+                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                              : "bg-slate-100 text-slate-600 border border-slate-200"
                           }`}
                         >
                           {courier.statusText}

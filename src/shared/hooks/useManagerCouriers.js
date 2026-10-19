@@ -18,9 +18,9 @@ export const useManagerCouriersLiveTracking = (params = {}, options = {}) => {
   return useQuery({
     queryKey: ["manager-couriers-live-tracking", params],
     queryFn: () => managerCouriersService.getLiveTracking(params),
-    staleTime: 1000 * 30, // 30 soniyada yangilanishi mumkin
+    staleTime: 1000 * 15,
+    refetchInterval: 15000, // 15 soniyada avtomatik GPS lokatsiya yangilanadi (real-time polling)
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
     ...options,
   });
 };

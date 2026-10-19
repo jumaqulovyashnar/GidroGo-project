@@ -253,7 +253,7 @@ export default function ManagerOrderDetailPage() {
               <div className="p-3 bg-slate-50 rounded-lg border border-slate-100 space-y-1">
                 <span className="text-[10px] uppercase font-semibold text-slate-400">Hudud / Sektor</span>
                 <p className="text-sm font-bold text-slate-900">{currentOrder.sector}</p>
-                <p className="text-slate-500">Qashqadaryo viloyati, Qarshi shahri</p>
+                <p className="text-slate-500">{currentOrder.region || currentOrder.city || "Yetkazish manzili"}</p>
               </div>
             </div>
 
@@ -368,7 +368,7 @@ export default function ManagerOrderDetailPage() {
                 </div>
                 <div>
                   <p className="font-bold text-slate-900">Ombor zaxirasidan ajratildi va qadoqlandi</p>
-                  <p className="text-[11px] text-slate-500">Qarshi markaziy bazasi (10:20)</p>
+                  <p className="text-[11px] text-slate-500">Ferma ombori tayyorgarligi</p>
                 </div>
               </div>
 
