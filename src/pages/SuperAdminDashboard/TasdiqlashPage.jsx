@@ -115,65 +115,65 @@ const TasdiqlashPage = () => {
       </div>
 
       {/* 2. Metrika Kartochkalari */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
         {/* Navbatda */}
-        <Card className="bg-white border border-slate-200/80 rounded-2xl p-4 sm:p-5 shadow-xs">
-          <CardContent className="p-0 space-y-3">
+        <Card className="bg-white border border-slate-200/80 rounded-xl p-3 sm:p-3.5 shadow-xs">
+          <CardContent className="p-0 space-y-1.5">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                 Navbatda kutilayotgan
               </span>
-              <div className="size-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100">
-                <ClipboardClock className="size-4.5 text-blue-600" />
+              <div className="size-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100">
+                <ClipboardClock className="size-4 text-blue-600" />
               </div>
             </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl sm:text-3xl font-extrabold text-slate-900">{pendingCount}</span>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-xl sm:text-2xl font-bold text-slate-900">{pendingCount}</span>
               <span className="text-xs text-slate-500 font-medium">ta ariza</span>
             </div>
-            <p className="text-xs text-slate-400 pt-2 border-t border-slate-100">
+            <p className="text-[11px] text-slate-400 pt-1.5 border-t border-slate-100">
               Ko'rib chiqilishi kerak bo'lgan yangi arizalar
             </p>
           </CardContent>
         </Card>
 
         {/* Tasdiqlangan */}
-        <Card className="bg-white border border-slate-200/80 rounded-2xl p-4 sm:p-5 shadow-xs">
-          <CardContent className="p-0 space-y-3">
+        <Card className="bg-white border border-slate-200/80 rounded-xl p-3 sm:p-3.5 shadow-xs">
+          <CardContent className="p-0 space-y-1.5">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                 Tasdiqlangan
               </span>
-              <div className="size-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100">
-                <ShieldCheck className="size-4.5 text-blue-600" />
+              <div className="size-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100">
+                <ShieldCheck className="size-4 text-blue-600" />
               </div>
             </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl sm:text-3xl font-extrabold text-slate-900">{approvedCount}</span>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-xl sm:text-2xl font-bold text-slate-900">{approvedCount}</span>
               <span className="text-xs text-slate-500 font-medium">ta ariza</span>
             </div>
-            <p className="text-xs text-slate-400 pt-2 border-t border-slate-100">
+            <p className="text-[11px] text-slate-400 pt-1.5 border-t border-slate-100">
               Muvaffaqiyatli tasdiqlangan va faollashtirilgan
             </p>
           </CardContent>
         </Card>
 
         {/* Rad etilgan */}
-        <Card className="bg-white border border-slate-200/80 rounded-2xl p-4 sm:p-5 shadow-xs">
-          <CardContent className="p-0 space-y-3">
+        <Card className="bg-white border border-slate-200/80 rounded-xl p-3 sm:p-3.5 shadow-xs">
+          <CardContent className="p-0 space-y-1.5">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                 Rad etilgan
               </span>
-              <div className="size-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100">
-                <SquareExclamationPointIcon className="size-4.5 text-blue-600" />
+              <div className="size-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100">
+                <SquareExclamationPointIcon className="size-4 text-blue-600" />
               </div>
             </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl sm:text-3xl font-extrabold text-slate-900">{rejectedCount}</span>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-xl sm:text-2xl font-bold text-slate-900">{rejectedCount}</span>
               <span className="text-xs text-slate-500 font-medium">ta ariza</span>
             </div>
-            <p className="text-xs text-slate-400 pt-2 border-t border-slate-100">
+            <p className="text-[11px] text-slate-400 pt-1.5 border-t border-slate-100">
               Talablarga javob bermagan yoki bekor qilingan
             </p>
           </CardContent>

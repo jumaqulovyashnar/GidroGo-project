@@ -15,22 +15,22 @@ export function StatCard({
 }) {
   return (
     <Card
-      className={`border border-slate-200/80 bg-white hover:border-slate-300 shadow-xs hover:shadow-sm transition-all duration-200 rounded-xl p-3.5 sm:p-4 flex flex-col justify-between ${className}`}
+      className={`border border-slate-200/80 bg-white hover:border-slate-300 shadow-xs hover:shadow-sm transition-all duration-200 rounded-xl p-3 sm:p-3.5 flex flex-col justify-between ${className}`}
     >
       <CardHeader className="flex flex-row items-center justify-between pb-1 space-y-0 p-0">
         <CardTitle className="text-xs font-semibold uppercase tracking-wider text-slate-500 line-clamp-1">
           {title}
         </CardTitle>
-        <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border border-blue-100 bg-blue-50 text-blue-600">
-          {Icon && <Icon className="size-4.5 text-blue-600" strokeWidth={2} />}
+        <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border border-blue-100 bg-blue-50 text-blue-600">
+          {Icon && <Icon className="size-4 text-blue-600" strokeWidth={2} />}
         </div>
       </CardHeader>
-      <CardContent className="p-0 pt-1.5">
-        <div className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+      <CardContent className="p-0 pt-1">
+        <div className="text-lg sm:text-xl font-bold tracking-tight text-slate-900">
           {isLoading ? "—" : value}
         </div>
         {(subText || badge) && (
-          <div className="flex items-center justify-between gap-2 mt-1.5 pt-1.5 border-t border-slate-100">
+          <div className="flex items-center justify-between gap-2 mt-1 pt-1 border-t border-slate-100">
             {subText && (
               <p className="text-[11px] font-normal text-slate-500 truncate" title={subText}>
                 {subText}

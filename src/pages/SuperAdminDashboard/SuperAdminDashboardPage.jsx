@@ -101,19 +101,19 @@ export function SuperAdminDashboardPage() {
 
       {/* 5 ta ko'rsatkich kartasi (Skeleton yoki Haqiqiy data) */}
       {isPending ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 lg:gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3.5">
           {[...Array(5)].map((_, i) => (
             <div
               key={i}
-              className="border border-slate-200/80 bg-white rounded-xl p-3.5 sm:p-4 animate-pulse flex flex-col justify-between"
+              className="border border-slate-200/80 bg-white rounded-xl p-3 sm:p-3.5 animate-pulse flex flex-col justify-between"
             >
               <div className="flex items-center justify-between pb-1">
                 <div className="h-3.5 w-24 bg-slate-200 rounded" />
-                <div className="w-9 h-9 rounded-xl bg-slate-100 border border-slate-200/80 shrink-0" />
+                <div className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200/80 shrink-0" />
               </div>
-              <div className="pt-2">
-                <div className="h-6 w-16 bg-slate-200 rounded" />
-                <div className="h-2.5 w-28 bg-slate-100 rounded mt-2" />
+              <div className="pt-1.5">
+                <div className="h-5 w-16 bg-slate-200 rounded" />
+                <div className="h-2.5 w-28 bg-slate-100 rounded mt-1.5" />
               </div>
             </div>
           ))}

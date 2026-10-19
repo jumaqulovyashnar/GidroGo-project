@@ -21,22 +21,22 @@ export function FermaEgalariStats({ stats, isLoading = false }) {
   )
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 pt-4">
       {cards.map((card) => {
         const Icon = card.icon
         return (
-          <Card key={card.id} className="p-4 sm:p-5 border border-slate-200/80 rounded-2xl bg-white shadow-xs">
+          <Card key={card.id} className="p-3 sm:p-3.5 border border-slate-200/80 rounded-xl bg-white shadow-xs">
             <CardHeader className="flex items-center justify-between p-0">
               <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                 {card.title}
               </span>
-              <span className="flex size-9 items-center justify-center rounded-xl bg-blue-50 text-blue-600 border border-blue-100">
-                <Icon className="size-4.5 text-blue-600" />
+              <span className="flex size-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600 border border-blue-100">
+                <Icon className="size-4 text-blue-600" />
               </span>
             </CardHeader>
 
-            <div className="mt-3 flex items-baseline gap-2">
-              <span className="text-2xl font-extrabold text-slate-900">
+            <div className="mt-1.5 flex items-baseline gap-1.5">
+              <span className="text-xl sm:text-2xl font-bold text-slate-900">
                 {isLoading ? "—" : card.value}
               </span>
               <span className="text-xs text-slate-500 font-medium">
