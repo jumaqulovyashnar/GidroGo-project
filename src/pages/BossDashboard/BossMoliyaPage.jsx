@@ -2,7 +2,7 @@ import { useState, lazy, Suspense } from "react"
 import { Link } from "react-router-dom"
 import { Select } from "@mantine/core"
 import { CreditCard, Receipt, Landmark, ShoppingBag, Download, Plus, ChevronRight, Calendar, ChevronDown, HandCoins, ArrowDownToLine, Wallet, Users, AlertCircle } from "lucide-react"
-import { Card, CardHeader, CardTitle, CardContent, Button, Spinner } from "@/shared/ui"
+import { Card, Button, Spinner } from "@/shared/ui"
 import { useBossFinanceSummary, useBossOrders, useBossCashSummary } from "@/shared/hooks"
 
 const FinanceDynamicChart = lazy(() => import("@/widgets").then((m) => ({ default: m.FinanceDynamicChart })))
@@ -83,6 +83,78 @@ export function BossMoliyaPage() {
       subtext: orders.length > 0 ? `${orders.length} ta buyurtma asosida` : "Buyurtmalar asosida hisoblanadi",
     },
   ]
+
+  const cashMetrics = [
+    {
+      id: "collected",
+      title: "JAMI YIG'ILGAN NAQD PUL",
+      value: formatNumber(cashSummary.totalCollected),
+      unit: "so'm",
+      icon: HandCoins,
+      iconBg: "bg-blue-50 text-blue-600 border-blue-100/80",
+      subtext: "Kuryerlar tomonidan qabul qilingan naqd pul",
+    },
+    {
+      id: "handed_over",
+      title: "KASSAGA TOPSHIRILGAN",
+      value: formatNumber(cashSummary.totalHandedOver),
+      unit: "so'm",
+      icon: ArrowDownToLine,
+      iconBg: "bg-slate-100 text-slate-600 border-slate-200/80",
+      subtext: "Menejer tomonidan tasdiqlangan summa",
+    },
+    {
+      id: "couriers_hand",
+      title: "DASTAVKACHILAR QO'LIDA",
+      value: formatNumber(cashSummary.remainingWithCouriers),
+      unit: "so'm",
+      icon: Wallet,
+      iconBg: "bg-blue-50 text-blue-600 border-blue-100/80",
+      subtext: "Topshirilishi kutilayotgan kassa balansi",
+    },
+    {
+      id: "couriers_count",
+      title: "KASSASI BOR KURYERLAR",
+      value: String(cashSummary.activeCouriersWithCash ?? 0),
+      unit: "nafar",
+      icon: Users,
+      iconBg: "bg-slate-100 text-slate-600 border-slate-200/80",
+      subtext: "Qo'lida naqd pul bo'lgan xodimlar soni",
+    },
+  ]
+
+  const renderMetricCard = (item) => {
+    const Icon = item.icon
+    return (
+      <Card
+        key={item.id}
+        className="border border-slate-200/80 bg-white hover:border-slate-300 shadow-xs hover:shadow-sm transition-all duration-200 rounded-2xl p-5 sm:p-6 flex flex-col justify-between min-h-[148px] sm:min-h-[156px]"
+      >
+        <div className="flex items-start justify-between gap-3">
+          <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 leading-snug">
+            {item.title}
+          </span>
+          <div className={`size-11 sm:size-12 rounded-full flex items-center justify-center shrink-0 border shadow-2xs ${item.iconBg}`}>
+            <Icon className="size-5.5 stroke-[1.8]" />
+          </div>
+        </div>
+
+        <div className="mt-4">
+          <div className="flex items-baseline gap-1.5 flex-wrap">
+            <span className="text-2xl sm:text-3xl font-bold tracking-tight text-blue-600">
+              {item.value}
+            </span>
+            <span className="text-xs sm:text-sm font-semibold text-slate-500">
+              {item.unit}
+            </span>
+          </div>
+          <p className="text-xs text-slate-500 mt-2 truncate" title={item.subtext}>
+            {item.subtext}
+          </p>
+        </div>
+      </Card>
+    )
+  }
 
   return (
     <div className="space-y-6 pb-10">
@@ -166,39 +238,8 @@ export function BossMoliyaPage() {
       )}
 
       {/* 3. Top 4 ta Moliyaviy KPI Kartalari (100% Real API) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
-        {topMetrics.map((item) => {
-          const Icon = item.icon
-          return (
-            <Card
-              key={item.id}
-              className="border border-slate-200/80 bg-white hover:border-slate-300 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_14px_rgba(0,0,0,0.05)] transition-all duration-200 rounded-2xl p-5 sm:p-6 flex flex-col justify-between"
-            >
-              <CardHeader className="flex flex-row items-start justify-between gap-3 pb-2 space-y-0 p-0">
-                <CardTitle className="text-xs font-medium uppercase tracking-wider text-slate-500 flex-1 leading-snug">
-                  {item.title}
-                </CardTitle>
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ml-1.5 border ${item.iconBg}`}>
-                  <Icon className="size-5.5 stroke-[1.8]" />
-                </div>
-              </CardHeader>
-
-              <CardContent className="p-0 pt-2">
-                <div className="flex items-baseline gap-1.5">
-                  <span className="text-xl sm:text-2xl font-bold tracking-tight text-blue-600">
-                    {item.value}
-                  </span>
-                  <span className="text-xs font-medium text-slate-500">
-                    {item.unit}
-                  </span>
-                </div>
-                <p className="text-xs text-slate-500 mt-2.5 truncate" title={item.subtext}>
-                  {item.subtext}
-                </p>
-              </CardContent>
-            </Card>
-          )
-        })}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+        {topMetrics.map(renderMetricCard)}
       </div>
  
       {/* 4. Kassa va Inkassatsiya Monitoringi (GET /api/boss/cash/summary) */}
@@ -217,94 +258,8 @@ export function BossMoliyaPage() {
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
-          <Card className="border border-slate-200/80 bg-white hover:border-slate-300 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_14px_rgba(0,0,0,0.05)] transition-all duration-200 rounded-2xl p-5 sm:p-6 flex flex-col justify-between">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
-                  Jami Yig'ilgan Naqd Pul
-                </p>
-                <div className="flex items-baseline gap-1 mt-2">
-                  <span className="text-xl font-bold text-blue-600 font-mono">
-                    {formatNumber(cashSummary.totalCollected)}
-                  </span>
-                  <span className="text-xs font-medium text-slate-500">so'm</span>
-                </div>
-              </div>
-              <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 border border-blue-100/80 flex items-center justify-center shrink-0">
-                <HandCoins className="size-5.5" />
-              </div>
-            </div>
-            <p className="text-xs text-slate-500 mt-2">
-              Kuryerlar tomonidan qabul qilingan naqd pul
-            </p>
-          </Card>
-
-          <Card className="border border-slate-200/80 bg-white hover:border-slate-300 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_14px_rgba(0,0,0,0.05)] transition-all duration-200 rounded-2xl p-5 sm:p-6 flex flex-col justify-between">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
-                  Kassaga Topshirilgan
-                </p>
-                <div className="flex items-baseline gap-1 mt-2">
-                  <span className="text-xl font-bold text-blue-600 font-mono">
-                    {formatNumber(cashSummary.totalHandedOver)}
-                  </span>
-                  <span className="text-xs font-medium text-slate-500">so'm</span>
-                </div>
-              </div>
-              <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-600 border border-slate-200/80 flex items-center justify-center shrink-0">
-                <ArrowDownToLine className="size-5.5" />
-              </div>
-            </div>
-            <p className="text-xs text-slate-500 mt-2">
-              Menejer tomonidan tasdiqlangan summa
-            </p>
-          </Card>
-
-          <Card className="border border-slate-200/80 bg-white hover:border-slate-300 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_14px_rgba(0,0,0,0.05)] transition-all duration-200 rounded-2xl p-5 sm:p-6 flex flex-col justify-between">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
-                  Dastavkachilar Qo'lida
-                </p>
-                <div className="flex items-baseline gap-1 mt-2">
-                  <span className="text-xl font-bold text-blue-600 font-mono">
-                    {formatNumber(cashSummary.remainingWithCouriers)}
-                  </span>
-                  <span className="text-xs font-medium text-slate-500">so'm</span>
-                </div>
-              </div>
-              <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 border border-blue-100/80 flex items-center justify-center shrink-0">
-                <Wallet className="size-5.5" />
-              </div>
-            </div>
-            <p className="text-xs text-slate-500 mt-2">
-              Topshirilishi kutilayotgan kassa balansi
-            </p>
-          </Card>
-
-          <Card className="border border-slate-200/80 bg-white hover:border-slate-300 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_14px_rgba(0,0,0,0.05)] transition-all duration-200 rounded-2xl p-5 sm:p-6 flex flex-col justify-between">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
-                  Kassasi Bor Kuryerlar
-                </p>
-                <div className="flex items-baseline gap-1 mt-2">
-                  <span className="text-xl font-bold text-blue-600 font-mono">
-                    {cashSummary.activeCouriersWithCash ?? 0}
-                  </span>
-                  <span className="text-xs font-medium text-slate-500">nafar</span>
-                </div>
-              </div>
-              <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-600 border border-slate-200/80 flex items-center justify-center shrink-0">
-                <Users className="size-5.5" />
-              </div>
-            </div>
-            <p className="text-xs text-slate-500 mt-2">
-              Qo'lida naqd pul bo'lgan xodimlar soni
-            </p>
-          </Card>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+          {cashMetrics.map(renderMetricCard)}
         </div>
       </div>
 
