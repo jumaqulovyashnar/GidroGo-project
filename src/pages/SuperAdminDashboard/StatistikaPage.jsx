@@ -1,5 +1,5 @@
 import { useState, useMemo, lazy, Suspense } from "react"
-import { Button, Card, CardContent, CardHeader, CardTitle, TablePagination, Spinner } from "@/shared/ui"
+import { Button, TablePagination, Spinner, StatCard } from "@/shared/ui"
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/shared/ui/table"
 import { Filter, Tractor, Users, BadgeCheck, Gauge, RefreshCw } from "lucide-react"
 import { useRegionalStatistics, useSuperAdminDashboard } from "@/shared/hooks"
@@ -44,6 +44,17 @@ export const StatistikaPage = () => {
         const totalOrders = dashboard?.totalOrders ?? 0
         const totalCouriers = dashboard?.totalCouriers ?? 0
 
+        const totalFarmsNum = Number(totalFarms) || 0
+        const activeFarmsNum = Number(activeFarms) || 0
+        const totalClientsNum = Number(totalClients) || 0
+        const totalOrdersNum = Number(totalOrders) || 0
+        const totalCouriersNum = Number(totalCouriers) || 0
+
+        const farmPercent = totalFarmsNum > 0 ? Math.min(100, Math.round((activeFarmsNum / totalFarmsNum) * 100)) : 0
+        const clientsPercent = totalClientsNum > 0 ? Math.min(100, Math.round((totalClientsNum / Math.max(totalClientsNum, 50)) * 100)) : 0
+        const ordersPercent = totalOrdersNum > 0 ? Math.min(100, Math.round((totalOrdersNum / Math.max(totalOrdersNum, 100)) * 100)) : 0
+        const couriersPercent = totalCouriersNum > 0 ? Math.min(100, Math.round((totalCouriersNum / Math.max(totalCouriersNum, 20)) * 100)) : 0
+
         return [
             {
                 id: 1,
@@ -52,15 +63,16 @@ export const StatistikaPage = () => {
                 badge: `${activeFarms} ta faol`,
                 description: "Viloyatlar kesimida faoliyat yurituvchi",
                 icon: Tractor,
+                percentage: farmPercent,
             },
             {
                 id: 2,
                 title: "FAOL MIJOZLAR BAZASI",
-                value: Number(totalClients).toLocaleString("uz-UZ"),
-                unit: "nafar",
+                value: `${Number(totalClients).toLocaleString("uz-UZ")} nafar`,
                 badge: "Mijozlar",
                 description: "Ro'yxatdan o'tgan iste'molchilar",
                 icon: Users,
+                percentage: clientsPercent,
             },
             {
                 id: 3,
@@ -69,15 +81,16 @@ export const StatistikaPage = () => {
                 badge: "Jami",
                 description: "Barcha fermalar bo'yicha",
                 icon: BadgeCheck,
+                percentage: ordersPercent,
             },
             {
                 id: 4,
                 title: "JAMI KURYERLAR",
-                value: Number(totalCouriers).toLocaleString("uz-UZ"),
-                unit: "nafar",
+                value: `${Number(totalCouriers).toLocaleString("uz-UZ")} nafar`,
                 badge: "Tizimda",
                 description: "Mahsulot yetkazib beruvchilar",
                 icon: Gauge,
+                percentage: couriersPercent,
             },
         ]
     }, [regResponse, dashboard])
@@ -116,50 +129,18 @@ export const StatistikaPage = () => {
                 </div>
 
                 {/* 4 ta KPI card */}
-                <div className="grid grid-cols-1 gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4 pt-6">
-                    {auditMetrics.map((audit, index) => {
-                        const Icon = audit.icon
-                        const isBlue = index % 2 === 0
-
-                        return (
-                            <Card
-                                key={audit.id}
-                                className="border border-slate-200/80 rounded-2xl p-5 sm:p-6 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_14px_rgba(0,0,0,0.05)] transition-all duration-200 flex flex-col justify-between"
-                            >
-                                <CardHeader className="flex flex-row items-center justify-between space-y-0 p-0 pb-2">
-                                    <CardTitle className="text-xs font-medium uppercase tracking-wider text-slate-500">
-                                        {audit.title}
-                                    </CardTitle>
-                                    <div
-                                        className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 border ${
-                                            isBlue
-                                                ? "bg-blue-50 text-blue-600 border-blue-100/80"
-                                                : "bg-slate-100 text-slate-600 border-slate-200/80"
-                                        }`}
-                                    >
-                                        <Icon className="size-5.5" strokeWidth={1.75} />
-                                    </div>
-                                </CardHeader>
-
-                                <CardContent className="p-0 pt-2">
-                                    <div className="flex items-baseline gap-2">
-                                        <span className="text-2xl font-extrabold text-slate-900">{audit.value}</span>
-                                        {audit.unit && (
-                                            <span className="text-xs font-medium text-slate-500">{audit.unit}</span>
-                                        )}
-                                        {audit.badge && (
-                                            <span className="rounded-md bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-600 border border-blue-100">
-                                                {audit.badge}
-                                            </span>
-                                        )}
-                                    </div>
-                                    <p className="mt-1 text-xs text-slate-500">
-                                        {audit.description}
-                                    </p>
-                                </CardContent>
-                            </Card>
-                        )
-                    })}
+                <div className="grid grid-cols-1 gap-4 lg:gap-5 sm:grid-cols-2 lg:grid-cols-4 pt-6">
+                    {auditMetrics.map((audit) => (
+                        <StatCard
+                            key={audit.id}
+                            title={audit.title}
+                            value={audit.value}
+                            subText={audit.description}
+                            badge={audit.badge}
+                            icon={audit.icon}
+                            percentage={audit.percentage}
+                        />
+                    ))}
                 </div>
 
                 {/* Diagramma section */}

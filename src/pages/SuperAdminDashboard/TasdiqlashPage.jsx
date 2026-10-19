@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react"
-import { Button, Card, CardContent, TablePagination, Table, TableHeader, TableBody, TableHead, TableRow, TableCell, Spinner } from "@/shared/ui"
+import { Button, TablePagination, Table, TableHeader, TableBody, TableHead, TableRow, TableCell, Spinner, StatCard } from "@/shared/ui"
 import { ClipboardClock, RefreshCw, ShieldCheck, SquareExclamationPointIcon, CheckCheck, X, FolderArchive, Archive, Building2, Calendar } from "lucide-react"
 import { Modal as MantineModal } from "@mantine/core"
 import { useActivationRequests, useRequest } from "@/shared/hooks/useRequest"
@@ -115,69 +115,31 @@ const TasdiqlashPage = () => {
       </div>
 
       {/* 2. Metrika Kartochkalari */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {/* Navbatda */}
-        <Card className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
-          <CardContent className="p-0 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                Navbatda kutilayotgan
-              </span>
-              <div className="size-9 rounded-xl bg-slate-50 text-slate-600 flex items-center justify-center border border-slate-200/80">
-                <ClipboardClock className="size-5 text-slate-600" />
-              </div>
-            </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-extrabold text-slate-900">{pendingCount}</span>
-              <span className="text-xs text-slate-500 font-medium">ta ariza</span>
-            </div>
-            <p className="text-xs text-slate-400 pt-2 border-t border-slate-100">
-              Ko'rib chiqilishi kerak bo'lgan yangi arizalar
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Tasdiqlangan */}
-        <Card className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
-          <CardContent className="p-0 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                Tasdiqlangan
-              </span>
-              <div className="size-9 rounded-xl bg-slate-50 text-slate-600 flex items-center justify-center border border-slate-200/80">
-                <ShieldCheck className="size-5 text-slate-600" />
-              </div>
-            </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-extrabold text-slate-900">{approvedCount}</span>
-              <span className="text-xs text-slate-500 font-medium">ta ferma</span>
-            </div>
-            <p className="text-xs text-slate-400 pt-2 border-t border-slate-100">
-              Muvaffaqiyatli faollashtirilgan hisoblar
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Rad etilgan */}
-        <Card className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
-          <CardContent className="p-0 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                Rad etilgan
-              </span>
-              <div className="size-9 rounded-xl bg-slate-50 text-slate-600 flex items-center justify-center border border-slate-200/80">
-                <SquareExclamationPointIcon className="size-5 text-slate-600" />
-              </div>
-            </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-extrabold text-slate-900">{rejectedCount}</span>
-              <span className="text-xs text-slate-500 font-medium">ta ariza</span>
-            </div>
-            <p className="text-xs text-slate-400 pt-2 border-t border-slate-100">
-              Kamchiliklar sababli rad etilgan
-            </p>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-5">
+        <StatCard
+          title="Navbatda kutilayotgan"
+          value={`${pendingCount} ta`}
+          subText="Ko'rib chiqilishi kerak bo'lgan yangi arizalar"
+          badge="Kutilmoqda"
+          icon={ClipboardClock}
+          percentage={allRequests.length > 0 ? Math.round((pendingCount / allRequests.length) * 100) : 0}
+        />
+        <StatCard
+          title="Tasdiqlangan"
+          value={`${approvedCount} ta`}
+          subText="Muvaffaqiyatli faollashtirilgan hisoblar"
+          badge="Faol"
+          icon={ShieldCheck}
+          percentage={allRequests.length > 0 ? Math.round((approvedCount / allRequests.length) * 100) : 0}
+        />
+        <StatCard
+          title="Rad etilgan"
+          value={`${rejectedCount} ta`}
+          subText="Kamchiliklar sababli rad etilgan"
+          badge="Rad etildi"
+          icon={SquareExclamationPointIcon}
+          percentage={allRequests.length > 0 ? Math.round((rejectedCount / allRequests.length) * 100) : 0}
+        />
       </div>
 
       {/* 3. Tabs */}
