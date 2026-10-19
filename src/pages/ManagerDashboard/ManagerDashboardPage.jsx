@@ -34,7 +34,7 @@ export function SelectFilter({
       classNames={{
         root: className || "w-36",
         input:
-          "!h-9 !rounded-xl !border-slate-200 !bg-slate-50 hover:!bg-slate-100/80 focus:!bg-white !text-slate-700 !text-xs !font-semibold !cursor-pointer transition-colors focus:!border-blue-500 shadow-2xs",
+          "!h-9 !rounded-xl !border-slate-200 !bg-white hover:!bg-slate-50 !text-slate-800 !text-xs !font-semibold !cursor-pointer transition-colors focus:!border-blue-500 shadow-2xs",
         dropdown:
           "!rounded-xl !border-slate-200 !shadow-lg !p-1.5 !bg-white z-50",
         option:
@@ -137,17 +137,17 @@ export default function ManagerDashboardPage() {
 
   return (
     <div className="space-y-6 sm:space-y-7">
-      {/* Top Banner & Filial Info */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+      {/* Sarlavha va Filtrlash */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">Bosh sahifa</h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">Bosh sahifa</h1>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
             {currentPeriod.subtitle}
           </p>
         </div>
 
         {/* Time Period Filter: Props-driven Select */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 shrink-0">
           <SelectFilter
             value={timeFilter}
             onChange={setTimeFilter}
@@ -155,10 +155,6 @@ export default function ManagerDashboardPage() {
             icon={Calendar}
             ariaLabel="Vaqt oralig'ini tanlash"
           />
-
-          <div className="text-xs text-slate-500 bg-slate-50 border border-slate-200/80 px-3 py-2 rounded-xl font-mono shadow-2xs">
-            Yangilanish: 10:45
-          </div>
         </div>
       </div>
 
