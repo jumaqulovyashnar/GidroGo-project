@@ -41,6 +41,11 @@ const processQueue = (error, token = null) => {
 
 const handleForceLogout = () => {
   try {
+    delete api.defaults.headers.common["Authorization"]
+    delete api.defaults.headers.common.Authorization
+  } catch {}
+
+  try {
     useUserStore.getState()?.actions?.clearUserInfoAndToken()
   } catch {
     localStorage.removeItem("gidrogo-user-storage")
@@ -77,7 +82,9 @@ api.interceptors.request.use(
       config.url?.includes("/auth/register") ||
       config.url?.includes("auth/register") ||
       config.url?.includes("/auth/refresh") ||
-      config.url?.includes("auth/refresh")
+      config.url?.includes("auth/refresh") ||
+      config.url?.includes("/auth/logout") ||
+      config.url?.includes("auth/logout")
 
     try {
       const state = useUserStore.getState()
@@ -131,7 +138,8 @@ api.interceptors.response.use(
     const isAuthRoute =
       originalRequest.url?.includes("/auth/login") ||
       originalRequest.url?.includes("/auth/register") ||
-      originalRequest.url?.includes("/auth/refresh")
+      originalRequest.url?.includes("/auth/refresh") ||
+      originalRequest.url?.includes("/auth/logout")
 
     // Faqat 401, qayta urinilmagan va auth endpoint bo'lmagan so'rovlar uchun ishlaydi
     if (error.response.status === 401 && !originalRequest._retry && !isAuthRoute) {

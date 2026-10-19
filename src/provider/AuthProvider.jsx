@@ -1,4 +1,4 @@
-import { createContext, useContext, useCallback, useMemo } from "react"
+import { createContext, useContext, useCallback, useMemo, useRef } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useUserStore } from "@/entities/user"
 import { authService } from "@/services"
@@ -276,21 +276,54 @@ export const AuthProvider = ({ children }) => {
     []
   )
 
+  const isLoggingOutRef = useRef(false)
+
   // LOGOUT
-  const logout = useCallback(() => {
-    const userToken = useUserStore.getState().userToken
+  const logout = useCallback(async () => {
+    // 1. Double-invocation guard (Multiple rapid logout clicks)
+    if (isLoggingOutRef.current) {
+      return
+    }
+    isLoggingOutRef.current = true
+
+    // 2. Capture required tokens BEFORE clearing store
+    const userToken = useUserStore.getState()?.userToken
     const refreshToken = userToken?.refreshToken
-    if (refreshToken && typeof authService.logout === "function") {
-      authService.logout({ refreshToken }).catch(() => {})
-    }
-    useUserStore.getState().actions.clearUserInfoAndToken()
+
     try {
-      queryClient.cancelQueries()
-      queryClient.clear()
-    } catch {
-      // ignore
+      // 3. Clear local authenticated state immediately so UI transitions cleanly
+      useUserStore.getState()?.actions?.clearUserInfoAndToken()
+      try {
+        localStorage.removeItem("gidrogo-user-storage")
+      } catch {}
+
+      // 4. Remove authorization headers to prevent stale reuse
+      delete api.defaults.headers.common["Authorization"]
+      delete api.defaults.headers.common.Authorization
+
+      // 5. Cancel active queries and clear React Query cache
+      try {
+        queryClient.cancelQueries()
+        queryClient.clear()
+      } catch (cacheError) {
+        if (import.meta.env.DEV) {
+          console.warn("React Query cache cleanup error during logout:", cacheError)
+        }
+      }
+
+      // 6. Notify backend via POST /api/auth/logout with canonical payload
+      if (refreshToken && typeof authService.logout === "function") {
+        try {
+          await authService.logout({ refreshToken })
+        } catch (backendError) {
+          if (import.meta.env.DEV) {
+            console.warn("Backend logout notification failed:", backendError)
+          }
+        }
+      }
+    } finally {
+      isLoggingOutRef.current = false
     }
-    delete api.defaults.headers.common["Authorization"]
   }, [queryClient])
 
   // User ma'lumotlarini qayta yangilash (agar kerak bo'lsa)

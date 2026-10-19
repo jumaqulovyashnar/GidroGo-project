@@ -19,21 +19,24 @@ class AuthService {
 
   // 2. POST /api/auth/logout - Tizimdan chiqish (sessiyani yakunlash va FCM tokenini o'chirish)
   // OpenAPI Schema: LogoutRequest { refreshToken?, fcmToken? }
-  async logout(payload) {
+  async logout(payload = {}) {
     try {
-      const body =
-        typeof payload === "object"
-          ? {
-              ...(payload?.refreshToken ? { refreshToken: payload.refreshToken } : {}),
-              ...(payload?.fcmToken ? { fcmToken: payload.fcmToken } : {}),
-            }
-          : payload
-          ? { refreshToken: payload }
-          : {};
-      const response = await api.post("/auth/logout", body);
-      return response.data;
+      const body = {}
+      if (typeof payload === "object" && payload !== null) {
+        if (payload.refreshToken && typeof payload.refreshToken === "string" && payload.refreshToken.trim()) {
+          body.refreshToken = payload.refreshToken.trim()
+        }
+        if (payload.fcmToken && typeof payload.fcmToken === "string" && payload.fcmToken.trim()) {
+          body.fcmToken = payload.fcmToken.trim()
+        }
+      } else if (typeof payload === "string" && payload.trim()) {
+        body.refreshToken = payload.trim()
+      }
+
+      const response = await api.post("/auth/logout", body)
+      return response.data
     } catch (error) {
-      throw new Error(handleApiError(error));
+      throw new Error(handleApiError(error))
     }
   }
 
