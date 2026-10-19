@@ -87,14 +87,16 @@ const FilterBar = ({
                             }}
                             data={statusOptions}
                             allowDeselect={false}
-                            maxDropdownHeight={450}
+                            maxDropdownHeight={280}
+                            scrollAreaProps={{ type: "never" }}
                             leftSection={<SlidersHorizontal className="size-4 text-slate-400 pointer-events-none" />}
                             rightSection={<ChevronDown className="size-4 text-slate-400 pointer-events-none" />}
                             classNames={{
                                 root: "w-full sm:w-48",
                                 input:
                                     "!h-10 !rounded-[10px] !border-slate-200/80 !bg-[#F4F8FF] hover:!bg-[#EBF3FF] !text-slate-700 !text-sm !font-medium !cursor-pointer transition-colors focus:!border-blue-500",
-                                dropdown: "!rounded-[12px] !border-slate-200 !shadow-lg !p-1.5 !bg-white [&_.mantine-ScrollArea-scrollbar]:!hidden",
+                                dropdown:
+                                    "!rounded-[12px] !border-slate-200 !shadow-lg !p-1.5 !bg-white [&_.mantine-ScrollArea-scrollbar]:!hidden [&_.mantine-ScrollArea-viewport]:[scrollbar-width:none] [&_.mantine-ScrollArea-viewport::-webkit-scrollbar]:!hidden",
                                 option:
                                     "!rounded-[8px] !text-sm !font-medium !py-2 !px-3 !cursor-pointer hover:!bg-slate-100 data-[checked=true]:!bg-blue-50 data-[checked=true]:!text-blue-600",
                             }}
@@ -111,14 +113,16 @@ const FilterBar = ({
                             }}
                             data={farmOptions}
                             allowDeselect={false}
-                            maxDropdownHeight={450}
+                            maxDropdownHeight={280}
+                            scrollAreaProps={{ type: "never" }}
                             leftSection={<Tractor className="size-4 text-slate-400 pointer-events-none" />}
                             rightSection={<ChevronDown className="size-4 text-slate-400 pointer-events-none" />}
                             classNames={{
                                 root: "w-full sm:w-48",
                                 input:
                                     "!h-10 !rounded-[10px] !border-slate-200/80 !bg-[#F4F8FF] hover:!bg-[#EBF3FF] !text-slate-700 !text-sm !font-medium !cursor-pointer transition-colors focus:!border-blue-500",
-                                dropdown: "!rounded-[12px] !border-slate-200 !shadow-lg !p-1.5 !bg-white [&_.mantine-ScrollArea-scrollbar]:!hidden",
+                                dropdown:
+                                    "!rounded-[12px] !border-slate-200 !shadow-lg !p-1.5 !bg-white [&_.mantine-ScrollArea-scrollbar]:!hidden [&_.mantine-ScrollArea-viewport]:[scrollbar-width:none] [&_.mantine-ScrollArea-viewport::-webkit-scrollbar]:!hidden",
                                 option:
                                     "!rounded-[8px] !text-sm !font-medium !py-2 !px-3 !cursor-pointer hover:!bg-slate-100 data-[checked=true]:!bg-blue-50 data-[checked=true]:!text-blue-600",
                             }}
@@ -135,14 +139,16 @@ const FilterBar = ({
                             }}
                             data={dateOptions}
                             allowDeselect={false}
-                            maxDropdownHeight={450}
+                            maxDropdownHeight={280}
+                            scrollAreaProps={{ type: "never" }}
                             leftSection={<Calendar className="size-4 text-slate-400 pointer-events-none" />}
                             rightSection={<ChevronDown className="size-4 text-slate-400 pointer-events-none" />}
                             classNames={{
                                 root: "w-full sm:w-40",
                                 input:
                                     "!h-10 !rounded-[10px] !border-slate-200/80 !bg-[#F4F8FF] hover:!bg-[#EBF3FF] !text-slate-700 !text-sm !font-medium !cursor-pointer transition-colors focus:!border-blue-500",
-                                dropdown: "!rounded-[12px] !border-slate-200 !shadow-lg !p-1.5 !bg-white [&_.mantine-ScrollArea-scrollbar]:!hidden",
+                                dropdown:
+                                    "!rounded-[12px] !border-slate-200 !shadow-lg !p-1.5 !bg-white [&_.mantine-ScrollArea-scrollbar]:!hidden [&_.mantine-ScrollArea-viewport]:[scrollbar-width:none] [&_.mantine-ScrollArea-viewport::-webkit-scrollbar]:!hidden",
                                 option:
                                     "!rounded-[8px] !text-sm !font-medium !py-2 !px-3 !cursor-pointer hover:!bg-slate-100 data-[checked=true]:!bg-blue-50 data-[checked=true]:!text-blue-600",
                             }}
@@ -171,13 +177,15 @@ const FilterBar = ({
                             }}
                             data={sortOptions}
                             allowDeselect={false}
-                            maxDropdownHeight={450}
+                            maxDropdownHeight={280}
+                            scrollAreaProps={{ type: "never" }}
                             rightSection={<ChevronDown className="size-4 text-slate-400 pointer-events-none" />}
                             classNames={{
                                 root: "w-full sm:w-48",
                                 input:
                                     "!h-10 !rounded-[10px] !border-slate-200 !text-slate-800 !text-sm !font-medium !cursor-pointer hover:!bg-slate-50 transition-colors focus:!border-blue-500",
-                                dropdown: "!rounded-[12px] !border-slate-200 !shadow-lg !p-1.5 !bg-white [&_.mantine-ScrollArea-scrollbar]:!hidden",
+                                dropdown:
+                                    "!rounded-[12px] !border-slate-200 !shadow-lg !p-1.5 !bg-white [&_.mantine-ScrollArea-scrollbar]:!hidden [&_.mantine-ScrollArea-viewport]:[scrollbar-width:none] [&_.mantine-ScrollArea-viewport::-webkit-scrollbar]:!hidden",
                                 option:
                                     "!rounded-[8px] !text-sm !font-medium !py-2 !px-3 !cursor-pointer hover:!bg-slate-100 data-[checked=true]:!bg-blue-50 data-[checked=true]:!text-blue-600",
                             }}
