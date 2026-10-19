@@ -1,7 +1,7 @@
 import { useState, useMemo, useRef, useEffect, lazy, Suspense } from "react"
 import { Button, Card, CardHeader, CardTitle, CardContent, TablePagination, Spinner } from "@/shared/ui"
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/shared/ui/table"
-import { Filter, Tractor, Users, BadgeCheck, Gauge, RefreshCw, Calendar, MapPin, X, RotateCcw } from "lucide-react"
+import { Filter, Tractor, Users, BadgeCheck, Gauge, RefreshCw, Calendar, MapPin, X, RotateCcw, ChevronDown } from "lucide-react"
 import { useRegionalStatistics, useSuperAdminDashboard } from "@/shared/hooks"
 
 const LineColumn = lazy(() => import("@/widgets").then((m) => ({ default: m.LineColumn })))
@@ -140,6 +140,17 @@ export const StatistikaPage = () => {
             }))
         }
     }
+
+    const activePreset = useMemo(() => {
+        if (!draftFilters.from && !draftFilters.to) return "all"
+        const now = new Date()
+        const firstDay = formatDateYMD(new Date(now.getFullYear(), now.getMonth(), 1))
+        const today = formatDateYMD(now)
+        if (draftFilters.from === firstDay && draftFilters.to === today) return "month"
+        const past30 = formatDateYMD(new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000))
+        if (draftFilters.from === past30 && draftFilters.to === today) return "30days"
+        return "custom"
+    }, [draftFilters.from, draftFilters.to])
 
     const handleApplyFilters = () => {
         setFilters(draftFilters)
@@ -348,18 +359,26 @@ export const StatistikaPage = () => {
                                 </button>
                             </div>
 
-                            {/* Dropdown Popover */}
+                            {/* Dropdown Popover Modal */}
                             {isFilterOpen && (
-                                <div className="absolute right-0 top-full mt-2 z-30 w-80 sm:w-96 bg-white rounded-2xl border border-slate-200/90 shadow-xl p-4.5 animate-in fade-in zoom-in-95 duration-150">
-                                    {/* Popover Header */}
-                                    <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                                        <div className="flex items-center gap-2">
-                                            <div className="size-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100/60">
-                                                <Filter className="size-3.5" />
+                                <div className="absolute right-0 top-full mt-2.5 z-40 w-88 sm:w-[410px] bg-white rounded-2xl border border-slate-200/90 shadow-2xl shadow-slate-900/10 p-5 animate-in fade-in zoom-in-95 duration-150 ring-1 ring-slate-900/5">
+                                    {/* Top decorative arrow */}
+                                    <div className="absolute -top-1.5 right-6 size-3 bg-white border-t border-l border-slate-200/90 rotate-45 z-10" />
+
+                                    {/* Modal Header */}
+                                    <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
+                                        <div className="flex items-center gap-2.5">
+                                            <div className="size-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100/70 shadow-2xs">
+                                                <Filter className="size-4 text-blue-600" />
                                             </div>
-                                            <span className="text-xs sm:text-sm font-bold text-slate-900">
-                                                Jadvalni filtrlash
-                                            </span>
+                                            <div>
+                                                <h4 className="text-sm font-bold text-slate-900 tracking-tight leading-tight">
+                                                    Jadvalni filtrlash
+                                                </h4>
+                                                <p className="text-[11px] text-slate-400 mt-0.5">
+                                                    Viloyatlar va buyurtmalar davrini saralash
+                                                </p>
+                                            </div>
                                         </div>
                                         <button
                                             type="button"
@@ -371,45 +390,48 @@ export const StatistikaPage = () => {
                                     </div>
 
                                     {/* Form Fields */}
-                                    <div className="mt-3.5 space-y-3.5">
+                                    <div className="mt-4 space-y-4">
                                         {/* 1. Hudud tanlash */}
                                         <div>
-                                            <label className="text-[11px] font-semibold text-slate-700 block mb-1.5 flex items-center gap-1.5">
+                                            <label className="text-xs font-semibold text-slate-700 block mb-1.5 flex items-center gap-1.5">
                                                 <MapPin className="size-3.5 text-blue-600" />
                                                 <span>Hudud / Viloyat</span>
                                             </label>
-                                            <select
-                                                value={draftFilters.region}
-                                                onChange={(e) =>
-                                                    setDraftFilters((prev) => ({ ...prev, region: e.target.value }))
-                                                }
-                                                className="w-full h-9.5 px-3 rounded-xl border border-slate-200 bg-white text-xs text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer"
-                                            >
-                                                <option value="all">Barcha hududlar</option>
-                                                {availableRegions.map((reg) => (
-                                                    <option key={reg} value={reg}>
-                                                        {reg}
-                                                    </option>
-                                                ))}
-                                            </select>
+                                            <div className="relative">
+                                                <select
+                                                    value={draftFilters.region}
+                                                    onChange={(e) =>
+                                                        setDraftFilters((prev) => ({ ...prev, region: e.target.value }))
+                                                    }
+                                                    className="w-full h-10 pl-3.5 pr-9 rounded-xl border border-slate-200 bg-slate-50/60 hover:bg-white focus:bg-white text-xs text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none cursor-pointer"
+                                                >
+                                                    <option value="all">Barcha hududlar</option>
+                                                    {availableRegions.map((reg) => (
+                                                        <option key={reg} value={reg}>
+                                                            {reg}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                <ChevronDown className="size-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                                            </div>
                                         </div>
 
                                         {/* 2. Davr / Sana oralig'i */}
                                         <div>
-                                            <label className="text-[11px] font-semibold text-slate-700 block mb-1.5 flex items-center gap-1.5">
+                                            <label className="text-xs font-semibold text-slate-700 block mb-1.5 flex items-center gap-1.5">
                                                 <Calendar className="size-3.5 text-blue-600" />
-                                                <span>Sana oralig'i (from / to)</span>
+                                                <span>Sana oralig'i</span>
                                             </label>
 
-                                            {/* Quick Presets */}
-                                            <div className="flex items-center gap-1.5 mb-2">
+                                            {/* Segmented Quick Presets */}
+                                            <div className="grid grid-cols-3 gap-1 bg-slate-100/80 p-1 rounded-xl mb-3">
                                                 <button
                                                     type="button"
                                                     onClick={() => handleQuickDateSelect("all")}
-                                                    className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-colors cursor-pointer ${
-                                                        !draftFilters.from && !draftFilters.to
-                                                            ? "bg-blue-50 text-blue-600 border border-blue-200"
-                                                            : "bg-slate-50 text-slate-600 border border-slate-200/70 hover:bg-slate-100"
+                                                    className={`py-1.5 rounded-lg text-xs font-medium transition-all text-center cursor-pointer ${
+                                                        activePreset === "all"
+                                                            ? "bg-white text-blue-600 shadow-2xs font-semibold"
+                                                            : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
                                                     }`}
                                                 >
                                                     Barchasi
@@ -417,63 +439,86 @@ export const StatistikaPage = () => {
                                                 <button
                                                     type="button"
                                                     onClick={() => handleQuickDateSelect("month")}
-                                                    className="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-slate-50 text-slate-600 border border-slate-200/70 hover:bg-slate-100 transition-colors cursor-pointer"
+                                                    className={`py-1.5 rounded-lg text-xs font-medium transition-all text-center cursor-pointer ${
+                                                        activePreset === "month"
+                                                            ? "bg-white text-blue-600 shadow-2xs font-semibold"
+                                                            : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
+                                                    }`}
                                                 >
                                                     Shu oy
                                                 </button>
                                                 <button
                                                     type="button"
                                                     onClick={() => handleQuickDateSelect("30days")}
-                                                    className="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-slate-50 text-slate-600 border border-slate-200/70 hover:bg-slate-100 transition-colors cursor-pointer"
+                                                    className={`py-1.5 rounded-lg text-xs font-medium transition-all text-center cursor-pointer ${
+                                                        activePreset === "30days"
+                                                            ? "bg-white text-blue-600 shadow-2xs font-semibold"
+                                                            : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
+                                                    }`}
                                                 >
                                                     Oxirgi 30 kun
                                                 </button>
                                             </div>
 
-                                            <div className="grid grid-cols-2 gap-2">
+                                            {/* 2 Date Pickers */}
+                                            <div className="grid grid-cols-2 gap-2.5">
                                                 <div>
-                                                    <span className="text-[10px] text-slate-400 block mb-1">Dan (from):</span>
+                                                    <span className="text-[11px] font-medium text-slate-500 block mb-1">
+                                                        Boshlanish sanasi
+                                                    </span>
                                                     <input
                                                         type="date"
                                                         value={draftFilters.from}
                                                         onChange={(e) =>
                                                             setDraftFilters((prev) => ({ ...prev, from: e.target.value }))
                                                         }
-                                                        className="w-full h-9 px-2.5 rounded-xl border border-slate-200 bg-white text-xs text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer"
+                                                        className="w-full h-10 px-3 rounded-xl border border-slate-200 bg-slate-50/60 hover:bg-white focus:bg-white text-xs text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer"
                                                     />
                                                 </div>
                                                 <div>
-                                                    <span className="text-[10px] text-slate-400 block mb-1">Gacha (to):</span>
+                                                    <span className="text-[11px] font-medium text-slate-500 block mb-1">
+                                                        Tugash sanasi
+                                                    </span>
                                                     <input
                                                         type="date"
                                                         value={draftFilters.to}
                                                         onChange={(e) =>
                                                             setDraftFilters((prev) => ({ ...prev, to: e.target.value }))
                                                         }
-                                                        className="w-full h-9 px-2.5 rounded-xl border border-slate-200 bg-white text-xs text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer"
+                                                        className="w-full h-10 px-3 rounded-xl border border-slate-200 bg-slate-50/60 hover:bg-white focus:bg-white text-xs text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer"
                                                     />
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
-                                    {/* Popover Actions */}
-                                    <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+                                    {/* Modal Actions */}
+                                    <div className="mt-5 pt-3.5 border-t border-slate-100 flex items-center justify-between">
                                         <button
                                             type="button"
                                             onClick={handleResetFilters}
-                                            className="h-8.5 px-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-medium cursor-pointer transition-colors shadow-2xs"
+                                            className="text-xs font-medium text-slate-500 hover:text-rose-600 transition-colors inline-flex items-center gap-1.5 py-1.5 px-2 rounded-lg hover:bg-rose-50 cursor-pointer"
                                         >
-                                            Tozalash
+                                            <RotateCcw className="size-3.5" />
+                                            <span>Tozalash</span>
                                         </button>
-                                        <Button
-                                            type="button"
-                                            size="sm"
-                                            onClick={handleApplyFilters}
-                                            className="h-8.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold cursor-pointer shadow-xs inline-flex items-center gap-1.5"
-                                        >
-                                            <span>Qo'llash</span>
-                                        </Button>
+                                        <div className="flex items-center gap-2">
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                onClick={() => setIsFilterOpen(false)}
+                                                className="h-9 px-3.5 rounded-xl border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-medium cursor-pointer shadow-2xs"
+                                            >
+                                                Bekor qilish
+                                            </Button>
+                                            <Button
+                                                type="button"
+                                                onClick={handleApplyFilters}
+                                                className="h-9 px-4.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold cursor-pointer shadow-xs transition-all inline-flex items-center gap-1.5"
+                                            >
+                                                <span>Qo'llash</span>
+                                            </Button>
+                                        </div>
                                     </div>
                                 </div>
                             )}
