@@ -71,7 +71,7 @@ export function CustomerGrowthAreaChart({ period = "quarter" }) {
         enabled: false,
       },
     },
-    colors: ["#1d4ed8", "#0284c7"],
+    colors: ["#2563eb", "#0ea5e9"],
     dataLabels: {
       enabled: false,
     },
@@ -100,7 +100,7 @@ export function CustomerGrowthAreaChart({ period = "quarter" }) {
       borderColor: "#f1f5f9",
       strokeDashArray: 4,
       padding: {
-        top: 20,
+        top: 25,
         right: 15,
         bottom: 0,
         left: 15,
@@ -119,7 +119,14 @@ export function CustomerGrowthAreaChart({ period = "quarter" }) {
       },
     },
     yaxis: {
-      show: false,
+      min: 0,
+      forceNiceScale: true,
+      labels: {
+        style: {
+          colors: "#94a3b8",
+          fontSize: "11px",
+        },
+      },
     },
     legend: {
       show: false,
@@ -152,11 +159,11 @@ export function CustomerGrowthAreaChart({ period = "quarter" }) {
         {/* Legend */}
         <div className="flex items-center gap-4 text-xs font-medium text-slate-600 shrink-0">
           <div className="flex items-center gap-1.5">
-            <span className="size-2.5 rounded-full bg-[#1d4ed8]"></span>
+            <span className="size-2.5 rounded-full bg-[#2563eb]"></span>
             <span>Jami Faol Mijozlar</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="size-2.5 rounded-full bg-[#0284c7]"></span>
+            <span className="size-2.5 rounded-full bg-[#0ea5e9]"></span>
             <span>Buyurtmalar</span>
           </div>
         </div>

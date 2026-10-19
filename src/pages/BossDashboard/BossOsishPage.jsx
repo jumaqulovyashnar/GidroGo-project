@@ -223,8 +223,8 @@ export function BossOsishPage() {
               </p>
             </CardHeader>
 
-            <CardContent className="p-5 pt-1 space-y-4 flex-1">
-              <div className="p-4 rounded-xl border border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <CardContent className="p-5 pt-1 space-y-3 flex-1">
+              <div className="p-4 rounded-xl border border-slate-100 bg-slate-50/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
                   <div className="text-sm font-bold text-slate-900">
                     Jami ro'yxatdan o'tgan mijozlar
@@ -233,19 +233,19 @@ export function BossOsishPage() {
                     Fermaga buyurtma beruvchi faol iste'molchilar
                   </div>
                   {(segments.b2cCount != null || segments.b2bCount != null) && (
-                    <div className="flex flex-wrap items-center gap-2 mt-2 text-[11px] font-medium text-slate-500">
-                      <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-semibold">B2C: {segments.b2cCount ?? 0}</span>
-                      <span className="px-2 py-0.5 rounded bg-purple-50 text-purple-700 font-semibold">B2B: {segments.b2bCount ?? 0}</span>
-                      <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-semibold">Ulgurji: {segments.wholesaleCount ?? 0}</span>
+                    <div className="flex flex-wrap items-center gap-1.5 mt-2 text-[11px] font-medium">
+                      <span className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 font-semibold border border-blue-100/80">B2C: {segments.b2cCount ?? 0}</span>
+                      <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-semibold border border-slate-200/80">B2B: {segments.b2bCount ?? 0}</span>
+                      <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-semibold border border-slate-200/80">Ulgurji: {segments.wholesaleCount ?? 0}</span>
                     </div>
                   )}
                 </div>
-                <div className="text-2xl font-extrabold text-blue-600 shrink-0">
-                  {formatNumber(totalClients)} ta
+                <div className="text-2xl font-extrabold text-slate-900 shrink-0">
+                  {formatNumber(totalClients)} <span className="text-sm font-semibold text-slate-500">ta</span>
                 </div>
               </div>
 
-              <div className="p-4 rounded-xl border border-slate-100 bg-slate-50/50 flex items-center justify-between">
+              <div className="p-4 rounded-xl border border-slate-100 bg-slate-50/60 flex items-center justify-between">
                 <div>
                   <div className="text-sm font-bold text-slate-900">
                     Bugun yetkazilgan buyurtmalar
@@ -254,12 +254,12 @@ export function BossOsishPage() {
                     Muvaffaqiyatli topshirilgan buyurtmalar soni
                   </div>
                 </div>
-                <div className="text-2xl font-extrabold text-emerald-600">
-                  {db.deliveredToday ?? 0} ta
+                <div className="text-2xl font-extrabold text-slate-900">
+                  {db.deliveredToday ?? 0} <span className="text-sm font-semibold text-slate-500">ta</span>
                 </div>
               </div>
 
-              <div className="p-4 rounded-xl border border-slate-100 bg-slate-50/50 flex items-center justify-between">
+              <div className="p-4 rounded-xl border border-slate-100 bg-slate-50/60 flex items-center justify-between">
                 <div>
                   <div className="text-sm font-bold text-slate-900">
                     Jarayondagi faol buyurtmalar
@@ -268,8 +268,8 @@ export function BossOsishPage() {
                     Hozirda kuryerlar yo'lida yoki kutilayotgan
                   </div>
                 </div>
-                <div className="text-2xl font-extrabold text-amber-600">
-                  {db.activeOrders ?? 0} ta
+                <div className="text-2xl font-extrabold text-slate-900">
+                  {db.activeOrders ?? 0} <span className="text-sm font-semibold text-slate-500">ta</span>
                 </div>
               </div>
             </CardContent>
@@ -283,8 +283,8 @@ export function BossOsishPage() {
                 Logistika va Kuryerlar Quvvati
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-5 pt-1 space-y-4 flex-1">
-              <div className="p-4 rounded-xl border border-slate-100 bg-slate-50/50 flex items-center justify-between">
+            <CardContent className="p-5 pt-1 space-y-3 flex-1">
+              <div className="p-4 rounded-xl border border-slate-100 bg-slate-50/60 flex items-center justify-between">
                 <div>
                   <div className="text-sm font-bold text-slate-900">
                     Faol kuryerlar soni
@@ -294,11 +294,11 @@ export function BossOsishPage() {
                   </div>
                 </div>
                 <div className="text-2xl font-extrabold text-slate-900">
-                  {db.activeCouriers ?? 0} nafar
+                  {db.activeCouriers ?? 0} <span className="text-sm font-semibold text-slate-500">nafar</span>
                 </div>
               </div>
 
-              <div className="p-4 rounded-xl border border-slate-100 bg-slate-50/50 flex items-center justify-between">
+              <div className="p-4 rounded-xl border border-slate-100 bg-slate-50/60 flex items-center justify-between">
                 <div>
                   <div className="text-sm font-bold text-slate-900">
                     Ombordagi zaxira balonlar
@@ -307,12 +307,12 @@ export function BossOsishPage() {
                     Tayyor mahsulot zaxirasi
                   </div>
                 </div>
-                <div className="text-2xl font-extrabold text-blue-600">
-                  {formatNumber(db.warehouseBottles)} dona
+                <div className="text-2xl font-extrabold text-slate-900">
+                  {formatNumber(db.warehouseBottles)} <span className="text-sm font-semibold text-slate-500">dona</span>
                 </div>
               </div>
 
-              <div className="p-4 rounded-xl border border-slate-100 bg-slate-50/50 flex items-center justify-between">
+              <div className="p-4 rounded-xl border border-slate-100 bg-slate-50/60 flex items-center justify-between">
                 <div>
                   <div className="text-sm font-bold text-slate-900">
                     Bugun sotilgan suv idishlari
@@ -321,8 +321,8 @@ export function BossOsishPage() {
                     18.9L tayyor kapsulalar
                   </div>
                 </div>
-                <div className="text-2xl font-extrabold text-[#059669]">
-                  {formatNumber(db.bottlesSoldToday)} dona
+                <div className="text-2xl font-extrabold text-slate-900">
+                  {formatNumber(db.bottlesSoldToday)} <span className="text-sm font-semibold text-slate-500">dona</span>
                 </div>
               </div>
             </CardContent>
