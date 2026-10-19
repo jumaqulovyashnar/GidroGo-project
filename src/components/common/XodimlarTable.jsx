@@ -1,4 +1,12 @@
-import { Search, AlertCircle, RotateCw, Trash2 } from "lucide-react"
+import { Link } from "react-router-dom"
+import {
+  Search,
+  AlertCircle,
+  RotateCw,
+  Trash2,
+  ShieldCheck,
+  Truck,
+} from "lucide-react"
 import { Card, TablePagination, Button } from "@/shared/ui"
 
 export function XodimlarTable({
@@ -25,50 +33,53 @@ export function XodimlarTable({
     <>
       <Card className="border border-slate-200/90 bg-white shadow-xs rounded-2xl overflow-hidden">
         {/* Filtrlash, Qidiruv va Tablar */}
-        <div className="p-4 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div className="p-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
           {/* Qidiruv inputi */}
           <div className="relative flex-1 max-w-md">
-            <Search className="size-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="size-4.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               placeholder="Ism yoki telefon bo'yicha qidiruv..."
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="w-full h-9.5 pl-9.5 pr-4 rounded-xl border border-slate-200 bg-slate-50/50 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white transition-all"
+              className="w-full h-11 pl-10.5 pr-4 rounded-xl border border-slate-200 bg-slate-50/50 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white transition-all"
             />
           </div>
 
           {/* Filtrlash tugmalari (Tabs) */}
-          <div className="flex items-center gap-1.5 bg-slate-100/80 p-1 rounded-xl self-start md:self-auto">
+          <div className="flex items-center gap-1.5 bg-slate-100/80 p-1.5 rounded-xl self-start md:self-auto">
             <button
               type="button"
               onClick={() => onTabChange("all")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all ${activeTab === "all"
-                ? "bg-white text-blue-600 shadow-2xs font-bold"
-                : "text-slate-600 hover:text-slate-900"
-                }`}
+              className={`px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer transition-all ${
+                activeTab === "all"
+                  ? "bg-white text-blue-600 shadow-2xs font-bold"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
             >
               Barchasi ({counts.total})
             </button>
             <button
               type="button"
               onClick={() => onTabChange("couriers")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all ${activeTab === "couriers"
-                ? "bg-white text-blue-600 shadow-2xs font-bold"
-                : "text-slate-600 hover:text-slate-900"
-                }`}
+              className={`px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer transition-all ${
+                activeTab === "couriers"
+                  ? "bg-white text-blue-600 shadow-2xs font-bold"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
             >
               Dastavkachilar ({counts.couriersCount})
             </button>
             <button
               type="button"
               onClick={() => onTabChange("managers")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all ${activeTab === "managers"
-                ? "bg-white text-blue-600 shadow-2xs font-bold"
-                : "text-slate-600 hover:text-slate-900"
-                }`}
+              className={`px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer transition-all ${
+                activeTab === "managers"
+                  ? "bg-white text-blue-600 shadow-2xs font-bold"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
             >
-              Managerlar ({counts.managersCount})
+              Menejerlar ({counts.managersCount})
             </button>
           </div>
         </div>
@@ -77,50 +88,50 @@ export function XodimlarTable({
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse table-fixed">
             <colgroup>
-              <col className="w-[24%]" />
+              <col className="w-[26%]" />
               <col className="w-[18%]" />
               <col className="w-[18%]" />
-              <col className="w-[16%]" />
-              <col className="w-[12%]" />
+              <col className="w-[15%]" />
+              <col className="w-[11%]" />
               <col className="w-[12%]" />
             </colgroup>
             <thead>
-              <tr className="border-b border-slate-100 bg-slate-50/60 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                <th className="py-4 px-5 font-semibold">Xodim</th>
-                <th className="py-4 px-5 font-semibold">Telefon Raqami</th>
-                <th className="py-4 px-5 font-semibold">Roli</th>
-                <th className="py-4 px-5 font-semibold">Qo'shilgan Sana</th>
-                <th className="py-4 px-5 font-semibold text-center">Holati</th>
-                <th className="py-4 px-5 font-semibold text-right">Amallar</th>
+              <tr className="border-b border-slate-100 bg-slate-50/60 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <th className="py-4.5 px-6 font-bold">Xodim</th>
+                <th className="py-4.5 px-6 font-bold">Telefon Raqami</th>
+                <th className="py-4.5 px-6 font-bold">Roli</th>
+                <th className="py-4.5 px-6 font-bold">Qo'shilgan Sana</th>
+                <th className="py-4.5 px-6 font-bold text-center">Holati</th>
+                <th className="py-4.5 px-6 font-bold text-right">Amallar</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 text-xs">
+            <tbody className="divide-y divide-slate-100 text-sm">
               {/* 1. Yuklanish holati */}
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, idx) => (
                   <tr key={`skeleton-${idx}`} className="animate-pulse">
-                    <td className="py-4 px-5">
-                      <div className="flex items-center gap-3">
-                        <div className="size-9 rounded-full bg-slate-200 shrink-0" />
-                        <div className="h-4 bg-slate-200 rounded w-28" />
+                    <td className="py-4.5 px-6">
+                      <div className="flex items-center gap-3.5">
+                        <div className="size-10 rounded-full bg-slate-200 shrink-0" />
+                        <div className="h-4.5 bg-slate-200 rounded w-32" />
                       </div>
                     </td>
-                    <td className="py-4 px-5">
-                      <div className="h-3.5 bg-slate-200 rounded w-24" />
+                    <td className="py-4.5 px-6">
+                      <div className="h-4 bg-slate-200 rounded w-28" />
                     </td>
-                    <td className="py-4 px-5">
-                      <div className="h-3.5 bg-slate-200 rounded w-20" />
+                    <td className="py-4.5 px-6">
+                      <div className="h-7 bg-slate-200 rounded-xl w-24" />
                     </td>
-                    <td className="py-4 px-5">
-                      <div className="h-3.5 bg-slate-200 rounded w-20" />
+                    <td className="py-4.5 px-6">
+                      <div className="h-4 bg-slate-200 rounded w-24" />
                     </td>
-                    <td className="py-4 px-5 text-center">
-                      <div className="h-5 bg-slate-200 rounded-full w-16 mx-auto" />
+                    <td className="py-4.5 px-6 text-center">
+                      <div className="h-7 bg-slate-200 rounded-full w-20 mx-auto" />
                     </td>
-                    <td className="py-4 px-5 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <div className="size-8 bg-slate-200 rounded-lg" />
-                        <div className="h-5 w-8 bg-slate-200 rounded-full" />
+                    <td className="py-4.5 px-6 text-right">
+                      <div className="flex items-center justify-end gap-3">
+                        <div className="h-6 w-11 bg-slate-200 rounded-full" />
+                        <div className="size-8.5 bg-slate-200 rounded-xl" />
                       </div>
                     </td>
                   </tr>
@@ -146,7 +157,7 @@ export function XodimlarTable({
                           variant="outline"
                           size="sm"
                           onClick={onRetry}
-                          className="h-8.5 rounded-xl border-slate-200 text-xs font-semibold gap-1.5 px-3.5 mt-1 cursor-pointer hover:bg-slate-50"
+                          className="h-9 rounded-xl border-slate-200 text-xs font-semibold gap-1.5 px-3.5 mt-1 cursor-pointer hover:bg-slate-50"
                         >
                           <RotateCw className="size-3.5 text-slate-600" />
                           <span>Qayta urinish</span>
@@ -182,58 +193,68 @@ export function XodimlarTable({
                       className="hover:bg-blue-50/30 transition-colors group"
                     >
                       {/* Xodim */}
-                      <td className="py-4 px-5">
-                        <div className="flex items-center gap-3">
-                          <div className="size-9 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center font-bold text-xs text-blue-700 shrink-0">
+                      <td className="py-4.5 px-6">
+                        <Link
+                          to={`/boss/xodimlar/${emp.id}`}
+                          className="flex items-center gap-3.5 group/link cursor-pointer"
+                        >
+                          <div className="size-10 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center font-bold text-sm text-blue-700 shrink-0 group-hover/link:border-blue-300 transition-colors">
                             {emp.initials}
                           </div>
-                          <span className="font-bold text-slate-900 block leading-tight truncate">
+                          <span className="font-bold text-sm text-slate-900 group-hover/link:text-blue-600 block leading-tight truncate transition-colors">
                             {emp.name}
                           </span>
-                        </div>
+                        </Link>
                       </td>
 
                       {/* Telefon Raqami */}
-                      <td className="py-4 px-5">
-                        <span className="text-xs font-semibold text-slate-700 font-mono tracking-tight block">
+                      <td className="py-4.5 px-6">
+                        <span className="text-sm font-semibold text-slate-800 font-mono tracking-tight block">
                           {emp.phone}
                         </span>
                       </td>
 
                       {/* Roli */}
-                      <td className="py-4 px-5">
-                        <span className="font-semibold text-slate-800 block truncate">
-                          {emp.roleTitle}
-                        </span>
-                        <span className="text-[11px] text-slate-400 block mt-0.5 font-medium uppercase">
-                          {emp.roleType === "manager" ? "Boshqaruv" : "Kuryerlik"}
-                        </span>
+                      <td className="py-4.5 px-6">
+                        {emp.roleType === "manager" ? (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200/70">
+                            <ShieldCheck className="size-4 text-blue-600 shrink-0" />
+                            <span>Menejer</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/70">
+                            <Truck className="size-4 text-emerald-600 shrink-0" />
+                            <span>Dastavkachi</span>
+                          </span>
+                        )}
                       </td>
 
                       {/* Sana */}
-                      <td className="py-4 px-5 text-slate-500 font-medium font-mono text-xs">
+                      <td className="py-4.5 px-6 text-slate-600 font-medium font-mono text-sm">
                         {emp.createdAtText}
                       </td>
 
                       {/* Holati */}
-                      <td className="py-4 px-5 text-center">
+                      <td className="py-4.5 px-6 text-center">
                         <span
-                          className={`inline-flex items-center justify-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border whitespace-nowrap ${isBlocked
-                            ? "bg-rose-50 text-rose-700 border-rose-100"
-                            : "bg-blue-50 text-blue-700 border-blue-100"
-                            }`}
+                          className={`inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border whitespace-nowrap ${
+                            isBlocked
+                              ? "bg-rose-50 text-rose-700 border-rose-200"
+                              : "bg-blue-50 text-blue-700 border-blue-200"
+                          }`}
                         >
                           <span
-                            className={`size-1.5 rounded-full shrink-0 ${isBlocked ? "bg-rose-500" : "bg-blue-600"
-                              }`}
+                            className={`size-2 rounded-full shrink-0 ${
+                              isBlocked ? "bg-rose-500" : "bg-blue-600"
+                            }`}
                           />
                           <span>{isBlocked ? "Bloklangan" : "Faol"}</span>
                         </span>
                       </td>
 
                       {/* Amallar */}
-                      <td className="py-4 px-5 text-right">
-                        <div className="flex items-center justify-end gap-2.5">
+                      <td className="py-4.5 px-6 text-right">
+                        <div className="flex items-center justify-end gap-3">
                           {/* Switch toggle */}
                           <button
                             type="button"
@@ -241,8 +262,9 @@ export function XodimlarTable({
                             disabled={isUpdatingStatus}
                             aria-checked={!isBlocked}
                             onClick={() => onToggleBlock(emp)}
-                            className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none disabled:opacity-50 ${!isBlocked ? "bg-blue-600" : "bg-slate-300"
-                              }`}
+                            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none disabled:opacity-50 ${
+                              !isBlocked ? "bg-blue-600" : "bg-slate-300"
+                            }`}
                             aria-label={
                               !isBlocked
                                 ? "Faol (Bloklash uchun bosing)"
@@ -251,8 +273,9 @@ export function XodimlarTable({
                           >
                             <span
                               aria-hidden="true"
-                              className={`pointer-events-none inline-block size-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${!isBlocked ? "translate-x-4" : "translate-x-0"
-                                }`}
+                              className={`pointer-events-none inline-block size-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+                                !isBlocked ? "translate-x-5" : "translate-x-0"
+                              }`}
                             />
                           </button>
 
@@ -261,10 +284,10 @@ export function XodimlarTable({
                             type="button"
                             disabled={isDeleting}
                             onClick={() => onDeleteEmployee && onDeleteEmployee(emp)}
-                            className="size-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer disabled:opacity-50"
+                            className="size-8.5 rounded-xl flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-100 transition-all cursor-pointer disabled:opacity-50"
                             title="Xodimni o'chirish"
                           >
-                            <Trash2 className="size-3.5" />
+                            <Trash2 className="size-4" />
                           </button>
                         </div>
                       </td>
@@ -279,7 +302,7 @@ export function XodimlarTable({
 
       {/* Jadval Pagination */}
       {!isLoading && !isError && totalFilteredCount > 0 && (
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-500 px-1 pt-1">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm text-slate-600 font-medium px-1 pt-1">
           <div>
             Jami {totalFilteredCount} xodimdan {paginatedEmployees.length} tasi ko'rsatilmoqda
           </div>
