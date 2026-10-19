@@ -69,11 +69,12 @@ function LoginPage() {
       cleanPhone = cleanPhoneForBackend(rawName)
     }
 
-    const loginValue = cleanPhone || rawName
+    const isNameUsername = Boolean(rawName && !isPhonePattern(rawName))
+    const loginValue = isNameUsername ? rawName : (cleanPhone || rawName)
 
     loginMutation.mutate({
       login: loginValue,
-      ...(cleanPhone ? { phone: cleanPhone } : {}),
+      ...(cleanPhone && !isNameUsername ? { phone: cleanPhone } : {}),
       password,
     })
   }

@@ -98,7 +98,7 @@ export const createUser = (userData, token) => {
     decodedToken?.role ||
     decodedToken?.roleName ||
     decodedToken?.roles?.[0] ||
-    "ROLE_ADMIN"
+    null
 
   const userId =
     root?.userId ||
@@ -121,9 +121,11 @@ export const createUser = (userData, token) => {
 
     ROLE_COURIER: "COURIER",
     COURIER: "COURIER",
+    ROLE_CLIENT: "CLIENT",
+    CLIENT: "CLIENT",
   }
 
-  const role = roleMap[rawRole] || rawRole || "SUPER_ADMIN"
+  const role = (rawRole && roleMap[rawRole]) || rawRole || null
 
   let roleLabel = userData?.roleLabel
   if (role === "BOSS") {

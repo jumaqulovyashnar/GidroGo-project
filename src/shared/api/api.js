@@ -1,5 +1,5 @@
 import axios from "axios"
-import { useUserStore } from "@/entities/user/userStore"
+import { useUserStore } from "@/store/userStore"
 
 const rawBaseURL = import.meta.env.VITE_API_URL || ""
 const cleanBaseURL = rawBaseURL.trim().replace(/;+$/, "")
@@ -87,6 +87,17 @@ api.interceptors.request.use(
         handleForceLogout()
       } else if (token && !isAuthRoute) {
         config.headers.Authorization = `Bearer ${token}`
+      } else if (!token && !isAuthRoute) {
+        const rawStorage = localStorage.getItem("gidrogo-user-storage")
+        if (rawStorage) {
+          try {
+            const parsed = JSON.parse(rawStorage)
+            const fallbackToken = parsed?.state?.userToken?.accessToken
+            if (fallbackToken) {
+              config.headers.Authorization = `Bearer ${fallbackToken}`
+            }
+          } catch {}
+        }
       }
     } catch {
       // Fallback: localStorage
