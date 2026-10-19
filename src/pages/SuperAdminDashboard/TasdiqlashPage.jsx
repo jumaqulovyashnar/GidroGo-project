@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react"
-import { Button, Card, CardContent, TablePagination, Table, TableHeader, TableBody, TableHead, TableRow, TableCell, Spinner } from "@/shared/ui"
+import { Button, Card, TablePagination, Table, TableHeader, TableBody, TableHead, TableRow, TableCell, Spinner } from "@/shared/ui"
 import { ClipboardClock, RefreshCw, ShieldCheck, SquareExclamationPointIcon, CheckCheck, X, FolderArchive, Archive, Building2, Calendar } from "lucide-react"
 import { Modal as MantineModal } from "@mantine/core"
 import { useActivationRequests, useRequest } from "@/shared/hooks/useRequest"
@@ -32,6 +32,30 @@ const TasdiqlashPage = () => {
   const rejectedCount = useMemo(
     () => allRequests.filter((r) => r.status === "REJECTED").length,
     [allRequests]
+  )
+
+  const metricCards = useMemo(
+    () => [
+      {
+        title: "NAVBATDA KUTILAYOTGAN",
+        count: pendingCount,
+        description: "Ko'rib chiqilishi kerak bo'lgan yangi arizalar",
+        icon: ClipboardClock,
+      },
+      {
+        title: "TASDIQLANGAN",
+        count: approvedCount,
+        description: "Muvaffaqiyatli tasdiqlangan va faollashtirilgan",
+        icon: ShieldCheck,
+      },
+      {
+        title: "RAD ETILGAN",
+        count: rejectedCount,
+        description: "Talablarga javob bermagan yoki bekor qilingan",
+        icon: SquareExclamationPointIcon,
+      },
+    ],
+    [pendingCount, approvedCount, rejectedCount]
   )
 
   const itemsPerPage = 8
@@ -115,70 +139,68 @@ const TasdiqlashPage = () => {
       </div>
 
       {/* 2. Metrika Kartochkalari */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-        {/* Navbatda */}
-        <Card className="bg-white border border-slate-200/80 rounded-xl p-3 sm:p-3.5 shadow-xs">
-          <CardContent className="p-0 space-y-1.5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                Navbatda kutilayotgan
-              </span>
-              <div className="size-11 sm:size-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100/80 shadow-2xs shrink-0">
-                <ClipboardClock className="size-5.5 sm:size-6 text-blue-600" strokeWidth={1.75} />
+      {isLoadingRequests ? (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-5">
+          {[...Array(3)].map((_, i) => (
+            <Card
+              key={i}
+              className="min-h-[150px] sm:min-h-[160px] p-4 sm:p-5 flex flex-col justify-between animate-pulse"
+            >
+              <div className="flex items-center justify-between">
+                <div className="h-3.5 w-32 bg-slate-200 rounded" />
+                <div className="size-10 rounded-full bg-slate-100 border border-slate-200/80 shrink-0" />
               </div>
-            </div>
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-xl sm:text-2xl font-bold text-slate-900">{pendingCount}</span>
-              <span className="text-xs text-slate-500 font-medium">ta ariza</span>
-            </div>
-            <p className="text-[11px] text-slate-400 pt-1.5 border-t border-slate-100">
-              Ko'rib chiqilishi kerak bo'lgan yangi arizalar
-            </p>
-          </CardContent>
-        </Card>
+              <div className="py-1.5">
+                <div className="h-7 w-20 bg-slate-200 rounded" />
+              </div>
+              <div className="pt-2.5 border-t border-slate-100">
+                <div className="h-3 w-44 bg-slate-100 rounded" />
+              </div>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-5">
+          {metricCards.map((item, idx) => {
+            const Icon = item.icon
+            return (
+              <Card
+                key={idx}
+                className="min-h-[150px] sm:min-h-[160px] p-4 sm:p-5 flex flex-col justify-between"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    {item.title}
+                  </span>
+                  <div className="size-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100/80 shadow-2xs shrink-0">
+                    <Icon className="size-5 text-blue-600" strokeWidth={1.75} />
+                  </div>
+                </div>
 
-        {/* Tasdiqlangan */}
-        <Card className="bg-white border border-slate-200/80 rounded-xl p-3 sm:p-3.5 shadow-xs">
-          <CardContent className="p-0 space-y-1.5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                Tasdiqlangan
-              </span>
-              <div className="size-11 sm:size-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100/80 shadow-2xs shrink-0">
-                <ShieldCheck className="size-5.5 sm:size-6 text-blue-600" strokeWidth={1.75} />
-              </div>
-            </div>
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-xl sm:text-2xl font-bold text-slate-900">{approvedCount}</span>
-              <span className="text-xs text-slate-500 font-medium">ta ariza</span>
-            </div>
-            <p className="text-[11px] text-slate-400 pt-1.5 border-t border-slate-100">
-              Muvaffaqiyatli tasdiqlangan va faollashtirilgan
-            </p>
-          </CardContent>
-        </Card>
+                <div className="my-auto py-1.5">
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
+                      {item.count}
+                    </span>
+                    <span className="text-xs sm:text-sm font-medium text-slate-500">
+                      ta ariza
+                    </span>
+                  </div>
+                </div>
 
-        {/* Rad etilgan */}
-        <Card className="bg-white border border-slate-200/80 rounded-xl p-3 sm:p-3.5 shadow-xs">
-          <CardContent className="p-0 space-y-1.5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                Rad etilgan
-              </span>
-              <div className="size-11 sm:size-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100/80 shadow-2xs shrink-0">
-                <SquareExclamationPointIcon className="size-5.5 sm:size-6 text-blue-600" strokeWidth={1.75} />
-              </div>
-            </div>
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-xl sm:text-2xl font-bold text-slate-900">{rejectedCount}</span>
-              <span className="text-xs text-slate-500 font-medium">ta ariza</span>
-            </div>
-            <p className="text-[11px] text-slate-400 pt-1.5 border-t border-slate-100">
-              Talablarga javob bermagan yoki bekor qilingan
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+                <div className="pt-2.5 border-t border-slate-100">
+                  <p
+                    className="text-xs text-slate-500 font-normal truncate"
+                    title={item.description}
+                  >
+                    {item.description}
+                  </p>
+                </div>
+              </Card>
+            )
+          })}
+        </div>
+      )}
 
       {/* 3. Tabs */}
       <div className="flex items-center gap-2.5 pt-2">
