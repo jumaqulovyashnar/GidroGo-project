@@ -42,7 +42,7 @@ export const BossTableRow = memo(function BossTableRow({
 
       {/* 4. Ferma ID */}
       <TableCell className="py-3 px-4 text-left whitespace-nowrap align-middle">
-        <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-mono font-medium bg-slate-100 text-slate-700 border border-slate-200/60">
+        <span className="inline-flex items-center justify-center min-w-8 h-8 px-2.5 rounded-full text-xs font-mono font-semibold bg-slate-100 text-slate-700 border border-slate-200 shadow-2xs">
           {boss.farmId}
         </span>
       </TableCell>
