@@ -361,8 +361,8 @@ export function BossSavdoPage() {
                   className="p-4 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-colors flex flex-col justify-between"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="size-10 rounded-xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center shrink-0">
-                      <Package className="size-5 stroke-2" />
+                    <div className="size-10 rounded-full bg-blue-50 text-blue-600 border border-blue-100/80 flex items-center justify-center shrink-0 shadow-2xs">
+                      <Package className="size-5 stroke-2 text-blue-600" />
                     </div>
                     <div>
                       <div className="text-sm font-bold text-slate-900">
@@ -386,7 +386,7 @@ export function BossSavdoPage() {
             <span className="text-xs sm:text-sm font-medium text-slate-600">
               Bugungi umumiy mahsulot tushumi:
             </span>
-            <span className="text-xl sm:text-2xl font-extrabold text-[#047857]">
+            <span className="text-xl sm:text-2xl font-extrabold text-slate-900">
               {formatNumber(todayRevenue)} so'm
             </span>
           </div>

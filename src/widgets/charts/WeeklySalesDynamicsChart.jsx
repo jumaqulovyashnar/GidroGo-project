@@ -1,5 +1,6 @@
 import { useMemo } from "react"
 import Chart from "react-apexcharts"
+import { Droplet, ShoppingBag } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/shared/ui"
 import { useBossOrders, useBossDashboard, useBossSalesSummary } from "@/shared/hooks"
 
@@ -187,14 +188,39 @@ export function WeeklySalesDynamicsChart() {
           <Chart options={options} series={series} type="bar" height={280} />
         </div>
 
-        <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100 text-xs">
-          <div>
-            <span className="text-slate-500 block">Jami haftalik hajm:</span>
-            <span className="font-bold text-slate-900 text-sm">{totalWeeklyLiters} L</span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-5 border-t border-slate-100">
+          <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 flex items-center justify-between shadow-2xs">
+            <div>
+              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">
+                Jami haftalik hajm
+              </span>
+              <div className="flex items-baseline gap-1.5 mt-1.5">
+                <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+                  {totalWeeklyLiters}
+                </span>
+                <span className="text-xs sm:text-sm font-semibold text-slate-500">L</span>
+              </div>
+            </div>
+            <div className="size-11 sm:size-12 rounded-full bg-blue-50 text-blue-600 border border-blue-100/80 flex items-center justify-center shrink-0 shadow-2xs">
+              <Droplet className="size-5.5 text-blue-600 stroke-[1.8]" />
+            </div>
           </div>
-          <div>
-            <span className="text-slate-500 block">Jami haftalik buyurtmalar:</span>
-            <span className="font-bold text-emerald-600 text-sm">{totalWeeklyOrders} ta</span>
+
+          <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 flex items-center justify-between shadow-2xs">
+            <div>
+              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">
+                Jami haftalik buyurtmalar
+              </span>
+              <div className="flex items-baseline gap-1.5 mt-1.5">
+                <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+                  {totalWeeklyOrders}
+                </span>
+                <span className="text-xs sm:text-sm font-semibold text-slate-500">ta</span>
+              </div>
+            </div>
+            <div className="size-11 sm:size-12 rounded-full bg-blue-50 text-blue-600 border border-blue-100/80 flex items-center justify-center shrink-0 shadow-2xs">
+              <ShoppingBag className="size-5.5 text-blue-600 stroke-[1.8]" />
+            </div>
           </div>
         </div>
       </CardContent>
