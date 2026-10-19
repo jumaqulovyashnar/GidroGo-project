@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect, useMemo } from "react"
+import { useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { Button, Input, Label, Spinner } from "@/shared/ui"
-import { UserRound, Contact, KeyRound, Eye, EyeOff, Upload, Loader2, AlertCircle, RefreshCw } from "lucide-react"
+import { UserRound, Contact, KeyRound, Eye, EyeOff, Upload, Loader2, AlertCircle, RefreshCw, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import {
     useSuperAdminProfile,
@@ -74,18 +75,8 @@ const settingsSchema = z
         }
     })
 
-const defaultFormValues = {
-    firstName: "",
-    lastName: "",
-    phone: "+998",
-    email: "",
-    role: "Bosh Platforma Administratori",
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-}
-
 const SozlamalarPage = () => {
+    const queryClient = useQueryClient()
     const { data: rawProfile, isLoading: isProfileLoading, isError, error, refetch } = useSuperAdminProfile()
     const updateProfileMutation = useUpdateSuperAdminProfile()
     const changePasswordMutation = useSuperAdminChangePassword()
@@ -95,8 +86,10 @@ const SozlamalarPage = () => {
     const profile = rawProfile?.data || rawProfile
 
     const [avatarPreview, setAvatarPreview] = useState(currentUser?.avatarUrl || null)
-    const [selectedFile, setSelectedFile] = useState(null)
     const [savedAvatarUrl, setSavedAvatarUrl] = useState(currentUser?.avatarUrl || "")
+    const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
+    const [isProfileSaving, setIsProfileSaving] = useState(false)
+    const [isPasswordSaving, setIsPasswordSaving] = useState(false)
     const fileInputRef = useRef(null)
 
     // Parol ko'rsatish/yashirish holatlari
@@ -125,6 +118,7 @@ const SozlamalarPage = () => {
         handleSubmit,
         reset,
         watch,
+        trigger,
         formState: { errors },
     } = useForm({
         resolver: zodResolver(settingsSchema),
@@ -183,9 +177,13 @@ const SozlamalarPage = () => {
     const isSaving =
         updateProfileMutation.isPending ||
         changePasswordMutation.isPending ||
-        uploadMutation.isPending
+        uploadMutation.isPending ||
+        isUploadingAvatar ||
+        isProfileSaving ||
+        isPasswordSaving
 
-    const handleAvatarChange = (e) => {
+    // 1. Rasmni tanlash bilanoq avtomatik serverga yuklash va profilni yangilash (Senior UX)
+    const handleAvatarChange = async (e) => {
         const file = e.target.files?.[0]
         if (!file) return
 
@@ -199,82 +197,151 @@ const SozlamalarPage = () => {
             return
         }
 
-        setSelectedFile(file)
-        const reader = new FileReader()
-        reader.onloadend = () => {
-            setAvatarPreview(reader.result)
-        }
-        reader.readAsDataURL(file)
-    }
-
-    const handleReset = () => {
-        if (profile) {
-            reset({
-                firstName: profile.firstName || "",
-                lastName: profile.lastName || "",
-                phone: formatPhoneInput(profile.phone || "+998"),
-                email: profile.email || "",
-                role: profile.roleTitle || profile.role || "Bosh Platforma Administratori",
-                currentPassword: "",
-                newPassword: "",
-                confirmPassword: "",
-            })
-            setAvatarPreview(profile.avatarUrl || null)
-        } else {
-            reset(defaultFormValues)
-            setAvatarPreview(null)
-        }
-        setSelectedFile(null)
-        if (fileInputRef.current) {
-            fileInputRef.current.value = ""
-        }
-        toast.info("O'zgarishlar bekor qilindi")
-    }
-
-    const onSubmit = async (data) => {
-        const hasPasswordInput = Boolean(
-            data.currentPassword || data.newPassword || data.confirmPassword
-        )
+        setIsUploadingAvatar(true)
+        const localPreview = URL.createObjectURL(file)
+        setAvatarPreview(localPreview)
+        setHasImageError(false)
 
         try {
-            let finalAvatarUrl = savedAvatarUrl || ""
+            // A) Rasmni backendga yuklash (POST /api/files/upload)
+            const res = await uploadMutation.mutateAsync(file)
+            const uploadedUrl =
+                res?.data?.url ||
+                res?.data?.path ||
+                res?.url ||
+                res?.path ||
+                (typeof res?.data === "string" ? res.data : "")
 
-            // Agar yangi rasm tanlangan bo'lsa, serverga yuklaymiz
-            if (selectedFile) {
-                try {
-                    const res = await uploadMutation.mutateAsync(selectedFile)
-                    finalAvatarUrl =
-                        res?.data?.url ||
-                        res?.url ||
-                        res?.data?.path ||
-                        res?.path ||
-                        (typeof res?.data === "string" ? res.data : "") ||
-                        finalAvatarUrl
-                    setSavedAvatarUrl(finalAvatarUrl)
-                } catch (err) {
-                    toast.error("Rasmni yuklashda xatolik: " + (err.message || "Fayl yuklanmadi"))
-                    return
-                }
+            if (!uploadedUrl) {
+                throw new Error("Serverdan rasm manzili qaytmadi")
             }
 
-            // Profil ma'lumotlarini yangilash
+            // B) Profilga yangi rasm manzilini biriktirish (PUT /api/superadmin/profile)
+            const currentProfile = profile || {}
+            const fName = (watch("firstName") || currentProfile.firstName || currentUser?.firstName || "").trim()
+            const lName = (watch("lastName") || currentProfile.lastName || currentUser?.lastName || "").trim()
+            const phone = cleanPhoneForBackend(watch("phone")) || currentProfile.phone || currentUser?.phone || ""
+            const email = (watch("email") || currentProfile.email || currentUser?.email || "").trim()
+
             const profilePayload = {
-                firstName: data.firstName?.trim() || "",
-                lastName: data.lastName?.trim() || "",
-                fullName: `${data.firstName?.trim() || ""} ${data.lastName?.trim() || ""}`.trim(),
-                phone: cleanPhoneForBackend(data.phone) || formatPhoneInput(data.phone),
-                email: data.email?.trim() || "",
-                avatarUrl: finalAvatarUrl,
+                firstName: fName,
+                lastName: lName,
+                fullName: `${fName} ${lName}`.trim(),
+                phone: phone,
+                email: email,
+                avatarUrl: uploadedUrl,
             }
 
             const updated = await updateProfileMutation.mutateAsync(profilePayload)
             const updatedData = updated?.data || updated || profilePayload
 
-            // Zustand store'dagi foydalanuvchi ma'lumotlarini sinxronlash
-            const currentUser = useUserStore.getState().userInfo
-            if (currentUser) {
+            // C) Zustand store va Header'ni zudlik bilan sinxronlash
+            const curUser = useUserStore.getState().userInfo
+            if (curUser) {
                 useUserStore.getState().actions.setUserInfo({
-                    ...currentUser,
+                    ...curUser,
+                    avatarUrl: uploadedUrl,
+                })
+            }
+
+            // D) React Query keshini yangilash (Header komponentidagi rasm shu zahoti o'zgaradi)
+            queryClient.setQueryData(["superadmin-profile"], (old) => {
+                if (!old) return { data: updatedData }
+                if (old.data) return { ...old, data: { ...old.data, ...updatedData } }
+                return { ...old, ...updatedData }
+            })
+            queryClient.invalidateQueries({ queryKey: ["superadmin-profile"] })
+
+            setSavedAvatarUrl(uploadedUrl)
+            setAvatarPreview(uploadedUrl)
+            toast.success("Profil rasmi muvaffaqiyatli yangilandi!")
+        } catch (err) {
+            setAvatarPreview(savedAvatarUrl || profile?.avatarUrl || currentUser?.avatarUrl || null)
+            toast.error("Rasmni yuklashda xatolik: " + (err?.message || "Serverga yuklanmadi"))
+        } finally {
+            setIsUploadingAvatar(false)
+            if (fileInputRef.current) {
+                fileInputRef.current.value = ""
+            }
+        }
+    }
+
+    // 2. Rasmni o'chirish
+    const handleRemoveAvatar = async () => {
+        setIsUploadingAvatar(true)
+        try {
+            const currentProfile = profile || {}
+            const fName = (watch("firstName") || currentProfile.firstName || "").trim()
+            const lName = (watch("lastName") || currentProfile.lastName || "").trim()
+            const phone = cleanPhoneForBackend(watch("phone")) || currentProfile.phone || ""
+            const email = (watch("email") || currentProfile.email || "").trim()
+
+            const profilePayload = {
+                firstName: fName,
+                lastName: lName,
+                fullName: `${fName} ${lName}`.trim(),
+                phone: phone,
+                email: email,
+                avatarUrl: "",
+            }
+
+            const updated = await updateProfileMutation.mutateAsync(profilePayload)
+            const updatedData = updated?.data || updated || profilePayload
+
+            const curUser = useUserStore.getState().userInfo
+            if (curUser) {
+                useUserStore.getState().actions.setUserInfo({
+                    ...curUser,
+                    avatarUrl: "",
+                })
+            }
+
+            queryClient.setQueryData(["superadmin-profile"], (old) => {
+                if (!old) return { data: updatedData }
+                if (old.data) return { ...old, data: { ...old.data, ...updatedData } }
+                return { ...old, ...updatedData }
+            })
+            queryClient.invalidateQueries({ queryKey: ["superadmin-profile"] })
+
+            setSavedAvatarUrl("")
+            setAvatarPreview(null)
+            toast.success("Profil rasmi o'chirildi")
+        } catch (err) {
+            toast.error("Rasmni o'chirishda xatolik: " + (err?.message || "Xatolik yuz berdi"))
+        } finally {
+            setIsUploadingAvatar(false)
+        }
+    }
+
+    // 3. Shaxsiy ma'lumotlarni saqlash (Ism, Familiya, Telefon, Email)
+    const handleSaveProfile = async () => {
+        const isValid = await trigger(["firstName", "lastName", "phone", "email"])
+        if (!isValid) return
+
+        setIsProfileSaving(true)
+        try {
+            const values = watch()
+            const fName = (values.firstName || "").trim()
+            const lName = (values.lastName || "").trim()
+            const phone = cleanPhoneForBackend(values.phone) || formatPhoneInput(values.phone)
+            const email = (values.email || "").trim()
+
+            const profilePayload = {
+                firstName: fName,
+                lastName: lName,
+                fullName: `${fName} ${lName}`.trim(),
+                phone: phone,
+                email: email,
+                avatarUrl: savedAvatarUrl || "",
+            }
+
+            const updated = await updateProfileMutation.mutateAsync(profilePayload)
+            const updatedData = updated?.data || updated || profilePayload
+
+            const curUser = useUserStore.getState().userInfo
+            if (curUser) {
+                useUserStore.getState().actions.setUserInfo({
+                    ...curUser,
                     firstName: updatedData.firstName || profilePayload.firstName,
                     lastName: updatedData.lastName || profilePayload.lastName,
                     fullName: updatedData.fullName || profilePayload.fullName,
@@ -284,32 +351,85 @@ const SozlamalarPage = () => {
                 })
             }
 
-            // Parolni yangilash
-            if (hasPasswordInput) {
-                await changePasswordMutation.mutateAsync({
-                    currentPassword: data.currentPassword,
-                    newPassword: data.newPassword,
-                    confirmPassword: data.confirmPassword,
-                })
-            }
+            queryClient.setQueryData(["superadmin-profile"], (old) => {
+                if (!old) return { data: updatedData }
+                if (old.data) return { ...old, data: { ...old.data, ...updatedData } }
+                return { ...old, ...updatedData }
+            })
+            queryClient.invalidateQueries({ queryKey: ["superadmin-profile"] })
 
-            // Parol maydonlarini tozalash
+            toast.success("Profil ma'lumotlari muvaffaqiyatli saqlandi!")
+        } catch (error) {
+            toast.error(error?.message || "Profilni saqlashda xatolik yuz berdi")
+        } finally {
+            setIsProfileSaving(false)
+        }
+    }
+
+    // 4. Parolni yangilash
+    const handleSavePassword = async () => {
+        const currentPassword = watch("currentPassword")
+        const newPassword = watch("newPassword")
+        const confirmPassword = watch("confirmPassword")
+
+        if (!currentPassword) {
+            toast.error("Joriy parolingizni kiriting")
+            return
+        }
+        if (!newPassword) {
+            toast.error("Yangi parolni kiriting")
+            return
+        }
+        if (!PASSWORD_STRONG_REGEX.test(newPassword)) {
+            toast.error("Yangi parol kamida 8 ta belgi, harf va raqamdan iborat bo'lishi kerak")
+            return
+        }
+        if (newPassword !== confirmPassword) {
+            toast.error("Yangi parollar bir-biriga mos kelmadi")
+            return
+        }
+
+        setIsPasswordSaving(true)
+        try {
+            await changePasswordMutation.mutateAsync({
+                currentPassword,
+                newPassword,
+                confirmPassword,
+            })
             reset({
-                ...data,
+                ...watch(),
                 currentPassword: "",
                 newPassword: "",
                 confirmPassword: "",
             })
-
-            setSelectedFile(null)
-            if (fileInputRef.current) {
-                fileInputRef.current.value = ""
-            }
-            toast.success("Sozlamalar muvaffaqiyatli saqlandi!")
+            toast.success("Parol muvaffaqiyatli yangilandi!")
         } catch (error) {
-            toast.error(error?.message || "Sozlamalarni saqlashda xatolik yuz berdi")
+            toast.error(error?.message || "Parolni yangilashda xatolik yuz berdi")
+        } finally {
+            setIsPasswordSaving(false)
         }
     }
+
+    const handleResetPasswordFields = () => {
+        reset({
+            ...watch(),
+            currentPassword: "",
+            newPassword: "",
+            confirmPassword: "",
+        })
+        toast.info("Parol maydonlari tozalandi")
+    }
+
+    const onSubmit = async () => {
+        await handleSaveProfile()
+        const hasPasswordInput = Boolean(
+            watch("currentPassword") || watch("newPassword") || watch("confirmPassword")
+        )
+        if (hasPasswordInput) {
+            await handleSavePassword()
+        }
+    }
+
 
     if (isProfileLoading && !profile) {
         return (
@@ -458,9 +578,16 @@ const SozlamalarPage = () => {
                         {/* LEFT: Avatar Area */}
                         <div className="w-full sm:w-48 shrink-0 flex flex-col items-center text-center sm:pr-6 sm:border-r sm:border-slate-100 sm:justify-center">
                             <div
-                                onClick={() => fileInputRef.current?.click()}
+                                onClick={() => !isUploadingAvatar && fileInputRef.current?.click()}
                                 className="w-28 h-28 sm:w-32 sm:h-32 rounded-full border-2 border-slate-200 overflow-hidden bg-slate-100 flex items-center justify-center shadow-xs shrink-0 relative group cursor-pointer hover:border-blue-400 transition-colors aspect-square"
                             >
+                                {isUploadingAvatar && (
+                                    <div className="absolute inset-0 bg-white/80 flex flex-col items-center justify-center text-blue-600 gap-1 rounded-full z-10">
+                                        <Loader2 className="w-6 h-6 animate-spin" />
+                                        <span className="text-[10px] font-semibold text-slate-700">Yuklanmoqda...</span>
+                                    </div>
+                                )}
+
                                 {avatarPreview && !hasImageError ? (
                                     <>
                                         <img
@@ -481,17 +608,36 @@ const SozlamalarPage = () => {
                                 )}
                             </div>
 
-                            {/* Button: Rasm yuklash */}
-                            <div className="mt-3.5 flex justify-center w-full">
+                            {/* Button: Rasm yuklash & O'chirish */}
+                            <div className="mt-3.5 flex flex-col items-center gap-2 w-full">
                                 <button
                                     type="button"
                                     onClick={() => fileInputRef.current?.click()}
-                                    disabled={isSaving || isProfileLoading}
+                                    disabled={isSaving || isProfileLoading || isUploadingAvatar}
                                     className="h-9 px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-all shadow-2xs cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap disabled:opacity-50"
                                 >
-                                    <Upload className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                                    <span className="whitespace-nowrap">Rasm yuklash</span>
+                                    {isUploadingAvatar ? (
+                                        <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-600" />
+                                    ) : (
+                                        <Upload className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                                    )}
+                                    <span className="whitespace-nowrap">
+                                        {isUploadingAvatar ? "Yuklanmoqda..." : "Rasm yuklash"}
+                                    </span>
                                 </button>
+
+                                {avatarPreview && (
+                                    <button
+                                        type="button"
+                                        onClick={handleRemoveAvatar}
+                                        disabled={isSaving || isProfileLoading || isUploadingAvatar}
+                                        className="text-xs text-rose-500 hover:text-rose-600 hover:underline font-medium transition-colors cursor-pointer inline-flex items-center gap-1"
+                                    >
+                                        <Trash2 className="size-3" />
+                                        <span>Rasmni o'chirish</span>
+                                    </button>
+                                )}
+
                                 <input
                                     ref={fileInputRef}
                                     type="file"
@@ -501,7 +647,7 @@ const SozlamalarPage = () => {
                                 />
                             </div>
 
-                            <p className="text-[11px] text-slate-400 mt-2 font-normal text-center whitespace-nowrap">
+                            <p className="text-[11px] text-slate-400 mt-1 font-normal text-center whitespace-nowrap">
                                 PNG, JPG yoki WEBP • Maks. 5 MB
                             </p>
                         </div>
@@ -631,6 +777,19 @@ const SozlamalarPage = () => {
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    {/* Card 1 Footer: Profil ma'lumotlarini saqlash */}
+                    <div className="mt-6 pt-5 border-t border-slate-100 flex items-center justify-end">
+                        <Button
+                            type="button"
+                            onClick={handleSaveProfile}
+                            disabled={isProfileSaving || isSaving || isUploadingAvatar}
+                            className="h-10 px-5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold cursor-pointer shadow-xs transition-colors inline-flex items-center gap-2 disabled:opacity-50"
+                        >
+                            {isProfileSaving && <Loader2 className="w-4 h-4 animate-spin" />}
+                            <span>Ma'lumotlarni saqlash</span>
+                        </Button>
                     </div>
                 </div>
 
@@ -771,19 +930,20 @@ const SozlamalarPage = () => {
                         <Button
                             type="button"
                             variant="outline"
-                            onClick={handleReset}
-                            disabled={isSaving}
+                            onClick={handleResetPasswordFields}
+                            disabled={isPasswordSaving}
                             className="h-10 px-4 rounded-xl border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-xs sm:text-sm font-medium cursor-pointer shadow-2xs transition-colors disabled:opacity-50"
                         >
-                            Bekor qilish
+                            Tozalash
                         </Button>
                         <Button
-                            type="submit"
-                            disabled={isSaving || isProfileLoading}
+                            type="button"
+                            onClick={handleSavePassword}
+                            disabled={isPasswordSaving}
                             className="h-10 px-5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold cursor-pointer shadow-xs transition-colors inline-flex items-center gap-2 disabled:opacity-50"
                         >
-                            {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
-                            <span>Saqlash</span>
+                            {isPasswordSaving && <Loader2 className="w-4 h-4 animate-spin" />}
+                            <span>Parolni yangilash</span>
                         </Button>
                     </div>
                 </div>
