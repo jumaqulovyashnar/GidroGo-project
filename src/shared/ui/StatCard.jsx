@@ -21,8 +21,8 @@ export function StatCard({
         <CardTitle className="text-xs font-semibold uppercase tracking-wider text-slate-500 line-clamp-1">
           {title}
         </CardTitle>
-        <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border border-blue-100 bg-blue-50 text-blue-600">
-          {Icon && <Icon className="size-4 text-blue-600" strokeWidth={2} />}
+        <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shrink-0 border border-blue-100/80 bg-blue-50 text-blue-600 shadow-2xs">
+          {Icon && <Icon className="size-5.5 sm:size-6 text-blue-600" strokeWidth={1.75} />}
         </div>
       </CardHeader>
       <CardContent className="p-0 pt-1">

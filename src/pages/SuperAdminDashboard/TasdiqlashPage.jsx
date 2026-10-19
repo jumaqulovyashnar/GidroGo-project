@@ -123,8 +123,8 @@ const TasdiqlashPage = () => {
               <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                 Navbatda kutilayotgan
               </span>
-              <div className="size-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100">
-                <ClipboardClock className="size-4 text-blue-600" />
+              <div className="size-11 sm:size-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100/80 shadow-2xs shrink-0">
+                <ClipboardClock className="size-5.5 sm:size-6 text-blue-600" strokeWidth={1.75} />
               </div>
             </div>
             <div className="flex items-baseline gap-1.5">
@@ -144,8 +144,8 @@ const TasdiqlashPage = () => {
               <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                 Tasdiqlangan
               </span>
-              <div className="size-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100">
-                <ShieldCheck className="size-4 text-blue-600" />
+              <div className="size-11 sm:size-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100/80 shadow-2xs shrink-0">
+                <ShieldCheck className="size-5.5 sm:size-6 text-blue-600" strokeWidth={1.75} />
               </div>
             </div>
             <div className="flex items-baseline gap-1.5">
@@ -165,8 +165,8 @@ const TasdiqlashPage = () => {
               <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                 Rad etilgan
               </span>
-              <div className="size-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100">
-                <SquareExclamationPointIcon className="size-4 text-blue-600" />
+              <div className="size-11 sm:size-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100/80 shadow-2xs shrink-0">
+                <SquareExclamationPointIcon className="size-5.5 sm:size-6 text-blue-600" strokeWidth={1.75} />
               </div>
             </div>
             <div className="flex items-baseline gap-1.5">

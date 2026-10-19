@@ -142,8 +142,8 @@ export const StatistikaPage = () => {
                                     <CardTitle className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                                         {audit.title}
                                     </CardTitle>
-                                    <div className="size-8 rounded-lg flex items-center justify-center shrink-0 border bg-blue-50 text-blue-600 border-blue-100">
-                                        <Icon className="size-4 text-blue-600" />
+                                    <div className="size-11 sm:size-12 rounded-full flex items-center justify-center shrink-0 border bg-blue-50 text-blue-600 border-blue-100/80 shadow-2xs">
+                                        <Icon className="size-5.5 sm:size-6 text-blue-600" strokeWidth={1.75} />
                                     </div>
                                 </CardHeader>
 

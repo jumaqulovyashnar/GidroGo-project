@@ -109,7 +109,7 @@ export function SuperAdminDashboardPage() {
             >
               <div className="flex items-center justify-between pb-1">
                 <div className="h-3.5 w-24 bg-slate-200 rounded" />
-                <div className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200/80 shrink-0" />
+                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-slate-100 border border-slate-200/80 shrink-0" />
               </div>
               <div className="pt-1.5">
                 <div className="h-5 w-16 bg-slate-200 rounded" />
