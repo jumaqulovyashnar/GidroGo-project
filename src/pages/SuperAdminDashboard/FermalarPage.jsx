@@ -1,13 +1,13 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import { Plus, MapPin, Phone, User, Pencil, Trash2, Building2 } from "lucide-react"
+import { Plus, Building2 } from "lucide-react"
 import { toast } from "sonner"
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/shared/ui/breadcrumb"
 import { useFermaModalStore } from "@/entities/farm"
 import { Button, CreateFermaModal, EditFermaModal, DeleteFermaModal, Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext, PaginationEllipsis, Spinner } from "@/shared/ui"
 import { FilterBar } from "@/widgets"
 import { useFarms, useUpdateFarmStatus, useDeleteFarm } from "@/shared/hooks"
-import { resolveFileUrl } from "@/shared/lib"
+import { FarmCard } from "@/components/common"
 
 const FermalarPage = () => {
     const { data, isPending, isError, error } = useFarms()
@@ -43,15 +43,11 @@ const FermalarPage = () => {
         { value: "name_desc", label: "Nomi bo'yicha (Z-A)" },
     ]
 
-    const handleEdit = (e, farm) => {
-        e.stopPropagation()
-        e.preventDefault()
+    const handleEdit = (farm) => {
         setEditingFarm(farm)
     }
 
-    const handleDelete = (e, farm) => {
-        e.stopPropagation()
-        e.preventDefault()
+    const handleDelete = (farm) => {
         setDeletingFarm(farm)
     }
 
@@ -273,108 +269,15 @@ const FermalarPage = () => {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {paginatedFarms.map((farm) => (
-                        <div
+                        <FarmCard
                             key={farm.id}
+                            farm={farm}
                             onClick={() =>
                                 navigate(`/super-admin/fermalar/${farm.id}`)
                             }
-                            className="group bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between cursor-pointer"
-                        >
-                            <div className="relative w-full h-48 sm:h-52 overflow-hidden bg-slate-100 flex items-center justify-center">
-                                {(() => {
-                                    const farmImage = resolveFileUrl(
-                                        farm.logoUrl || farm.photoUrl || farm.bannerUrl || farm.farmLogoUrl || farm.logo || ""
-                                    )
-                                    return (
-                                        <>
-                                            {farmImage && (
-                                                <img
-                                                    src={farmImage}
-                                                    alt={farm.name}
-                                                    width="400"
-                                                    height="208"
-                                                    loading="lazy"
-                                                    decoding="async"
-                                                    onError={(e) => {
-                                                        e.currentTarget.style.display = "none"
-                                                        const fallback = e.currentTarget.parentElement?.querySelector(".farm-placeholder")
-                                                        if (fallback) fallback.style.display = "flex"
-                                                    }}
-                                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                                />
-                                            )}
-                                            <div
-                                                style={{ display: farmImage ? "none" : "flex" }}
-                                                className="farm-placeholder w-full h-full flex flex-col items-center justify-center text-slate-400 gap-2 bg-gradient-to-br from-slate-50 to-slate-100"
-                                            >
-                                                <Building2 className="size-12 stroke-[1.2] text-slate-400" />
-                                                <span className="text-xs font-medium text-slate-400">Rasm mavjud emas</span>
-                                            </div>
-                                        </>
-                                    )
-                                })()}
-                            </div>
-
-                            <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                                <div className="space-y-3">
-                                    <h3 className="text-lg font-bold text-slate-900 line-clamp-1">
-                                        {farm.name}
-                                    </h3>
-
-                                    <div className="space-y-2 text-sm text-slate-600">
-                                        <div className="flex items-center gap-2">
-                                            <MapPin className="size-4 text-slate-400 shrink-0" />
-
-                                            <span className="truncate">
-                                                {farm.address}
-                                            </span>
-                                        </div>
-
-                                        <div className="flex items-center gap-2">
-                                            <Phone className="size-4 text-slate-400 shrink-0" />
-
-                                            <span>{farm.phone}</span>
-                                        </div>
-
-                                        <div className="flex items-center gap-2 pt-2.5 border-t border-slate-100 text-xs sm:text-sm">
-                                            <User className="size-4 text-slate-400 shrink-0" />
-
-                                            <span className="font-medium text-slate-800 truncate">
-                                                {farm.bossFullName}
-                                            </span>
-
-                                            <span className="text-slate-400 truncate">
-                                                ({farm.bossPhone})
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center gap-2.5 pt-3 border-t border-slate-100">
-                                    <Button
-                                        type="button"
-                                        onClick={(e) =>
-                                            handleEdit(e, farm)
-                                        }
-                                        className="flex-1 h-9 rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white text-sm font-medium transition-colors cursor-pointer shadow-xs gap-1.5"
-                                    >
-                                        <Pencil className="size-3.5" />
-                                        <span>Tahrirlash</span>
-                                    </Button>
-
-                                    <Button
-                                        type="button"
-                                        onClick={(e) =>
-                                            handleDelete(e, farm)
-                                        }
-                                        className="flex-1 h-9 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-sm font-medium transition-colors cursor-pointer shadow-xs gap-1.5"
-                                    >
-                                        <Trash2 className="size-3.5 text-white" />
-                                        <span>O'chirish</span>
-                                    </Button>
-                                </div>
-                            </div>
-                        </div>
+                            onEdit={handleEdit}
+                            onDelete={handleDelete}
+                        />
                     ))}
                 </div>
             )}
