@@ -105,15 +105,15 @@ export function SuperAdminDashboardPage() {
           {[...Array(5)].map((_, i) => (
             <div
               key={i}
-              className="border border-slate-200/80 bg-white rounded-2xl p-5 sm:p-6 animate-pulse min-h-34 flex flex-col justify-between"
+              className="border border-slate-200/80 bg-white rounded-xl p-3.5 sm:p-4 animate-pulse flex flex-col justify-between"
             >
-              <div className="flex items-center justify-between pb-1 min-h-12">
-                <div className="h-4 w-24 bg-slate-200 rounded" />
-                <div className="w-13 h-13 rounded-full bg-slate-100 border border-slate-200/80 shrink-0" />
+              <div className="flex items-center justify-between pb-1">
+                <div className="h-3.5 w-24 bg-slate-200 rounded" />
+                <div className="w-9 h-9 rounded-xl bg-slate-100 border border-slate-200/80 shrink-0" />
               </div>
               <div className="pt-2">
-                <div className="h-7 w-20 bg-slate-200 rounded" />
-                <div className="h-3 w-32 bg-slate-100 rounded mt-2" />
+                <div className="h-6 w-16 bg-slate-200 rounded" />
+                <div className="h-2.5 w-28 bg-slate-100 rounded mt-2" />
               </div>
             </div>
           ))}
