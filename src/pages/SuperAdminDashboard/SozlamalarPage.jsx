@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { Button, Input, Label, Spinner } from "@/shared/ui"
-import { UserRound, Contact, KeyRound, Eye, EyeOff, Upload, Loader2, AlertCircle, RefreshCw, Trash2 } from "lucide-react"
+import { UserRound, Contact, KeyRound, Eye, EyeOff, Upload, Loader2, AlertCircle, RefreshCw } from "lucide-react"
 import { toast } from "sonner"
 import {
     useSuperAdminProfile,
@@ -266,54 +266,7 @@ const SozlamalarPage = () => {
         }
     }
 
-    // 2. Rasmni o'chirish
-    const handleRemoveAvatar = async () => {
-        setIsUploadingAvatar(true)
-        try {
-            const currentProfile = profile || {}
-            const fName = (watch("firstName") || currentProfile.firstName || "").trim()
-            const lName = (watch("lastName") || currentProfile.lastName || "").trim()
-            const phone = cleanPhoneForBackend(watch("phone")) || currentProfile.phone || ""
-            const email = (watch("email") || currentProfile.email || "").trim()
-
-            const profilePayload = {
-                firstName: fName,
-                lastName: lName,
-                fullName: `${fName} ${lName}`.trim(),
-                phone: phone,
-                email: email,
-                avatarUrl: "",
-            }
-
-            const updated = await updateProfileMutation.mutateAsync(profilePayload)
-            const updatedData = updated?.data || updated || profilePayload
-
-            const curUser = useUserStore.getState().userInfo
-            if (curUser) {
-                useUserStore.getState().actions.setUserInfo({
-                    ...curUser,
-                    avatarUrl: "",
-                })
-            }
-
-            queryClient.setQueryData(["superadmin-profile"], (old) => {
-                if (!old) return { data: updatedData }
-                if (old.data) return { ...old, data: { ...old.data, ...updatedData } }
-                return { ...old, ...updatedData }
-            })
-            queryClient.invalidateQueries({ queryKey: ["superadmin-profile"] })
-
-            setSavedAvatarUrl("")
-            setAvatarPreview(null)
-            toast.success("Profil rasmi o'chirildi")
-        } catch (err) {
-            toast.error("Rasmni o'chirishda xatolik: " + (err?.message || "Xatolik yuz berdi"))
-        } finally {
-            setIsUploadingAvatar(false)
-        }
-    }
-
-    // 3. Shaxsiy ma'lumotlarni saqlash (Ism, Familiya, Telefon, Email)
+    // 2. Shaxsiy ma'lumotlarni saqlash (Ism, Familiya, Telefon, Email)
     const handleSaveProfile = async () => {
         const isValid = await trigger(["firstName", "lastName", "phone", "email"])
         if (!isValid) return
@@ -608,8 +561,8 @@ const SozlamalarPage = () => {
                                 )}
                             </div>
 
-                            {/* Button: Rasm yuklash & O'chirish */}
-                            <div className="mt-3.5 flex flex-col items-center gap-2 w-full">
+                            {/* Button: Rasm yuklash */}
+                            <div className="mt-3.5 flex justify-center w-full">
                                 <button
                                     type="button"
                                     onClick={() => fileInputRef.current?.click()}
@@ -625,18 +578,6 @@ const SozlamalarPage = () => {
                                         {isUploadingAvatar ? "Yuklanmoqda..." : "Rasm yuklash"}
                                     </span>
                                 </button>
-
-                                {avatarPreview && (
-                                    <button
-                                        type="button"
-                                        onClick={handleRemoveAvatar}
-                                        disabled={isSaving || isProfileLoading || isUploadingAvatar}
-                                        className="text-xs text-rose-500 hover:text-rose-600 hover:underline font-medium transition-colors cursor-pointer inline-flex items-center gap-1"
-                                    >
-                                        <Trash2 className="size-3" />
-                                        <span>Rasmni o'chirish</span>
-                                    </button>
-                                )}
 
                                 <input
                                     ref={fileInputRef}
