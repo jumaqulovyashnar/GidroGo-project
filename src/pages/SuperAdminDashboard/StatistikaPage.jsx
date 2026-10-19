@@ -1,8 +1,10 @@
-import { useState, useMemo, useRef, useEffect, lazy, Suspense } from "react"
+import { useState, useMemo, lazy, Suspense } from "react"
+import { Modal as MantineModal } from "@mantine/core"
 import { Button, Card, CardHeader, CardTitle, CardContent, TablePagination, Spinner } from "@/shared/ui"
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/shared/ui/table"
-import { Filter, Tractor, Users, BadgeCheck, Gauge, RefreshCw, Calendar, MapPin, X, RotateCcw, ChevronDown } from "lucide-react"
+import { Filter, Tractor, Users, BadgeCheck, Gauge, RefreshCw, Calendar, MapPin, RotateCcw } from "lucide-react"
 import { useRegionalStatistics, useSuperAdminDashboard } from "@/shared/hooks"
+import { cn } from "@/shared/lib"
 
 const LineColumn = lazy(() => import("@/widgets").then((m) => ({ default: m.LineColumn })))
 
@@ -18,7 +20,7 @@ const formatDateYMD = (date) => {
 export const StatistikaPage = () => {
     const [currentPage, setCurrentPage] = useState(1)
     const [isFilterOpen, setIsFilterOpen] = useState(false)
-    const filterRef = useRef(null)
+    const [selectedPreset, setSelectedPreset] = useState("all")
 
     const [filters, setFilters] = useState({
         region: "all",
@@ -31,29 +33,6 @@ export const StatistikaPage = () => {
         from: "",
         to: "",
     })
-
-    // Click outside va Escape tugmasi orqali popoverni yopish
-    useEffect(() => {
-        if (!isFilterOpen) return
-
-        const handleClickOutside = (e) => {
-            if (filterRef.current && !filterRef.current.contains(e.target)) {
-                setIsFilterOpen(false)
-            }
-        }
-        const handleKeyDown = (e) => {
-            if (e.key === "Escape") {
-                setIsFilterOpen(false)
-            }
-        }
-
-        document.addEventListener("mousedown", handleClickOutside)
-        document.addEventListener("keydown", handleKeyDown)
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside)
-            document.removeEventListener("keydown", handleKeyDown)
-        }
-    }, [isFilterOpen])
 
     const activeFilterCount = useMemo(() => {
         let count = 0
@@ -121,6 +100,7 @@ export const StatistikaPage = () => {
 
     // Tezkor sana tanlash yordamchisi
     const handleQuickDateSelect = (type) => {
+        setSelectedPreset(type)
         const now = new Date()
         if (type === "all") {
             setDraftFilters((prev) => ({ ...prev, from: "", to: "" }))
@@ -141,17 +121,6 @@ export const StatistikaPage = () => {
         }
     }
 
-    const activePreset = useMemo(() => {
-        if (!draftFilters.from && !draftFilters.to) return "all"
-        const now = new Date()
-        const firstDay = formatDateYMD(new Date(now.getFullYear(), now.getMonth(), 1))
-        const today = formatDateYMD(now)
-        if (draftFilters.from === firstDay && draftFilters.to === today) return "month"
-        const past30 = formatDateYMD(new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000))
-        if (draftFilters.from === past30 && draftFilters.to === today) return "30days"
-        return "custom"
-    }, [draftFilters.from, draftFilters.to])
-
     const handleApplyFilters = () => {
         setFilters(draftFilters)
         setCurrentPage(1)
@@ -162,6 +131,7 @@ export const StatistikaPage = () => {
         const empty = { region: "all", from: "", to: "" }
         setDraftFilters(empty)
         setFilters(empty)
+        setSelectedPreset("all")
         setCurrentPage(1)
         setIsFilterOpen(false)
     }
@@ -322,208 +292,227 @@ export const StatistikaPage = () => {
                             </p>
                         </div>
 
-                        {/* Interactive Filter Button & Popover */}
-                        <div className="relative" ref={filterRef}>
-                            <div className="flex items-center gap-2">
-                                {activeFilterCount > 0 && (
-                                    <button
-                                        type="button"
-                                        onClick={handleResetFilters}
-                                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs font-semibold transition-colors shadow-2xs cursor-pointer"
-                                        title="Filtrlarni tozalash"
-                                    >
-                                        <RotateCcw className="w-3.5 h-3.5" />
-                                        <span className="hidden sm:inline">Tozalash</span>
-                                    </button>
-                                )}
+                        {/* Filter Trigger Button */}
+                        <div className="flex items-center gap-2">
+                            {activeFilterCount > 0 && (
                                 <button
                                     type="button"
-                                    onClick={() => {
-                                        setDraftFilters(filters)
-                                        setIsFilterOpen((prev) => !prev)
-                                    }}
-                                    aria-expanded={isFilterOpen}
-                                    className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border text-xs font-semibold transition-all shadow-2xs cursor-pointer ${
-                                        activeFilterCount > 0
-                                            ? "border-blue-300 bg-blue-50 text-blue-700 ring-2 ring-blue-500/20"
-                                            : "border-blue-100 bg-blue-50/60 text-blue-600 hover:bg-blue-100 hover:text-blue-700"
-                                    }`}
+                                    onClick={handleResetFilters}
+                                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs font-semibold transition-colors shadow-2xs cursor-pointer"
+                                    title="Filtrlarni tozalash"
                                 >
-                                    <Filter className="w-3.5 h-3.5" />
-                                    <span>Filtrlash</span>
-                                    {activeFilterCount > 0 && (
-                                        <span className="size-4.5 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center shrink-0">
-                                            {activeFilterCount}
-                                        </span>
-                                    )}
+                                    <RotateCcw className="w-3.5 h-3.5" />
+                                    <span className="hidden sm:inline">Tozalash</span>
                                 </button>
-                            </div>
-
-                            {/* Dropdown Popover Modal */}
-                            {isFilterOpen && (
-                                <div className="absolute right-0 top-full mt-2.5 z-40 w-88 sm:w-[410px] bg-white rounded-2xl border border-slate-200/90 shadow-2xl shadow-slate-900/10 p-5 animate-in fade-in zoom-in-95 duration-150 ring-1 ring-slate-900/5">
-                                    {/* Top decorative arrow */}
-                                    <div className="absolute -top-1.5 right-6 size-3 bg-white border-t border-l border-slate-200/90 rotate-45 z-10" />
-
-                                    {/* Modal Header */}
-                                    <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
-                                        <div className="flex items-center gap-2.5">
-                                            <div className="size-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100/70 shadow-2xs">
-                                                <Filter className="size-4 text-blue-600" />
-                                            </div>
-                                            <div>
-                                                <h4 className="text-sm font-bold text-slate-900 tracking-tight leading-tight">
-                                                    Jadvalni filtrlash
-                                                </h4>
-                                                <p className="text-[11px] text-slate-400 mt-0.5">
-                                                    Viloyatlar va buyurtmalar davrini saralash
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <button
-                                            type="button"
-                                            onClick={() => setIsFilterOpen(false)}
-                                            className="size-7 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center cursor-pointer transition-colors"
-                                        >
-                                            <X className="size-4" />
-                                        </button>
-                                    </div>
-
-                                    {/* Form Fields */}
-                                    <div className="mt-4 space-y-4">
-                                        {/* 1. Hudud tanlash */}
-                                        <div>
-                                            <label className="text-xs font-semibold text-slate-700 block mb-1.5 flex items-center gap-1.5">
-                                                <MapPin className="size-3.5 text-blue-600" />
-                                                <span>Hudud / Viloyat</span>
-                                            </label>
-                                            <div className="relative">
-                                                <select
-                                                    value={draftFilters.region}
-                                                    onChange={(e) =>
-                                                        setDraftFilters((prev) => ({ ...prev, region: e.target.value }))
-                                                    }
-                                                    className="w-full h-10 pl-3.5 pr-9 rounded-xl border border-slate-200 bg-slate-50/60 hover:bg-white focus:bg-white text-xs text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none cursor-pointer"
-                                                >
-                                                    <option value="all">Barcha hududlar</option>
-                                                    {availableRegions.map((reg) => (
-                                                        <option key={reg} value={reg}>
-                                                            {reg}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                                <ChevronDown className="size-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                                            </div>
-                                        </div>
-
-                                        {/* 2. Davr / Sana oralig'i */}
-                                        <div>
-                                            <label className="text-xs font-semibold text-slate-700 block mb-1.5 flex items-center gap-1.5">
-                                                <Calendar className="size-3.5 text-blue-600" />
-                                                <span>Sana oralig'i</span>
-                                            </label>
-
-                                            {/* Segmented Quick Presets */}
-                                            <div className="grid grid-cols-3 gap-1 bg-slate-100/80 p-1 rounded-xl mb-3">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleQuickDateSelect("all")}
-                                                    className={`py-1.5 rounded-lg text-xs font-medium transition-all text-center cursor-pointer ${
-                                                        activePreset === "all"
-                                                            ? "bg-white text-blue-600 shadow-2xs font-semibold"
-                                                            : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
-                                                    }`}
-                                                >
-                                                    Barchasi
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleQuickDateSelect("month")}
-                                                    className={`py-1.5 rounded-lg text-xs font-medium transition-all text-center cursor-pointer ${
-                                                        activePreset === "month"
-                                                            ? "bg-white text-blue-600 shadow-2xs font-semibold"
-                                                            : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
-                                                    }`}
-                                                >
-                                                    Shu oy
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleQuickDateSelect("30days")}
-                                                    className={`py-1.5 rounded-lg text-xs font-medium transition-all text-center cursor-pointer ${
-                                                        activePreset === "30days"
-                                                            ? "bg-white text-blue-600 shadow-2xs font-semibold"
-                                                            : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
-                                                    }`}
-                                                >
-                                                    Oxirgi 30 kun
-                                                </button>
-                                            </div>
-
-                                            {/* 2 Date Pickers */}
-                                            <div className="grid grid-cols-2 gap-2.5">
-                                                <div>
-                                                    <span className="text-[11px] font-medium text-slate-500 block mb-1">
-                                                        Boshlanish sanasi
-                                                    </span>
-                                                    <input
-                                                        type="date"
-                                                        value={draftFilters.from}
-                                                        onChange={(e) =>
-                                                            setDraftFilters((prev) => ({ ...prev, from: e.target.value }))
-                                                        }
-                                                        className="w-full h-10 px-3 rounded-xl border border-slate-200 bg-slate-50/60 hover:bg-white focus:bg-white text-xs text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer"
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <span className="text-[11px] font-medium text-slate-500 block mb-1">
-                                                        Tugash sanasi
-                                                    </span>
-                                                    <input
-                                                        type="date"
-                                                        value={draftFilters.to}
-                                                        onChange={(e) =>
-                                                            setDraftFilters((prev) => ({ ...prev, to: e.target.value }))
-                                                        }
-                                                        className="w-full h-10 px-3 rounded-xl border border-slate-200 bg-slate-50/60 hover:bg-white focus:bg-white text-xs text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer"
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Modal Actions */}
-                                    <div className="mt-5 pt-3.5 border-t border-slate-100 flex items-center justify-between">
-                                        <button
-                                            type="button"
-                                            onClick={handleResetFilters}
-                                            className="text-xs font-medium text-slate-500 hover:text-rose-600 transition-colors inline-flex items-center gap-1.5 py-1.5 px-2 rounded-lg hover:bg-rose-50 cursor-pointer"
-                                        >
-                                            <RotateCcw className="size-3.5" />
-                                            <span>Tozalash</span>
-                                        </button>
-                                        <div className="flex items-center gap-2">
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                onClick={() => setIsFilterOpen(false)}
-                                                className="h-9 px-3.5 rounded-xl border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-medium cursor-pointer shadow-2xs"
-                                            >
-                                                Bekor qilish
-                                            </Button>
-                                            <Button
-                                                type="button"
-                                                onClick={handleApplyFilters}
-                                                className="h-9 px-4.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold cursor-pointer shadow-xs transition-all inline-flex items-center gap-1.5"
-                                            >
-                                                <span>Qo'llash</span>
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </div>
                             )}
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setDraftFilters(filters)
+                                    setIsFilterOpen(true)
+                                }}
+                                className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border text-xs font-semibold transition-all shadow-2xs cursor-pointer ${
+                                    activeFilterCount > 0
+                                        ? "border-blue-300 bg-blue-50 text-blue-700 ring-2 ring-blue-500/20"
+                                        : "border-blue-100 bg-blue-50/60 text-blue-600 hover:bg-blue-100 hover:text-blue-700"
+                                }`}
+                            >
+                                <Filter className="w-3.5 h-3.5" />
+                                <span>Filtrlash</span>
+                                {activeFilterCount > 0 && (
+                                    <span className="size-4.5 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center shrink-0">
+                                        {activeFilterCount}
+                                    </span>
+                                )}
+                            </button>
                         </div>
                     </div>
+
+                    {/* Centered Filter Modal (MantineModal) */}
+                    <MantineModal
+                        opened={isFilterOpen}
+                        onClose={() => setIsFilterOpen(false)}
+                        title={
+                            <div className="flex items-center gap-3">
+                                <div className="size-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100 shadow-2xs">
+                                    <Filter className="size-5 stroke-2 text-blue-600" />
+                                </div>
+                                <div>
+                                    <h3 className="text-base sm:text-lg font-bold text-slate-900 leading-tight">
+                                        Statistikani Filtrlash
+                                    </h3>
+                                    <p className="text-xs text-slate-500 mt-0.5">
+                                        Hududlar va buyurtmalar davrini saralash
+                                    </p>
+                                </div>
+                            </div>
+                        }
+                        size="540px"
+                        centered
+                        radius="xl"
+                        styles={{
+                            content: {
+                                borderRadius: "24px",
+                                border: "1px solid #e2e8f0",
+                                boxShadow: "0 25px 60px -15px rgba(15, 23, 42, 0.2)",
+                            },
+                            header: {
+                                borderBottom: "1px solid #f1f5f9",
+                                padding: "20px 24px",
+                                backgroundColor: "#ffffff",
+                            },
+                            body: {
+                                padding: "24px",
+                            },
+                        }}
+                    >
+                        <div className="space-y-5">
+                            {/* 1. Hudud tanlash (Chips / Pills) */}
+                            <div>
+                                <label className="text-xs font-bold text-slate-700 block mb-2.5 flex items-center gap-1.5">
+                                    <MapPin className="size-4 text-blue-600" />
+                                    <span>Hudud / Viloyat</span>
+                                </label>
+                                <div className="flex flex-wrap gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setDraftFilters((prev) => ({ ...prev, region: "all" }))}
+                                        className={cn(
+                                            "px-3.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer border",
+                                            draftFilters.region === "all"
+                                                ? "bg-blue-600 text-white border-blue-600 shadow-xs"
+                                                : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                                        )}
+                                    >
+                                        Barchasi
+                                    </button>
+                                    {availableRegions.map((reg) => (
+                                        <button
+                                            key={reg}
+                                            type="button"
+                                            onClick={() => setDraftFilters((prev) => ({ ...prev, region: reg }))}
+                                            className={cn(
+                                                "px-3.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer border",
+                                                draftFilters.region === reg
+                                                    ? "bg-blue-600 text-white border-blue-600 shadow-xs"
+                                                    : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                                            )}
+                                        >
+                                            {reg}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* 2. Davr / Sana oralig'i */}
+                            <div>
+                                <label className="text-xs font-bold text-slate-700 block mb-2 flex items-center gap-1.5">
+                                    <Calendar className="size-4 text-blue-600" />
+                                    <span>Sana oralig'i (Davr)</span>
+                                </label>
+
+                                {/* Quick Preset Tabs */}
+                                <div className="grid grid-cols-3 gap-1.5 bg-slate-100/90 p-1.5 rounded-xl mb-3.5">
+                                    <button
+                                        type="button"
+                                        onClick={() => handleQuickDateSelect("all")}
+                                        className={cn(
+                                            "py-2 rounded-lg text-xs font-semibold transition-all text-center cursor-pointer",
+                                            selectedPreset === "all"
+                                                ? "bg-white text-blue-600 shadow-2xs"
+                                                : "text-slate-600 hover:text-slate-900"
+                                        )}
+                                    >
+                                        Barcha davr
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleQuickDateSelect("month")}
+                                        className={cn(
+                                            "py-2 rounded-lg text-xs font-semibold transition-all text-center cursor-pointer",
+                                            selectedPreset === "month"
+                                                ? "bg-white text-blue-600 shadow-2xs"
+                                                : "text-slate-600 hover:text-slate-900"
+                                        )}
+                                    >
+                                        Shu oy
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleQuickDateSelect("30days")}
+                                        className={cn(
+                                            "py-2 rounded-lg text-xs font-semibold transition-all text-center cursor-pointer",
+                                            selectedPreset === "30days"
+                                                ? "bg-white text-blue-600 shadow-2xs"
+                                                : "text-slate-600 hover:text-slate-900"
+                                        )}
+                                    >
+                                        Oxirgi 30 kun
+                                    </button>
+                                </div>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div>
+                                        <span className="text-xs font-medium text-slate-600 block mb-1.5">
+                                            Boshlanish sanasi
+                                        </span>
+                                        <input
+                                            type="date"
+                                            value={draftFilters.from}
+                                            onChange={(e) => {
+                                                setDraftFilters((prev) => ({ ...prev, from: e.target.value }))
+                                                setSelectedPreset("custom")
+                                            }}
+                                            className="w-full h-11 px-3.5 rounded-xl border border-slate-200 bg-white text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer"
+                                        />
+                                    </div>
+                                    <div>
+                                        <span className="text-xs font-medium text-slate-600 block mb-1.5">
+                                            Tugash sanasi
+                                        </span>
+                                        <input
+                                            type="date"
+                                            value={draftFilters.to}
+                                            onChange={(e) => {
+                                                setDraftFilters((prev) => ({ ...prev, to: e.target.value }))
+                                                setSelectedPreset("custom")
+                                            }}
+                                            className="w-full h-11 px-3.5 rounded-xl border border-slate-200 bg-white text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Modal Footer Actions */}
+                            <div className="pt-4 border-t border-slate-100 flex items-center justify-between gap-3">
+                                <button
+                                    type="button"
+                                    onClick={handleResetFilters}
+                                    className="text-xs font-semibold text-slate-500 hover:text-rose-600 transition-colors inline-flex items-center gap-1.5 py-2 px-3 rounded-xl hover:bg-rose-50 cursor-pointer"
+                                >
+                                    <RotateCcw className="size-3.5" />
+                                    <span>Tozalash</span>
+                                </button>
+                                <div className="flex items-center gap-2.5">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => setIsFilterOpen(false)}
+                                        className="h-10 px-4 rounded-xl border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-medium cursor-pointer shadow-2xs"
+                                    >
+                                        Bekor qilish
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        onClick={handleApplyFilters}
+                                        className="h-10 px-5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold cursor-pointer shadow-xs transition-all inline-flex items-center gap-2"
+                                    >
+                                        <span>Filtrni qo'llash</span>
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+                    </MantineModal>
 
                     {/* Table Container */}
                     <div className="mt-2 rounded-xl border border-slate-200/80 overflow-hidden">
