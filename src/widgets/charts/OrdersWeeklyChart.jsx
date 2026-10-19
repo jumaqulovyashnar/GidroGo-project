@@ -51,6 +51,8 @@ export function OrdersWeeklyChart() {
     },
   ]
 
+  const maxVal = Math.max(...(data || []), 0)
+
   const options = {
     chart: {
       type: "bar",
