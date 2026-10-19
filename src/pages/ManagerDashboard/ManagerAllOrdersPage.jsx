@@ -137,10 +137,10 @@ export default function ManagerAllOrdersPage() {
       </Breadcrumb>
 
       {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-slate-900">Barcha buyurtmalar</h1>
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">Barcha buyurtmalar</h1>
             <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
               {orders.length} ta umumiy
             </span>

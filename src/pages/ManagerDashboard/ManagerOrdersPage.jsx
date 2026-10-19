@@ -85,14 +85,11 @@ export default function ManagerOrdersPage() {
       </Breadcrumb>
 
       {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-slate-900">Buyurtmalar va Taqsimot Markazi</h1>
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-              Qarshi Filiali
-            </span>
-          </div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+            Buyurtmalar va Taqsimot Markazi
+          </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
             Barcha buyurtmalarni monitoring qilish, kuryerlarga taqsimlash va yetkazish holatini boshqarish.
           </p>
@@ -184,7 +181,7 @@ export default function ManagerOrdersPage() {
             <span className="text-xs font-medium text-slate-500">Kassa tushumi (Bugun)</span>
             <div className="flex items-baseline gap-1 mt-1">
               <span className="text-2xl font-bold text-slate-900">
-                {dbData.todayRevenue ? Number(dbData.todayRevenue).toLocaleString("ru-RU") : "8,460,000"}
+                {Number(dbData.todayRevenue || 0).toLocaleString("ru-RU")}
               </span>
               <span className="text-xs font-semibold text-slate-400">so'm</span>
             </div>
