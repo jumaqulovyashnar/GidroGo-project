@@ -8,21 +8,25 @@ export function SalesTeamDonutChart({ dashboard = {}, regionalStats = {} }) {
 
     // 1. Agar hududlar kesimida statistika kelsa (API: /superadmin/statistics/regions)
     if (hasRegions) {
-      const regionLabels = regions.map((r) => r.regionName || r.name || "Hudud")
-      const regionSeries = regions.map((r) => Number(r.count ?? r.value ?? 0))
-      const total = regionalStats.totalFarms || dashboard.totalFarms || regionSeries.reduce((a, b) => a + b, 0)
-      
-      const palette = [
-        "#2563EB", "#10B981", "#F59E0B", "#8B5CF6", "#06B6D4",
-        "#EC4899", "#84CC16", "#F97316", "#6366F1", "#14B8A6",
-      ]
+      const regionSeries = regions.map((r) => Number(r.totalFarms ?? r.count ?? r.value ?? 0))
+      const hasAnyValue = regionSeries.some((v) => v > 0)
 
-      return {
-        series: regionSeries.length > 0 ? regionSeries : [1],
-        labels: regionLabels.length > 0 ? regionLabels : ["Hudud"],
-        colors: palette.slice(0, Math.max(regionLabels.length, 1)),
-        totalCount: total,
-        totalLabel: "Jami fermalar",
+      if (hasAnyValue) {
+        const regionLabels = regions.map((r) => r.regionName || r.name || "Hudud")
+        const total = Number(regionalStats.totalFarms || dashboard.totalFarms || regionSeries.reduce((a, b) => a + b, 0))
+
+        const palette = [
+          "#2563EB", "#10B981", "#F59E0B", "#8B5CF6", "#06B6D4",
+          "#EC4899", "#84CC16", "#F97316", "#6366F1", "#14B8A6",
+        ]
+
+        return {
+          series: regionSeries,
+          labels: regionLabels,
+          colors: palette.slice(0, Math.max(regionLabels.length, 1)),
+          totalCount: total,
+          totalLabel: "Jami fermalar",
+        }
       }
     }
 
@@ -32,12 +36,12 @@ export function SalesTeamDonutChart({ dashboard = {}, regionalStats = {} }) {
     const blocked = Number(dashboard.blockedFarms ?? 0)
     const total = Number(dashboard.totalFarms ?? (active + blocked))
 
-    // Agar ikkalasi ham 0 bo'lsa
+    // Agar ikkalasi ham 0 bo'lsa - default gray aylana
     if (active === 0 && blocked === 0) {
       return {
         series: [1],
         labels: ["Ma'lumot yo'q"],
-        colors: ["#94A3B8"],
+        colors: ["#E2E8F0"],
         totalCount: 0,
         totalLabel: "Jami fermalar",
       }
@@ -96,7 +100,9 @@ export function SalesTeamDonutChart({ dashboard = {}, regionalStats = {} }) {
       },
     },
     stroke: {
-      width: 0,
+      show: true,
+      width: 2.5,
+      colors: ["#ffffff"],
     },
     dataLabels: {
       enabled: false,
