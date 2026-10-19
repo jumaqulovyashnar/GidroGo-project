@@ -170,9 +170,8 @@ export function BossOsishPage() {
 
       {/* 2. Top 4 ta O'sish KPI Ko'rsatkich Kartalari */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
-        {kpiMetrics.map((item, index) => {
+        {kpiMetrics.map((item) => {
           const Icon = item.icon
-          const isBlue = index % 2 === 0
           return (
             <Card
               key={item.id}
@@ -182,14 +181,8 @@ export function BossOsishPage() {
                 <CardTitle className="text-xs font-medium uppercase tracking-wider text-slate-500">
                   {item.title}
                 </CardTitle>
-                <div
-                  className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 border ${
-                    isBlue
-                      ? "bg-blue-50 text-blue-600 border-blue-100/80"
-                      : "bg-slate-100 text-slate-600 border-slate-200/80"
-                  }`}
-                >
-                  <Icon className="size-5.5 stroke-2" />
+                <div className="w-12 h-12 rounded-full flex items-center justify-center shrink-0 border bg-blue-50 text-blue-600 border-blue-100/80 shadow-2xs">
+                  <Icon className="size-5.5 stroke-2 text-blue-600" />
                 </div>
               </CardHeader>
 

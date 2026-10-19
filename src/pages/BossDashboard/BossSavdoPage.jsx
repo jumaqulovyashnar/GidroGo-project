@@ -188,8 +188,8 @@ export function BossSavdoPage() {
             <CardTitle className="text-xs font-medium uppercase tracking-wider text-slate-500">
               Bajarilgan buyurtmalar
             </CardTitle>
-            <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-600 border border-slate-200/80 flex items-center justify-center shrink-0">
-              <CheckCircle2 className="size-5.5 stroke-2" />
+            <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 border border-blue-100/80 flex items-center justify-center shrink-0">
+              <CheckCircle2 className="size-5.5 stroke-2 text-blue-600" />
             </div>
           </CardHeader>
           <CardContent className="p-0 pt-2">
@@ -257,8 +257,8 @@ export function BossSavdoPage() {
             <CardTitle className="text-xs font-medium uppercase tracking-wider text-slate-500">
               Mahsulot bo'yicha yetakchi
             </CardTitle>
-            <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-600 border border-slate-200/80 flex items-center justify-center shrink-0">
-              <CheckCircle2 className="size-5.5 stroke-2" />
+            <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 border border-blue-100/80 flex items-center justify-center shrink-0">
+              <CheckCircle2 className="size-5.5 stroke-2 text-blue-600" />
             </div>
           </CardHeader>
           <CardContent className="p-0 pt-2">

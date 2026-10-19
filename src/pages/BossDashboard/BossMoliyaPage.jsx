@@ -61,7 +61,7 @@ export function BossMoliyaPage() {
       value: formatNumber(totalExp),
       unit: "so'm",
       icon: Receipt,
-      iconBg: "bg-slate-100 text-slate-600 border-slate-200/80",
+      iconBg: "bg-blue-50 text-blue-600 border-blue-100/80",
       subtext: "Fermaning operatsion sarf-xarajatlari",
     },
     {
@@ -79,7 +79,7 @@ export function BossMoliyaPage() {
       value: formatNumber(avgCheck),
       unit: "so'm",
       icon: ShoppingBag,
-      iconBg: "bg-slate-100 text-slate-600 border-slate-200/80",
+      iconBg: "bg-blue-50 text-blue-600 border-blue-100/80",
       subtext: orders.length > 0 ? `${orders.length} ta buyurtma asosida` : "Buyurtmalar asosida hisoblanadi",
     },
   ]
@@ -100,7 +100,7 @@ export function BossMoliyaPage() {
       value: formatNumber(cashSummary.totalHandedOver),
       unit: "so'm",
       icon: ArrowDownToLine,
-      iconBg: "bg-slate-100 text-slate-600 border-slate-200/80",
+      iconBg: "bg-blue-50 text-blue-600 border-blue-100/80",
       subtext: "Menejer tomonidan tasdiqlangan summa",
     },
     {
@@ -118,7 +118,7 @@ export function BossMoliyaPage() {
       value: String(cashSummary.activeCouriersWithCash ?? 0),
       unit: "nafar",
       icon: Users,
-      iconBg: "bg-slate-100 text-slate-600 border-slate-200/80",
+      iconBg: "bg-blue-50 text-blue-600 border-blue-100/80",
       subtext: "Qo'lida naqd pul bo'lgan xodimlar soni",
     },
   ]
@@ -134,8 +134,8 @@ export function BossMoliyaPage() {
           <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 leading-snug">
             {item.title}
           </span>
-          <div className={`size-11 sm:size-12 rounded-full flex items-center justify-center shrink-0 border shadow-2xs ${item.iconBg}`}>
-            <Icon className="size-5.5 stroke-[1.8]" />
+          <div className="size-11 sm:size-12 rounded-full flex items-center justify-center shrink-0 border shadow-2xs bg-blue-50 text-blue-600 border-blue-100/80">
+            <Icon className="size-5.5 stroke-[1.8] text-blue-600" />
           </div>
         </div>
 

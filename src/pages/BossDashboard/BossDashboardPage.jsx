@@ -149,9 +149,8 @@ export const BossDashboardPage = () => {
 
       {/* 1-Qism: Asosiy Moliyaviy Kartochkalar (3 ta ustun) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
-        {financialMetrics.map((item, idx) => {
+        {financialMetrics.map((item) => {
           const Icon = item.icon
-          const isBlue = idx % 2 === 0
           return (
             <Card
               key={item.id}
@@ -161,12 +160,8 @@ export const BossDashboardPage = () => {
                 <CardTitle className="text-xs sm:text-sm font-semibold text-slate-500 uppercase tracking-wider">
                   {item.title}
                 </CardTitle>
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 shadow-2xs ${
-                  isBlue
-                    ? "bg-blue-50 text-blue-600 border border-blue-100/80"
-                    : "bg-slate-100 text-slate-600 border border-slate-200/80"
-                }`}>
-                  <Icon className="w-6 h-6" strokeWidth={2} />
+                <div className="w-12 h-12 rounded-full flex items-center justify-center shrink-0 shadow-2xs bg-blue-50 text-blue-600 border border-blue-100/80">
+                  <Icon className="w-6 h-6 text-blue-600" strokeWidth={2} />
                 </div>
               </CardHeader>
               <CardContent className="pt-2">
@@ -189,9 +184,8 @@ export const BossDashboardPage = () => {
 
       {/* 2-Qism: Operatsion Ko'rsatkichlar Kartochkalari (4 ta ustun) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-        {operationalMetrics.map((item, idx) => {
+        {operationalMetrics.map((item) => {
           const Icon = item.icon
-          const isBlue = idx % 2 === 0
           return (
             <Card
               key={item.id}
@@ -201,12 +195,8 @@ export const BossDashboardPage = () => {
                 <CardTitle className="text-xs sm:text-sm font-semibold text-slate-500">
                   {item.title}
                 </CardTitle>
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 shadow-2xs ${
-                  isBlue
-                    ? "bg-blue-50 text-blue-600 border border-blue-100/80"
-                    : "bg-slate-100 text-slate-600 border border-slate-200/80"
-                }`}>
-                  <Icon className="w-6 h-6" strokeWidth={2} />
+                <div className="w-12 h-12 rounded-full flex items-center justify-center shrink-0 shadow-2xs bg-blue-50 text-blue-600 border border-blue-100/80">
+                  <Icon className="w-6 h-6 text-blue-600" strokeWidth={2} />
                 </div>
               </CardHeader>
               <CardContent className="pt-2">
