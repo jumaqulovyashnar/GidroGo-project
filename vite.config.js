@@ -12,6 +12,12 @@ export default defineConfig({
       usePolling: true,
       interval: 100,
     },
+    proxy: {
+      "/api": {
+        target: "http://169.58.215.170:8080",
+        changeOrigin: true,
+      },
+    },
   },
   resolve: {
     alias: {

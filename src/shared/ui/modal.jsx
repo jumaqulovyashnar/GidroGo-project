@@ -159,8 +159,25 @@ export function CreateFermaModal() {
     setErrors({})
 
     try {
+      let finalLogoUrl = formData.logoUrl
+      if (selectedFile && !finalLogoUrl) {
+        try {
+          const res = await uploadMutation.mutateAsync(selectedFile)
+          finalLogoUrl =
+            res?.data?.url ||
+            res?.url ||
+            res?.data?.fileUrl ||
+            res?.fileUrl ||
+            (typeof res?.data === "string" ? res.data : "") ||
+            ""
+        } catch (uploadErr) {
+          console.error("Rasm yuklashda xatolik:", uploadErr)
+        }
+      }
+
       await createFarmMutation.mutateAsync({
         ...formData,
+        logoUrl: finalLogoUrl || formData.logoUrl || "",
         latitude: Number(formData.latitude) || 0,
         longitude: Number(formData.longitude) || 0,
       })

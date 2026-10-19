@@ -11,8 +11,14 @@ import { resolveFileUrl } from "@/shared/lib"
  * @param {string} [props.name] - F.I.Sh
  */
 export const OwnerAvatar = memo(function OwnerAvatar({ image, farmName = "", name = "" }) {
-  const [hasError, setHasError] = useState(false)
   const safeImage = useMemo(() => resolveFileUrl(image), [image])
+  const [prevImage, setPrevImage] = useState(safeImage)
+  const [hasError, setHasError] = useState(false)
+
+  if (prevImage !== safeImage) {
+    setPrevImage(safeImage)
+    setHasError(false)
+  }
 
   // Initsiallarni hisoblash: F.I.Sh bo'lsa 2 ta so'zning bosh harflari (masalan: Jonijon Joniyivich -> JJ)
   const initials = useMemo(() => {

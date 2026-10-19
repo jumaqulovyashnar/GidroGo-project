@@ -9,7 +9,11 @@ class FileUploadService {
                 formData.append("file", upload)
                 body = formData
             }
-            const response = await api.post("/files/upload", body)
+            const response = await api.post("/files/upload", body, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            })
             return response.data
         }
         catch (error) {
