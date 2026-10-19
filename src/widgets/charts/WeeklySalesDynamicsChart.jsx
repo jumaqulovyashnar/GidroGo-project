@@ -188,38 +188,38 @@ export function WeeklySalesDynamicsChart() {
           <Chart options={options} series={series} type="bar" height={280} />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-5 border-t border-slate-100">
-          <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 flex items-center justify-between shadow-2xs">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 pt-6 border-t border-slate-100">
+          <div className="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200/90 hover:border-slate-300 hover:shadow-xs transition-all flex items-center justify-between shadow-2xs min-h-[104px]">
             <div>
-              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
                 Jami haftalik hajm
               </span>
-              <div className="flex items-baseline gap-1.5 mt-1.5">
-                <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+              <div className="flex items-center gap-2 mt-2">
+                <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 leading-none">
                   {totalWeeklyLiters}
                 </span>
-                <span className="text-xs sm:text-sm font-semibold text-slate-500">L</span>
+                <span className="text-sm sm:text-base font-bold text-slate-500">L</span>
               </div>
             </div>
-            <div className="size-11 sm:size-12 rounded-full bg-blue-50 text-blue-600 border border-blue-100/80 flex items-center justify-center shrink-0 shadow-2xs">
-              <Droplet className="size-5.5 text-blue-600 stroke-[1.8]" />
+            <div className="size-12 rounded-full bg-blue-50 text-blue-600 border border-blue-100/80 flex items-center justify-center shrink-0 shadow-2xs">
+              <Droplet className="size-6 text-blue-600 stroke-[1.8]" />
             </div>
           </div>
 
-          <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 flex items-center justify-between shadow-2xs">
+          <div className="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200/90 hover:border-slate-300 hover:shadow-xs transition-all flex items-center justify-between shadow-2xs min-h-[104px]">
             <div>
-              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
                 Jami haftalik buyurtmalar
               </span>
-              <div className="flex items-baseline gap-1.5 mt-1.5">
-                <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+              <div className="flex items-center gap-2 mt-2">
+                <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 leading-none">
                   {totalWeeklyOrders}
                 </span>
-                <span className="text-xs sm:text-sm font-semibold text-slate-500">ta</span>
+                <span className="text-sm sm:text-base font-bold text-slate-500">ta</span>
               </div>
             </div>
-            <div className="size-11 sm:size-12 rounded-full bg-blue-50 text-blue-600 border border-blue-100/80 flex items-center justify-center shrink-0 shadow-2xs">
-              <ShoppingBag className="size-5.5 text-blue-600 stroke-[1.8]" />
+            <div className="size-12 rounded-full bg-blue-50 text-blue-600 border border-blue-100/80 flex items-center justify-center shrink-0 shadow-2xs">
+              <ShoppingBag className="size-6 text-blue-600 stroke-[1.8]" />
             </div>
           </div>
         </div>
