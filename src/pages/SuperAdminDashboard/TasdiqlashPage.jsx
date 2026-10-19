@@ -14,6 +14,7 @@ const TasdiqlashPage = () => {
   const { mutate, isPending: isDeciding } = useRequest()
 
   const allRequests = useMemo(() => {
+    if (Array.isArray(responseData?.data?.content)) return responseData.data.content
     if (Array.isArray(responseData?.data)) return responseData.data
     if (Array.isArray(responseData)) return responseData
     return []

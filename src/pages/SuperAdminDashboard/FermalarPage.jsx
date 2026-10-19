@@ -24,7 +24,11 @@ const FermalarPage = () => {
     const [deletingFarm, setDeletingFarm] = useState(null)
 
     const itemsPerPage = 9
-    const farms = data?.data || []
+    const farms =
+        data?.data?.content ||
+        data?.content ||
+        (Array.isArray(data?.data) ? data.data : []) ||
+        (Array.isArray(data) ? data : [])
 
     const statusOptions = [
         { value: "all", label: "Barcha statuslar" },
