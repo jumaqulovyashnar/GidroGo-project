@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { useNavigate, Link } from "react-router-dom"
 import { Package, Search, Download, AlertCircle, ChevronRight, Home, Copy, LayoutDashboard, Truck, MapPin, Users, CheckCircle2, Clock, ChevronDown, Calendar, Filter } from "lucide-react"
 import { Select } from "@mantine/core"
@@ -45,7 +45,25 @@ export default function ManagerAllOrdersPage() {
   })
 
   const rawOrders = allOrdersRes?.data?.orders || allOrdersRes?.data || (Array.isArray(allOrdersRes) ? allOrdersRes : null)
-  const orders = Array.isArray(rawOrders) ? rawOrders : []
+  const orders = useMemo(() => {
+    if (!Array.isArray(rawOrders)) return []
+    return rawOrders.map((o) => ({
+      ...o,
+      id: o.id || o._id,
+      customer: o.customer || o.clientName || o.client?.name || o.client?.fullName || "Mijoz",
+      phone: o.phone || o.clientPhone || o.client?.phone || "—",
+      address: o.address || o.deliveryAddress || "Manzil ko'rsatilmagan",
+      sector: o.sector || o.region || o.district || "—",
+      product: o.product || o.productName || o.items?.[0]?.productName || "Suv 18.9L",
+      qty: Number(o.qty || o.quantity || o.bottlesCount || 1),
+      courier: o.courier || o.courierName || o.courier?.fullName || o.courier?.name || null,
+      vehicle: o.vehicle || o.courier?.vehicle || "",
+      status: o.status || "CREATED",
+      statusText: o.statusText || o.status || "Yangi",
+      total: Number(o.total ?? o.totalPrice ?? o.totalAmount ?? o.price ?? o.amount ?? 0),
+      createdAt: o.createdAt || o.date || o.created_at || "—",
+    }))
+  }, [rawOrders])
 
   const statusOptions = [
     { value: "all", label: `Holat: Barchasi (${orders.length})` },
@@ -518,7 +536,7 @@ export default function ManagerAllOrdersPage() {
                         </span>
                       </td>
                       <td className="py-4 px-4 font-bold text-slate-900 whitespace-nowrap">
-                        {order.total.toLocaleString()} so'm
+                        {Number(order.total || 0).toLocaleString()} so'm
                       </td>
                       <td className="py-4 px-4 text-center">
                         <button

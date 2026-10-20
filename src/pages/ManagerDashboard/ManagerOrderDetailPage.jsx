@@ -315,10 +315,10 @@ export default function ManagerOrderDetailPage() {
                       {currentOrder.qty} dona
                     </td>
                     <td className="py-4 px-4 text-slate-700">
-                      {(currentOrder.qty > 0 ? Math.round(currentOrder.total / currentOrder.qty) : currentOrder.total).toLocaleString()} so'm
+                      {(currentOrder.qty > 0 ? Math.round(Number(currentOrder.total || 0) / currentOrder.qty) : Number(currentOrder.total || 0)).toLocaleString()} so'm
                     </td>
                     <td className="py-4 px-4 text-right font-bold text-blue-600">
-                      {currentOrder.total.toLocaleString()} so'm
+                      {Number(currentOrder.total || 0).toLocaleString()} so'm
                     </td>
                   </tr>
                 </tbody>
@@ -338,7 +338,7 @@ export default function ManagerOrderDetailPage() {
               <div className="flex items-center gap-2">
                 <span className="text-slate-500">Jami to'lov:</span>
                 <span className="text-base font-bold text-slate-900">
-                  {currentOrder.total.toLocaleString()} so'm
+                  {Number(currentOrder.total || 0).toLocaleString()} so'm
                 </span>
               </div>
             </div>
@@ -480,7 +480,7 @@ export default function ManagerOrderDetailPage() {
             <div className="space-y-2">
               <div className="flex justify-between text-slate-600">
                 <span>Mahsulot narxi:</span>
-                <span>{currentOrder.total.toLocaleString()} so'm</span>
+                <span>{Number(currentOrder.total || 0).toLocaleString()} so'm</span>
               </div>
               <div className="flex justify-between text-slate-600">
                 <span>Yetkazish narxi:</span>
@@ -492,7 +492,7 @@ export default function ManagerOrderDetailPage() {
               </div>
               <div className="pt-2 border-t border-slate-100 flex justify-between font-bold text-slate-900 text-sm">
                 <span>Jami:</span>
-                <span className="text-blue-600">{currentOrder.total.toLocaleString()} so'm</span>
+                <span className="text-blue-600">{Number(currentOrder.total || 0).toLocaleString()} so'm</span>
               </div>
             </div>
           </div>

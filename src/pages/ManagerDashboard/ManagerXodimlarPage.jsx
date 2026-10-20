@@ -195,7 +195,7 @@ export default function ManagerXodimlarPage() {
             <span className="text-xs font-medium text-slate-500">Dastavkachilar kassasi</span>
             <div className="flex items-baseline gap-1.5 mt-1">
               <span className="text-2xl font-bold text-slate-900">
-                {totalCourierCash.toLocaleString()}
+                {Number(totalCourierCash || 0).toLocaleString()}
               </span>
               <span className="text-xs font-semibold text-slate-500">so'm</span>
             </div>
@@ -347,7 +347,7 @@ export default function ManagerXodimlarPage() {
                       </td>
                       <td className="py-4 px-4">
                         <span className={`font-bold font-mono ${courierCash > 0 ? "text-emerald-700" : "text-slate-500"}`}>
-                          {courierCash.toLocaleString()} so'm
+                          {Number(courierCash || 0).toLocaleString()} so'm
                         </span>
                       </td>
                       <td className="py-4 px-4 text-right">

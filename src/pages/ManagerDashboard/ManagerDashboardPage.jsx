@@ -389,7 +389,7 @@ export default function ManagerDashboardPage() {
                       </span>
                     </td>
                     <td className="py-4 px-4 font-semibold text-slate-900 whitespace-nowrap">
-                      {order.total.toLocaleString()} so'm
+                      {Number(order.total ?? order.totalPrice ?? order.totalAmount ?? order.price ?? 0).toLocaleString()} so'm
                     </td>
                     <td className="py-4 px-4 text-center">
                       <button
