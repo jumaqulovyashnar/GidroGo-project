@@ -8,7 +8,6 @@ import {
   useManagerDashboard,
   useManagerTodayOrders,
   useManagerCouriers,
-  useManagerStockWarehouse,
   useManagerFinanceSummary,
 } from "@/shared/hooks"
 import { formatOrderStatusUz, getOrderStatusBadgeClass } from "@/shared/lib"
@@ -85,7 +84,6 @@ export default function ManagerDashboardPage() {
   } = useManagerDashboard({ period: periodParam })
   const { data: todayOrdersRes, isPending: isOrdersPending } = useManagerTodayOrders()
   const { data: couriersRes } = useManagerCouriers()
-  const { data: stockRes } = useManagerStockWarehouse()
   const { data: financeRes } = useManagerFinanceSummary({
     period: periodParam,
   })
@@ -115,7 +113,6 @@ export default function ManagerDashboardPage() {
   const rawCouriers = couriersRes?.data || (Array.isArray(couriersRes) ? couriersRes : null)
   const couriersList = Array.isArray(rawCouriers) ? rawCouriers : []
 
-  const stockData = stockRes?.data || stockRes || {}
   const financeData = financeRes?.data || financeRes || {}
 
   const currentPeriod = PERIOD_LABELS[timeFilter] || PERIOD_LABELS.Bugun
@@ -132,10 +129,6 @@ export default function ManagerDashboardPage() {
     foiz: dbData.deliveredRate ? `${dbData.deliveredRate}%` : "0%",
     faolKuryer: dbData.activeCouriers ?? couriersList.filter((c) => c.status === "on_way" || c.status === "active").length,
     jamiKuryer: couriersList.length,
-    zaxiraLitr: formatNum(stockData.totalStock ?? stockData.quantity),
-    omborLitr: formatNum(stockData.warehouseStock ?? stockData.bottles),
-    mashinalardaLitr: formatNum(stockData.courierStock ?? stockData.inVehicles),
-    bugunQuyilganLitr: formatNum(stockData.bottlesFilledToday),
     kassaTushumi: formatNum(financeData.totalRevenue ?? dbData.todayRevenue),
     logistikaXarajati: formatNum(financeData.totalExpenses ?? dbData.todayExpenses),
     sofFoyda: formatNum(financeData.netProfit ?? (Number(dbData.todayRevenue || 0) - Number(dbData.todayExpenses || 0))),
@@ -461,8 +454,8 @@ export default function ManagerDashboardPage() {
         </div>
       </div>
 
-      {/* Bottom 3 Operational Widgets */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6">
+      {/* Bottom 2 Operational Widgets (Stretched horizontally along X-axis) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6">
         {/* Widget 1: Dastavkachilar Holati */}
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-md hover:border-slate-300/80 transition-all duration-200 p-5 sm:p-6 flex flex-col justify-between">
           <div>
@@ -555,57 +548,7 @@ export default function ManagerDashboardPage() {
           </button>
         </div>
 
-        {/* Widget 2: Suv Zaxirasi */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-md hover:border-slate-300/80 transition-all duration-200 p-5 sm:p-6 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="text-base font-bold text-slate-900">Suv zaxirasi</h3>
-                <p className="text-xs text-slate-500 mt-0.5">Ombordagi idishlar va hajm ko'rsatkichi</p>
-              </div>
-              <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
-                Me'yorda
-              </span>
-            </div>
-
-            <div className="flex items-baseline justify-between mb-2">
-              <span className="text-2xl sm:text-3xl font-extrabold text-slate-900">{displayStats.zaxiraLitr}</span>
-              <span className="text-xs text-slate-400 font-medium">Min. chegara: 3,000 L</span>
-            </div>
-
-            {/* Progress Bar */}
-            <div className="w-full bg-slate-100 rounded-full h-2.5 mb-4 overflow-hidden">
-              <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: "78%" }} />
-            </div>
-
-            <div className="grid grid-cols-3 gap-2 text-center text-xs mb-3">
-              <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
-                <span className="block font-bold text-slate-800 text-sm">{displayStats.omborLitr}</span>
-                <span className="text-[11px] text-slate-400">Omborda</span>
-              </div>
-              <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
-                <span className="block font-bold text-slate-800 text-sm">{displayStats.mashinalardaLitr}</span>
-                <span className="text-[11px] text-slate-400">Mashinalarda</span>
-              </div>
-              <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
-                <span className="block font-bold text-slate-800 text-sm">{displayStats.bugunQuyilganLitr}</span>
-                <span className="text-[11px] text-slate-400">Bugun quyilgan</span>
-              </div>
-            </div>
-
-          </div>
-
-          <button
-            type="button"
-            onClick={() => navigate("/manager/mahsulotlar")}
-            className="mt-4 w-full py-2.5 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-          >
-            <span>Suv zaxirasini ko'rish</span>
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Widget 3: Bugungi Moliya */}
+        {/* Widget 2: Bugungi Moliya */}
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-md hover:border-slate-300/80 transition-all duration-200 p-5 sm:p-6 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-4">
@@ -618,41 +561,49 @@ export default function ManagerDashboardPage() {
               </span>
             </div>
 
-            <div className="space-y-3 text-xs">
-              <div className="p-3 rounded-xl bg-blue-50/70 border border-blue-200/80 flex items-center justify-between">
-                <div>
+            {/* Finance Cards stretched horizontally */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs mb-3">
+              <div className="p-3.5 rounded-xl bg-blue-50/70 border border-blue-200/80 flex flex-col justify-between">
+                <div className="flex items-center justify-between mb-2">
                   <span className="text-[11px] font-medium text-blue-800">Bugungi tushum</span>
-                  <div className="font-extrabold text-slate-900 text-base mt-0.5">
-                    {displayStats.kassaTushumi} so'm
-                  </div>
+                  <span className="text-[10px] font-semibold text-blue-600 bg-white px-2 py-0.5 rounded shadow-2xs">
+                    Kassa
+                  </span>
                 </div>
-                <span className="text-[11px] font-semibold text-blue-600 bg-white px-2.5 py-1 rounded-lg shadow-2xs">
-                  Kassa
-                </span>
+                <div className="font-extrabold text-slate-900 text-base sm:text-lg">
+                  {displayStats.kassaTushumi} <span className="text-xs font-semibold text-slate-500">so'm</span>
+                </div>
               </div>
 
-              <div className="p-3 rounded-xl bg-slate-100/70 border border-slate-200 flex items-center justify-between">
-                <div>
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between">
+                <div className="flex items-center justify-between mb-2">
                   <span className="text-[11px] font-medium text-slate-700">Logistika xarajati</span>
-                  <div className="font-extrabold text-slate-900 text-base mt-0.5">
-                    {displayStats.logistikaXarajati} so'm
-                  </div>
+                  <span className="text-[10px] font-semibold text-slate-600 bg-white px-2 py-0.5 rounded shadow-2xs">
+                    Yoqilg'i
+                  </span>
                 </div>
-                <span className="text-[11px] font-semibold text-slate-600 bg-white px-2.5 py-1 rounded-lg shadow-2xs">
-                  Yoqilg'i
-                </span>
-              </div>
-              <div className="p-3 rounded-xl bg-blue-50/70 border border-blue-200/80 flex items-center justify-between">
-                <div>
-                  <span className="text-[11px] font-medium text-blue-800">Sof foyda</span>
-                  <div className="font-extrabold text-blue-900 text-base mt-0.5">
-                    {displayStats.sofFoyda} so'm
-                  </div>
+                <div className="font-extrabold text-slate-900 text-base sm:text-lg">
+                  {displayStats.logistikaXarajati} <span className="text-xs font-semibold text-slate-500">so'm</span>
                 </div>
-                <span className="text-[11px] font-semibold text-blue-600 bg-white px-2.5 py-1 rounded-lg shadow-2xs">
-                  Qoldiq
-                </span>
               </div>
+
+              <div className="p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-200/80 flex flex-col justify-between">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[11px] font-medium text-emerald-800">Sof foyda</span>
+                  <span className="text-[10px] font-semibold text-emerald-600 bg-white px-2 py-0.5 rounded shadow-2xs">
+                    Qoldiq
+                  </span>
+                </div>
+                <div className="font-extrabold text-emerald-900 text-base sm:text-lg">
+                  {displayStats.sofFoyda} <span className="text-xs font-semibold text-emerald-700">so'm</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Financial summary note */}
+            <div className="p-3 rounded-xl bg-slate-50/80 border border-slate-100 flex items-center justify-between text-xs text-slate-500">
+              <span>Kunlik kassa va operatsion xarajatlar balansi</span>
+              <span className="font-semibold text-slate-700">Reja bo'yicha</span>
             </div>
           </div>
 
