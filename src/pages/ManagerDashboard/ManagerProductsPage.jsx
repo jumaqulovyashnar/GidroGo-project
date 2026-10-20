@@ -255,7 +255,7 @@ export default function ManagerProductsPage() {
             </div>
             <p className="text-[11px] text-slate-500 mt-1">Barcha mahsulotlar bo'yicha</p>
           </div>
-          <div className="size-12 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+          <div className="size-12 rounded-full bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center shrink-0">
             <Coins className="size-5.5" />
           </div>
         </div>
@@ -356,7 +356,7 @@ export default function ManagerProductsPage() {
                         <span
                           className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${
                             p.active !== false
-                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                              ? "bg-blue-50 text-blue-700 border border-blue-200"
                               : "bg-slate-100 text-slate-600 border border-slate-200"
                           }`}
                         >
