@@ -65,18 +65,14 @@ export function BossCouriersMapPage() {
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <span className="px-3 py-1.5 rounded-xl bg-blue-50 text-blue-700 text-xs font-bold border border-blue-100 flex items-center gap-1.5 shadow-2xs">
-            <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
-            {normalizedCouriers.length} nafar kuryer
-          </span>
-
           <button
             type="button"
             onClick={() => refetch()}
-            className="p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-colors shadow-2xs cursor-pointer"
+            className="p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-colors shadow-2xs cursor-pointer flex items-center gap-2 text-xs font-semibold"
             title="Xaritani yangilash"
           >
             <RefreshCw className="size-4" />
+            <span>Yangilash</span>
           </button>
         </div>
       </div>
