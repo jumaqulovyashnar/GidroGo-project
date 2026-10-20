@@ -170,19 +170,19 @@ export default function ManagerOrderDetailPage() {
       </Breadcrumb>
 
       {/* Top Navigation & Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-1">
         <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="p-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-colors shadow-xs"
+            className="p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-colors cursor-pointer"
             title="Orqaga qaytish"
           >
             <ArrowLeft className="w-4 h-4" />
           </button>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold text-slate-900">{currentOrder.id}</h1>
+              <h1 className="text-2xl font-bold text-slate-900">{currentOrder.id}</h1>
               <span
                 className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${
                   currentOrder.status === "completed"
@@ -195,7 +195,7 @@ export default function ManagerOrderDetailPage() {
                 {currentOrder.statusText}
               </span>
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
               Buyurtma tafsilotlari va yetkazish marshruti monitoringi
             </p>
           </div>
@@ -205,7 +205,7 @@ export default function ManagerOrderDetailPage() {
           <button
             type="button"
             onClick={() => handleCopyPhone(currentOrder.phone)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors cursor-pointer"
             title="Telefon raqamini nusxalash"
           >
             <Copy className="w-3.5 h-3.5 text-blue-600" />
@@ -215,7 +215,7 @@ export default function ManagerOrderDetailPage() {
           <button
             type="button"
             onClick={() => setIsBottleModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors cursor-pointer"
           >
             <Droplet className="w-3.5 h-3.5 text-blue-600" />
             <span>Idish balansini tuzatish</span>
@@ -224,7 +224,7 @@ export default function ManagerOrderDetailPage() {
           <button
             type="button"
             onClick={() => setIsReassignModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-xs cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors cursor-pointer"
           >
             <UserCheck className="w-3.5 h-3.5" />
             <span>Kuryerni biriktirish</span>
