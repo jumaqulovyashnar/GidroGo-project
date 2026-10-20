@@ -50,7 +50,7 @@ export function DoubleNavbar({ role }) {
             <div className="size-11 rounded-full overflow-hidden border border-slate-200/90 bg-white p-1 shrink-0 shadow-2xs group-hover:border-blue-400 transition-colors flex items-center justify-center">
               <img
                 src={LogoImg}
-                alt="GidroGo — Zamonaviy Gidroponika Boshqaruv Tizimi"
+                alt="GidroGo — Toza Ichimlik Suvi Yetkazib Berish Tizimi"
                 width="44"
                 height="44"
                 loading="eager"

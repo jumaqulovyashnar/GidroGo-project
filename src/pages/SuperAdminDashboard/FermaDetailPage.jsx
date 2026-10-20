@@ -213,7 +213,7 @@ export function FermaDetailPage() {
             {/* Sarlavha & Manzil */}
             <div className="space-y-2 pb-5 border-b border-slate-100">
               <span className="inline-block text-xs font-semibold uppercase tracking-wider text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-md border border-blue-100">
-                Gidroponika Majmuasi
+                Toza Suv Korxonasi
               </span>
 
               <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 leading-tight">
