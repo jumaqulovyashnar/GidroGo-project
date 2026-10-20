@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react"
 import { useNavigate } from "react-router-dom"
-import { Banknote, Package, CheckCircle2, Truck, TrendingUp, ExternalLink, ChevronRight, ChevronDown, Calendar, Filter, Copy, AlertCircle } from "lucide-react"
+import { Banknote, Package, CheckCircle2, Truck, TrendingUp, TrendingDown, ChevronRight, ChevronDown, Calendar, Filter, Copy, AlertCircle, MapPin, ArrowUpRight, ArrowDownRight, Car } from "lucide-react"
 import { Select } from "@mantine/core"
 import { TablePagination } from "@/shared/ui"
 import { toast } from "sonner"
@@ -110,14 +110,62 @@ export default function ManagerDashboardPage() {
     }))
   }, [rawOrders])
 
-  const rawCouriers = couriersRes?.data || (Array.isArray(couriersRes) ? couriersRes : null)
-  const couriersList = Array.isArray(rawCouriers) ? rawCouriers : []
+  const rawCouriers = couriersRes?.data?.couriers || couriersRes?.data || (Array.isArray(couriersRes) ? couriersRes : null)
+  const couriersList = useMemo(() => {
+    if (!Array.isArray(rawCouriers)) return []
+    return rawCouriers.map((c, idx) => {
+      const name = c.fullName || c.name || c.courierName || c.user?.fullName || c.user?.name || "Kuryer"
+      const initials =
+        name
+          .split(" ")
+          .filter(Boolean)
+          .map((w) => w[0])
+          .join("")
+          .slice(0, 2)
+          .toUpperCase() || "KR"
+      const vehicle = c.vehicleModel || c.vehicle || c.carModel || ""
+      const plate = c.vehiclePlateNumber || c.plate || ""
+      const vehicleDisplay = [vehicle, plate ? `(${plate})` : ""].filter(Boolean).join(" ") || "Avtomobil"
+      const statusRaw = String(c.status || c.currentStatus || "free").toLowerCase()
+      const status =
+        statusRaw === "on_way" || statusRaw === "delivering"
+          ? "on_way"
+          : statusRaw === "loading" || statusRaw === "busy"
+          ? "loading"
+          : statusRaw === "offline" || c.isOnline === false
+          ? "offline"
+          : "free"
+      const statusText =
+        status === "on_way"
+          ? "Yo'lda"
+          : status === "loading"
+          ? "Yukda"
+          : status === "offline"
+          ? "Oflayn"
+          : "Bo'sh"
+
+      return {
+        ...c,
+        id: c.id || c.courierId || `courier-${idx}`,
+        name,
+        initials,
+        phone: c.phone || "",
+        vehicle: vehicleDisplay,
+        status,
+        statusText,
+        isOnline: status !== "offline",
+      }
+    })
+  }, [rawCouriers])
 
   const financeData = financeRes?.data || financeRes || {}
 
   const currentPeriod = PERIOD_LABELS[timeFilter] || PERIOD_LABELS.Bugun
 
   const formatNum = (val) => (val !== undefined && val !== null ? Number(val).toLocaleString("ru-RU") : "0")
+
+  const rawNetProfit = Number(financeData.netProfit ?? (Number(dbData.todayRevenue || 0) - Number(dbData.todayExpenses || 0)))
+  const isNetProfitNegative = rawNetProfit < 0
 
   const displayStats = {
     tushum: formatNum(dbData.todayRevenue ?? dbData.totalRevenue ?? financeData.revenue),
@@ -131,7 +179,7 @@ export default function ManagerDashboardPage() {
     jamiKuryer: couriersList.length,
     kassaTushumi: formatNum(financeData.totalRevenue ?? dbData.todayRevenue),
     logistikaXarajati: formatNum(financeData.totalExpenses ?? dbData.todayExpenses),
-    sofFoyda: formatNum(financeData.netProfit ?? (Number(dbData.todayRevenue || 0) - Number(dbData.todayExpenses || 0))),
+    sofFoyda: formatNum(rawNetProfit),
   }
 
   const statusOptions = [
@@ -454,167 +502,271 @@ export default function ManagerDashboardPage() {
         </div>
       </div>
 
-      {/* Bottom 2 Operational Widgets (2 qatorda alohida blok ko'rinishida) */}
-      <div className="grid grid-cols-1 gap-5 sm:gap-6">
-        {/* Widget 1: Dastavkachilar Holati */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-md hover:border-slate-300/80 transition-all duration-200 p-5 sm:p-6 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-4">
+      {/* Bottom 2 Operational Cards (2 qatorda alohida zamonaviy blok ko'rinishida) */}
+      <div className="space-y-6">
+        {/* Card 1: Dastavkachilar Holati */}
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-md hover:border-slate-300/80 transition-all duration-200 p-5 sm:p-6">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-slate-100">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 border border-blue-100/80 flex items-center justify-center shrink-0 shadow-2xs">
+                <Truck className="w-5 h-5" />
+              </div>
               <div>
-                <h3 className="text-base font-bold text-slate-900">Dastavkachilar holati</h3>
-                <p className="text-xs text-slate-500 mt-0.5">Faol kuryerlar va logistika operatsiyasi</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => navigate("/manager/dastavkachilar-xarita")}
-                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-colors cursor-pointer"
-                title="Xaritada ko'rish"
-              >
-                <ExternalLink className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Counts */}
-            <div className="grid grid-cols-4 gap-2 text-center mb-4">
-              <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                <span className="block text-lg font-extrabold text-slate-900">
-                  {couriersList.filter((c) => c.status === "free" || c.status === "AVAILABLE").length}
-                </span>
-                <span className="text-[11px] font-medium text-slate-500">Bo'sh</span>
-              </div>
-              <div className="bg-blue-50/80 p-2.5 rounded-xl border border-blue-100">
-                <span className="block text-lg font-extrabold text-blue-700">
-                  {couriersList.filter((c) => c.status === "on_way" || c.status === "DELIVERING").length}
-                </span>
-                <span className="text-[11px] font-medium text-blue-600">Yo'lda</span>
-              </div>
-              <div className="bg-slate-100/80 p-2.5 rounded-xl border border-slate-200/80">
-                <span className="block text-lg font-extrabold text-slate-800">
-                  {couriersList.filter((c) => c.status === "loading" || c.status === "BUSY").length}
-                </span>
-                <span className="text-[11px] font-medium text-slate-600">Yukda</span>
-              </div>
-              <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                <span className="block text-lg font-extrabold text-slate-400">
-                  {couriersList.filter((c) => c.status === "offline" || c.isOnline === false).length}
-                </span>
-                <span className="text-[11px] font-medium text-slate-400">Offline</span>
+                <h3 className="text-base font-bold text-slate-900 leading-tight">Dastavkachilar holati</h3>
+                <p className="text-xs text-slate-500 mt-0.5 leading-normal">
+                  Faol kuryerlar, transport vositalari va logistika operatsiyasi monitoringi
+                </p>
               </div>
             </div>
 
-            {/* Couriers Mini Roster */}
-            <div className="space-y-2">
-              {couriersList.length === 0 ? (
-                <p className="text-xs text-slate-400 text-center py-4">Kuryerlar mavjud emas</p>
-              ) : (
-                couriersList.slice(0, 3).map((courier) => (
-                <div
-                  key={courier.id}
-                  className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50/70 border border-slate-100 text-xs"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-full bg-blue-100 text-blue-700 font-bold text-[11px] flex items-center justify-center shrink-0">
-                      {courier.initials || courier.name?.substring(0, 2).toUpperCase() || "DX"}
-                    </div>
-                    <div>
-                      <span className="font-semibold text-slate-800 block">{courier.name}</span>
-                      <span className="text-[11px] text-slate-400">
-                        {courier.vehicle}
-                      </span>
-                    </div>
-                  </div>
-                  <span
-                    className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full ${
-                      courier.status === "on_way"
-                        ? "bg-blue-100 text-blue-700"
-                        : "bg-slate-100 text-slate-700 border border-slate-200"
-                    }`}
-                  >
-                    {courier.statusText || (courier.status === "on_way" ? "Yo'lda" : "Faol")}
-                  </span>
-                </div>
-              ))
-            )}
-            </div>
+            <button
+              type="button"
+              onClick={() => navigate("/manager/dastavkachilar-xarita")}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer self-start sm:self-auto"
+            >
+              <MapPin className="w-3.5 h-3.5 text-blue-600" />
+              <span>Jonli xaritada ko'rish</span>
+              <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+            </button>
           </div>
 
-          <button
-            type="button"
-            onClick={() => navigate("/manager/dastavkachilar-xarita")}
-            className="mt-4 w-full py-2.5 rounded-xl text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-          >
-            <span>Barcha dastavkachilar xaritasi</span>
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Widget 2: Bugungi Moliya */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-md hover:border-slate-300/80 transition-all duration-200 p-5 sm:p-6 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-4">
+          {/* Status KPI Cards */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 my-5">
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100/80 flex items-center justify-between">
               <div>
-                <h3 className="text-base font-bold text-slate-900">Bugungi Moliya</h3>
-                <p className="text-xs text-slate-500 mt-0.5">Operatsion tushum va logistika hisobi</p>
+                <span className="text-[11px] font-semibold text-slate-500 block">Bo'sh kuryerlar</span>
+                <span className="text-2xl font-black text-slate-800 mt-1 block">
+                  {couriersList.filter((c) => c.status === "free").length}
+                </span>
               </div>
-              <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
-                Bugun
+              <span className="w-2.5 h-2.5 rounded-full bg-slate-400" />
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-blue-50/70 border border-blue-100/80 flex items-center justify-between">
+              <div>
+                <span className="text-[11px] font-semibold text-blue-700 block">Yo'lda (Yetkazmoqda)</span>
+                <span className="text-2xl font-black text-blue-700 mt-1 block">
+                  {couriersList.filter((c) => c.status === "on_way").length}
+                </span>
+              </div>
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-600" />
               </span>
             </div>
 
-            {/* Finance Cards stretched horizontally */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs mb-3">
-              <div className="p-3.5 rounded-xl bg-blue-50/70 border border-blue-200/80 flex flex-col justify-between">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[11px] font-medium text-blue-800">Bugungi tushum</span>
-                  <span className="text-[10px] font-semibold text-blue-600 bg-white px-2 py-0.5 rounded shadow-2xs">
-                    Kassa
-                  </span>
-                </div>
-                <div className="font-extrabold text-slate-900 text-base sm:text-lg">
-                  {displayStats.kassaTushumi} <span className="text-xs font-semibold text-slate-500">so'm</span>
-                </div>
+            <div className="p-3.5 rounded-xl bg-amber-50/70 border border-amber-100/80 flex items-center justify-between">
+              <div>
+                <span className="text-[11px] font-semibold text-amber-800 block">Yukda / Band</span>
+                <span className="text-2xl font-black text-amber-800 mt-1 block">
+                  {couriersList.filter((c) => c.status === "loading").length}
+                </span>
               </div>
-
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[11px] font-medium text-slate-700">Logistika xarajati</span>
-                  <span className="text-[10px] font-semibold text-slate-600 bg-white px-2 py-0.5 rounded shadow-2xs">
-                    Yoqilg'i
-                  </span>
-                </div>
-                <div className="font-extrabold text-slate-900 text-base sm:text-lg">
-                  {displayStats.logistikaXarajati} <span className="text-xs font-semibold text-slate-500">so'm</span>
-                </div>
-              </div>
-
-              <div className="p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-200/80 flex flex-col justify-between">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[11px] font-medium text-emerald-800">Sof foyda</span>
-                  <span className="text-[10px] font-semibold text-emerald-600 bg-white px-2 py-0.5 rounded shadow-2xs">
-                    Qoldiq
-                  </span>
-                </div>
-                <div className="font-extrabold text-emerald-900 text-base sm:text-lg">
-                  {displayStats.sofFoyda} <span className="text-xs font-semibold text-emerald-700">so'm</span>
-                </div>
-              </div>
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
             </div>
 
-            {/* Financial summary note */}
-            <div className="p-3 rounded-xl bg-slate-50/80 border border-slate-100 flex items-center justify-between text-xs text-slate-500">
-              <span>Kunlik kassa va operatsion xarajatlar balansi</span>
-              <span className="font-semibold text-slate-700">Reja bo'yicha</span>
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100/80 flex items-center justify-between">
+              <div>
+                <span className="text-[11px] font-semibold text-slate-400 block">Oflayn</span>
+                <span className="text-2xl font-black text-slate-400 mt-1 block">
+                  {couriersList.filter((c) => c.status === "offline").length}
+                </span>
+              </div>
+              <span className="w-2.5 h-2.5 rounded-full bg-slate-300" />
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={() => toast.info("Kunlik moliya jurnali")}
-            className="mt-4 w-full py-2.5 rounded-xl text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
-          >
-            <span>Moliya hisobotiga o'tish</span>
-            <ChevronRight className="w-4 h-4" />
-          </button>
+          {/* Courier Roster Grid */}
+          <div>
+            <div className="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-3">
+              Biriktirilgan kuryerlar ro'yxati
+            </div>
+            {couriersList.length === 0 ? (
+              <div className="text-center py-8 bg-slate-50/60 rounded-xl border border-dashed border-slate-200 text-xs text-slate-400">
+                Hozircha biriktirilgan kuryerlar mavjud emas
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {couriersList.map((courier) => (
+                  <div
+                    key={courier.id}
+                    className="p-3 rounded-xl bg-slate-50/70 hover:bg-blue-50/40 border border-slate-200/80 transition-colors flex items-center justify-between gap-2"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-9 h-9 rounded-full bg-blue-100 text-blue-700 font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
+                        {courier.initials}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="font-semibold text-slate-900 text-xs truncate">
+                          {courier.name}
+                        </div>
+                        <div className="text-[11px] text-slate-500 truncate flex items-center gap-1 mt-0.5">
+                          <Car className="w-3 h-3 text-slate-400 shrink-0" />
+                          <span>{courier.vehicle}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <span
+                      className={`text-[10px] font-semibold px-2.5 py-1 rounded-full shrink-0 border ${
+                        courier.status === "on_way"
+                          ? "bg-blue-50 text-blue-700 border-blue-200"
+                          : courier.status === "loading"
+                          ? "bg-amber-50 text-amber-800 border-amber-200"
+                          : courier.status === "offline"
+                          ? "bg-slate-100 text-slate-500 border-slate-200"
+                          : "bg-emerald-50 text-emerald-700 border-emerald-200"
+                      }`}
+                    >
+                      {courier.statusText}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Card 2: Bugungi Moliya */}
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-md hover:border-slate-300/80 transition-all duration-200 p-5 sm:p-6">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-slate-100">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100/80 flex items-center justify-center shrink-0 shadow-2xs">
+                <Banknote className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-slate-900 leading-tight">Bugungi Moliya va Balans</h3>
+                <p className="text-xs text-slate-500 mt-0.5 leading-normal">
+                  Operatsion kassa tushumi, logistika xarajatlari va sof balans tahlili
+                </p>
+              </div>
+            </div>
+
+            <span className="text-xs font-semibold px-3 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200 self-start sm:self-auto">
+              {currentPeriod.label} hisobot
+            </span>
+          </div>
+
+          {/* 3 Modern Financial Metric Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 my-5">
+            {/* Tushum */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-slate-50/70 border border-slate-200/80 flex flex-col justify-between">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
+                    <ArrowUpRight className="w-4 h-4" />
+                  </div>
+                  <span className="text-xs font-semibold text-slate-600">Bugungi tushum</span>
+                </div>
+                <span className="text-[10px] font-semibold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-md">
+                  Kassa
+                </span>
+              </div>
+              <div className="mt-4">
+                <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                  {displayStats.kassaTushumi} <span className="text-xs font-semibold text-slate-500">so'm</span>
+                </div>
+                <p className="text-[11px] text-slate-500 mt-1">Yetkazilgan buyurtmalardan tushgan summa</p>
+              </div>
+            </div>
+
+            {/* Xarajat */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-slate-50/70 border border-slate-200/80 flex flex-col justify-between">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center">
+                    <ArrowDownRight className="w-4 h-4" />
+                  </div>
+                  <span className="text-xs font-semibold text-slate-600">Logistika xarajati</span>
+                </div>
+                <span className="text-[10px] font-semibold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md">
+                  Yoqilg'i & xizmat
+                </span>
+              </div>
+              <div className="mt-4">
+                <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                  {displayStats.logistikaXarajati} <span className="text-xs font-semibold text-slate-500">so'm</span>
+                </div>
+                <p className="text-[11px] text-slate-500 mt-1">Kunlik yoqilg'i va transport harajatlari</p>
+              </div>
+            </div>
+
+            {/* Sof foyda / Balans */}
+            <div
+              className={`p-4 sm:p-5 rounded-2xl border flex flex-col justify-between ${
+                isNetProfitNegative
+                  ? "bg-rose-50/50 border-rose-200"
+                  : "bg-emerald-50/50 border-emerald-200"
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div
+                    className={`w-7 h-7 rounded-lg flex items-center justify-center ${
+                      isNetProfitNegative
+                        ? "bg-rose-100 text-rose-600"
+                        : "bg-emerald-100 text-emerald-600"
+                    }`}
+                  >
+                    {isNetProfitNegative ? (
+                      <TrendingDown className="w-4 h-4" />
+                    ) : (
+                      <TrendingUp className="w-4 h-4" />
+                    )}
+                  </div>
+                  <span
+                    className={`text-xs font-semibold ${
+                      isNetProfitNegative ? "text-rose-800" : "text-emerald-800"
+                    }`}
+                  >
+                    {isNetProfitNegative ? "Sof balans (Zarar)" : "Sof foyda"}
+                  </span>
+                </div>
+                <span
+                  className={`text-[10px] font-semibold px-2 py-0.5 rounded-md border ${
+                    isNetProfitNegative
+                      ? "text-rose-700 bg-white border-rose-200"
+                      : "text-emerald-700 bg-white border-emerald-200"
+                  }`}
+                >
+                  {isNetProfitNegative ? "Manfiy" : "Ijobiy"}
+                </span>
+              </div>
+              <div className="mt-4">
+                <div
+                  className={`text-2xl sm:text-3xl font-black tracking-tight ${
+                    isNetProfitNegative ? "text-rose-600" : "text-emerald-700"
+                  }`}
+                >
+                  {displayStats.sofFoyda} <span className="text-xs font-semibold opacity-70">so'm</span>
+                </div>
+                <p
+                  className={`text-[11px] mt-1 ${
+                    isNetProfitNegative ? "text-rose-600/80" : "text-emerald-700/80"
+                  }`}
+                >
+                  {isNetProfitNegative
+                    ? "Logistika xarajatlari joriy tushumdan yuqori"
+                    : "Barcha xarajatlar chiqarilgandan keyingi sof daromad"}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer bar */}
+          <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-slate-500">
+            <span>Kunlik kassa va xarajatlar balansi real vaqt rejimida hisoblanadi</span>
+            <button
+              type="button"
+              onClick={() => toast.info("Kunlik moliya jurnali va to'liq hisobot")}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors self-end sm:self-auto cursor-pointer"
+            >
+              <span>To'liq moliya jurnali</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
       </div>
 
