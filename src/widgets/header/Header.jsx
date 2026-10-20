@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from "react"
 import { useAuth } from "@/provider/AuthProvider"
 import { useSuperAdminProfile } from "@/shared/hooks"
 import { resolveFileUrl } from "@/shared/lib"
-import { User, Bell } from "lucide-react"
+import { User } from "lucide-react"
 
 export function Header() {
   const { user } = useAuth()
@@ -58,20 +58,10 @@ export function Header() {
         </h2>
       </div>
 
-      {/* O'ng tomon: Bildirishnoma va Profil */}
+      {/* O'ng tomon: Profil */}
       <div className="flex items-center gap-4">
-        {/* Bildirishnoma ikonkasi */}
-        <button
-          type="button"
-          aria-label="Bildirishnomalar"
-          className="size-10 rounded-full border border-slate-200 bg-slate-50 hover:bg-slate-100 flex items-center justify-center text-blue-600 transition-all cursor-pointer relative shadow-2xs hover:border-blue-200"
-        >
-          <Bell className="size-4.5 text-blue-600" />
-          <span className="absolute top-2 right-2 size-2 bg-red-500 rounded-full ring-2 ring-white"></span>
-        </button>
-
         {/* Profil ma'lumotlari */}
-        <div className="flex items-center gap-3 border-l border-slate-200 pl-4">
+        <div className="flex items-center gap-3">
           <div className="size-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-xs overflow-hidden shrink-0 border border-slate-200/80">
             {avatarUrl && !imageError ? (
               <img
