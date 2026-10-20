@@ -51,12 +51,29 @@ export default function ManagerOrdersPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const pageSize = 10
 
+  const isNewStatus = (s) => {
+    const u = String(s || "").toUpperCase()
+    return u === "NEW" || u === "CREATED" || u === "SEARCHING" || u === "PENDING"
+  }
+  const isProcessingStatus = (s) => {
+    const u = String(s || "").toUpperCase()
+    return u === "PROCESSING" || u === "PREPARING" || u === "ASSIGNED" || u === "CONFIRMED" || u === "ACCEPTED"
+  }
+  const isDeliveringStatus = (s) => {
+    const u = String(s || "").toUpperCase()
+    return u === "DELIVERING" || u === "ON_WAY" || u === "ON_THE_WAY" || u === "NEARBY"
+  }
+  const isCompletedStatus = (s) => {
+    const u = String(s || "").toUpperCase()
+    return u === "COMPLETED" || u === "DELIVERED"
+  }
+
   const statusOptions = [
     { value: "all", label: `Holat: Barchasi (${orders.length})` },
-    { value: "new", label: `Yangi (${orders.filter((o) => o.status === "new" || o.status === "CREATED").length})` },
-    { value: "processing", label: `Jarayonda (${orders.filter((o) => o.status === "processing" || o.status === "PREPARING").length})` },
-    { value: "delivering", label: `Yetkazilmoqda (${orders.filter((o) => o.status === "delivering" || o.status === "DELIVERING").length})` },
-    { value: "completed", label: `Yetkazildi (${orders.filter((o) => o.status === "completed" || o.status === "DELIVERED" || o.status === "COMPLETED").length})` },
+    { value: "new", label: `Yangi (${orders.filter((o) => isNewStatus(o.status)).length})` },
+    { value: "processing", label: `Jarayonda (${orders.filter((o) => isProcessingStatus(o.status)).length})` },
+    { value: "delivering", label: `Yetkazilmoqda (${orders.filter((o) => isDeliveringStatus(o.status)).length})` },
+    { value: "completed", label: `Yetkazildi (${orders.filter((o) => isCompletedStatus(o.status)).length})` },
   ]
 
   // Filter orders
@@ -74,10 +91,10 @@ export default function ManagerOrdersPage() {
 
     if (!matchesSearch) return false
 
-    if (activeTab === "new") return order.status === "new" || order.status === "CREATED"
-    if (activeTab === "processing") return order.status === "processing" || order.status === "PREPARING"
-    if (activeTab === "delivering") return order.status === "delivering" || order.status === "DELIVERING"
-    if (activeTab === "completed") return order.status === "completed" || order.status === "DELIVERED" || order.status === "COMPLETED"
+    if (activeTab === "new") return isNewStatus(order.status)
+    if (activeTab === "processing") return isProcessingStatus(order.status)
+    if (activeTab === "delivering") return isDeliveringStatus(order.status)
+    if (activeTab === "completed") return isCompletedStatus(order.status)
 
     return true
   })

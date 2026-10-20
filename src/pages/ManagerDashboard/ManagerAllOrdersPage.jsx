@@ -68,12 +68,29 @@ export default function ManagerAllOrdersPage() {
     })
   }, [rawOrders])
 
+  const isNewStatus = (s) => {
+    const u = String(s || "").toUpperCase()
+    return u === "NEW" || u === "CREATED" || u === "SEARCHING" || u === "PENDING"
+  }
+  const isProcessingStatus = (s) => {
+    const u = String(s || "").toUpperCase()
+    return u === "PROCESSING" || u === "PREPARING" || u === "ASSIGNED" || u === "CONFIRMED" || u === "ACCEPTED"
+  }
+  const isDeliveringStatus = (s) => {
+    const u = String(s || "").toUpperCase()
+    return u === "DELIVERING" || u === "ON_WAY" || u === "ON_THE_WAY" || u === "NEARBY"
+  }
+  const isCompletedStatus = (s) => {
+    const u = String(s || "").toUpperCase()
+    return u === "COMPLETED" || u === "DELIVERED"
+  }
+
   const statusOptions = [
     { value: "all", label: `Holat: Barchasi (${orders.length})` },
-    { value: "new", label: `Yangi (${orders.filter((o) => o.status === "new" || o.status === "CREATED").length})` },
-    { value: "processing", label: `Jarayonda (${orders.filter((o) => o.status === "processing" || o.status === "PREPARING").length})` },
-    { value: "delivering", label: `Yetkazilmoqda (${orders.filter((o) => o.status === "delivering" || o.status === "DELIVERING").length})` },
-    { value: "completed", label: `Yetkazildi (${orders.filter((o) => o.status === "completed" || o.status === "DELIVERED" || o.status === "COMPLETED").length})` },
+    { value: "new", label: `Yangi (${orders.filter((o) => isNewStatus(o.status)).length})` },
+    { value: "processing", label: `Jarayonda (${orders.filter((o) => isProcessingStatus(o.status)).length})` },
+    { value: "delivering", label: `Yetkazilmoqda (${orders.filter((o) => isDeliveringStatus(o.status)).length})` },
+    { value: "completed", label: `Yetkazildi (${orders.filter((o) => isCompletedStatus(o.status)).length})` },
   ]
 
   // Filter orders
@@ -92,10 +109,10 @@ export default function ManagerAllOrdersPage() {
 
     if (!matchesSearch) return false
 
-    if (activeTab === "new") return order.status === "new" || order.status === "CREATED"
-    if (activeTab === "processing") return order.status === "processing" || order.status === "PREPARING"
-    if (activeTab === "delivering") return order.status === "delivering" || order.status === "DELIVERING"
-    if (activeTab === "completed") return order.status === "completed" || order.status === "DELIVERED" || order.status === "COMPLETED"
+    if (activeTab === "new") return isNewStatus(order.status)
+    if (activeTab === "processing") return isProcessingStatus(order.status)
+    if (activeTab === "delivering") return isDeliveringStatus(order.status)
+    if (activeTab === "completed") return isCompletedStatus(order.status)
 
     if (paymentFilter !== "all") {
       if (paymentFilter === "cash" && !payment.includes("Naqd") && !payment.includes("CASH")) return false
@@ -289,7 +306,7 @@ export default function ManagerAllOrdersPage() {
           <div>
             <span className="text-xs font-medium text-slate-500">Yetkazilgan</span>
             <div className="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">
-              {orders.filter((o) => o.status === "completed").length} ta
+              {orders.filter((o) => isCompletedStatus(o.status)).length} ta
             </div>
             <p className="text-[11px] text-slate-400 mt-0.5">Muvaffaqiyatli topshirildi</p>
           </div>
@@ -302,7 +319,7 @@ export default function ManagerAllOrdersPage() {
           <div>
             <span className="text-xs font-medium text-slate-500">Yetkazilmoqda</span>
             <div className="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">
-              {orders.filter((o) => o.status === "delivering" || o.status === "processing").length} ta
+              {orders.filter((o) => isDeliveringStatus(o.status) || isProcessingStatus(o.status)).length} ta
             </div>
             <p className="text-[11px] text-slate-400 mt-0.5">Kuryerlar yo'nalishda</p>
           </div>
@@ -315,7 +332,7 @@ export default function ManagerAllOrdersPage() {
           <div>
             <span className="text-xs font-medium text-slate-500">Yangi buyurtmalar</span>
             <div className="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">
-              {orders.filter((o) => o.status === "new").length} ta
+              {orders.filter((o) => isNewStatus(o.status)).length} ta
             </div>
             <p className="text-[11px] text-slate-400 mt-0.5">Taqsimot kutilmoqda</p>
           </div>

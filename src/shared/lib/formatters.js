@@ -110,12 +110,38 @@ export function formatOrderStatusUz(status = "") {
     case "ON_THE_WAY":
     case "YETKAZILMOQDA":
       return "Yetkazilmoqda"
+    case "NEARBY":
+    case "YAQINLASHMOQDA":
+      return "Yaqinlashmoqda"
     case "PROCESSING":
     case "PREPARING":
     case "IN_PROGRESS":
     case "JARAYONDA":
     case "TAYYORLANMOQDA":
       return "Tayyorlanmoqda"
+    case "ASSIGNED":
+    case "BIRIKTIRILGAN":
+    case "BIRIKTIRILDI":
+      return "Biriktirilgan"
+    case "SEARCHING":
+    case "QIDIRILMOQDA":
+      return "Qidirilmoqda"
+    case "CONFIRMED":
+    case "TASDIQLANDI":
+    case "TASDIQLANGAN":
+      return "Tasdiqlangan"
+    case "ACCEPTED":
+    case "QABUL_QILINDI":
+      return "Qabul qilindi"
+    case "PROBLEM":
+    case "MUAMMOLI":
+      return "Muammoli"
+    case "RETURNED":
+    case "QAYTARILDI":
+      return "Qaytarildi"
+    case "REJECTED":
+    case "RAD_ETILDI":
+      return "Rad etilgan"
     case "NEW":
     case "CREATED":
     case "PENDING":
@@ -141,14 +167,37 @@ export function getOrderStatusBadgeClass(status = "") {
   if (upper === "COMPLETED" || upper === "DELIVERED" || upper === "YETKAZILDI") {
     return "bg-emerald-50 text-emerald-700 border border-emerald-200"
   }
-  if (upper === "DELIVERING" || upper === "ON_WAY" || upper === "ON_THE_WAY" || upper === "YETKAZILMOQDA") {
+  if (
+    upper === "DELIVERING" ||
+    upper === "ON_WAY" ||
+    upper === "ON_THE_WAY" ||
+    upper === "YETKAZILMOQDA" ||
+    upper === "NEARBY"
+  ) {
     return "bg-blue-50 text-blue-700 border border-blue-200"
   }
-  if (upper === "PROCESSING" || upper === "PREPARING" || upper === "IN_PROGRESS" || upper === "TAYYORLANMOQDA" || upper === "JARAYONDA") {
+  if (upper === "ASSIGNED" || upper === "CONFIRMED" || upper === "ACCEPTED" || upper === "BIRIKTIRILGAN") {
+    return "bg-indigo-50 text-indigo-700 border border-indigo-200"
+  }
+  if (
+    upper === "PROCESSING" ||
+    upper === "PREPARING" ||
+    upper === "IN_PROGRESS" ||
+    upper === "TAYYORLANMOQDA" ||
+    upper === "JARAYONDA" ||
+    upper === "SEARCHING" ||
+    upper === "QIDIRILMOQDA" ||
+    upper === "NEW" ||
+    upper === "CREATED" ||
+    upper === "PENDING"
+  ) {
     return "bg-amber-50 text-amber-800 border border-amber-200"
   }
-  if (upper === "CANCELLED" || upper === "CANCELED" || upper === "BEKOR_QILINDI") {
+  if (upper === "CANCELLED" || upper === "CANCELED" || upper === "BEKOR_QILINDI" || upper === "REJECTED") {
     return "bg-rose-50 text-rose-700 border border-rose-200"
+  }
+  if (upper === "PROBLEM" || upper === "RETURNED" || upper === "MUAMMOLI") {
+    return "bg-orange-50 text-orange-700 border border-orange-200"
   }
   return "bg-slate-50 text-slate-700 border border-slate-200"
 }

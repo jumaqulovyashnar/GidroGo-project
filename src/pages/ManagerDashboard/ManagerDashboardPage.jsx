@@ -206,33 +206,37 @@ export default function ManagerDashboardPage() {
     sofFoyda: formatNum(rawNetProfit),
   }
 
+  const isNewStatus = (s) => {
+    const u = String(s || "").toUpperCase()
+    return u === "NEW" || u === "CREATED" || u === "SEARCHING" || u === "PENDING"
+  }
+  const isProcessingStatus = (s) => {
+    const u = String(s || "").toUpperCase()
+    return u === "PROCESSING" || u === "PREPARING" || u === "ASSIGNED" || u === "CONFIRMED" || u === "ACCEPTED"
+  }
+  const isDeliveringStatus = (s) => {
+    const u = String(s || "").toUpperCase()
+    return u === "DELIVERING" || u === "ON_WAY" || u === "ON_THE_WAY" || u === "NEARBY"
+  }
+  const isCompletedStatus = (s) => {
+    const u = String(s || "").toUpperCase()
+    return u === "COMPLETED" || u === "DELIVERED"
+  }
+
   const statusOptions = [
     { value: "all", label: `Holat: Barchasi (${ordersList.length})` },
-    { value: "new", label: `Yangi (${ordersList.filter((o) => {
-      const s = String(o.status).toUpperCase()
-      return s === "NEW" || s === "CREATED"
-    }).length})` },
-    { value: "processing", label: `Jarayonda (${ordersList.filter((o) => {
-      const s = String(o.status).toUpperCase()
-      return s === "PROCESSING" || s === "PREPARING"
-    }).length})` },
-    { value: "delivering", label: `Yetkazilmoqda (${ordersList.filter((o) => {
-      const s = String(o.status).toUpperCase()
-      return s === "DELIVERING" || s === "ON_WAY"
-    }).length})` },
-    { value: "completed", label: `Yetkazildi (${ordersList.filter((o) => {
-      const s = String(o.status).toUpperCase()
-      return s === "COMPLETED" || s === "DELIVERED"
-    }).length})` },
+    { value: "new", label: `Yangi (${ordersList.filter((o) => isNewStatus(o.status)).length})` },
+    { value: "processing", label: `Jarayonda (${ordersList.filter((o) => isProcessingStatus(o.status)).length})` },
+    { value: "delivering", label: `Yetkazilmoqda (${ordersList.filter((o) => isDeliveringStatus(o.status)).length})` },
+    { value: "completed", label: `Yetkazildi (${ordersList.filter((o) => isCompletedStatus(o.status)).length})` },
   ]
 
   // Filter orders
   const filteredOrders = ordersList.filter((order) => {
-    const s = String(order.status).toUpperCase()
-    if (orderTab === "new") return s === "NEW" || s === "CREATED"
-    if (orderTab === "processing") return s === "PROCESSING" || s === "PREPARING"
-    if (orderTab === "delivering") return s === "DELIVERING" || s === "ON_WAY"
-    if (orderTab === "completed") return s === "COMPLETED" || s === "DELIVERED"
+    if (orderTab === "new") return isNewStatus(order.status)
+    if (orderTab === "processing") return isProcessingStatus(order.status)
+    if (orderTab === "delivering") return isDeliveringStatus(order.status)
+    if (orderTab === "completed") return isCompletedStatus(order.status)
     return true
   })
 
