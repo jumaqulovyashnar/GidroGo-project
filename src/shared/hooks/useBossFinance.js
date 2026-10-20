@@ -49,6 +49,7 @@ export const useBossExpenses = (params = {}, options = {}) => {
     queryFn: () => bossFinanceService.getExpenses(params),
     staleTime: 1000 * 60 * 3,
     refetchOnWindowFocus: false,
+    refetchOnMount: false,
     ...options,
   });
 };
@@ -60,6 +61,7 @@ export const useBossTransactions = (params = {}, options = {}) => {
     queryFn: () => bossFinanceService.getTransactions(params),
     staleTime: 1000 * 60 * 3,
     refetchOnWindowFocus: false,
+    refetchOnMount: false,
     ...options,
   });
 };

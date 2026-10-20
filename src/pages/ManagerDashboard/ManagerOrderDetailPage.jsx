@@ -552,10 +552,11 @@ export default function ManagerOrderDetailPage() {
             </button>
             <button
               type="button"
+              disabled={reassignMutation.isPending}
               onClick={handleReassign}
-              className="px-4 py-1.5 rounded-lg text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-xs"
+              className="px-4 py-1.5 rounded-lg text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-xs disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
-              Biriktirish
+              {reassignMutation.isPending ? "Biriktirilmoqda..." : "Biriktirish"}
             </button>
           </div>
         </div>

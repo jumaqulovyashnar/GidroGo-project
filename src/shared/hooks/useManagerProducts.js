@@ -21,6 +21,7 @@ export const useManagerCreateProduct = () => {
     mutationFn: (data) => managerProductsService.createProduct(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["manager-products"] });
+      queryClient.invalidateQueries({ queryKey: ["manager-stock-warehouse"] });
       queryClient.invalidateQueries({ queryKey: ["manager-dashboard"] });
     },
   });
@@ -34,6 +35,7 @@ export const useManagerUpdateProduct = () => {
     mutationFn: ({ id, data }) => managerProductsService.updateProduct(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["manager-products"] });
+      queryClient.invalidateQueries({ queryKey: ["manager-stock-warehouse"] });
       queryClient.invalidateQueries({ queryKey: ["manager-dashboard"] });
     },
   });

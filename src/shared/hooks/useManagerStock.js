@@ -46,7 +46,9 @@ export const useCourierVehicleStock = (courierId, options = {}) => {
     queryKey: ["courier-vehicle-stock", courierId],
     queryFn: () => managerStockService.getCourierVehicleStock(courierId),
     enabled: Boolean(courierId),
-    staleTime: 1000 * 60 * 2,
+    staleTime: 1000 * 60 * 3,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
     ...options,
   });
 };

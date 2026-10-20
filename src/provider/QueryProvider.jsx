@@ -3,8 +3,14 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
-      retry: 1,
-      staleTime: 1000 * 60 * 5,
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      retry: false, // Xato berganda takroriy (double) request yuborilmasligi uchun
+      staleTime: 1000 * 60 * 5, // 5 daqiqa kesh
+      gcTime: 1000 * 60 * 10, // 10 daqiqa xotirada saqlash
+    },
+    mutations: {
+      retry: false, // POST/PUT/DELETE mutatsiyalarda qayta takroriy so'rov yubormaslik
     },
   },
 })

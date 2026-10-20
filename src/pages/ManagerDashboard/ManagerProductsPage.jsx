@@ -113,8 +113,6 @@ export default function ManagerProductsPage() {
       })
       toast.success("Yangi suv turi muvaffaqiyatli qo'shildi!")
       setIsAddModalOpen(false)
-      refetchProducts()
-      refetchStock()
     } catch (err) {
       toast.error(err?.message || "Mahsulot qo'shishda xatolik yuz berdi")
     }
@@ -142,7 +140,6 @@ export default function ManagerProductsPage() {
       })
       toast.success("Mahsulot muvaffaqiyatli yangilandi!")
       setEditingProduct(null)
-      refetchProducts()
     } catch (err) {
       toast.error(err?.message || "O'zgartirishda xatolik yuz berdi")
     }
@@ -164,7 +161,6 @@ export default function ManagerProductsPage() {
       })
       toast.success("Ombor zaxirasi muvaffaqiyatli yangilandi!")
       setEditingStockItem(null)
-      refetchStock()
     } catch (err) {
       toast.error(err?.message || "Zaxirani yangilashda xatolik yuz berdi")
     }

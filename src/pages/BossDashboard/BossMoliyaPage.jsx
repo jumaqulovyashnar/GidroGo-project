@@ -51,7 +51,6 @@ export function BossMoliyaPage() {
       onSuccess: () => {
         toast.success("Xarajat muvaffaqiyatli qo'shildi!")
         onSuccessCallback?.()
-        refetchFinance()
       },
       onError: (err) => {
         toast.error(err.message || "Xarajat qo'shishda xatolik yuz berdi!")
