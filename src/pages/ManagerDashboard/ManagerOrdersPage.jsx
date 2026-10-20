@@ -31,7 +31,7 @@ export default function ManagerOrdersPage() {
       customer: o.customer || o.clientName || o.client?.name || o.client?.fullName || "Mijoz",
       phone: o.phone || o.clientPhone || o.client?.phone || "—",
       address: o.address || o.deliveryAddress || "Manzil ko'rsatilmagan",
-      sector: o.sector || o.region || o.district || "—",
+      sector: o.sector || o.region || o.district || "",
       product: o.product || o.productName || o.items?.[0]?.productName || "Suv 18.9L",
       qty: Number(o.qty || o.quantity || o.bottlesCount || 1),
       courier: o.courier || o.courierName || o.courier?.fullName || o.courier?.name || null,
@@ -339,7 +339,9 @@ export default function ManagerOrdersPage() {
                       </td>
                       <td className="py-4 px-4 max-w-50">
                         <div className="truncate text-slate-800 font-medium">{order.address}</div>
-                        <div className="text-xs text-slate-400">{order.sector}</div>
+                        {order.sector && order.sector !== "—" ? (
+                          <div className="text-xs text-slate-400 mt-0.5">{order.sector}</div>
+                        ) : null}
                       </td>
                       <td className="py-4 px-4">
                         <span className="font-medium text-slate-800">{order.product}</span>

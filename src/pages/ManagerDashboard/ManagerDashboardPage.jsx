@@ -357,7 +357,9 @@ export default function ManagerDashboardPage() {
                     </td>
                     <td className="py-4 px-4 max-w-45">
                       <div className="truncate text-slate-800 font-medium">{order.address}</div>
-                      <div className="text-xs text-slate-400">{order.sector}</div>
+                      {order.sector && order.sector !== "—" ? (
+                        <div className="text-xs text-slate-400 mt-0.5">{order.sector}</div>
+                      ) : null}
                     </td>
                     <td className="py-4 px-4">
                       <span className="font-medium text-slate-800">{order.product}</span>
