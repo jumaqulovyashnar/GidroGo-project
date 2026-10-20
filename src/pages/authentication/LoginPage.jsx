@@ -58,8 +58,8 @@ function LoginPage() {
   const onSubmit = (data) => {
     if (loginMutation.isPending) return
 
-    const rawPhone = data.phone || ""
     const rawName = data.name?.trim() || ""
+    const rawPhone = data.phone || ""
     const password = data.password
 
     let cleanPhone = cleanPhoneForBackend(rawPhone)
@@ -70,9 +70,15 @@ function LoginPage() {
 
     const payload = { password }
 
-    if (cleanPhone) {
-      payload.phone = cleanPhone
+    // Agar foydalanuvchi "admin" kabi username kiritgan bo'lsa, uni login sifatida ustuvor qilamiz
+    if (rawName && !isPhonePattern(rawName)) {
+      payload.login = rawName
+      if (cleanPhone) {
+        payload.phone = cleanPhone
+      }
+    } else if (cleanPhone) {
       payload.login = cleanPhone
+      payload.phone = cleanPhone
     } else if (rawName) {
       payload.login = rawName
     }
