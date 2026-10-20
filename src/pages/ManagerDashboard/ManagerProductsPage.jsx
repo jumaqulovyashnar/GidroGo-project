@@ -2,7 +2,6 @@ import { useState, useMemo } from "react"
 import {
   Package,
   Plus,
-  RefreshCw,
   Edit2,
   Droplet,
   Boxes,
@@ -27,17 +26,11 @@ export default function ManagerProductsPage() {
   const [editingStockItem, setEditingStockItem] = useState(null)
 
   // API hooks
-  const {
-    data: productsRes,
-    isLoading: isProductsLoading,
-    refetch: refetchProducts,
-  } = useManagerProducts()
+  const { data: productsRes, isLoading: isProductsLoading } =
+    useManagerProducts()
 
-  const {
-    data: stockRes,
-    isLoading: isStockLoading,
-    refetch: refetchStock,
-  } = useManagerStockWarehouse()
+  const { data: stockRes, isLoading: isStockLoading } =
+    useManagerStockWarehouse()
 
   const createProductMutation = useManagerCreateProduct()
   const updateProductMutation = useManagerUpdateProduct()
@@ -184,27 +177,14 @@ export default function ManagerProductsPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => {
-              refetchProducts()
-              refetchStock()
-            }}
-            className="p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-colors shadow-2xs cursor-pointer"
-            title="Yangilash"
-          >
-            <RefreshCw className="size-4" />
-          </button>
-          <button
-            type="button"
-            onClick={handleOpenAddModal}
-            className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold flex items-center gap-2 shadow-xs cursor-pointer transition-colors"
-          >
-            <Plus className="size-4" />
-            <span>Yangi suv turi qo'shish</span>
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={handleOpenAddModal}
+          className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold flex items-center gap-2 shadow-xs cursor-pointer transition-colors"
+        >
+          <Plus className="size-4" />
+          <span>Yangi suv turi qo'shish</span>
+        </button>
       </div>
 
       {/* KPI Cards */}
