@@ -36,13 +36,7 @@ export const useLogin = () => {
                 // Reject unsupported roles before establishing a session and clear stale auth state
                 useUserStore.getState().actions.clearUserInfoAndToken()
 
-                if (role === "COURIER" || role === "ROLE_COURIER") {
-                    toast.error("Ushbu hisob (Kuryer) uchun veb-boshqaruv paneliga kirish ruxsati mavjud emas. Iltimos, mobil ilovadan foydalaning.")
-                } else if (role === "CLIENT" || role === "ROLE_CLIENT") {
-                    toast.error("Mijoz hisobi uchun veb-boshqaruv paneliga kirish ruxsati mavjud emas.")
-                } else {
-                    toast.error(`Foydalanuvchi roli (${role || "noma'lum"}) uchun veb-panel mavjud emas.`)
-                }
+                toast.error("Kirish ruxsati mavjud emas")
                 return
             }
 
