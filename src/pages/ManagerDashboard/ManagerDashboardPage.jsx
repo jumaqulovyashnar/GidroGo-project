@@ -454,8 +454,8 @@ export default function ManagerDashboardPage() {
         </div>
       </div>
 
-      {/* Bottom 2 Operational Widgets (Stretched horizontally along X-axis) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6">
+      {/* Bottom 2 Operational Widgets (2 qatorda alohida blok ko'rinishida) */}
+      <div className="grid grid-cols-1 gap-5 sm:gap-6">
         {/* Widget 1: Dastavkachilar Holati */}
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-md hover:border-slate-300/80 transition-all duration-200 p-5 sm:p-6 flex flex-col justify-between">
           <div>
