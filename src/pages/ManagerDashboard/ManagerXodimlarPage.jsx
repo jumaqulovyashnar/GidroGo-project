@@ -1,14 +1,13 @@
 import { useState, useMemo } from "react"
 import { useNavigate } from "react-router-dom"
-import { Users, Truck, Copy, Search, CheckCircle2, Banknote, Clock, ArrowRight } from "lucide-react"
-import { toast } from "sonner"
+import { Users, Truck, Search, CheckCircle2, Banknote, Clock, ArrowRight } from "lucide-react"
 import {
   useCourierCashBalances,
   useCashHandovers,
   useManagerCouriers,
   useManagerCouriersDailySummary,
 } from "@/shared/hooks"
-import { ManagerDirectHandoverModal, ConfirmHandoverModal } from "@/components"
+import { ConfirmHandoverModal } from "@/components"
 
 export default function ManagerXodimlarPage() {
   const navigate = useNavigate()
@@ -44,7 +43,6 @@ export default function ManagerXodimlarPage() {
     ? pendingHandoversRes
     : []
 
-  const [selectedCourierForHandover, setSelectedCourierForHandover] = useState(null)
   const [selectedHandoverForConfirm, setSelectedHandoverForConfirm] = useState(null)
 
   const getCourierCashBalance = (courierId) => {
@@ -287,7 +285,6 @@ export default function ManagerXodimlarPage() {
                 <th className="py-3.5 px-4">Kuryer</th>
                 <th className="py-3.5 px-4">Telefon raqam</th>
                 <th className="py-3.5 px-4">Transport</th>
-                <th className="py-3.5 px-4">Hudud / Sektor</th>
                 <th className="py-3.5 px-4">Yuk sig'imi</th>
                 <th className="py-3.5 px-4">Holat</th>
                 <th className="py-3.5 px-4">Kassa Balansi</th>
@@ -297,7 +294,7 @@ export default function ManagerXodimlarPage() {
             <tbody className="divide-y divide-slate-100">
               {filteredCouriers.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-16 text-center text-slate-400">
+                  <td colSpan={7} className="py-16 text-center text-slate-400">
                     Kuryerlar topilmadi
                   </td>
                 </tr>
@@ -312,13 +309,8 @@ export default function ManagerXodimlarPage() {
                             {courier.initials}
                           </div>
                           <div>
-                            <div className="font-semibold text-slate-900 flex items-center gap-1.5">
-                              <span>{courier.name}</span>
-                              {courier.rating != null && (
-                                <span className="text-xs text-amber-500 font-medium">
-                                  ★ {courier.rating}
-                                </span>
-                              )}
+                            <div className="font-semibold text-slate-900">
+                              {courier.name}
                             </div>
                             <div className="text-xs text-slate-400">Dastavkachi xodim</div>
                           </div>
@@ -328,13 +320,16 @@ export default function ManagerXodimlarPage() {
                         {courier.phone}
                       </td>
                       <td className="py-4 px-4">
-                        <div className="font-medium text-slate-800">{courier.vehicle}</div>
-                        {courier.plate && (
-                          <div className="text-xs text-slate-400 font-mono">{courier.plate}</div>
+                        {courier.vehicle && courier.vehicle !== "-" ? (
+                          <div>
+                            <div className="font-medium text-slate-800">{courier.vehicle}</div>
+                            {courier.plate && (
+                              <div className="text-xs text-slate-400 font-mono">{courier.plate}</div>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-slate-400 text-xs">Biriktirilmagan</span>
                         )}
-                      </td>
-                      <td className="py-4 px-4 text-slate-700">
-                        {courier.sector}
                       </td>
                       <td className="py-4 px-4">
                         <span className="font-semibold text-blue-600">{courier.load}</span>
@@ -356,36 +351,13 @@ export default function ManagerXodimlarPage() {
                         </span>
                       </td>
                       <td className="py-4 px-4 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          {/* Direct Handover button (POST /api/manager/couriers/{courierId}/cash/handovers) */}
-                          <button
-                            type="button"
-                            onClick={() => setSelectedCourierForHandover(courier)}
-                            className="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 transition-colors flex items-center gap-1 shadow-2xs cursor-pointer"
-                            title="Kassani qabul qilish"
-                          >
-                            <Banknote className="w-3.5 h-3.5" />
-                            <span>Kassa</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              navigator.clipboard?.writeText(courier.phone)
-                              toast.success(`Telefon raqami nusxalandi: ${courier.phone}`)
-                            }}
-                            className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors cursor-pointer"
-                            title="Telefon raqamini nusxalash"
-                          >
-                            <Copy className="w-3.5 h-3.5 text-blue-600" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => navigate("/manager/dastavkachilar-xarita")}
-                            className="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors cursor-pointer"
-                          >
-                            Xaritada
-                          </button>
-                        </div>
+                        <button
+                          type="button"
+                          onClick={() => navigate("/manager/dastavkachilar-xarita")}
+                          className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors cursor-pointer"
+                        >
+                          Xaritada
+                        </button>
                       </td>
                     </tr>
                   )
@@ -395,14 +367,6 @@ export default function ManagerXodimlarPage() {
           </table>
         </div>
       </div>
-
-      {/* Menejer tomonidan to'g'ridan-to'g'ri topshirilgan naqd pulni kiritish modali */}
-      <ManagerDirectHandoverModal
-        isOpen={Boolean(selectedCourierForHandover)}
-        onClose={() => setSelectedCourierForHandover(null)}
-        courierId={selectedCourierForHandover?.id}
-        courierName={selectedCourierForHandover?.name}
-      />
 
       {/* Kuryer kassa so'rovini tasdiqlash/rad etish modali */}
       <ConfirmHandoverModal
