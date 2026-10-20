@@ -4,7 +4,7 @@ import {
   Plus,
   Edit2,
   Droplet,
-  Boxes,
+  Warehouse,
   Coins,
   X,
   Check,
@@ -192,8 +192,8 @@ export default function ManagerProductsPage() {
         <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex items-center justify-between">
           <div>
             <span className="text-xs font-medium text-slate-500">Jami suv turlari</span>
-            <div className="flex items-baseline gap-1 mt-1">
-              <span className="text-2xl font-bold text-slate-900">{products.length}</span>
+            <div className="flex items-center gap-1.5 mt-1">
+              <span className="text-2xl font-bold text-slate-900 leading-none">{products.length}</span>
               <span className="text-xs font-semibold text-slate-400">xil mahsulot</span>
             </div>
             <p className="text-[11px] text-slate-500 mt-1">Sotuvda mavjud turlar</p>
@@ -206,24 +206,24 @@ export default function ManagerProductsPage() {
         <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex items-center justify-between">
           <div>
             <span className="text-xs font-medium text-slate-500">Ombordagi to'la suv zaxirasi</span>
-            <div className="flex items-baseline gap-1 mt-1">
-              <span className="text-2xl font-bold text-slate-900">
+            <div className="flex items-center gap-1.5 mt-1">
+              <span className="text-2xl font-bold text-slate-900 leading-none">
                 {totalStockCount.toLocaleString()}
               </span>
               <span className="text-xs font-semibold text-slate-400">dona idish</span>
             </div>
             <p className="text-[11px] text-slate-500 mt-1">Barcha idishlar tayyor holatda</p>
           </div>
-          <div className="size-12 rounded-full bg-slate-100 border border-slate-200 text-slate-700 flex items-center justify-center shrink-0">
-            <Boxes className="size-5.5" />
+          <div className="size-12 rounded-full bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+            <Warehouse className="size-5.5" />
           </div>
         </div>
 
         <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex items-center justify-between">
           <div>
             <span className="text-xs font-medium text-slate-500">O'rtacha suv narxi</span>
-            <div className="flex items-baseline gap-1 mt-1">
-              <span className="text-2xl font-bold text-slate-900">
+            <div className="flex items-center gap-1.5 mt-1">
+              <span className="text-2xl font-bold text-slate-900 leading-none">
                 {products.length > 0
                   ? Math.round(
                       products.reduce((acc, p) => acc + Number(p.price || 0), 0) /
@@ -265,7 +265,7 @@ export default function ManagerProductsPage() {
               : "border-transparent text-slate-500 hover:text-slate-800"
           }`}
         >
-          <Boxes className="size-4" />
+          <Warehouse className="size-4" />
           <span>Ombordagi zaxira ({stockItems.length})</span>
         </button>
       </div>
@@ -372,7 +372,7 @@ export default function ManagerProductsPage() {
             </div>
           ) : stockItems.length === 0 ? (
             <div className="py-20 text-center text-slate-400 text-xs flex flex-col items-center gap-2">
-              <Boxes className="size-8 text-slate-300" />
+              <Warehouse className="size-8 text-slate-300" />
               <span>Omborda kiritilgan zaxiralar mavjud emas.</span>
             </div>
           ) : (
