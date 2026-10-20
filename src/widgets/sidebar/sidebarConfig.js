@@ -14,6 +14,7 @@ import {
   Truck,
   ClipboardList,
   MapPin,
+  Boxes,
 } from "lucide-react"
 
 // 1. Super Admin (Tizim administratori) menyusi
@@ -43,6 +44,7 @@ const MANAGER_MENU = [
   { title: "Bosh sahifa", path: "/manager", icon: LayoutDashboard },
   { title: "Buyurtmalar", path: "/manager/buyurtmalar", icon: Truck },
   { title: "Barcha buyurtmalar", path: "/manager/barcha-buyurtmalar", icon: ClipboardList },
+  { title: "Mahsulotlar va Ombor", path: "/manager/mahsulotlar", icon: Boxes },
   { title: "Xodimlar", path: "/manager/xodimlar", icon: Users },
   { title: "Jonli xarita", path: "/manager/dastavkachilar-xarita", icon: MapPin },
 ]

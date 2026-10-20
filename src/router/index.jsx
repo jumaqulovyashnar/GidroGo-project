@@ -29,6 +29,7 @@ const ManagerAllOrdersPage = lazyWithRetry(() => import("@/pages/ManagerDashboar
 const ManagerOrderDetailPage = lazyWithRetry(() => import("@/pages/ManagerDashboard/ManagerOrderDetailPage"))
 const ManagerCouriersMapPage = lazyWithRetry(() => import("@/pages/ManagerDashboard/ManagerCouriersMapPage"))
 const ManagerXodimlarPage = lazyWithRetry(() => import("@/pages/ManagerDashboard/ManagerXodimlarPage"))
+const ManagerProductsPage = lazyWithRetry(() => import("@/pages/ManagerDashboard/ManagerProductsPage"))
 
 // Boss
 const BossDashboardPage = lazyWithRetry(() => import("@/pages/BossDashboard/BossDashboardPage"))
@@ -140,6 +141,14 @@ const router = createBrowserRouter([
               {
                 path: "/manager/xodimlar",
                 element: withSuspense(ManagerXodimlarPage),
+              },
+              {
+                path: "/manager/mahsulotlar",
+                element: withSuspense(ManagerProductsPage),
+              },
+              {
+                path: "/manager/ombor",
+                element: withSuspense(ManagerProductsPage),
               },
             ],
           },
