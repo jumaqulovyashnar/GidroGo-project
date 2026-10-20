@@ -1,8 +1,7 @@
 import React, { useState, useMemo } from "react"
 import { useParams, Link, useNavigate } from "react-router-dom"
 import {
-  User,
-  Phone,
+  User, Phone,
   ShieldCheck,
   Calendar,
   Building2,
@@ -21,14 +20,14 @@ import {
   BreadcrumbSeparator,
   BreadcrumbPage,
 } from "@/shared/ui/breadcrumb"
-import { useStaff } from "@/shared"
+import { useStaff, useStaffDetail } from "@/shared/hooks"
 
 export function BossXodimDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const {
     data,
-    isLoading,
+    isLoading: isListLoading,
     isError,
     refetch,
     updateStaffStatus,
@@ -37,17 +36,23 @@ export function BossXodimDetailPage() {
     isDeleting,
   } = useStaff()
 
-  // Xodimlar ro'yxati
+  // Real API: GET /api/boss/staff/{id}
+  const { data: staffDetailRes, isLoading: isDetailLoading } = useStaffDetail(id)
+  const isLoading = isDetailLoading && isListLoading
+
+  // Xodimlar ro'yxati (fallback sifatida)
   const rawList = useMemo(() => {
     if (Array.isArray(data?.data)) return data.data
     if (Array.isArray(data)) return data
     return []
   }, [data])
 
-  // Joriy xodimni ID bo'yicha topish
+  // Joriy xodim ma'lumotlari (Direct API or fallback)
   const employee = useMemo(() => {
+    if (staffDetailRes?.data) return staffDetailRes.data
+    if (staffDetailRes && typeof staffDetailRes === "object" && !Array.isArray(staffDetailRes) && staffDetailRes.id) return staffDetailRes
     return rawList.find((item) => String(item.id) === String(id))
-  }, [rawList, id])
+  }, [staffDetailRes, rawList, id])
 
   const isBlocked =
     employee?.status === "BLOCKED" ||
@@ -224,6 +229,11 @@ export function BossXodimDetailPage() {
                 )}
                 <span>{roleName}</span>
               </span>
+              {employee.shiftType && (
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-800 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full">
+                  <span>Smena: {employee.shiftType}</span>
+                </span>
+              )}
             </div>
             <p className="text-xs sm:text-sm text-slate-500 mt-1.5">
               Tizimga kirish akkaunti:{" "}
@@ -267,9 +277,8 @@ export function BossXodimDetailPage() {
               onCheckedChange={handleStatusChange}
             />
             <span
-              className={`text-xs font-bold select-none ${
-                isActive ? "text-blue-600" : "text-rose-500"
-              }`}
+              className={`text-xs font-bold select-none ${isActive ? "text-blue-600" : "text-rose-500"
+                }`}
             >
               {isUpdatingStatus ? "O'zgarmoqda..." : isActive ? "Faol" : "Bloklangan"}
             </span>

@@ -34,9 +34,33 @@ export const useBossCreateExpense = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["boss-finance-summary"] });
       queryClient.invalidateQueries({ queryKey: ["boss-finance-chart"] });
+      queryClient.invalidateQueries({ queryKey: ["boss-finance-expenses"] });
+      queryClient.invalidateQueries({ queryKey: ["boss-finance-transactions"] });
       queryClient.invalidateQueries({ queryKey: ["boss-dashboard"] });
       queryClient.invalidateQueries({ queryKey: ["manager-finance-summary"] });
     },
+  });
+};
+
+// 4. GET /api/boss/finance/expenses - Boss uchun barcha kiritilgan xarajatlar ro'yxati
+export const useBossExpenses = (params = {}, options = {}) => {
+  return useQuery({
+    queryKey: ["boss-finance-expenses", params],
+    queryFn: () => bossFinanceService.getExpenses(params),
+    staleTime: 1000 * 60 * 3,
+    refetchOnWindowFocus: false,
+    ...options,
+  });
+};
+
+// 5. GET /api/boss/finance/transactions - Boss uchun barcha moliya tranzaksiyalari
+export const useBossTransactions = (params = {}, options = {}) => {
+  return useQuery({
+    queryKey: ["boss-finance-transactions", params],
+    queryFn: () => bossFinanceService.getTransactions(params),
+    staleTime: 1000 * 60 * 3,
+    refetchOnWindowFocus: false,
+    ...options,
   });
 };
 

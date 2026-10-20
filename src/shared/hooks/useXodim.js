@@ -13,6 +13,18 @@ export const useStaffSummary = (options = {}) => {
   });
 };
 
+// 6. GET /api/boss/staff/{id} - Xodim ma'lumotini to'g'ridan-to'g'ri ID orqali olish
+export const useStaffDetail = (id, options = {}) => {
+  return useQuery({
+    queryKey: ["staff-detail", id],
+    queryFn: () => bossXodimlarService.getStaffById(id),
+    enabled: Boolean(id),
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
+    ...options,
+  });
+};
+
 export const useStaff = () => {
   const queryClient = useQueryClient();
 

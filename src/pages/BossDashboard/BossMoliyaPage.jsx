@@ -9,7 +9,7 @@ import {
   useBossOrders,
   useBossCashSummary,
   useBossCreateExpense,
-  useManagerFinanceTransactions,
+  useBossTransactions,
 } from "@/shared/hooks"
 import { exportToCsv } from "@/shared/lib"
 import { AddExpenseModal } from "@/components"
@@ -41,7 +41,7 @@ export function BossMoliyaPage() {
   } = useBossFinanceSummary(periodParam)
   const { data: ordersRes } = useBossOrders({ all: true })
   const { data: cashSummaryRes } = useBossCashSummary()
-  const { data: transactionsRes, isLoading: isTransactionsLoading } = useManagerFinanceTransactions()
+  const { data: transactionsRes, isLoading: isTransactionsLoading } = useBossTransactions()
 
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false)
   const { mutate: createExpense, isPending: isCreatingExpense } = useBossCreateExpense()

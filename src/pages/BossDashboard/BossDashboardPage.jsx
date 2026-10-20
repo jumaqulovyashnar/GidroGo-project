@@ -2,7 +2,7 @@ import { useState, lazy, Suspense } from "react"
 import { Select } from "@mantine/core"
 import { Banknote, Calendar, ChevronDown, Droplet, Receipt, ShoppingBag, TrendingUp, Truck, Users, AlertCircle } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent, Spinner } from "@/shared/ui"
-import { useBossDashboard } from "@/shared/hooks"
+import { useBossDashboard, useBossTodayOrders } from "@/shared/hooks"
 
 const SyncingChart = lazy(() => import("@/widgets").then((m) => ({ default: m.SyncingChart })))
 const OrdersWeeklyChart = lazy(() => import("@/widgets").then((m) => ({ default: m.OrdersWeeklyChart })))
@@ -25,6 +25,10 @@ export const BossDashboardPage = () => {
     error,
     refetch,
   } = useBossDashboard()
+  const { data: todayOrdersRes, isLoading: isOrdersLoading } = useBossTodayOrders({ limit: 10 })
+
+  const rawTodayOrders = todayOrdersRes?.data?.orders || todayOrdersRes?.data || (Array.isArray(todayOrdersRes) ? todayOrdersRes : null)
+  const todayOrders = Array.isArray(rawTodayOrders) ? rawTodayOrders : []
   const db = dashboardRes?.data || dashboardRes || {}
 
   const formatNumber = (num) => Number(num || 0).toLocaleString("ru-RU")
@@ -238,6 +242,116 @@ export const BossDashboardPage = () => {
       <Suspense fallback={<div className="h-64 bg-white rounded-2xl border border-slate-200 p-6 flex flex-col items-center justify-center gap-2"><Spinner size="md" /><span className="text-xs text-slate-400">Dastavkachilar jadvali yuklanmoqda...</span></div>}>
         <CouriersPerformanceCard />
       </Suspense>
+
+      {/* 6-Qism: Bugungi so'nggi buyurtmalar monitoringi (GET /api/boss/orders/today) */}
+      <Card className="border border-slate-200/80 bg-white rounded-2xl overflow-hidden shadow-xs">
+        <div className="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h3 className="text-base font-bold text-slate-900">
+              Bugungi so'nggi buyurtmalar monitoringi
+            </h3>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Real vaqtda qabul qilingan va yetkazilayotgan bugungi operativ buyurtmalar
+            </p>
+          </div>
+          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200 self-start sm:self-auto">
+            {todayOrders.length} ta buyurtma
+          </span>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr className="bg-slate-50/80 border-b border-slate-200/80 text-slate-500 font-semibold uppercase tracking-wider">
+                <th className="py-3 px-4">Buyurtma</th>
+                <th className="py-3 px-4">Mijoz</th>
+                <th className="py-3 px-4">Manzil</th>
+                <th className="py-3 px-4">Biriktirilgan kuryer</th>
+                <th className="py-3 px-4">Holat</th>
+                <th className="py-3 px-4 text-right">Summa</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {isOrdersLoading ? (
+                <tr>
+                  <td colSpan={6} className="py-12 text-center text-slate-400">
+                    <div className="flex items-center justify-center gap-2">
+                      <Spinner size="sm" />
+                      <span>Bugungi buyurtmalar yuklanmoqda...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : todayOrders.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-12 text-center text-slate-400">
+                    Bugun hali buyurtmalar tushmadi
+                  </td>
+                </tr>
+              ) : (
+                todayOrders.slice(0, 10).map((ord) => {
+                  const statusLabel =
+                    ord.status === "COMPLETED" || ord.status === "DELIVERED"
+                      ? "Yetkazildi"
+                      : ord.status === "ON_THE_WAY" || ord.status === "DELIVERING"
+                      ? "Yetkazilmoqda"
+                      : ord.status === "ASSIGNED"
+                      ? "Kuryerda"
+                      : ord.status === "NEW"
+                      ? "Yangi"
+                      : ord.status || "Jarayonda"
+
+                  const isDone = ord.status === "COMPLETED" || ord.status === "DELIVERED"
+                  const isDelivering = ord.status === "ON_THE_WAY" || ord.status === "DELIVERING"
+
+                  return (
+                    <tr key={ord.id} className="hover:bg-slate-50/80 transition-colors">
+                      <td className="py-3.5 px-4 font-mono font-bold text-slate-900">
+                        #{ord.orderNumber || ord.id}
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <span className="font-semibold text-slate-900 block truncate max-w-[140px]">
+                          {ord.clientName || "Mijoz"}
+                        </span>
+                        <span className="text-[11px] text-slate-400 font-mono">
+                          {ord.clientPhone || "—"}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4 text-slate-600 max-w-[180px] truncate" title={ord.deliveryAddress}>
+                        {ord.deliveryAddress || "Manzil ko'rsatilmagan"}
+                      </td>
+                      <td className="py-3.5 px-4">
+                        {ord.courierName ? (
+                          <span className="font-medium text-slate-800">
+                            {ord.courierName}
+                          </span>
+                        ) : (
+                          <span className="text-slate-400 italic">Biriktirilmagan</span>
+                        )}
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <span
+                          className={`px-2 py-0.5 rounded-full font-semibold text-[11px] ${
+                            isDone
+                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                              : isDelivering
+                              ? "bg-blue-50 text-blue-700 border border-blue-200"
+                              : "bg-amber-50 text-amber-700 border border-amber-200"
+                          }`}
+                        >
+                          {statusLabel}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4 text-right font-extrabold text-slate-900 font-mono whitespace-nowrap">
+                        {Number(ord.totalSum || 0).toLocaleString()} so'm
+                      </td>
+                    </tr>
+                  )
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
     </div>
   )
 }

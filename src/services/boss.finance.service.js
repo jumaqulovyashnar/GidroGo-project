@@ -21,6 +21,26 @@ class BossFinanceService {
     }
   }
 
+  // GET /api/boss/finance/expenses - Boss uchun barcha kiritilgan xarajatlar ro'yxati (sana, kategoriya, summa, kim kiritgani)
+  async getExpenses(params = {}) {
+    try {
+      const response = await api.get("/boss/finance/expenses", { params });
+      return response.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  }
+
+  // GET /api/boss/finance/transactions - Boss uchun barcha moliya tranzaksiyalari (sana oralig'i, to'lov turi, kuryer va sahifalash bilan)
+  async getTransactions(params = {}) {
+    try {
+      const response = await api.get("/boss/finance/transactions", { params });
+      return response.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  }
+
   // POST /api/manager/finance/expenses - Xarajat kiritish
   async createExpense(data) {
     try {

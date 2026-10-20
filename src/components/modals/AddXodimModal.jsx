@@ -14,6 +14,7 @@ import {
   CheckCircle2,
   Loader2,
   User,
+  Clock,
 } from "lucide-react"
 import { Button, Input } from "@/shared/ui"
 import { cn, NAME_REGEX, PHONE_REGEX, formatPhoneInput, cleanPhoneForBackend } from "@/shared/lib"
@@ -22,6 +23,7 @@ const addXodimSchema = z.object({
   role: z.enum(["MANAGER", "COURIER"], {
     errorMap: () => ({ message: "Xodim lavozimini tanlang" }),
   }),
+  shiftType: z.string().optional(),
   fullName: z
     .string()
     .trim()
@@ -46,6 +48,7 @@ const addXodimSchema = z.object({
 
 const defaultValues = {
   role: "MANAGER",
+  shiftType: "Kunduzgi",
   fullName: "",
   phone: "+998",
   password: "",
@@ -83,6 +86,7 @@ export function AddXodimModal({ opened, onClose, onAddEmployee, isSubmitting }) 
       phone: formattedPhone,
       password: data.password.trim(),
       role: data.role,
+      ...(data.shiftType ? { shiftType: data.shiftType } : {}),
     }
 
     onAddEmployee(payload, handleClose)
@@ -190,6 +194,23 @@ export function AddXodimModal({ opened, onClose, onAddEmployee, isSubmitting }) 
           {errors.role && (
             <p className="text-xs text-rose-500 font-medium mt-1">{errors.role.message}</p>
           )}
+        </div>
+
+        {/* Ish smenasi (shiftType) */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+            <Clock className="size-3.5 text-blue-600" />
+            <span>Ish smenasi</span>
+          </label>
+          <select
+            disabled={isSubmitting}
+            {...register("shiftType")}
+            className="w-full h-10 px-3.5 rounded-xl border border-slate-200 bg-slate-50/50 hover:bg-white focus:bg-white text-xs text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 font-medium transition-all"
+          >
+            <option value="Kunduzgi">Kunduzgi smena (08:00 - 18:00)</option>
+            <option value="Kechki">Kechki smena (18:00 - 02:00)</option>
+            <option value="To'liq">To'liq smena (Kun davomida)</option>
+          </select>
         </div>
 
         {/* Ism va familiya */}
