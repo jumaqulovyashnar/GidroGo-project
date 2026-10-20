@@ -618,11 +618,11 @@ export default function ManagerDashboardPage() {
               Dastavkachilar tarkibi ({isCouriersPending ? "..." : couriersList.length})
             </div>
             {isCouriersPending ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="flex flex-wrap gap-3">
                 {[1, 2].map((i) => (
                   <div
                     key={i}
-                    className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200/80 animate-pulse flex items-center justify-between"
+                    className="w-full sm:w-72 p-3 rounded-xl bg-slate-50/70 border border-slate-200/80 animate-pulse flex items-center justify-between"
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-9 h-9 rounded-full bg-slate-200" />
@@ -640,17 +640,11 @@ export default function ManagerDashboardPage() {
                 Hozircha biriktirilgan kuryerlar mavjud emas
               </div>
             ) : (
-              <div
-                className={`grid gap-3 ${
-                  couriersList.length <= 2
-                    ? "grid-cols-1 sm:grid-cols-2"
-                    : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-                }`}
-              >
+              <div className="flex flex-wrap gap-3">
                 {couriersList.map((courier) => (
                   <div
                     key={courier.id}
-                    className="p-3.5 rounded-xl bg-slate-50/70 hover:bg-blue-50/40 border border-slate-200/80 transition-colors flex items-center justify-between gap-2"
+                    className="w-full sm:w-72 p-3 rounded-xl bg-slate-50/70 hover:bg-blue-50/40 border border-slate-200/80 transition-colors flex items-center justify-between gap-3 shadow-2xs"
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-9 h-9 rounded-full bg-blue-100 text-blue-700 font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
