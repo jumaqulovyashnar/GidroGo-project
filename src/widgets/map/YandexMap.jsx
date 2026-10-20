@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react"
 import { Navigation, Car, AlertCircle, RefreshCw, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react"
 
-const YANDEX_API_KEY = import.meta.env.VITE_YANDEX_MAPS_KEY
+import { useYandexMapsLoader } from "./useYandexMapsLoader"
 
 /**
  * Aniq Geografik Koordinatalar (Yandex Maps v2.1 standarti: [Latitude, Longitude])
@@ -71,78 +71,8 @@ export default function YandexMap({
     onSelectCourierRef.current = onSelectCourier
   }, [onSelectCourier])
 
-  const [loadStatus, setLoadStatus] = useState(() => {
-    if (!YANDEX_API_KEY) return "fallback"
-    if (typeof window !== "undefined" && window.ymaps?.Map) return "ready"
-    return "loading"
-  })
+  const { loadStatus } = useYandexMapsLoader()
   const [activeLayer, setActiveLayer] = useState("map") // "map" | "satellite"
-
-  // Load Yandex script (standart [Latitude, Longitude])
-  useEffect(() => {
-    if (!YANDEX_API_KEY) return
-
-    let isMounted = true
-
-    const loadYandexScript = () => {
-      if (window.ymaps?.Map) {
-        if (isMounted) setLoadStatus("ready")
-        return
-      }
-
-      const scriptId = "yandex-map-script"
-      let script = document.getElementById(scriptId)
-      if (script && (script.src.includes("coordorder=longlat") || !script.src.includes(YANDEX_API_KEY))) {
-        script.remove()
-        script = null
-        if (window.ymaps) {
-          try {
-            delete window.ymaps
-          } catch {
-            window.ymaps = undefined
-          }
-        }
-      }
-
-      if (!script) {
-        script = document.createElement("script")
-        script.id = scriptId
-        script.type = "text/javascript"
-        script.src = `https://api-maps.yandex.ru/2.1/?apikey=${YANDEX_API_KEY}&lang=uz_UZ`
-        script.async = true
-        document.head.appendChild(script)
-      }
-
-      const timeoutId = setTimeout(() => {
-        if (isMounted && loadStatus === "loading") {
-          console.warn("Yandex Maps API load timed out, falling back to vector map.")
-          setLoadStatus("fallback")
-        }
-      }, 5000)
-
-      script.onload = () => {
-        clearTimeout(timeoutId)
-        if (window.ymaps) {
-          window.ymaps.ready(() => {
-            if (isMounted) setLoadStatus("ready")
-          })
-        } else if (isMounted) {
-          setLoadStatus("fallback")
-        }
-      }
-
-      script.onerror = () => {
-        clearTimeout(timeoutId)
-        if (isMounted) setLoadStatus("fallback")
-      }
-    }
-
-    loadYandexScript()
-
-    return () => {
-      isMounted = false
-    }
-  }, [loadStatus])
 
   // Helper to populate/refresh markers without destroying the map instance
   const renderPlacemarks = useCallback((map) => {
