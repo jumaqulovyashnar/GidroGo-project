@@ -83,8 +83,8 @@ export default function ManagerDashboardPage() {
     refetch: refetchDashboard,
   } = useManagerDashboard({ period: periodParam })
   const { data: todayOrdersRes, isPending: isOrdersPending } = useManagerTodayOrders()
-  const { data: couriersRes } = useManagerCouriers()
-  const { data: financeRes } = useManagerFinanceSummary({
+  const { data: couriersRes, isPending: isCouriersPending } = useManagerCouriers()
+  const { data: financeRes, isPending: isFinancePending } = useManagerFinanceSummary({
     period: periodParam,
   })
 
@@ -556,57 +556,86 @@ export default function ManagerDashboardPage() {
           </div>
 
           {/* Status KPI Cards (Grey & Blue unified minimalist palette) */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 my-5">
-            <div className="p-3.5 rounded-xl bg-white border border-slate-200 shadow-2xs flex flex-col justify-between">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-slate-600">Bo'sh kuryerlar</span>
-                <span className="w-2.5 h-2.5 rounded-full bg-slate-400" />
-              </div>
-              <span className="text-2xl font-bold text-slate-900 mt-2 block">
-                {couriersList.filter((c) => c.status === "free").length}
-              </span>
+          {isCouriersPending ? (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 my-5">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="p-3.5 rounded-xl bg-white border border-slate-200 shadow-2xs animate-pulse space-y-2">
+                  <div className="h-3 w-16 bg-slate-200 rounded" />
+                  <div className="h-7 w-8 bg-slate-200 rounded" />
+                </div>
+              ))}
             </div>
-
-            <div className="p-3.5 rounded-xl bg-white border border-blue-200 shadow-2xs flex flex-col justify-between">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-blue-700">Yo'lda</span>
-                <span className="relative flex h-2.5 w-2.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-600" />
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 my-5">
+              <div className="p-3.5 rounded-xl bg-white border border-slate-200 shadow-2xs flex flex-col justify-between">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-slate-600">Bo'sh kuryerlar</span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-slate-400" />
+                </div>
+                <span className="text-2xl font-bold text-slate-900 mt-2 block">
+                  {couriersList.filter((c) => c.status === "free").length}
                 </span>
               </div>
-              <span className="text-2xl font-bold text-blue-700 mt-2 block">
-                {couriersList.filter((c) => c.status === "on_way").length}
-              </span>
-            </div>
 
-            <div className="p-3.5 rounded-xl bg-white border border-slate-200 shadow-2xs flex flex-col justify-between">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-slate-600">Band</span>
-                <span className="w-2.5 h-2.5 rounded-full bg-slate-500" />
+              <div className="p-3.5 rounded-xl bg-white border border-blue-200 shadow-2xs flex flex-col justify-between">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-blue-700">Yo'lda</span>
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-600" />
+                  </span>
+                </div>
+                <span className="text-2xl font-bold text-blue-700 mt-2 block">
+                  {couriersList.filter((c) => c.status === "on_way").length}
+                </span>
               </div>
-              <span className="text-2xl font-bold text-slate-900 mt-2 block">
-                {couriersList.filter((c) => c.status === "loading").length}
-              </span>
-            </div>
 
-            <div className="p-3.5 rounded-xl bg-white border border-slate-200 shadow-2xs flex flex-col justify-between">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-slate-400">Oflayn</span>
-                <span className="w-2.5 h-2.5 rounded-full bg-slate-300" />
+              <div className="p-3.5 rounded-xl bg-white border border-slate-200 shadow-2xs flex flex-col justify-between">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-slate-600">Band</span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-slate-500" />
+                </div>
+                <span className="text-2xl font-bold text-slate-900 mt-2 block">
+                  {couriersList.filter((c) => c.status === "loading").length}
+                </span>
               </div>
-              <span className="text-2xl font-bold text-slate-400 mt-2 block">
-                {couriersList.filter((c) => c.status === "offline").length}
-              </span>
+
+              <div className="p-3.5 rounded-xl bg-white border border-slate-200 shadow-2xs flex flex-col justify-between">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-slate-400">Oflayn</span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-slate-300" />
+                </div>
+                <span className="text-2xl font-bold text-slate-400 mt-2 block">
+                  {couriersList.filter((c) => c.status === "offline").length}
+                </span>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Courier Roster Grid */}
           <div>
             <div className="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-3">
-              Dastavkachilar tarkibi ({couriersList.length})
+              Dastavkachilar tarkibi ({isCouriersPending ? "..." : couriersList.length})
             </div>
-            {couriersList.length === 0 ? (
+            {isCouriersPending ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {[1, 2].map((i) => (
+                  <div
+                    key={i}
+                    className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200/80 animate-pulse flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-slate-200" />
+                      <div className="space-y-1.5">
+                        <div className="h-3.5 w-28 bg-slate-200 rounded" />
+                        <div className="h-3 w-20 bg-slate-200 rounded" />
+                      </div>
+                    </div>
+                    <div className="h-5 w-12 bg-slate-200 rounded-full" />
+                  </div>
+                ))}
+              </div>
+            ) : couriersList.length === 0 ? (
               <div className="text-center py-8 bg-slate-50/60 rounded-xl border border-dashed border-slate-200 text-xs text-slate-400">
                 Hozircha biriktirilgan kuryerlar mavjud emas
               </div>
@@ -680,78 +709,93 @@ export default function ManagerDashboardPage() {
           </div>
 
           {/* 3 Modern Financial Metric Cards (Grey & Blue unified palette) */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 my-5">
-            {/* Tushum */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-slate-50/70 border border-slate-200 flex flex-col justify-between">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center">
-                    <ArrowUpRight className="w-4 h-4" />
+          {isFinancePending ? (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 my-5">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="p-4 sm:p-5 rounded-2xl bg-slate-50/70 border border-slate-200 animate-pulse space-y-4">
+                  <div className="flex justify-between items-center">
+                    <div className="h-3.5 w-24 bg-slate-200 rounded" />
+                    <div className="h-4 w-12 bg-slate-200 rounded" />
                   </div>
-                  <span className="text-xs font-semibold text-slate-700">Bugungi tushum</span>
+                  <div className="h-8 w-32 bg-slate-200 rounded" />
+                  <div className="h-3 w-44 bg-slate-200 rounded" />
                 </div>
-                <span className="text-[10px] font-semibold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-md">
-                  Kassa
-                </span>
-              </div>
-              <div className="mt-4">
-                <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                  {displayStats.kassaTushumi} <span className="text-xs font-semibold text-slate-500">so'm</span>
-                </div>
-                <p className="text-xs font-medium text-slate-600 mt-1.5">Yetkazilgan buyurtmalardan tushgan summa</p>
-              </div>
+              ))}
             </div>
-
-            {/* Xarajat */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-slate-50/70 border border-slate-200 flex flex-col justify-between">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-slate-100 text-slate-600 border border-slate-200 flex items-center justify-center">
-                    <ArrowDownRight className="w-4 h-4" />
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 my-5">
+              {/* Tushum */}
+              <div className="p-4 sm:p-5 rounded-2xl bg-slate-50/70 border border-slate-200 flex flex-col justify-between">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center">
+                      <ArrowUpRight className="w-4 h-4" />
+                    </div>
+                    <span className="text-xs font-semibold text-slate-700">Bugungi tushum</span>
                   </div>
-                  <span className="text-xs font-semibold text-slate-700">Logistika xarajati</span>
-                </div>
-                <span className="text-[10px] font-semibold text-slate-700 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md">
-                  Xarajat
-                </span>
-              </div>
-              <div className="mt-4">
-                <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                  {displayStats.logistikaXarajati} <span className="text-xs font-semibold text-slate-500">so'm</span>
-                </div>
-                <p className="text-xs font-medium text-slate-600 mt-1.5">Kunlik yoqilg'i va transport xarajatlari</p>
-              </div>
-            </div>
-
-            {/* Sof balans */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-blue-50/30 border border-blue-200/80 flex flex-col justify-between">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-700 border border-blue-200 flex items-center justify-center">
-                    {isNetProfitNegative ? (
-                      <TrendingDown className="w-4 h-4" />
-                    ) : (
-                      <TrendingUp className="w-4 h-4" />
-                    )}
-                  </div>
-                  <span className="text-xs font-semibold text-slate-800">
-                    Sof balans
+                  <span className="text-[10px] font-semibold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-md">
+                    Kassa
                   </span>
                 </div>
-                <span className="text-[10px] font-semibold text-blue-700 bg-white border border-blue-200 px-2 py-0.5 rounded-md">
-                  Qoldiq
-                </span>
-              </div>
-              <div className="mt-4">
-                <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                  {displayStats.sofFoyda} <span className="text-xs font-semibold text-slate-500">so'm</span>
+                <div className="mt-4">
+                  <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                    {displayStats.kassaTushumi} <span className="text-xs font-semibold text-slate-500">so'm</span>
+                  </div>
+                  <p className="text-xs font-medium text-slate-600 mt-1.5">Yetkazilgan buyurtmalardan tushgan summa</p>
                 </div>
-                <p className="text-xs font-medium text-slate-600 mt-1.5">
-                  Barcha xarajatlar va tushumlar yakuniy qoldig'i
-                </p>
+              </div>
+
+              {/* Xarajat */}
+              <div className="p-4 sm:p-5 rounded-2xl bg-slate-50/70 border border-slate-200 flex flex-col justify-between">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-slate-100 text-slate-600 border border-slate-200 flex items-center justify-center">
+                      <ArrowDownRight className="w-4 h-4" />
+                    </div>
+                    <span className="text-xs font-semibold text-slate-700">Logistika xarajati</span>
+                  </div>
+                  <span className="text-[10px] font-semibold text-slate-700 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md">
+                    Xarajat
+                  </span>
+                </div>
+                <div className="mt-4">
+                  <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                    {displayStats.logistikaXarajati} <span className="text-xs font-semibold text-slate-500">so'm</span>
+                  </div>
+                  <p className="text-xs font-medium text-slate-600 mt-1.5">Kunlik yoqilg'i va transport xarajatlari</p>
+                </div>
+              </div>
+
+              {/* Sof balans */}
+              <div className="p-4 sm:p-5 rounded-2xl bg-blue-50/30 border border-blue-200/80 flex flex-col justify-between">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-700 border border-blue-200 flex items-center justify-center">
+                      {isNetProfitNegative ? (
+                        <TrendingDown className="w-4 h-4" />
+                      ) : (
+                        <TrendingUp className="w-4 h-4" />
+                      )}
+                    </div>
+                    <span className="text-xs font-semibold text-slate-800">
+                      Sof balans
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-semibold text-blue-700 bg-white border border-blue-200 px-2 py-0.5 rounded-md">
+                    Qoldiq
+                  </span>
+                </div>
+                <div className="mt-4">
+                  <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                    {displayStats.sofFoyda} <span className="text-xs font-semibold text-slate-500">so'm</span>
+                  </div>
+                  <p className="text-xs font-medium text-slate-600 mt-1.5">
+                    Barcha xarajatlar va tushumlar yakuniy qoldig'i
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Footer bar */}
           <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-slate-500">
