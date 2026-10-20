@@ -142,7 +142,7 @@ function LoginPage() {
                 id="phone"
                 type="tel"
                 autoComplete="off"
-                placeholder="+998901234567"
+                placeholder="+998 90 000 00 00"
                 {...register("phone")}
                 className="h-10 rounded-xl bg-white border-slate-200 shadow-xs focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 text-sm font-mono"
               />
