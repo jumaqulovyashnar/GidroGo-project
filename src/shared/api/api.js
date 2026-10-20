@@ -25,6 +25,10 @@ export const api = axios.create({
   },
 })
 
+export const isAuthUrl = (url = "") => /\/?auth\/(login|register|refresh|logout)/.test(url)
+export const getAccessToken = () => useUserStore.getState()?.userToken?.accessToken || null
+export const getRefreshToken = () => useUserStore.getState()?.userToken?.refreshToken || null
+
 let isRefreshing = false
 let failedQueue = []
 
@@ -39,20 +43,16 @@ const processQueue = (error, token = null) => {
   failedQueue = []
 }
 
-const handleForceLogout = () => {
-  try {
-    delete api.defaults.headers.common["Authorization"]
-    delete api.defaults.headers.common.Authorization
-  } catch {}
-
+export const handleForceLogout = () => {
+  delete api.defaults.headers.common["Authorization"]
   try {
     useUserStore.getState()?.actions?.clearUserInfoAndToken()
   } catch {
     localStorage.removeItem("gidrogo-user-storage")
   }
 
-  const currentPath = window.location.pathname
-  if (currentPath !== "/login" && !currentPath.startsWith("/auth/")) {
+  const currentPath = typeof window !== "undefined" ? window.location.pathname : ""
+  if (currentPath !== "/login" && !isAuthUrl(currentPath)) {
     window.location.href = "/login"
   }
 }
@@ -65,7 +65,7 @@ api.interceptors.request.use(
       delete config.headers["Content-Type"]
     }
 
-    // Query parametrlardan undefined va null larni tozalash (ortiqcha query parametrlarni yubormaslik)
+    // Query parametrlardan undefined, null va bo'sh stringlarni tozalash
     if (config.params && typeof config.params === "object" && !(config.params instanceof URLSearchParams)) {
       const cleanParams = {}
       for (const [key, val] of Object.entries(config.params)) {
@@ -76,48 +76,9 @@ api.interceptors.request.use(
       config.params = cleanParams
     }
 
-    const isAuthRoute =
-      config.url?.includes("/auth/login") ||
-      config.url?.includes("auth/login") ||
-      config.url?.includes("/auth/register") ||
-      config.url?.includes("auth/register") ||
-      config.url?.includes("/auth/refresh") ||
-      config.url?.includes("auth/refresh") ||
-      config.url?.includes("/auth/logout") ||
-      config.url?.includes("auth/logout")
-
-    try {
-      const state = useUserStore.getState()
-      const token = state?.userToken?.accessToken
-
-      if (typeof token === "string" && token.includes("mock-jwt-token")) {
-        handleForceLogout()
-      } else if (token && !isAuthRoute) {
-        config.headers.Authorization = `Bearer ${token}`
-      } else if (!token && !isAuthRoute) {
-        const rawStorage = localStorage.getItem("gidrogo-user-storage")
-        if (rawStorage) {
-          try {
-            const parsed = JSON.parse(rawStorage)
-            const fallbackToken = parsed?.state?.userToken?.accessToken
-            if (fallbackToken) {
-              config.headers.Authorization = `Bearer ${fallbackToken}`
-            }
-          } catch {}
-        }
-      }
-    } catch {
-      // Fallback: localStorage
-      const rawStorage = localStorage.getItem("gidrogo-user-storage")
-      if (rawStorage) {
-        try {
-          const parsed = JSON.parse(rawStorage)
-          const token = parsed?.state?.userToken?.accessToken
-          if (token && !isAuthRoute) {
-            config.headers.Authorization = `Bearer ${token}`
-          }
-        } catch {}
-      }
+    const token = getAccessToken()
+    if (token && !isAuthUrl(config.url)) {
+      config.headers.Authorization = `Bearer ${token}`
     }
 
     return config
@@ -135,11 +96,7 @@ api.interceptors.response.use(
       return Promise.reject(error)
     }
 
-    const isAuthRoute =
-      originalRequest.url?.includes("/auth/login") ||
-      originalRequest.url?.includes("/auth/register") ||
-      originalRequest.url?.includes("/auth/refresh") ||
-      originalRequest.url?.includes("/auth/logout")
+    const isAuthRoute = isAuthUrl(originalRequest.url)
 
     // Faqat 401, qayta urinilmagan va auth endpoint bo'lmagan so'rovlar uchun ishlaydi
     if (error.response.status === 401 && !originalRequest._retry && !isAuthRoute) {
@@ -158,19 +115,7 @@ api.interceptors.response.use(
       }
 
       isRefreshing = true
-
-      const currentStore = useUserStore.getState()
-      let refreshToken = currentStore?.userToken?.refreshToken
-
-      if (!refreshToken) {
-        try {
-          const rawStorage = localStorage.getItem("gidrogo-user-storage")
-          if (rawStorage) {
-            const parsed = JSON.parse(rawStorage)
-            refreshToken = parsed?.state?.userToken?.refreshToken
-          }
-        } catch {}
-      }
+      const refreshToken = getRefreshToken()
 
       // Agar refresh token mavjud bo'lmasa, majburiy logout
       if (!refreshToken) {
@@ -196,7 +141,8 @@ api.interceptors.response.use(
           throw new Error("Yangi access token olinmadi")
         }
 
-        // 1. Zustand store va localStorage ni yangilash
+        // 1. Zustand store ni yangilash
+        const currentStore = useUserStore.getState()
         const currentUser = currentStore?.userInfo || null
         if (currentStore?.actions?.setUserInfoAndToken) {
           currentStore.actions.setUserInfoAndToken(currentUser, {
@@ -206,7 +152,7 @@ api.interceptors.response.use(
         }
 
         // 2. Default Authorization headerni yangilash
-        api.defaults.headers.common.Authorization = `Bearer ${newAccessToken}`
+        api.defaults.headers.common["Authorization"] = `Bearer ${newAccessToken}`
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
 
         // 3. Navbatdagi barcha kutib turgan so'rovlarni o'tkazish

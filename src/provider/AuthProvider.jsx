@@ -5,36 +5,18 @@ import { authService } from "@/services"
 import { api } from "@/shared/api"
 import { cleanPhoneForBackend } from "@/shared/lib"
 
+import {
+  decodeJwt,
+  getUserIdFromToken,
+  getAuthTokens,
+  createUser,
+  ROLES,
+  getHomePath,
+} from "@/entities/user"
+
+export { decodeJwt, getUserIdFromToken, getAuthTokens, createUser, ROLES, getHomePath }
+
 const AuthContext = createContext(null)
-
-export const decodeJwt = (token) => {
-  try {
-    const payload = token?.split(".")?.[1]
-
-    if (!payload) {
-      return null
-    }
-
-    const base64 = payload
-      .replace(/-/g, "+")
-      .replace(/_/g, "/")
-
-    return JSON.parse(
-      decodeURIComponent(
-        atob(base64)
-          .split("")
-          .map(
-            (char) =>
-              "%" +
-              ("00" + char.charCodeAt(0).toString(16)).slice(-2)
-          )
-          .join("")
-      )
-    )
-  } catch {
-    return null
-  }
-}
 
 export const getResponseData = (response) => {
   return response?.data ?? response
@@ -54,156 +36,6 @@ export const getErrorMessage = (error) => {
     error?.message ||
     null
   )
-}
-
-export const getUserIdFromToken = (token) => {
-  const decodedToken = decodeJwt(token)
-
-  return (
-    decodedToken?.userId ||
-    decodedToken?.sub ||
-    null
-  )
-}
-
-export const getAuthTokens = (data) => {
-  const root = data?.data || data
-  return {
-    accessToken:
-      root?.accessToken ||
-      root?.access?.accessToken ||
-      data?.accessToken ||
-      data?.access?.accessToken ||
-      data?.token ||
-      data?.jwt ||
-      null,
-
-    refreshToken:
-      root?.refreshToken ||
-      root?.access?.refreshToken ||
-      data?.refreshToken ||
-      data?.access?.refreshToken ||
-      null,
-  }
-}
-
-export const createUser = (userData, token) => {
-  const root = userData?.data || userData
-  const decodedToken = decodeJwt(token)
-
-  const rawRole =
-    root?.role ||
-    root?.roleName ||
-    root?.rawRole ||
-    decodedToken?.role ||
-    decodedToken?.roleName ||
-    decodedToken?.roles?.[0] ||
-    null
-
-  const userId =
-    root?.userId ||
-    root?.id ||
-    decodedToken?.userId ||
-    decodedToken?.sub ||
-    "usr-1"
-
-  const roleMap = {
-    ROLE_SUPER_ADMIN: "SUPER_ADMIN",
-    SUPER_ADMIN: "SUPER_ADMIN",
-
-    ROLE_MANAGER: "MANAGER",
-    MANAGER: "MANAGER",
-
-    ROLE_BOSS: "BOSS",
-    BOSS: "BOSS",
-    ROLE_FERMA_RAHBARI: "BOSS",
-    FERMA_RAHBARI: "BOSS",
-
-    ROLE_COURIER: "COURIER",
-    COURIER: "COURIER",
-    ROLE_CLIENT: "CLIENT",
-    CLIENT: "CLIENT",
-  }
-
-  const role = (rawRole && roleMap[rawRole]) || rawRole || null
-
-  let roleLabel = userData?.roleLabel
-  if (role === "BOSS") {
-    roleLabel = "Ferma rahbari"
-  } else if (role === "COURIER") {
-    roleLabel = "Kuryer"
-  } else if (!roleLabel) {
-    if (role === "SUPER_ADMIN") roleLabel = "Super Admin"
-    else if (role === "MANAGER") roleLabel = "Menejer"
-    else roleLabel = "Viloyat Admin"
-  }
-
-  const firstName = userData?.firstName || ""
-  const lastName = userData?.lastName || ""
-
-  let fullName =
-    userData?.name ||
-    [firstName, lastName]
-      .filter(Boolean)
-      .join(" ")
-      .trim() ||
-    userData?.fullname ||
-    roleLabel
-
-  if (fullName === "Ferma boshlig'i" || fullName === "Ferma boshlig‘i") {
-    fullName = "Ferma rahbari"
-  }
-
-  return {
-    id: String(userId),
-
-    username:
-      userData?.phone ||
-      userData?.username ||
-      decodedToken?.sub ||
-      "",
-
-    phone: userData?.phone,
-
-    name: fullName,
-
-    firstName:
-      firstName || undefined,
-
-    lastName:
-      lastName || undefined,
-
-    role,
-
-    rawRole,
-
-    roleLabel,
-
-    email:
-      userData?.email || `${userData?.phone || "admin"}@gidrogo.uz`,
-
-    region:
-      userData?.regionName ||
-      userData?.region ||
-      undefined,
-
-    regionId:
-      userData?.regionId,
-
-    attachmentPath:
-      userData?.attachmentPath ||
-      userData?.avatar,
-
-    avatarUrl:
-      userData?.avatarUrl ||
-      userData?.avatar ||
-      userData?.photoUrl ||
-      userData?.attachmentPath ||
-      "",
-
-    permissions:
-      userData?.permissions || [],
-  }
 }
 
 export const AuthProvider = ({ children }) => {
@@ -246,6 +78,13 @@ export const AuthProvider = ({ children }) => {
         }
 
         const userObj = createUser(data?.user || data, accessToken)
+
+        if (!userObj || !userObj.id) {
+          return {
+            success: false,
+            error: "Foydalanuvchi ma'lumotlari aniqlanmadi.",
+          }
+        }
 
         useUserStore.getState().actions.setUserInfoAndToken(userObj, {
           accessToken,

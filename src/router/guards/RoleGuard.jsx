@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from "react-router-dom"
-import { useAuth } from "@/provider/AuthProvider"
+import { useAuth, getHomePath } from "@/provider/AuthProvider"
 
 export const RoleGuard = ({ allowedRoles = [] }) => {
   const { user, isInitializing } = useAuth()
@@ -8,18 +8,12 @@ export const RoleGuard = ({ allowedRoles = [] }) => {
     return null
   }
   
-  // Agar rol ruxsat etilganlar ro'yxatida bo'lmasa:
-
+  // Agar rol ruxsat etilganlar ro'yxatida bo'lmasa, roliga mos sahifaga yo'naltirish
   if (allowedRoles.length > 0 && !allowedRoles.includes(user?.role)) {
-
-    // Roliga mos asosiy sahifaga yo'naltirish
-    if (user?.role === "SUPER_ADMIN") return <Navigate to="/super-admin" replace />
-    if (user?.role === "BOSS") return <Navigate to="/boss" replace />
-    if (user?.role === "MANAGER") return <Navigate to="/manager" replace />
-    return <Navigate to="/login" replace />
+    return <Navigate to={getHomePath(user?.role)} replace />
   }
 
   return <Outlet />
 }
 
-export default RoleGuard;
+export default RoleGuard

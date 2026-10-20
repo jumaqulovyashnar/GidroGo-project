@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from "react-router-dom"
-import { useAuth } from "@/provider/AuthProvider"
+import { useAuth, getHomePath } from "@/provider/AuthProvider"
 
 /**
  * GuestGuard - Faqat autentifikatsiyadan o'tmagan (mehmon) foydalanuvchilar uchun.
@@ -13,16 +13,7 @@ export const GuestGuard = () => {
   }
 
   if (isAuthenticated && user?.role) {
-    const role = user.role.toUpperCase()
-    if (role === "SUPER_ADMIN" || role === "ROLE_SUPER_ADMIN") {
-      return <Navigate to="/super-admin" replace />
-    }
-    if (role === "BOSS" || role === "ROLE_BOSS" || role === "FERMA_RAHBARI") {
-      return <Navigate to="/boss" replace />
-    }
-    if (role === "MANAGER" || role === "ROLE_MANAGER") {
-      return <Navigate to="/manager" replace />
-    }
+    return <Navigate to={getHomePath(user.role)} replace />
   }
 
   return <Outlet />

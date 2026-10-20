@@ -7,7 +7,6 @@ import { useLogin } from "@/shared"
 import { Button, Field, Input, Label } from "@/shared/ui"
 import { cleanPhoneForBackend } from "@/shared/lib"
 import heroImg from "@/shared/assets/login-hero.png"
-
 const loginSchema = z
   .object({
     name: z.string().optional(),
@@ -89,7 +88,7 @@ function LoginPage() {
           <img
             src={heroImg}
             alt="GidroGo"
-            className="w-full max-h-[500px] sm:max-h-[580px] lg:max-h-[640px] object-contain transition-transform duration-300"
+            className="w-full max-h-125 sm:max-h-145 lg:max-h-158 object-contain transition-transform duration-300"
           />
         </div>
       </div>
