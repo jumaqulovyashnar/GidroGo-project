@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { useNavigate } from "react-router-dom"
 import { Banknote, Package, CheckCircle2, Truck, TrendingUp, ExternalLink, ChevronRight, ChevronDown, Calendar, Filter, Copy, AlertCircle } from "lucide-react"
 import { Select } from "@mantine/core"
@@ -11,6 +11,7 @@ import {
   useManagerStockWarehouse,
   useManagerFinanceSummary,
 } from "@/shared/hooks"
+import { formatOrderStatusUz, getOrderStatusBadgeClass } from "@/shared/lib"
 
 // Props-driven reusable Select filter component using Mantine UI
 export function SelectFilter({
@@ -91,7 +92,25 @@ export default function ManagerDashboardPage() {
 
   const dbData = dashboardRes?.data || dashboardRes || {}
   const rawOrders = todayOrdersRes?.data?.orders || todayOrdersRes?.data || (Array.isArray(todayOrdersRes) ? todayOrdersRes : null)
-  const ordersList = Array.isArray(rawOrders) ? rawOrders : []
+  const ordersList = useMemo(() => {
+    if (!Array.isArray(rawOrders)) return []
+    return rawOrders.map((o) => ({
+      ...o,
+      id: o.id || o._id,
+      customer: o.customer || o.clientName || o.client?.name || o.client?.fullName || o.customerName || "Mijoz",
+      phone: o.phone || o.clientPhone || o.client?.phone || "",
+      address: o.address || o.deliveryAddress || "Manzil ko'rsatilmagan",
+      sector: o.sector || o.region || o.district || "",
+      product: o.product || o.productName || o.items?.[0]?.productName || "Suv 18.9L",
+      qty: Number(o.qty || o.quantity || o.bottlesCount || 1),
+      courier: o.courier || o.courierName || o.courier?.fullName || o.courier?.name || null,
+      vehicle: o.vehicle || o.courier?.vehicle || "",
+      status: o.status || "CREATED",
+      statusText: formatOrderStatusUz(o.status || o.statusText),
+      total: Number(o.total ?? o.totalPrice ?? o.totalAmount ?? o.price ?? o.amount ?? 0),
+      createdAt: o.createdAt || o.date || o.created_at || "—",
+    }))
+  }, [rawOrders])
 
   const rawCouriers = couriersRes?.data || (Array.isArray(couriersRes) ? couriersRes : null)
   const couriersList = Array.isArray(rawCouriers) ? rawCouriers : []
@@ -106,7 +125,10 @@ export default function ManagerDashboardPage() {
   const displayStats = {
     tushum: formatNum(dbData.todayRevenue ?? dbData.totalRevenue ?? financeData.revenue),
     buyurtmalar: dbData.todayOrders ?? dbData.totalOrders ?? ordersList.length,
-    yetkazilgan: dbData.deliveredOrders ?? ordersList.filter((o) => o.status === "completed" || o.status === "DELIVERED").length,
+    yetkazilgan: dbData.deliveredOrders ?? ordersList.filter((o) => {
+      const s = String(o.status).toUpperCase()
+      return s === "COMPLETED" || s === "DELIVERED"
+    }).length,
     foiz: dbData.deliveredRate ? `${dbData.deliveredRate}%` : "0%",
     faolKuryer: dbData.activeCouriers ?? couriersList.filter((c) => c.status === "on_way" || c.status === "active").length,
     jamiKuryer: couriersList.length,
@@ -121,18 +143,31 @@ export default function ManagerDashboardPage() {
 
   const statusOptions = [
     { value: "all", label: `Holat: Barchasi (${ordersList.length})` },
-    { value: "new", label: `Yangi (${ordersList.filter((o) => o.status === "new").length})` },
-    { value: "processing", label: `Jarayonda (${ordersList.filter((o) => o.status === "processing").length})` },
-    { value: "delivering", label: `Yetkazilmoqda (${ordersList.filter((o) => o.status === "delivering").length})` },
-    { value: "completed", label: `Yetkazildi (${ordersList.filter((o) => o.status === "completed").length})` },
+    { value: "new", label: `Yangi (${ordersList.filter((o) => {
+      const s = String(o.status).toUpperCase()
+      return s === "NEW" || s === "CREATED"
+    }).length})` },
+    { value: "processing", label: `Jarayonda (${ordersList.filter((o) => {
+      const s = String(o.status).toUpperCase()
+      return s === "PROCESSING" || s === "PREPARING"
+    }).length})` },
+    { value: "delivering", label: `Yetkazilmoqda (${ordersList.filter((o) => {
+      const s = String(o.status).toUpperCase()
+      return s === "DELIVERING" || s === "ON_WAY"
+    }).length})` },
+    { value: "completed", label: `Yetkazildi (${ordersList.filter((o) => {
+      const s = String(o.status).toUpperCase()
+      return s === "COMPLETED" || s === "DELIVERED"
+    }).length})` },
   ]
 
   // Filter orders
   const filteredOrders = ordersList.filter((order) => {
-    if (orderTab === "new") return order.status === "new"
-    if (orderTab === "processing") return order.status === "processing"
-    if (orderTab === "delivering") return order.status === "delivering"
-    if (orderTab === "completed") return order.status === "completed"
+    const s = String(order.status).toUpperCase()
+    if (orderTab === "new") return s === "NEW" || s === "CREATED"
+    if (orderTab === "processing") return s === "PROCESSING" || s === "PREPARING"
+    if (orderTab === "delivering") return s === "DELIVERING" || s === "ON_WAY"
+    if (orderTab === "completed") return s === "COMPLETED" || s === "DELIVERED"
     return true
   })
 
@@ -340,20 +375,22 @@ export default function ManagerDashboardPage() {
                   >
                     <td className="py-4 px-4">
                       <div className="font-semibold text-slate-900 group-hover:text-blue-600 transition-colors">{order.customer}</div>
-                      <div className="text-[11px] text-slate-500 font-mono flex items-center gap-1 mt-0.5">
-                        <span>{order.phone}</span>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleCopyPhone(order.phone)
-                          }}
-                          className="text-slate-400 hover:text-blue-600 p-0.5"
-                          title="Raqamdan nusxa olish"
-                        >
-                          <Copy className="w-3 h-3" />
-                        </button>
-                      </div>
+                      {order.phone ? (
+                        <div className="text-[11px] text-slate-500 font-mono flex items-center gap-1 mt-0.5">
+                          <span>{order.phone}</span>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleCopyPhone(order.phone)
+                            }}
+                            className="text-slate-400 hover:text-blue-600 p-0.5"
+                            title="Raqamdan nusxa olish"
+                          >
+                            <Copy className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ) : null}
                     </td>
                     <td className="py-4 px-4 max-w-45">
                       <div className="truncate text-slate-800 font-medium">{order.address}</div>
@@ -377,15 +414,9 @@ export default function ManagerDashboardPage() {
                     </td>
                     <td className="py-4 px-4">
                       <span
-                        className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                          order.status === "completed"
-                            ? "bg-blue-50 text-blue-700 border border-blue-200"
-                            : order.status === "delivering"
-                            ? "bg-blue-100/80 text-blue-800 border border-blue-200"
-                            : order.status === "processing"
-                            ? "bg-slate-100 text-slate-700 border border-slate-200"
-                            : "bg-slate-50 text-slate-600 border border-slate-200"
-                        }`}
+                        className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold ${getOrderStatusBadgeClass(
+                          order.status
+                        )}`}
                       >
                         {order.statusText}
                       </span>

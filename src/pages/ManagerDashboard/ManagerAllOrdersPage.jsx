@@ -5,7 +5,7 @@ import { Select } from "@mantine/core"
 import { TablePagination, Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbPage, BreadcrumbSeparator } from "@/shared/ui"
 import { toast } from "sonner"
 import { useManagerAllOrders } from "@/shared/hooks"
-import { exportToCsv } from "@/shared/lib"
+import { exportToCsv, formatOrderStatusUz, getOrderStatusBadgeClass } from "@/shared/lib"
 
 const PAYMENT_OPTIONS = [
   { value: "all", label: "To'lov: Barchasi" },
@@ -47,22 +47,25 @@ export default function ManagerAllOrdersPage() {
   const rawOrders = allOrdersRes?.data?.orders || allOrdersRes?.data || (Array.isArray(allOrdersRes) ? allOrdersRes : null)
   const orders = useMemo(() => {
     if (!Array.isArray(rawOrders)) return []
-    return rawOrders.map((o) => ({
-      ...o,
-      id: o.id || o._id,
-      customer: o.customer || o.clientName || o.client?.name || o.client?.fullName || "Mijoz",
-      phone: o.phone || o.clientPhone || o.client?.phone || "—",
-      address: o.address || o.deliveryAddress || "Manzil ko'rsatilmagan",
-      sector: o.sector || o.region || o.district || "",
-      product: o.product || o.productName || o.items?.[0]?.productName || "Suv 18.9L",
-      qty: Number(o.qty || o.quantity || o.bottlesCount || 1),
-      courier: o.courier || o.courierName || o.courier?.fullName || o.courier?.name || null,
-      vehicle: o.vehicle || o.courier?.vehicle || "",
-      status: o.status || "CREATED",
-      statusText: o.statusText || o.status || "Yangi",
-      total: Number(o.total ?? o.totalPrice ?? o.totalAmount ?? o.price ?? o.amount ?? 0),
-      createdAt: o.createdAt || o.date || o.created_at || "—",
-    }))
+    return rawOrders.map((o) => {
+      const status = o.status || "CREATED"
+      return {
+        ...o,
+        id: o.id || o._id,
+        customer: o.customer || o.clientName || o.client?.name || o.client?.fullName || "Mijoz",
+        phone: o.phone || o.clientPhone || o.client?.phone || "—",
+        address: o.address || o.deliveryAddress || "Manzil ko'rsatilmagan",
+        sector: o.sector || o.region || o.district || "",
+        product: o.product || o.productName || o.items?.[0]?.productName || "Suv 18.9L",
+        qty: Number(o.qty || o.quantity || o.bottlesCount || 1),
+        courier: o.courier || o.courierName || o.courier?.fullName || o.courier?.name || null,
+        vehicle: o.vehicle || o.courier?.vehicle || "",
+        status,
+        statusText: formatOrderStatusUz(o.statusText || status),
+        total: Number(o.total ?? o.totalPrice ?? o.totalAmount ?? o.price ?? o.amount ?? 0),
+        createdAt: o.createdAt || o.date || o.created_at || "—",
+      }
+    })
   }, [rawOrders])
 
   const statusOptions = [
@@ -70,7 +73,7 @@ export default function ManagerAllOrdersPage() {
     { value: "new", label: `Yangi (${orders.filter((o) => o.status === "new" || o.status === "CREATED").length})` },
     { value: "processing", label: `Jarayonda (${orders.filter((o) => o.status === "processing" || o.status === "PREPARING").length})` },
     { value: "delivering", label: `Yetkazilmoqda (${orders.filter((o) => o.status === "delivering" || o.status === "DELIVERING").length})` },
-    { value: "completed", label: `Yetkazildi (${orders.filter((o) => o.status === "completed" || o.status === "DELIVERED").length})` },
+    { value: "completed", label: `Yetkazildi (${orders.filter((o) => o.status === "completed" || o.status === "DELIVERED" || o.status === "COMPLETED").length})` },
   ]
 
   // Filter orders
@@ -92,7 +95,7 @@ export default function ManagerAllOrdersPage() {
     if (activeTab === "new") return order.status === "new" || order.status === "CREATED"
     if (activeTab === "processing") return order.status === "processing" || order.status === "PREPARING"
     if (activeTab === "delivering") return order.status === "delivering" || order.status === "DELIVERING"
-    if (activeTab === "completed") return order.status === "completed" || order.status === "DELIVERED"
+    if (activeTab === "completed") return order.status === "completed" || order.status === "DELIVERED" || order.status === "COMPLETED"
 
     if (paymentFilter !== "all") {
       if (paymentFilter === "cash" && !payment.includes("Naqd") && !payment.includes("CASH")) return false
@@ -481,20 +484,22 @@ export default function ManagerAllOrdersPage() {
                         <div className="font-semibold text-slate-900 group-hover:text-blue-600 transition-colors">
                           {order.customer}
                         </div>
-                        <div className="text-xs text-slate-500 font-mono flex items-center gap-1.5 mt-0.5">
-                          <span>{order.phone}</span>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleCopyPhone(order.phone)
-                            }}
-                            className="text-slate-400 hover:text-blue-600 p-0.5 rounded transition-colors"
-                            title="Telefon raqamini nusxalash"
-                          >
-                            <Copy className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
+                        {order.phone && order.phone !== "—" ? (
+                          <div className="text-xs text-slate-500 font-mono flex items-center gap-1.5 mt-0.5">
+                            <span>{order.phone}</span>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleCopyPhone(order.phone)
+                              }}
+                              className="text-slate-400 hover:text-blue-600 p-0.5 rounded transition-colors"
+                              title="Telefon raqamini nusxalash"
+                            >
+                              <Copy className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ) : null}
                       </td>
                       <td className="py-4 px-4 max-w-50">
                         <div className="truncate text-slate-800 font-medium">{order.address}</div>
@@ -524,15 +529,9 @@ export default function ManagerAllOrdersPage() {
                       </td>
                       <td className="py-4 px-4">
                         <span
-                          className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${
-                            order.status === "completed"
-                              ? "bg-blue-50 text-blue-700 border border-blue-200"
-                              : order.status === "delivering"
-                              ? "bg-blue-100/80 text-blue-800 border border-blue-200"
-                              : order.status === "processing"
-                              ? "bg-slate-100 text-slate-700 border border-slate-200"
-                              : "bg-slate-50 text-slate-600 border border-slate-200"
-                          }`}
+                          className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${getOrderStatusBadgeClass(
+                            order.status
+                          )}`}
                         >
                           {order.statusText}
                         </span>

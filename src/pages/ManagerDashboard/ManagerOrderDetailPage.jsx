@@ -1,11 +1,12 @@
 import { useState, lazy, Suspense } from "react"
 import { useParams, useNavigate, Link } from "react-router-dom"
-import { ArrowLeft, Copy, MapPin, Package, Clock, CheckCircle2, CreditCard, UserCheck, AlertCircle, Truck, Home, Droplet } from "lucide-react"
+import { Copy, MapPin, Package, Clock, CheckCircle2, CreditCard, UserCheck, AlertCircle, Truck, Home, Droplet } from "lucide-react"
 import { Modal as MantineModal } from "@mantine/core"
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbPage, BreadcrumbSeparator, Spinner } from "@/shared/ui"
 import { toast } from "sonner"
 import { AdjustBottleBalanceModal } from "@/components"
 import { useManagerOrderDetail, useManagerCouriers, useManagerReassignOrder } from "@/shared/hooks"
+import { formatOrderStatusUz, getOrderStatusBadgeClass } from "@/shared/lib"
 
 const GoogleMap = lazy(() => import("@/widgets/map").then((mod) => ({ default: mod.GoogleMap })))
 
@@ -102,7 +103,7 @@ export default function ManagerOrderDetailPage() {
     phone: apiOrder.phone || apiOrder.clientPhone || apiOrder.client?.phone || "—",
     address: apiOrder.address || apiOrder.deliveryAddress || "Manzil ko'rsatilmagan",
     status: apiOrder.status || "CREATED",
-    statusText: apiOrder.statusText || apiOrder.status || "Yangi",
+    statusText: formatOrderStatusUz(apiOrder.statusText || apiOrder.status || "Yangi"),
     total: Number(apiOrder.total || apiOrder.totalPrice || apiOrder.amount || 0),
     qty: Number(apiOrder.qty || apiOrder.quantity || apiOrder.bottlesCount || 1),
     product: apiOrder.product || apiOrder.items?.[0]?.productName || "18.9L Kapsula",
@@ -171,34 +172,22 @@ export default function ManagerOrderDetailPage() {
 
       {/* Top Navigation & Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-1">
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-colors cursor-pointer"
-            title="Orqaga qaytish"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </button>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold text-slate-900">{currentOrder.id}</h1>
-              <span
-                className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${
-                  currentOrder.status === "completed"
-                    ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                    : currentOrder.status === "delivering"
-                    ? "bg-blue-50 text-blue-700 border border-blue-200"
-                    : "bg-amber-50 text-amber-800 border border-amber-200"
-                }`}
-              >
-                {currentOrder.statusText}
-              </span>
-            </div>
-            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-              Buyurtma tafsilotlari va yetkazish marshruti monitoringi
-            </p>
+        <div>
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 leading-tight">
+              Buyurtma #{currentOrder.id}
+            </h1>
+            <span
+              className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${getOrderStatusBadgeClass(
+                currentOrder.status
+              )}`}
+            >
+              {formatOrderStatusUz(currentOrder.statusText || currentOrder.status)}
+            </span>
           </div>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1 leading-normal">
+            Buyurtma tafsilotlari va yetkazish marshruti monitoringi
+          </p>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">

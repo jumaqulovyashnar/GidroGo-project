@@ -91,3 +91,65 @@ export function formatDateTime(dateInput, fallback = "—") {
   if (!date) return fallback
   return `${formatDate(date, fallback)}, ${formatTime(date, false, fallback)}`
 }
+
+/**
+ * Translates backend order statuses into clear Uzbek labels
+ * @param {string|null|undefined} status
+ * @returns {string}
+ */
+export function formatOrderStatusUz(status = "") {
+  if (!status) return "Yangi"
+  const upper = String(status).toUpperCase()
+  switch (upper) {
+    case "COMPLETED":
+    case "DELIVERED":
+    case "YETKAZILDI":
+      return "Yetkazildi"
+    case "DELIVERING":
+    case "ON_WAY":
+    case "ON_THE_WAY":
+    case "YETKAZILMOQDA":
+      return "Yetkazilmoqda"
+    case "PROCESSING":
+    case "PREPARING":
+    case "IN_PROGRESS":
+    case "JARAYONDA":
+    case "TAYYORLANMOQDA":
+      return "Tayyorlanmoqda"
+    case "NEW":
+    case "CREATED":
+    case "PENDING":
+    case "YANGI":
+      return "Yangi"
+    case "CANCELLED":
+    case "CANCELED":
+    case "BEKOR":
+    case "BEKOR_QILINDI":
+      return "Bekor qilingan"
+    default:
+      return status
+  }
+}
+
+/**
+ * Returns Tailwind CSS badge classes for an order status
+ * @param {string|null|undefined} status
+ * @returns {string}
+ */
+export function getOrderStatusBadgeClass(status = "") {
+  const upper = String(status).toUpperCase()
+  if (upper === "COMPLETED" || upper === "DELIVERED" || upper === "YETKAZILDI") {
+    return "bg-emerald-50 text-emerald-700 border border-emerald-200"
+  }
+  if (upper === "DELIVERING" || upper === "ON_WAY" || upper === "ON_THE_WAY" || upper === "YETKAZILMOQDA") {
+    return "bg-blue-50 text-blue-700 border border-blue-200"
+  }
+  if (upper === "PROCESSING" || upper === "PREPARING" || upper === "IN_PROGRESS" || upper === "TAYYORLANMOQDA" || upper === "JARAYONDA") {
+    return "bg-amber-50 text-amber-800 border border-amber-200"
+  }
+  if (upper === "CANCELLED" || upper === "CANCELED" || upper === "BEKOR_QILINDI") {
+    return "bg-rose-50 text-rose-700 border border-rose-200"
+  }
+  return "bg-slate-50 text-slate-700 border border-slate-200"
+}
+
