@@ -73,9 +73,6 @@ function LoginPage() {
     // Agar foydalanuvchi "admin" kabi username kiritgan bo'lsa, uni login sifatida ustuvor qilamiz
     if (rawName && !isPhonePattern(rawName)) {
       payload.login = rawName
-      if (cleanPhone) {
-        payload.phone = cleanPhone
-      }
     } else if (cleanPhone) {
       payload.login = cleanPhone
       payload.phone = cleanPhone
