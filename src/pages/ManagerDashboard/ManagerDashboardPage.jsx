@@ -139,7 +139,7 @@ export default function ManagerDashboardPage() {
         status === "on_way"
           ? "Yo'lda"
           : status === "loading"
-          ? "Yukda"
+          ? "Band"
           : status === "offline"
           ? "Oflayn"
           : "Bo'sh"
@@ -164,11 +164,35 @@ export default function ManagerDashboardPage() {
 
   const formatNum = (val) => (val !== undefined && val !== null ? Number(val).toLocaleString("ru-RU") : "0")
 
-  const rawNetProfit = Number(financeData.netProfit ?? (Number(dbData.todayRevenue || 0) - Number(dbData.todayExpenses || 0)))
+  const totalIncome = Number(
+    financeData.totalIncome ??
+    financeData.totalRevenue ??
+    financeData.income ??
+    financeData.revenue ??
+    dbData.todayRevenue ??
+    dbData.totalRevenue ??
+    0
+  )
+
+  const totalExpense = Number(
+    financeData.totalExpense ??
+    financeData.totalExpenses ??
+    financeData.expense ??
+    financeData.expenses ??
+    dbData.todayExpenses ??
+    dbData.totalExpenses ??
+    0
+  )
+
+  const rawNetProfit = Number(
+    financeData.netProfit ??
+    financeData.profit ??
+    (totalIncome - totalExpense)
+  )
   const isNetProfitNegative = rawNetProfit < 0
 
   const displayStats = {
-    tushum: formatNum(dbData.todayRevenue ?? dbData.totalRevenue ?? financeData.revenue),
+    tushum: formatNum(totalIncome),
     buyurtmalar: dbData.todayOrders ?? dbData.totalOrders ?? ordersList.length,
     yetkazilgan: dbData.deliveredOrders ?? ordersList.filter((o) => {
       const s = String(o.status).toUpperCase()
@@ -177,8 +201,8 @@ export default function ManagerDashboardPage() {
     foiz: dbData.deliveredRate ? `${dbData.deliveredRate}%` : "0%",
     faolKuryer: dbData.activeCouriers ?? couriersList.filter((c) => c.status === "on_way" || c.status === "active").length,
     jamiKuryer: couriersList.length,
-    kassaTushumi: formatNum(financeData.totalRevenue ?? dbData.todayRevenue),
-    logistikaXarajati: formatNum(financeData.totalExpenses ?? dbData.todayExpenses),
+    kassaTushumi: formatNum(totalIncome),
+    logistikaXarajati: formatNum(totalExpense),
     sofFoyda: formatNum(rawNetProfit),
   }
 
@@ -531,78 +555,84 @@ export default function ManagerDashboardPage() {
             </button>
           </div>
 
-          {/* Status KPI Cards */}
+          {/* Status KPI Cards (Minimalist white background + status dot) */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 my-5">
-            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100/80 flex items-center justify-between">
-              <div>
-                <span className="text-[11px] font-semibold text-slate-500 block">Bo'sh kuryerlar</span>
-                <span className="text-2xl font-black text-slate-800 mt-1 block">
-                  {couriersList.filter((c) => c.status === "free").length}
-                </span>
+            <div className="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs flex flex-col justify-between">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-slate-600">Bo'sh kuryerlar</span>
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
               </div>
-              <span className="w-2.5 h-2.5 rounded-full bg-slate-400" />
-            </div>
-
-            <div className="p-3.5 rounded-xl bg-blue-50/70 border border-blue-100/80 flex items-center justify-between">
-              <div>
-                <span className="text-[11px] font-semibold text-blue-700 block">Yo'lda (Yetkazmoqda)</span>
-                <span className="text-2xl font-black text-blue-700 mt-1 block">
-                  {couriersList.filter((c) => c.status === "on_way").length}
-                </span>
-              </div>
-              <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-600" />
+              <span className="text-2xl font-bold text-slate-900 mt-2 block">
+                {couriersList.filter((c) => c.status === "free").length}
               </span>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-amber-50/70 border border-amber-100/80 flex items-center justify-between">
-              <div>
-                <span className="text-[11px] font-semibold text-amber-800 block">Yukda / Band</span>
-                <span className="text-2xl font-black text-amber-800 mt-1 block">
-                  {couriersList.filter((c) => c.status === "loading").length}
+            <div className="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs flex flex-col justify-between">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-slate-600">Yo'lda</span>
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-600" />
                 </span>
               </div>
-              <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
+              <span className="text-2xl font-bold text-slate-900 mt-2 block">
+                {couriersList.filter((c) => c.status === "on_way").length}
+              </span>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100/80 flex items-center justify-between">
-              <div>
-                <span className="text-[11px] font-semibold text-slate-400 block">Oflayn</span>
-                <span className="text-2xl font-black text-slate-400 mt-1 block">
-                  {couriersList.filter((c) => c.status === "offline").length}
-                </span>
+            <div className="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs flex flex-col justify-between">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-slate-600">Band</span>
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
               </div>
-              <span className="w-2.5 h-2.5 rounded-full bg-slate-300" />
+              <span className="text-2xl font-bold text-slate-900 mt-2 block">
+                {couriersList.filter((c) => c.status === "loading").length}
+              </span>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs flex flex-col justify-between">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-slate-600">Oflayn</span>
+                <span className="w-2.5 h-2.5 rounded-full bg-slate-300" />
+              </div>
+              <span className="text-2xl font-bold text-slate-900 mt-2 block">
+                {couriersList.filter((c) => c.status === "offline").length}
+              </span>
             </div>
           </div>
 
           {/* Courier Roster Grid */}
           <div>
             <div className="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-3">
-              Biriktirilgan kuryerlar ro'yxati
+              Dastavkachilar tarkibi ({couriersList.length})
             </div>
             {couriersList.length === 0 ? (
               <div className="text-center py-8 bg-slate-50/60 rounded-xl border border-dashed border-slate-200 text-xs text-slate-400">
                 Hozircha biriktirilgan kuryerlar mavjud emas
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div
+                className={`grid gap-3 ${
+                  couriersList.length <= 2
+                    ? "grid-cols-1 sm:grid-cols-2"
+                    : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+                }`}
+              >
                 {couriersList.map((courier) => (
                   <div
                     key={courier.id}
-                    className="p-3 rounded-xl bg-slate-50/70 hover:bg-blue-50/40 border border-slate-200/80 transition-colors flex items-center justify-between gap-2"
+                    className="p-3.5 rounded-xl bg-slate-50/70 hover:bg-blue-50/40 border border-slate-200/80 transition-colors flex items-center justify-between gap-2"
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-9 h-9 rounded-full bg-blue-100 text-blue-700 font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
                         {courier.initials}
                       </div>
                       <div className="min-w-0">
-                        <div className="font-semibold text-slate-900 text-xs truncate">
+                        <div className="font-semibold text-slate-900 text-xs sm:text-sm truncate">
                           {courier.name}
                         </div>
-                        <div className="text-[11px] text-slate-500 truncate flex items-center gap-1 mt-0.5">
-                          <Car className="w-3 h-3 text-slate-400 shrink-0" />
+                        <div className="text-xs text-slate-500 truncate flex items-center gap-1 mt-0.5">
+                          <Car className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                           <span>{courier.vehicle}</span>
                         </div>
                       </div>
@@ -668,7 +698,7 @@ export default function ManagerDashboardPage() {
                 <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
                   {displayStats.kassaTushumi} <span className="text-xs font-semibold text-slate-500">so'm</span>
                 </div>
-                <p className="text-[11px] text-slate-500 mt-1">Yetkazilgan buyurtmalardan tushgan summa</p>
+                <p className="text-xs font-medium text-slate-600 mt-1.5">Yetkazilgan buyurtmalardan tushgan summa</p>
               </div>
             </div>
 
@@ -689,7 +719,7 @@ export default function ManagerDashboardPage() {
                 <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
                   {displayStats.logistikaXarajati} <span className="text-xs font-semibold text-slate-500">so'm</span>
                 </div>
-                <p className="text-[11px] text-slate-500 mt-1">Kunlik yoqilg'i va transport harajatlari</p>
+                <p className="text-xs font-medium text-slate-600 mt-1.5">Kunlik yoqilg'i va transport harajatlari</p>
               </div>
             </div>
 
@@ -743,8 +773,8 @@ export default function ManagerDashboardPage() {
                   {displayStats.sofFoyda} <span className="text-xs font-semibold opacity-70">so'm</span>
                 </div>
                 <p
-                  className={`text-[11px] mt-1 ${
-                    isNetProfitNegative ? "text-rose-600/80" : "text-emerald-700/80"
+                  className={`text-xs font-medium mt-1.5 ${
+                    isNetProfitNegative ? "text-rose-600/90" : "text-emerald-700/90"
                   }`}
                 >
                   {isNetProfitNegative
