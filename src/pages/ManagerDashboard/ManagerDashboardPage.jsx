@@ -555,47 +555,47 @@ export default function ManagerDashboardPage() {
             </button>
           </div>
 
-          {/* Status KPI Cards (Minimalist white background + status dot) */}
+          {/* Status KPI Cards (Grey & Blue unified minimalist palette) */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 my-5">
-            <div className="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs flex flex-col justify-between">
+            <div className="p-3.5 rounded-xl bg-white border border-slate-200 shadow-2xs flex flex-col justify-between">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-medium text-slate-600">Bo'sh kuryerlar</span>
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                <span className="w-2.5 h-2.5 rounded-full bg-slate-400" />
               </div>
               <span className="text-2xl font-bold text-slate-900 mt-2 block">
                 {couriersList.filter((c) => c.status === "free").length}
               </span>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs flex flex-col justify-between">
+            <div className="p-3.5 rounded-xl bg-white border border-blue-200 shadow-2xs flex flex-col justify-between">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-slate-600">Yo'lda</span>
+                <span className="text-xs font-semibold text-blue-700">Yo'lda</span>
                 <span className="relative flex h-2.5 w-2.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-600" />
                 </span>
               </div>
-              <span className="text-2xl font-bold text-slate-900 mt-2 block">
+              <span className="text-2xl font-bold text-blue-700 mt-2 block">
                 {couriersList.filter((c) => c.status === "on_way").length}
               </span>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs flex flex-col justify-between">
+            <div className="p-3.5 rounded-xl bg-white border border-slate-200 shadow-2xs flex flex-col justify-between">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-medium text-slate-600">Band</span>
-                <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
+                <span className="w-2.5 h-2.5 rounded-full bg-slate-500" />
               </div>
               <span className="text-2xl font-bold text-slate-900 mt-2 block">
                 {couriersList.filter((c) => c.status === "loading").length}
               </span>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs flex flex-col justify-between">
+            <div className="p-3.5 rounded-xl bg-white border border-slate-200 shadow-2xs flex flex-col justify-between">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-slate-600">Oflayn</span>
+                <span className="text-xs font-medium text-slate-400">Oflayn</span>
                 <span className="w-2.5 h-2.5 rounded-full bg-slate-300" />
               </div>
-              <span className="text-2xl font-bold text-slate-900 mt-2 block">
+              <span className="text-2xl font-bold text-slate-400 mt-2 block">
                 {couriersList.filter((c) => c.status === "offline").length}
               </span>
             </div>
@@ -642,11 +642,11 @@ export default function ManagerDashboardPage() {
                       className={`text-[10px] font-semibold px-2.5 py-1 rounded-full shrink-0 border ${
                         courier.status === "on_way"
                           ? "bg-blue-50 text-blue-700 border-blue-200"
+                          : courier.status === "free"
+                          ? "bg-blue-50/60 text-blue-600 border-blue-100"
                           : courier.status === "loading"
-                          ? "bg-amber-50 text-amber-800 border-amber-200"
-                          : courier.status === "offline"
-                          ? "bg-slate-100 text-slate-500 border-slate-200"
-                          : "bg-emerald-50 text-emerald-700 border-emerald-200"
+                          ? "bg-slate-100 text-slate-700 border-slate-200"
+                          : "bg-slate-50 text-slate-400 border-slate-200"
                       }`}
                     >
                       {courier.statusText}
@@ -663,7 +663,7 @@ export default function ManagerDashboardPage() {
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-slate-100">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100/80 flex items-center justify-center shrink-0 shadow-2xs">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 border border-blue-100/80 flex items-center justify-center shrink-0 shadow-2xs">
                 <Banknote className="w-5 h-5" />
               </div>
               <div>
@@ -679,16 +679,16 @@ export default function ManagerDashboardPage() {
             </span>
           </div>
 
-          {/* 3 Modern Financial Metric Cards */}
+          {/* 3 Modern Financial Metric Cards (Grey & Blue unified palette) */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 my-5">
             {/* Tushum */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-slate-50/70 border border-slate-200/80 flex flex-col justify-between">
+            <div className="p-4 sm:p-5 rounded-2xl bg-slate-50/70 border border-slate-200 flex flex-col justify-between">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
+                  <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center">
                     <ArrowUpRight className="w-4 h-4" />
                   </div>
-                  <span className="text-xs font-semibold text-slate-600">Bugungi tushum</span>
+                  <span className="text-xs font-semibold text-slate-700">Bugungi tushum</span>
                 </div>
                 <span className="text-[10px] font-semibold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-md">
                   Kassa
@@ -703,83 +703,51 @@ export default function ManagerDashboardPage() {
             </div>
 
             {/* Xarajat */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-slate-50/70 border border-slate-200/80 flex flex-col justify-between">
+            <div className="p-4 sm:p-5 rounded-2xl bg-slate-50/70 border border-slate-200 flex flex-col justify-between">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center">
+                  <div className="w-7 h-7 rounded-lg bg-slate-100 text-slate-600 border border-slate-200 flex items-center justify-center">
                     <ArrowDownRight className="w-4 h-4" />
                   </div>
-                  <span className="text-xs font-semibold text-slate-600">Logistika xarajati</span>
+                  <span className="text-xs font-semibold text-slate-700">Logistika xarajati</span>
                 </div>
-                <span className="text-[10px] font-semibold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md">
-                  Yoqilg'i & xizmat
+                <span className="text-[10px] font-semibold text-slate-700 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md">
+                  Xarajat
                 </span>
               </div>
               <div className="mt-4">
                 <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
                   {displayStats.logistikaXarajati} <span className="text-xs font-semibold text-slate-500">so'm</span>
                 </div>
-                <p className="text-xs font-medium text-slate-600 mt-1.5">Kunlik yoqilg'i va transport harajatlari</p>
+                <p className="text-xs font-medium text-slate-600 mt-1.5">Kunlik yoqilg'i va transport xarajatlari</p>
               </div>
             </div>
 
-            {/* Sof foyda / Balans */}
-            <div
-              className={`p-4 sm:p-5 rounded-2xl border flex flex-col justify-between ${
-                isNetProfitNegative
-                  ? "bg-rose-50/50 border-rose-200"
-                  : "bg-emerald-50/50 border-emerald-200"
-              }`}
-            >
+            {/* Sof balans */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-blue-50/30 border border-blue-200/80 flex flex-col justify-between">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div
-                    className={`w-7 h-7 rounded-lg flex items-center justify-center ${
-                      isNetProfitNegative
-                        ? "bg-rose-100 text-rose-600"
-                        : "bg-emerald-100 text-emerald-600"
-                    }`}
-                  >
+                  <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-700 border border-blue-200 flex items-center justify-center">
                     {isNetProfitNegative ? (
                       <TrendingDown className="w-4 h-4" />
                     ) : (
                       <TrendingUp className="w-4 h-4" />
                     )}
                   </div>
-                  <span
-                    className={`text-xs font-semibold ${
-                      isNetProfitNegative ? "text-rose-800" : "text-emerald-800"
-                    }`}
-                  >
-                    {isNetProfitNegative ? "Sof balans (Zarar)" : "Sof foyda"}
+                  <span className="text-xs font-semibold text-slate-800">
+                    Sof balans
                   </span>
                 </div>
-                <span
-                  className={`text-[10px] font-semibold px-2 py-0.5 rounded-md border ${
-                    isNetProfitNegative
-                      ? "text-rose-700 bg-white border-rose-200"
-                      : "text-emerald-700 bg-white border-emerald-200"
-                  }`}
-                >
-                  {isNetProfitNegative ? "Manfiy" : "Ijobiy"}
+                <span className="text-[10px] font-semibold text-blue-700 bg-white border border-blue-200 px-2 py-0.5 rounded-md">
+                  Qoldiq
                 </span>
               </div>
               <div className="mt-4">
-                <div
-                  className={`text-2xl sm:text-3xl font-black tracking-tight ${
-                    isNetProfitNegative ? "text-rose-600" : "text-emerald-700"
-                  }`}
-                >
-                  {displayStats.sofFoyda} <span className="text-xs font-semibold opacity-70">so'm</span>
+                <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                  {displayStats.sofFoyda} <span className="text-xs font-semibold text-slate-500">so'm</span>
                 </div>
-                <p
-                  className={`text-xs font-medium mt-1.5 ${
-                    isNetProfitNegative ? "text-rose-600/90" : "text-emerald-700/90"
-                  }`}
-                >
-                  {isNetProfitNegative
-                    ? "Logistika xarajatlari joriy tushumdan yuqori"
-                    : "Barcha xarajatlar chiqarilgandan keyingi sof daromad"}
+                <p className="text-xs font-medium text-slate-600 mt-1.5">
+                  Barcha xarajatlar va tushumlar yakuniy qoldig'i
                 </p>
               </div>
             </div>
