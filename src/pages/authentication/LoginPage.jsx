@@ -70,13 +70,18 @@ function LoginPage() {
 
     const payload = { password }
 
-    // Agar foydalanuvchi "admin" kabi username kiritgan bo'lsa, uni login sifatida ustuvor qilamiz
+    // Login va telefon raqamni shakllantirish
     if (rawName && !isPhonePattern(rawName)) {
       payload.login = rawName
-    } else if (cleanPhone) {
-      payload.login = cleanPhone
+    }
+
+    // Telefon raqam kiritilgan bo'lsa, uni ham albatta yuboramiz
+    if (cleanPhone) {
       payload.phone = cleanPhone
-    } else if (rawName) {
+      if (!payload.login) {
+        payload.login = cleanPhone
+      }
+    } else if (rawName && !payload.login) {
       payload.login = rawName
     }
 
