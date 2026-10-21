@@ -194,8 +194,8 @@ export function BrushAnalyticsChart({ dashboard: _dashboard = {} }) {
   return (
     <div className="w-full space-y-3">
       {/* Vaqt oralig'i filtr tugmalari */}
-      <div className="flex items-center justify-end">
-        <div className="inline-flex items-center gap-2">
+      <div className="flex items-center justify-start sm:justify-end overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+        <div className="inline-flex items-center gap-1.5 sm:gap-2">
           {[
             { label: "1 Hafta", value: "1W" },
             { label: "1 Oy", value: "1M" },
@@ -206,7 +206,7 @@ export function BrushAnalyticsChart({ dashboard: _dashboard = {} }) {
               key={item.value}
               type="button"
               onClick={() => setTimeRange(item.value)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+              className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-medium transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                 timeRange === item.value
                   ? "bg-[#2563EB] text-white shadow-xs"
                   : "bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200/80 border border-slate-200/60"

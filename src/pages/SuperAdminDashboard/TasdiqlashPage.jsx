@@ -126,7 +126,7 @@ const TasdiqlashPage = () => {
             size="sm"
             onClick={handleRefresh}
             disabled={isFetching}
-            className="gap-2 text-xs font-medium border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xs cursor-pointer"
+            className="gap-2 text-xs font-medium border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xs cursor-pointer self-start sm:self-auto"
           >
             <RefreshCw
               className={`size-3.5 text-slate-500 transition-transform ${

@@ -689,7 +689,7 @@ const SozlamalarPage = () => {
                             type="button"
                             onClick={handleSaveProfile}
                             disabled={isProfileSaving || isSaving || isUploadingAvatar}
-                            className="h-10 px-5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold cursor-pointer shadow-xs transition-colors inline-flex items-center gap-2 disabled:opacity-50"
+                            className="w-full sm:w-auto h-10 px-5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold cursor-pointer shadow-xs transition-colors inline-flex items-center justify-center gap-2 disabled:opacity-50"
                         >
                             {isProfileSaving && <Loader2 className="w-4 h-4 animate-spin" />}
                             <span>Ma'lumotlarni saqlash</span>
@@ -830,13 +830,13 @@ const SozlamalarPage = () => {
                     </div>
 
                     {/* Card Footer */}
-                    <div className="mt-7 pt-5 border-t border-slate-100 flex items-center justify-end gap-3">
+                    <div className="mt-7 pt-5 border-t border-slate-100 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3">
                         <Button
                             type="button"
                             variant="outline"
                             onClick={handleResetPasswordFields}
                             disabled={isPasswordSaving}
-                            className="h-10 px-4 rounded-xl border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-xs sm:text-sm font-medium cursor-pointer shadow-2xs transition-colors disabled:opacity-50"
+                            className="w-full sm:w-auto h-10 px-4 rounded-xl border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-xs sm:text-sm font-medium cursor-pointer shadow-2xs transition-colors disabled:opacity-50"
                         >
                             Tozalash
                         </Button>
@@ -844,7 +844,7 @@ const SozlamalarPage = () => {
                             type="button"
                             onClick={handleSavePassword}
                             disabled={isPasswordSaving}
-                            className="h-10 px-5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold cursor-pointer shadow-xs transition-colors inline-flex items-center gap-2 disabled:opacity-50"
+                            className="w-full sm:w-auto h-10 px-5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold cursor-pointer shadow-xs transition-colors inline-flex items-center justify-center gap-2 disabled:opacity-50"
                         >
                             {isPasswordSaving && <Loader2 className="w-4 h-4 animate-spin" />}
                             <span>Parolni yangilash</span>

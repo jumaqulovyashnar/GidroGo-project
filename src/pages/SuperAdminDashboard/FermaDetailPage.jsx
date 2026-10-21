@@ -148,11 +148,11 @@ export function FermaDetailPage() {
       </div>
 
       {/* 2. Asosiy Tafsilotlar: 1 Tomonda Katta Ferma Rasmi + Qolgan Tomonda Ma'lumotlar */}
-      <Card className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-xs">
+      <Card className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 lg:p-8 shadow-xs">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Chap tomon: Yagona Katta Ferma Rasmi */}
           <div className="lg:col-span-5">
-            <div className="w-full h-80 sm:h-96 lg:h-95 rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 shadow-xs relative flex items-center justify-center">
+            <div className="w-full h-64 sm:h-96 lg:h-95 rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 shadow-xs relative flex items-center justify-center">
               {(() => {
                 const farmImage = resolveFileUrl(
                   farm.logoUrl || farm.photoUrl || farm.bannerUrl || farm.farmLogoUrl || farm.logo || ""

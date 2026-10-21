@@ -117,7 +117,7 @@ export const FermaEgalariPage = () => {
           size="sm"
           onClick={() => refetch()}
           disabled={isFetching}
-          className="h-9 px-3.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold gap-2 cursor-pointer shadow-xs"
+          className="h-9 px-3.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold gap-2 cursor-pointer shadow-xs self-start sm:self-auto"
         >
           <RefreshCw
             className={`size-3.5 text-slate-500 transition-transform ${
@@ -162,7 +162,7 @@ export const FermaEgalariPage = () => {
         </div>
       ) : (
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
-          <Table className="w-full">
+          <Table className="w-full min-w-[700px] lg:min-w-full">
             <TableHeader className="bg-slate-50/80">
               <TableRow className="border-b border-slate-200/80 hover:bg-transparent">
                 {BOSS_TABLE_COLUMNS.map((col) => (

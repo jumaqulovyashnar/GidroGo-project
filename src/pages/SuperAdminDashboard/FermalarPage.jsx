@@ -162,7 +162,7 @@ const FermalarPage = () => {
 
                 <Button
                     onClick={openModal}
-                    className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-[10px] bg-[#2563EB] hover:bg-blue-700 text-white font-medium text-sm transition-colors cursor-pointer shrink-0"
+                    className="flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-[10px] bg-[#2563EB] hover:bg-blue-700 text-white font-medium text-xs sm:text-sm transition-colors cursor-pointer shrink-0 self-start sm:self-auto"
                 >
                     <Plus className="h-4 w-4" aria-hidden="true" />
                     <span>Ferma qo'shish</span>

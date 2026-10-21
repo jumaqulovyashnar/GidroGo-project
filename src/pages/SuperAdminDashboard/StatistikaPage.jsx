@@ -220,7 +220,7 @@ export const StatistikaPage = () => {
                             size="sm"
                             onClick={() => refetchReg()}
                             disabled={isFetchingReg}
-                            className="h-9 px-3.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold gap-2 cursor-pointer shadow-xs"
+                            className="h-9 px-3.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold gap-2 cursor-pointer shadow-xs self-start sm:self-auto"
                         >
                             <RefreshCw className={`size-3.5 text-slate-500 transition-transform ${isFetchingReg ? "animate-spin" : ""}`} />
                             <span>Yangilash</span>
@@ -516,7 +516,7 @@ export const StatistikaPage = () => {
 
                     {/* Table Container */}
                     <div className="mt-2 rounded-xl border border-slate-200/80 overflow-hidden">
-                        <Table className="w-full">
+                        <Table className="w-full min-w-[650px] lg:min-w-full">
                             <TableHeader className="bg-slate-50/80">
                                 <TableRow className="border-b border-slate-200/80 hover:bg-transparent">
                                     <TableHead className="py-3.5 pl-6 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">

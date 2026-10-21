@@ -54,7 +54,7 @@ export const FarmCard = memo(function FarmCard({
       className="group bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between cursor-pointer"
     >
       {/* 1. Ferma Rasmi yoki Placeholder */}
-      <div className="relative w-full h-48 sm:h-52 overflow-hidden bg-slate-100 flex items-center justify-center">
+      <div className="relative w-full h-44 sm:h-52 overflow-hidden bg-slate-100 flex items-center justify-center">
         {farmImage ? (
           <img
             src={farmImage}
@@ -83,7 +83,7 @@ export const FarmCard = memo(function FarmCard({
       </div>
 
       {/* 2. Ferma Tafsilotlari */}
-      <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+      <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-4">
         <div className="space-y-3">
           <h3 className="text-lg font-bold text-slate-900 line-clamp-1 group-hover:text-blue-600 transition-colors">
             {farm.name}

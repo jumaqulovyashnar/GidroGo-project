@@ -435,7 +435,7 @@ const AuditLogPage = () => {
                 {/* Table */}
                 <div className="mt-4 bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden min-h-96">
                     <div className="overflow-x-auto w-full">
-                        <Table className="w-full text-left">
+                        <Table className="w-full text-left min-w-[650px] lg:min-w-full">
                             <TableHeader className="bg-slate-50 border-b border-slate-100">
                                 <TableRow className="hover:bg-transparent">
                                     <TableHead className="py-3.5 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap w-36">

@@ -78,7 +78,7 @@ export function SuperAdminDashboardPage() {
       {/* Dashboard Sarlavhasi */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
             Boshqaruv Paneli
           </h1>
           <p className="text-sm font-normal text-slate-500 mt-1">
@@ -136,7 +136,7 @@ export function SuperAdminDashboardPage() {
 
       {/* Asosiy grafiklar maydoni */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <Card className="lg:col-span-8 border border-slate-200/80 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)] rounded-2xl p-5 sm:p-6">
+        <Card className="lg:col-span-8 border border-slate-200/80 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)] rounded-2xl p-4 sm:p-6">
           <CardHeader className="p-0 pb-3">
             <div>
               <CardTitle className="text-base font-semibold text-slate-900">
@@ -161,7 +161,7 @@ export function SuperAdminDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="lg:col-span-4 border border-slate-200/80 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)] rounded-2xl p-5 sm:p-6 flex flex-col justify-between">
+        <Card className="lg:col-span-4 border border-slate-200/80 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)] rounded-2xl p-4 sm:p-6 flex flex-col justify-between">
           <CardHeader className="p-0 pb-3">
             <CardTitle className="text-base font-semibold text-slate-900">
               Fermalar Taqsimoti
