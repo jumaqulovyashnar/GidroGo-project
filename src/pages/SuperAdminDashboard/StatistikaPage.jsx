@@ -256,7 +256,7 @@ export const StatistikaPage = () => {
                                             </span>
                                         )}
                                     </div>
-                                    <p className="mt-1 text-[11px] text-slate-500 truncate" title={audit.description}>
+                                    <p className="mt-1 text-[11px] text-slate-500 leading-normal" title={audit.description}>
                                         {audit.description}
                                     </p>
                                 </CardContent>

@@ -32,7 +32,7 @@ export function StatCard({
         {(subText || badge) && (
           <div className="flex items-center justify-between gap-2 mt-1 pt-1 border-t border-slate-100">
             {subText && (
-              <p className="text-[11px] font-normal text-slate-500 truncate" title={subText}>
+              <p className="text-[11px] font-normal text-slate-500 leading-normal" title={subText}>
                 {subText}
               </p>
             )}

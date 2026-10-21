@@ -190,7 +190,7 @@ const TasdiqlashPage = () => {
 
                 <div className="pt-2.5 border-t border-slate-100">
                   <p
-                    className="text-xs text-slate-500 font-normal truncate"
+                    className="text-xs text-slate-500 font-normal leading-normal"
                     title={item.description}
                   >
                     {item.description}
