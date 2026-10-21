@@ -61,7 +61,8 @@ export const AuthProvider = ({ children }) => {
         }
 
         const response = await authService.login({
-          phone: cleanPhone,
+          login: cleanPhone,
+          ...((cleanPhone.startsWith("+998") || cleanPhone.replace(/\D/g, "").length >= 9) ? { phone: cleanPhone } : {}),
           password: cleanPassword,
         })
 

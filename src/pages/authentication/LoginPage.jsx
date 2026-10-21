@@ -7,29 +7,17 @@ import { useLogin } from "@/shared"
 import { Button, Field, Input, Label } from "@/shared/ui"
 import { cleanPhoneForBackend } from "@/shared/lib"
 import heroImg from "@/shared/assets/login-hero.png"
-const loginSchema = z
-  .object({
-    name: z.string().optional(),
-    phone: z.string().optional(),
-    password: z
-      .string()
-      .min(1, "Iltimos, parolingizni kiriting.")
-      .min(3, "Parol kamida 3 ta belgidan iborat bo'lishi kerak.")
-      .regex(/^\S+$/, "Parolda bo'sh joy (probel) bo'lmasligi kerak."),
-  })
-  .superRefine((data, ctx) => {
-    const hasName = Boolean(data.name && data.name.trim().length > 0)
-    const phoneDigits = (data.phone || "").replace(/\D/g, "")
-    // +998 dan tashqari to'liq 9 ta raqam kiritilgan bo'lsa (jami 12 ta raqam)
-    const hasPhone = Boolean(phoneDigits.length >= 12)
-    if (!hasName && !hasPhone) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Ismingiz yoki telefon raqamingizni kiriting.",
-        path: ["phone"],
-      })
-    }
-  })
+const loginSchema = z.object({
+  login: z
+    .string()
+    .min(1, "Iltimos, login yoki telefon raqamingizni kiriting.")
+    .min(3, "Kamida 3 ta belgidan iborat bo'lishi kerak."),
+  password: z
+    .string()
+    .min(1, "Iltimos, parolingizni kiriting.")
+    .min(3, "Parol kamida 3 ta belgidan iborat bo'lishi kerak.")
+    .regex(/^\S+$/, "Parolda bo'sh joy (probel) bo'lmasligi kerak."),
+})
 
 function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
@@ -42,47 +30,31 @@ function LoginPage() {
   } = useForm({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      name: "",
-      phone: "+998",
+      login: "",
       password: "",
     },
     mode: "onBlur",
   })
 
-  const isPhonePattern = (val) => {
-    if (!val) return false
-    const digits = val.replace(/\D/g, "")
-    return digits.length >= 9 && (/^\+/.test(val) || digits.startsWith("998") || digits.length === 9)
-  }
-
   const onSubmit = (data) => {
     if (loginMutation.isPending) return
 
-    const rawName = data.name?.trim() || ""
-    const rawPhone = data.phone || ""
+    const rawLogin = (data.login || "").trim()
     const password = data.password
 
-    let cleanPhone = cleanPhoneForBackend(rawPhone)
+    const cleanPhone = cleanPhoneForBackend(rawLogin)
 
-    if (!cleanPhone && isPhonePattern(rawName)) {
-      cleanPhone = cleanPhoneForBackend(rawName)
+    const payload = {
+      password,
     }
 
-    const payload = { password }
-
-    // Login va telefon raqamni shakllantirish
-    if (rawName && !isPhonePattern(rawName)) {
-      payload.login = rawName
-    }
-
-    // Telefon raqam kiritilgan bo'lsa, uni ham albatta yuboramiz
     if (cleanPhone) {
+      // Telefon raqam bo'lsa (masalan: +998901234567) Swagger formati bo'yicha yuboriladi
+      payload.login = cleanPhone
       payload.phone = cleanPhone
-      if (!payload.login) {
-        payload.login = cleanPhone
-      }
-    } else if (rawName && !payload.login) {
-      payload.login = rawName
+    } else {
+      // Login/username bo'lsa (masalan: admin)
+      payload.login = rawLogin
     }
 
     loginMutation.mutate(payload)
@@ -120,37 +92,22 @@ function LoginPage() {
             onSubmit={handleSubmit(onSubmit)}
             className="space-y-4"
           >
-            {/* 1. Ism input */}
+            {/* Login yoki Telefon raqam input */}
             <Field>
-              <Label htmlFor="name" className="font-medium text-sm text-slate-700 mb-1.5 block">
-                Ismingizni kiriting
+              <Label htmlFor="login" className="font-medium text-sm text-slate-700 mb-1.5 block">
+                Login yoki telefon raqam
               </Label>
               <Input
-                id="name"
+                id="login"
                 type="text"
-                autoComplete="off"
-                placeholder="Ismingizni kiriting"
-                {...register("name")}
+                autoComplete="username"
+                placeholder="+998 90 123 45 67 yoki admin"
+                {...register("login")}
                 className="h-10 rounded-xl bg-white border-slate-200 shadow-xs focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 text-sm"
               />
-            </Field>
-
-            {/* 2. Telefon raqam input */}
-            <Field>
-              <Label htmlFor="phone" className="font-medium text-sm text-slate-700 mb-1.5 block">
-                Telefon raqam
-              </Label>
-              <Input
-                id="phone"
-                type="tel"
-                autoComplete="off"
-                placeholder="+998 90 000 00 00"
-                {...register("phone")}
-                className="h-10 rounded-xl bg-white border-slate-200 shadow-xs focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 text-sm font-mono"
-              />
-              {errors.phone && (
+              {errors.login && (
                 <p className="text-xs text-rose-500 font-medium mt-1">
-                  {errors.phone.message}
+                  {errors.login.message}
                 </p>
               )}
             </Field>
