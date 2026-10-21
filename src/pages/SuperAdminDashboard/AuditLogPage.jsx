@@ -516,25 +516,15 @@ const AuditLogPage = () => {
                     </div>
                 </div>
 
-                {/* Pagination (Table dan tashqarida alohida) */}
-                <div className="pt-4 pb-2 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
-                    <div>
-                        Jami <span className="font-semibold text-slate-800">{filteredLogs.length}</span> ta yozuvdan{" "}
-                        <span className="font-semibold text-slate-800">
-                            {filteredLogs.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1} -{" "}
-                            {Math.min(currentPage * itemsPerPage, filteredLogs.length)}
-                        </span> ko'rsatilmoqda
-                    </div>
-
-                    {totalPages > 1 && (
-                        <TablePagination
-                            currentPage={currentPage}
-                            totalPages={totalPages}
-                            onPageChange={setCurrentPage}
-                            className="pt-0 pb-0"
-                        />
-                    )}
-                </div>
+                {/* Pagination */}
+                {totalPages > 1 && (
+                    <TablePagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={setCurrentPage}
+                        className="pt-6 pb-2"
+                    />
+                )}
             </div>
         </section>
     )
