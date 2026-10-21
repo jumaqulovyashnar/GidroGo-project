@@ -62,7 +62,7 @@ const CustomDropdown = ({ value, onChange, options }) => {
                 aria-haspopup="listbox"
                 aria-expanded={open}
                 onClick={() => setOpen((prev) => !prev)}
-                className="h-10 px-3.5 rounded-xl border border-slate-200 bg-white text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center justify-between gap-2.5 shadow-xs transition-colors cursor-pointer w-full md:w-auto min-w-42.5"
+                className="h-10 px-3.5 rounded-xl border border-slate-200 bg-white text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center justify-between gap-2.5 shadow-xs transition-colors cursor-pointer w-full lg:w-auto min-w-[130px]"
             >
                 <span className="truncate">{selectedOption.label}</span>
                 <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform duration-200 ${open ? "rotate-180 text-blue-600" : ""}`} />
@@ -307,7 +307,7 @@ const AuditLogPage = () => {
         <section className="space-y-6">
             <div>
                 {/* Header */}
-                <div className="flex flex-col md:flex-row md:justify-between md:items-center pt-3 gap-4">
+                <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center pt-3 gap-4">
                     <div>
                         <h2 className="text-2xl font-bold text-slate-900">Audit Log va Xavfsizlik Jurnali</h2>
                         <p className="text-sm text-slate-500 mt-1">
@@ -315,7 +315,7 @@ const AuditLogPage = () => {
                         </p>
                     </div>
 
-                    <div className="flex items-center gap-2.5 flex-nowrap">
+                    <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5">
                         {/* 1. Sana filtri tugmasi */}
                         <button
                             type="button"
@@ -350,7 +350,7 @@ const AuditLogPage = () => {
                 </div>
 
                 {/* 3 ta Haqiqiy Metrika Card */}
-                <div className="pt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="pt-6 grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-4">
                     {auditStats.map((audit) => {
                         const Icon = audit.icon
                         return (
@@ -383,9 +383,9 @@ const AuditLogPage = () => {
                 </div>
 
                 {/* Filter Bar */}
-                <div className="mt-6 bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+                <div className="mt-6 bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3.5 sm:gap-4">
                     {/* Chap tomon: Qidiruv input */}
-                    <div className="relative w-full md:w-80 shrink-0">
+                    <div className="relative w-full lg:w-72 xl:w-80 shrink-0">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
                         <Input
                             value={searchTerm}
@@ -399,7 +399,7 @@ const AuditLogPage = () => {
                     </div>
 
                     {/* O'ng tomon: Dropdown filtrlar guruhi */}
-                    <div className="flex flex-wrap md:flex-nowrap items-center gap-2.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 lg:flex lg:flex-nowrap items-center gap-2.5 w-full lg:w-auto">
                         {/* Amal turi filter */}
                         <CustomDropdown
                             value={selectedAction}
