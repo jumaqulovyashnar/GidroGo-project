@@ -1,5 +1,5 @@
 import React from "react"
-import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 import { usePagination, ELLIPSIS } from "@/shared/hooks/usePagination"
 import { cn } from "@/shared/lib"
 
@@ -104,7 +104,7 @@ export const TablePagination = ({
         <nav
           role="navigation"
           aria-label="Sahifalar navigatsiyasi"
-          className="bg-white p-1 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-0.5"
+          className="bg-white px-4 py-2 sm:px-5 sm:py-2.5 rounded-2xl border border-slate-200/80 shadow-xs inline-flex items-center gap-3 sm:gap-4"
         >
           {/* Oldingi tugmasi */}
           <button
@@ -113,27 +113,27 @@ export const TablePagination = ({
             onClick={handlePrev}
             aria-disabled={isFirstPage}
             className={cn(
-              "flex items-center gap-1 h-9 px-3 rounded-xl text-xs sm:text-sm font-medium transition-colors cursor-pointer",
+              "inline-flex items-center gap-1.5 text-xs sm:text-sm font-normal transition-colors cursor-pointer select-none",
               isFirstPage
-                ? "text-slate-400 cursor-not-allowed opacity-40 pointer-events-none"
-                : "text-slate-700 hover:bg-slate-100 hover:text-slate-900"
+                ? "text-slate-300 cursor-not-allowed pointer-events-none"
+                : "text-slate-700 hover:text-blue-600"
             )}
           >
-            <ChevronLeft className="h-4 w-4" />
-            <span className="hidden sm:inline">{previousLabel}</span>
+            <ChevronLeft className="h-4 w-4 stroke-[1.75]" />
+            <span>{previousLabel}</span>
           </button>
 
           {/* Sahifa raqamlari va Ellipsis */}
           {paginationRange.map((pageNumber, idx) => {
             if (pageNumber === ELLIPSIS) {
               return (
-                <div
+                <span
                   key={`ellipsis-${idx}`}
-                  className="flex h-9 min-w-9 items-center justify-center text-slate-400"
+                  className="w-8 h-8 flex items-center justify-center text-xs sm:text-sm text-slate-400 select-none"
                   aria-hidden="true"
                 >
-                  <MoreHorizontal className="h-4 w-4" />
-                </div>
+                  ...
+                </span>
               )
             }
 
@@ -146,10 +146,10 @@ export const TablePagination = ({
                 onClick={() => onPageChange && onPageChange(pageNumber)}
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "flex h-9 min-w-9 px-3 items-center justify-center rounded-xl text-xs sm:text-sm font-medium transition-all cursor-pointer",
+                  "w-8 h-8 rounded-full text-xs sm:text-sm font-normal flex items-center justify-center transition-all cursor-pointer select-none",
                   isActive
-                    ? "bg-[#2563EB] text-white font-semibold hover:bg-blue-700 shadow-xs"
-                    : "text-slate-700 hover:bg-slate-100 hover:text-slate-900"
+                    ? "bg-[#2563EB] text-white font-medium shadow-xs"
+                    : "text-slate-700 hover:text-slate-900 hover:bg-slate-100/70"
                 )}
               >
                 {pageNumber}
@@ -164,14 +164,14 @@ export const TablePagination = ({
             onClick={handleNext}
             aria-disabled={isLastPage}
             className={cn(
-              "flex items-center gap-1 h-9 px-3 rounded-xl text-xs sm:text-sm font-medium transition-colors cursor-pointer",
+              "inline-flex items-center gap-1.5 text-xs sm:text-sm font-normal transition-colors cursor-pointer select-none",
               isLastPage
-                ? "text-slate-400 cursor-not-allowed opacity-40 pointer-events-none"
-                : "text-slate-700 hover:bg-slate-100 hover:text-slate-900"
+                ? "text-slate-300 cursor-not-allowed pointer-events-none"
+                : "text-slate-700 hover:text-blue-600"
             )}
           >
-            <span className="hidden sm:inline">{nextLabel}</span>
-            <ChevronRight className="h-4 w-4" />
+            <span>{nextLabel}</span>
+            <ChevronRight className="h-4 w-4 stroke-[1.75]" />
           </button>
         </nav>
       )}

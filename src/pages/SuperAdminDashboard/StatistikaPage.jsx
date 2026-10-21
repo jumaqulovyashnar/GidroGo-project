@@ -614,24 +614,13 @@ export const StatistikaPage = () => {
                     </div>
 
                     {/* Pagination */}
-                    {filteredRegionsList.length > 0 && (
-                        <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
-                            <div>
-                                Jami <span className="font-semibold text-slate-800">{filteredRegionsList.length}</span> ta hududdan{" "}
-                                <span className="font-semibold text-slate-800">
-                                    {(currentPage - 1) * ITEMS_PER_PAGE + 1} -{" "}
-                                    {Math.min(currentPage * ITEMS_PER_PAGE, filteredRegionsList.length)}
-                                </span> ko'rsatilmoqda
-                            </div>
-
-                            {totalPages > 1 && (
-                                <TablePagination
-                                    currentPage={currentPage}
-                                    totalPages={totalPages}
-                                    onPageChange={setCurrentPage}
-                                />
-                            )}
-                        </div>
+                    {totalPages > 1 && (
+                        <TablePagination
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPageChange={setCurrentPage}
+                            className="pt-6 pb-2"
+                        />
                     )}
                 </div>
             </div>
