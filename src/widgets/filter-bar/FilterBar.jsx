@@ -55,10 +55,10 @@ const FilterBar = ({
 }) => {
     return (
         <section>
-            <div className={`w-full bg-white px-5 py-6 rounded-[12px] border border-slate-200 shadow-xs flex flex-col md:flex-row items-center gap-3 ${showSearch ? "justify-between" : "justify-end"}`}>
+            <div className={`w-full bg-white px-5 py-5 sm:py-6 rounded-[12px] border border-slate-200 shadow-xs flex flex-col lg:flex-row items-stretch lg:items-center gap-3 sm:gap-3.5 ${showSearch ? "justify-between" : "justify-end"}`}>
                 {/* Chap tomon: Qidiruv inputi */}
                 {showSearch && (
-                    <div className="relative w-full sm:w-72 md:w-80 shrink-0">
+                    <div className="relative w-full lg:w-72 xl:w-80 shrink-0">
                         <Search
                             className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400 pointer-events-none"
                             strokeWidth={1.75}
@@ -76,7 +76,7 @@ const FilterBar = ({
                 )}
 
                 {/* O'ng tomon: Status, Ferma, Sana, Saralash va Filtrlar */}
-                <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto justify-start md:justify-end">
+                <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto justify-start lg:justify-end">
                     {/* 1. Status select */}
                     {showStatus && (
                         <Select
@@ -92,7 +92,7 @@ const FilterBar = ({
                             leftSection={<SlidersHorizontal className="size-4 text-slate-400 pointer-events-none" />}
                             rightSection={<ChevronDown className="size-4 text-slate-400 pointer-events-none" />}
                             classNames={{
-                                root: "w-full sm:w-48",
+                                root: "flex-1 sm:flex-initial sm:w-48 min-w-[140px]",
                                 input:
                                     "!h-10 !rounded-[10px] !border-slate-200/80 !bg-[#F4F8FF] hover:!bg-[#EBF3FF] !text-slate-700 !text-sm !font-medium !cursor-pointer transition-colors focus:!border-blue-500",
                                 dropdown:
@@ -118,7 +118,7 @@ const FilterBar = ({
                             leftSection={<Tractor className="size-4 text-slate-400 pointer-events-none" />}
                             rightSection={<ChevronDown className="size-4 text-slate-400 pointer-events-none" />}
                             classNames={{
-                                root: "w-full sm:w-48",
+                                root: "flex-1 sm:flex-initial sm:w-48 min-w-[140px]",
                                 input:
                                     "!h-10 !rounded-[10px] !border-slate-200/80 !bg-[#F4F8FF] hover:!bg-[#EBF3FF] !text-slate-700 !text-sm !font-medium !cursor-pointer transition-colors focus:!border-blue-500",
                                 dropdown:
@@ -144,7 +144,7 @@ const FilterBar = ({
                             leftSection={<Calendar className="size-4 text-slate-400 pointer-events-none" />}
                             rightSection={<ChevronDown className="size-4 text-slate-400 pointer-events-none" />}
                             classNames={{
-                                root: "w-full sm:w-40",
+                                root: "flex-1 sm:flex-initial sm:w-40 min-w-[130px]",
                                 input:
                                     "!h-10 !rounded-[10px] !border-slate-200/80 !bg-[#F4F8FF] hover:!bg-[#EBF3FF] !text-slate-700 !text-sm !font-medium !cursor-pointer transition-colors focus:!border-blue-500",
                                 dropdown:
@@ -181,7 +181,7 @@ const FilterBar = ({
                             scrollAreaProps={{ type: "never" }}
                             rightSection={<ChevronDown className="size-4 text-slate-400 pointer-events-none" />}
                             classNames={{
-                                root: "w-full sm:w-48",
+                                root: "flex-1 sm:flex-initial sm:w-48 min-w-[140px]",
                                 input:
                                     "!h-10 !rounded-[10px] !border-slate-200 !text-slate-800 !text-sm !font-medium !cursor-pointer hover:!bg-slate-50 transition-colors focus:!border-blue-500",
                                 dropdown:
