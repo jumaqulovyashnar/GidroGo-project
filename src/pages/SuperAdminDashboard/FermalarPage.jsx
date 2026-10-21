@@ -211,6 +211,7 @@ const FermalarPage = () => {
                     setSort={setSort}
                     sortOptions={sortOptions}
                     setCurrentPage={setCurrentPage}
+                    showFilterButton={false}
                 />
             </div>
 
