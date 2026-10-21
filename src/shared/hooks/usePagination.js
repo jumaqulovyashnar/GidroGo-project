@@ -11,16 +11,6 @@ export const range = (start, end) => {
   return Array.from({ length }, (_, idx) => idx + start)
 }
 
-/**
- * Pure calculation logic for pagination range:
- * Compact sliding window showing at most maxVisible (default 3) numbers.
- * Example with maxVisible=3:
- * - page 1: [1, 2, 3]
- * - page 2: [1, 2, 3]
- * - page 3: [2, 3, 4] -> shifts so next number is always accessible
- * - page 4: [3, 4, 5]
- * - page 8 (end): [6, 7, 8]
- */
 export const calculatePaginationRange = ({
   totalPages = 1,
   currentPage = 1,
