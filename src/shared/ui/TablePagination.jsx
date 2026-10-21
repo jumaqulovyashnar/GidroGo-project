@@ -16,7 +16,7 @@ export const TablePagination = ({
   totalItems = 0,
   pageSize = 10,
   pageSizeOptions = [10, 20, 50],
-  siblingCount = 1,
+  maxVisible = 3,
   align = "right",
   showTotalCount = false,
   showPageSizeSelector = false,
@@ -37,7 +37,7 @@ export const TablePagination = ({
     totalPages,
     totalItems,
     pageSize,
-    siblingCount,
+    maxVisible,
   })
 
   if (totalPages <= 0) return null

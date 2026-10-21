@@ -12,65 +12,50 @@ export const range = (start, end) => {
 }
 
 /**
- * Pure calculation logic for pagination range with truncation.
+ * Pure calculation logic for pagination range:
+ * Compact sliding window showing at most maxVisible (default 3) numbers.
+ * Example with maxVisible=3:
+ * - page 1: [1, 2, 3]
+ * - page 2: [1, 2, 3]
+ * - page 3: [2, 3, 4] -> shifts so next number is always accessible
+ * - page 4: [3, 4, 5]
+ * - page 8 (end): [6, 7, 8]
  */
 export const calculatePaginationRange = ({
   totalPages = 1,
   currentPage = 1,
-  siblingCount = 1,
+  maxVisible = 3,
 }) => {
-  const totalPageNumbers = siblingCount * 2 + 5
-
-  // Case 1: Total pages less than the numbers we want to show
-  if (totalPages <= totalPageNumbers) {
-    return range(1, Math.max(1, totalPages))
+  if (totalPages <= 0) return []
+  if (totalPages <= maxVisible) {
+    return range(1, totalPages)
   }
 
-  const leftSiblingIndex = Math.max(currentPage - siblingCount, 1)
-  const rightSiblingIndex = Math.min(currentPage + siblingCount, totalPages)
+  const half = Math.floor(maxVisible / 2)
+  let start = currentPage - half
 
-  const shouldShowLeftDots = leftSiblingIndex > 2
-  const shouldShowRightDots = rightSiblingIndex < totalPages - 2
-
-  const firstPageIndex = 1
-  const lastPageIndex = totalPages
-
-  // Case 2: No left dots, but right dots needed -> [1, 2, 3, 4, 5, '...', totalPages]
-  if (!shouldShowLeftDots && shouldShowRightDots) {
-    const leftItemCount = 3 + 2 * siblingCount
-    const leftRange = range(1, leftItemCount)
-    return [...leftRange, ELLIPSIS, totalPages]
+  if (start < 1) {
+    start = 1
+  } else if (start + maxVisible - 1 > totalPages) {
+    start = totalPages - maxVisible + 1
   }
 
-  // Case 3: No right dots, but left dots needed -> [1, '...', 7, 8, 9, 10]
-  if (shouldShowLeftDots && !shouldShowRightDots) {
-    const rightItemCount = 3 + 2 * siblingCount
-    const rightRange = range(totalPages - rightItemCount + 1, totalPages)
-    return [firstPageIndex, ELLIPSIS, ...rightRange]
-  }
-
-  // Case 4: Both left and right dots needed -> [1, '...', 4, 5, 6, '...', 10]
-  if (shouldShowLeftDots && shouldShowRightDots) {
-    const middleRange = range(leftSiblingIndex, rightSiblingIndex)
-    return [firstPageIndex, ELLIPSIS, ...middleRange, ELLIPSIS, lastPageIndex]
-  }
-
-  return range(1, Math.max(1, totalPages))
+  return range(start, start + maxVisible - 1)
 }
 
 /**
- * Calculates page numbers and ellipsis delimiters for pagination UI.
+ * Calculates page numbers for compact pagination UI.
  */
 export const usePagination = ({
   totalPages = 1,
   currentPage = 1,
   totalItems = 0,
   pageSize = 10,
-  siblingCount = 1,
+  maxVisible = 3,
 }) => {
   const paginationRange = useMemo(
-    () => calculatePaginationRange({ totalPages, currentPage, siblingCount }),
-    [totalPages, currentPage, siblingCount]
+    () => calculatePaginationRange({ totalPages, currentPage, maxVisible }),
+    [totalPages, currentPage, maxVisible]
   )
 
   const isFirstPage = currentPage <= 1
