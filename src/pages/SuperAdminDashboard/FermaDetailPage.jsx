@@ -1,7 +1,7 @@
 import React from "react"
 import { useParams, Link } from "react-router-dom"
-import { Pencil, MapPin, Calendar, Layers, CheckCircle2, DollarSign, TrendingUp, Activity, ArrowLeft, Building2 } from "lucide-react"
-import { Card, CardHeader, CardTitle, CardContent, Switch, Spinner, Button } from "@/shared/ui"
+import { MapPin, Calendar, Layers, CheckCircle2, DollarSign, TrendingUp, Activity, ArrowLeft, Building2 } from "lucide-react"
+import { Card, CardHeader, CardTitle, CardContent, Switch, Spinner } from "@/shared/ui"
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/shared/ui/breadcrumb"
 import { useFarm, useUpdateFarmStatus } from "@/shared/hooks"
 import { resolveFileUrl } from "@/shared/lib"
@@ -137,34 +137,14 @@ export function FermaDetailPage() {
         </Breadcrumb>
       </div>
 
-      {/* 1. Header Blok: Sarlavha va Tahrirlash Tugmasi */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
-            {farm.name}
-          </h1>
-          <p className="text-sm text-slate-500 mt-0.5">
-            Ferma to'liq profili, faoliyati va ko'rsatkichlari.
-          </p>
-        </div>
-
-        {/* Action Button: Ko'k rangli Tahrirlash tugmasi */}
-        <div className="flex items-center gap-3">
-          <Link
-            to="/super-admin/fermalar"
-            className="flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-[10px] border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-sm transition-colors cursor-pointer shrink-0 shadow-2xs"
-          >
-            <ArrowLeft className="size-4" />
-            <span>Ortga</span>
-          </Link>
-          <Button
-            type="button"
-            className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-[10px] bg-[#2563EB] hover:bg-blue-700 text-white font-medium text-sm transition-colors cursor-pointer shrink-0 shadow-xs"
-          >
-            <Pencil className="size-4 text-white" />
-            <span>Tahrirlash</span>
-          </Button>
-        </div>
+      {/* 1. Header Blok: Sarlavha */}
+      <div>
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+          {farm.name}
+        </h1>
+        <p className="text-sm text-slate-500 mt-0.5">
+          Ferma to'liq profili, faoliyati va ko'rsatkichlari.
+        </p>
       </div>
 
       {/* 2. Asosiy Tafsilotlar: 1 Tomonda Katta Ferma Rasmi + Qolgan Tomonda Ma'lumotlar */}
