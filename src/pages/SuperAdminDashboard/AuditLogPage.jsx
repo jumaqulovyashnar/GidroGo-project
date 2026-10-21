@@ -315,25 +315,25 @@ const AuditLogPage = () => {
                         </p>
                     </div>
 
-                    <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5">
+                    <div className="flex flex-wrap lg:flex-nowrap items-center gap-2 sm:gap-2.5">
                         {/* 1. Sana filtri tugmasi */}
                         <button
                             type="button"
-                            className="h-10 px-4 flex items-center gap-2 rounded-xl border border-slate-200 bg-white text-sm font-medium text-slate-700 shadow-xs hover:bg-slate-50 transition-colors whitespace-nowrap cursor-pointer"
+                            className="h-9 sm:h-10 px-3 sm:px-3.5 flex items-center gap-1.5 sm:gap-2 rounded-xl border border-slate-200 bg-white text-xs sm:text-sm font-medium text-slate-700 shadow-xs hover:bg-slate-50 transition-colors whitespace-nowrap cursor-pointer"
                         >
-                            <Calendar className="h-4 w-4 text-blue-600" />
+                            <Calendar className="size-3.5 sm:size-4 text-blue-600" />
                             <span>So'nggi 30 kun</span>
-                            <ChevronDown className="h-4 w-4 text-slate-400" />
+                            <ChevronDown className="size-3.5 sm:size-4 text-slate-400" />
                         </button>
 
                         {/* 2. Eksport tugmasi */}
                         <button
                             type="button"
-                            className="h-10 px-4 flex items-center gap-2 rounded-xl border border-slate-200 bg-white text-sm font-medium text-slate-700 shadow-xs hover:bg-slate-50 transition-colors whitespace-nowrap cursor-pointer"
+                            className="h-9 sm:h-10 px-3 sm:px-3.5 flex items-center gap-1.5 sm:gap-2 rounded-xl border border-slate-200 bg-white text-xs sm:text-sm font-medium text-slate-700 shadow-xs hover:bg-slate-50 transition-colors whitespace-nowrap cursor-pointer"
                         >
-                            <Upload className="h-4 w-4 text-slate-500" />
+                            <Upload className="size-3.5 sm:size-4 text-slate-500" />
                             <span>Eksport</span>
-                            <ChevronDown className="h-4 w-4 text-slate-400" />
+                            <ChevronDown className="size-3.5 sm:size-4 text-slate-400" />
                         </button>
 
                         {/* 3. Qayta yangilash tugmasi */}
@@ -341,10 +341,10 @@ const AuditLogPage = () => {
                             type="button"
                             onClick={() => refetch()}
                             disabled={isFetching}
-                            className="h-10 px-4 flex items-center gap-2 rounded-xl bg-blue-600 text-white text-sm font-medium shadow-xs hover:bg-blue-700 transition-colors whitespace-nowrap cursor-pointer"
+                            className="h-9 sm:h-10 px-3 sm:px-3.5 flex items-center gap-1.5 sm:gap-2 rounded-xl bg-blue-600 text-white text-xs sm:text-sm font-medium shadow-xs hover:bg-blue-700 transition-colors whitespace-nowrap cursor-pointer shrink-0"
                         >
-                            <RotateCw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
-                            <span>Qayta yangilash</span>
+                            <RotateCw className={`size-3.5 sm:size-4 ${isFetching ? "animate-spin" : ""}`} />
+                            <span>Yangilash</span>
                         </Button>
                     </div>
                 </div>
