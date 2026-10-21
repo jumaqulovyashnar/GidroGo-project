@@ -103,7 +103,7 @@ export function DoubleNavbar({ role }) {
                 }`}
               >
                 <Icon
-                  className={`size-5 transition-colors shrink-0 ${
+                  className={`size-4.5 transition-colors shrink-0 ${
                     isActive
                       ? "text-white"
                       : "text-slate-500 group-hover:text-slate-900"
@@ -125,7 +125,7 @@ export function DoubleNavbar({ role }) {
           aria-label="Tizimdan chiqish"
           className="flex items-center gap-2.5 w-full px-3.5 py-2.5 rounded-xl text-sm font-semibold text-rose-600 bg-rose-50/70 hover:bg-rose-100 hover:text-rose-700 border border-rose-100 transition-colors cursor-pointer"
         >
-          <LogOut className="size-4.5 stroke-[2]" />
+          <LogOut className="size-4 stroke-[1.75]" />
           <span>Chiqish</span>
         </button>
       </footer>
