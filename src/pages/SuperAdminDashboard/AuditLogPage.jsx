@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from "react"
-import { Button, Card, CardContent, CardHeader, CardTitle, Input, Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext, PaginationEllipsis, Spinner } from "@/shared/ui"
+import { Button, Card, CardContent, CardHeader, CardTitle, Input, TablePagination, Spinner } from "@/shared/ui"
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/shared/ui/table"
 import { ChevronDown, Upload, RotateCw, Calendar, History, ListFilter, ShieldAlert, Search } from "lucide-react"
 import { useAuditLogs, useDebounce } from "@/shared/hooks"
@@ -302,23 +302,6 @@ const AuditLogPage = () => {
             currentPage * itemsPerPage
         )
 
-    const getPageNumbers = () => {
-        const pages = []
-        if (totalPages <= 5) {
-            for (let i = 1; i <= totalPages; i++) {
-                pages.push(i)
-            }
-        } else {
-            if (currentPage <= 3) {
-                pages.push(1, 2, 3, "ellipsis-end", totalPages)
-            } else if (currentPage >= totalPages - 2) {
-                pages.push(1, "ellipsis-start", totalPages - 2, totalPages - 1, totalPages)
-            } else {
-                pages.push(1, "ellipsis-start", currentPage, "ellipsis-end", totalPages)
-            }
-        }
-        return pages
-    }
 
     return (
         <section className="space-y-6">
@@ -544,63 +527,12 @@ const AuditLogPage = () => {
                     </div>
 
                     {totalPages > 1 && (
-                        <Pagination className="mx-0 w-auto justify-end">
-                            <PaginationContent className="bg-white p-1 rounded-2xl border border-slate-200/80 shadow-xs">
-                                <PaginationItem>
-                                    <PaginationPrevious
-                                        text="Oldingi"
-                                        onClick={(e) => {
-                                            e.preventDefault()
-                                            if (currentPage > 1) setCurrentPage((p) => p - 1)
-                                        }}
-                                        className={`cursor-pointer ${
-                                            currentPage === 1 ? "pointer-events-none opacity-40" : "hover:bg-slate-100"
-                                        }`}
-                                    />
-                                </PaginationItem>
-
-                                {getPageNumbers().map((pageItem, index) => {
-                                    if (pageItem === "ellipsis-start" || pageItem === "ellipsis-end") {
-                                        return (
-                                            <PaginationItem key={`${pageItem}-${index}`}>
-                                                <PaginationEllipsis />
-                                            </PaginationItem>
-                                        )
-                                    }
-                                    return (
-                                        <PaginationItem key={pageItem}>
-                                            <PaginationLink
-                                                isActive={currentPage === pageItem}
-                                                onClick={(e) => {
-                                                    e.preventDefault()
-                                                    setCurrentPage(pageItem)
-                                                }}
-                                                className={`cursor-pointer rounded-xl font-medium ${
-                                                    currentPage === pageItem
-                                                        ? "bg-[#2563EB]! text-white! border-transparent! shadow-xs"
-                                                        : "hover:bg-slate-100 text-slate-700"
-                                                }`}
-                                            >
-                                                {pageItem}
-                                            </PaginationLink>
-                                        </PaginationItem>
-                                    )
-                                })}
-
-                                <PaginationItem>
-                                    <PaginationNext
-                                        text="Keyingi"
-                                        onClick={(e) => {
-                                            e.preventDefault()
-                                            if (currentPage < totalPages) setCurrentPage((p) => p + 1)
-                                        }}
-                                        className={`cursor-pointer ${
-                                            currentPage === totalPages ? "pointer-events-none opacity-40" : "hover:bg-slate-100"
-                                        }`}
-                                    />
-                                </PaginationItem>
-                            </PaginationContent>
-                        </Pagination>
+                        <TablePagination
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPageChange={setCurrentPage}
+                            className="pt-0 pb-0"
+                        />
                     )}
                 </div>
             </div>
