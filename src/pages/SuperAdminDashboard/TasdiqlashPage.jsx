@@ -140,7 +140,7 @@ const TasdiqlashPage = () => {
 
       {/* 2. Metrika Kartochkalari */}
       {isLoadingRequests ? (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-5">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {[...Array(3)].map((_, i) => (
             <Card
               key={i}
@@ -160,7 +160,7 @@ const TasdiqlashPage = () => {
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-5">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {metricCards.map((item, idx) => {
             const Icon = item.icon
             return (
@@ -203,14 +203,14 @@ const TasdiqlashPage = () => {
       )}
 
       {/* 3. Tabs */}
-      <div className="flex items-center gap-2.5 pt-2">
+      <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-2.5 pt-2">
         <button
           type="button"
           onClick={() => {
             setActiveTab("barcha")
             setCurrentPage(1)
           }}
-          className={`h-10 px-4 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer shadow-xs ${
+          className={`h-9 sm:h-10 px-3.5 sm:px-4 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer shadow-xs shrink-0 ${
             activeTab === "barcha"
               ? "bg-[#2563EB] text-white shadow-blue-500/20"
               : "bg-white text-slate-700 hover:bg-slate-50 border border-slate-200/80"
@@ -235,14 +235,15 @@ const TasdiqlashPage = () => {
             setActiveTab("arxiv")
             setCurrentPage(1)
           }}
-          className={`h-10 px-4 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer shadow-xs ${
+          className={`h-9 sm:h-10 px-3.5 sm:px-4 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer shadow-xs shrink-0 ${
             activeTab === "arxiv"
               ? "bg-[#2563EB] text-white shadow-blue-500/20"
               : "bg-white text-slate-700 hover:bg-slate-50 border border-slate-200/80"
           }`}
         >
           <Archive className="size-4" />
-          <span>Arxivlanganlar (Tasdiqlangan/Rad etilgan)</span>
+          <span>Arxivlanganlar</span>
+          <span className="hidden lg:inline text-inherit font-normal">(Tasdiqlangan/Rad etilgan)</span>
           <span
             className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
               activeTab === "arxiv"
@@ -257,22 +258,22 @@ const TasdiqlashPage = () => {
 
       {/* 4. Table */}
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden w-full">
-        <Table className="w-full table-fixed" containerClassName="overflow-hidden">
+        <Table className="w-full min-w-[700px] lg:min-w-full lg:table-fixed">
           <TableHeader>
             <TableRow className="border-b border-slate-200/80 bg-slate-50/80 hover:bg-slate-50/80">
-              <TableHead className="w-[28%] pl-6 pr-2 py-3.5 text-[11px] font-bold uppercase tracking-wider text-slate-600">
+              <TableHead className="lg:w-[28%] pl-6 pr-2 py-3.5 text-[11px] font-bold uppercase tracking-wider text-slate-600 whitespace-nowrap">
                 FERMA NOMI & ID
               </TableHead>
-              <TableHead className="w-[24%] px-2 py-3.5 text-[11px] font-bold uppercase tracking-wider text-slate-600">
+              <TableHead className="lg:w-[24%] px-2 py-3.5 text-[11px] font-bold uppercase tracking-wider text-slate-600 whitespace-nowrap">
                 ARIZA TOPSHIRGAN BOSS
               </TableHead>
-              <TableHead className="w-[18%] px-2 py-3.5 text-[11px] font-bold uppercase tracking-wider text-slate-600">
+              <TableHead className="lg:w-[18%] px-2 py-3.5 text-[11px] font-bold uppercase tracking-wider text-slate-600 whitespace-nowrap">
                 SANA
               </TableHead>
-              <TableHead className="w-[12%] px-2 py-3.5 text-[11px] font-bold uppercase tracking-wider text-slate-600 text-center">
+              <TableHead className="lg:w-[12%] px-2 py-3.5 text-[11px] font-bold uppercase tracking-wider text-slate-600 text-center whitespace-nowrap">
                 HOLATI
               </TableHead>
-              <TableHead className="w-[18%] pl-2 pr-6 py-3.5 text-[11px] font-bold uppercase tracking-wider text-slate-600 text-center">
+              <TableHead className="lg:w-[18%] pl-2 pr-6 py-3.5 text-[11px] font-bold uppercase tracking-wider text-slate-600 text-center whitespace-nowrap">
                 AMALLAR
               </TableHead>
             </TableRow>

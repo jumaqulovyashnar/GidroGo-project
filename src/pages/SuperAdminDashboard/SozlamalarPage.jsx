@@ -370,9 +370,9 @@ const SozlamalarPage = () => {
                         </div>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row items-center sm:items-stretch gap-6 sm:gap-8 pt-8">
+                    <div className="flex flex-col lg:flex-row items-center lg:items-stretch gap-6 lg:gap-8 pt-8">
                         {/* Avatar Skeleton / Pending */}
-                        <div className="w-full sm:w-48 shrink-0 flex flex-col items-center text-center sm:pr-6 sm:border-r sm:border-slate-100 sm:justify-center">
+                        <div className="w-full lg:w-48 shrink-0 flex flex-col items-center text-center pb-6 lg:pb-0 lg:pr-6 border-b lg:border-b-0 lg:border-r border-slate-100 lg:justify-center">
                             <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-slate-100 border-2 border-slate-200 flex items-center justify-center relative aspect-square shadow-xs">
                                 <UserRound className="w-14 h-14 text-slate-300 stroke-[1.5]" />
                                 <div className="absolute inset-0 flex items-center justify-center bg-white/40 rounded-full">
@@ -383,7 +383,7 @@ const SozlamalarPage = () => {
                         </div>
 
                         {/* Form Skeletons */}
-                        <div className="flex-1 w-full space-y-4 sm:space-y-4.5 sm:pl-2">
+                        <div className="flex-1 w-full space-y-4 sm:space-y-4.5 pt-4 lg:pt-0 lg:pl-2">
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                                 <div className="space-y-2">
                                     <div className="w-16 h-3 bg-slate-200 rounded-sm animate-pulse" />
@@ -490,9 +490,9 @@ const SozlamalarPage = () => {
                     </div>
 
                     {/* Layout: Avatar (Left) + Form (Right) */}
-                    <div className="flex flex-col sm:flex-row items-start sm:items-stretch gap-6 sm:gap-8 pt-6">
+                    <div className="flex flex-col lg:flex-row items-start lg:items-stretch gap-6 lg:gap-8 pt-6">
                         {/* LEFT: Avatar Area */}
-                        <div className="w-full sm:w-48 shrink-0 flex flex-col items-center text-center sm:pr-6 sm:border-r sm:border-slate-100 sm:justify-center">
+                        <div className="w-full lg:w-48 shrink-0 flex flex-col items-center text-center pb-6 lg:pb-0 lg:pr-6 border-b lg:border-b-0 lg:border-r border-slate-100 lg:justify-center">
                             <div
                                 onClick={() => !isUploadingAvatar && fileInputRef.current?.click()}
                                 className="w-28 h-28 sm:w-32 sm:h-32 rounded-full border-2 border-slate-200 overflow-hidden bg-slate-100 flex items-center justify-center shadow-xs shrink-0 relative group cursor-pointer hover:border-blue-400 transition-colors aspect-square"
@@ -557,7 +557,7 @@ const SozlamalarPage = () => {
                         </div>
 
                         {/* RIGHT: Profile Form Fields */}
-                        <div className="flex-1 w-full space-y-4 sm:space-y-4.5 sm:pl-2">
+                        <div className="flex-1 w-full space-y-4 sm:space-y-4.5 pt-4 lg:pt-0 lg:pl-2">
                             {/* Row 1: Ism & Familiya */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                                 <div className="space-y-1.5">
