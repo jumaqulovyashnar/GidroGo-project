@@ -11,7 +11,7 @@ const ACTION_OPTIONS = [
     { value: "bloklash", label: "Fermani bloklash" },
     { value: "boss tasdiqlash", label: "Bossni tasdiqlash" },
     { value: "rad etish", label: "Bossni rad etish" },
-    { value: "sozlama", label: "Sozlamani o'zgartirish" },
+    { value: "sozlama", label: "Sozlamani o'zgartirish" },  
     { value: "api", label: "API kalit yangilash" },
 ]
 
