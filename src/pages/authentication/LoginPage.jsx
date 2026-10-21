@@ -10,7 +10,7 @@ import heroImg from "@/shared/assets/login-hero.png"
 const loginSchema = z.object({
   login: z
     .string()
-    .min(1, "Iltimos, login yoki telefon raqamingizni kiriting.")
+    .min(1, "Iltimos, ismingiz yoki telefon raqamingizni kiriting.")
     .min(3, "Kamida 3 ta belgidan iborat bo'lishi kerak."),
   password: z
     .string()
@@ -75,7 +75,7 @@ function LoginPage() {
 
       {/* ===================== O'NG TOMON: LOGIN FORMASI ===================== */}
       <div className="w-full lg:w-1/2 min-h-screen flex flex-col justify-center items-center p-4 sm:p-8 lg:p-16 bg-slate-50/50">
-        <div className="w-full max-w-lg mx-auto bg-white p-7 sm:p-9 rounded-2xl border border-slate-200/80 shadow-[0_2px_10px_rgba(0,0,0,0.03)]">
+        <div className="w-full max-w-md mx-auto bg-white p-6 sm:p-8 rounded-2xl border border-slate-200/80 shadow-[0_2px_10px_rgba(0,0,0,0.03)]">
           {/* Forma sarlavhasi */}
           <div className="mb-6 text-center">
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
@@ -95,13 +95,13 @@ function LoginPage() {
             {/* Login yoki Telefon raqam input */}
             <Field>
               <Label htmlFor="login" className="font-medium text-sm text-slate-700 mb-1.5 block">
-                Login yoki telefon raqam
+                Ismingiz yoki telefon raqam
               </Label>
               <Input
                 id="login"
                 type="text"
                 autoComplete="username"
-                placeholder="+998 90 123 45 67 yoki admin"
+                placeholder="Ismingizni kiriting"
                 {...register("login")}
                 className="h-10 rounded-xl bg-white border-slate-200 shadow-xs focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 text-sm"
               />
@@ -153,7 +153,7 @@ function LoginPage() {
               <p className="text-xs text-rose-500 font-medium mt-1 bg-rose-50 p-2.5 rounded-lg border border-rose-100">
                 {loginMutation.error?.response?.data?.message ||
                   loginMutation.error?.message ||
-                  "Login, telefon raqami yoki parol noto'g'ri."}
+                  "Ism, telefon raqami yoki parol noto'g'ri."}
               </p>
             )}
 
