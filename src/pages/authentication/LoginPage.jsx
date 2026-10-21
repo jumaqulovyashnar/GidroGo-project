@@ -95,7 +95,7 @@ function LoginPage() {
             {/* Login yoki Telefon raqam input */}
             <Field>
               <Label htmlFor="login" className="font-medium text-sm text-slate-700 mb-1.5 block">
-                Ismingiz yoki telefon raqam
+                Ismingiz.
               </Label>
               <Input
                 id="login"
