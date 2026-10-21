@@ -301,18 +301,13 @@ export function XodimlarTable({
       </Card>
 
       {/* Jadval Pagination */}
-      {!isLoading && !isError && totalFilteredCount > 0 && (
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm text-slate-600 font-medium px-1 pt-1">
-          <div>
-            Jami {totalFilteredCount} xodimdan {paginatedEmployees.length} tasi ko'rsatilmoqda
-          </div>
-          <TablePagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={onPageChange}
-            className="p-0"
-          />
-        </div>
+      {!isLoading && !isError && totalPages > 1 && (
+        <TablePagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={onPageChange}
+          className="pt-4 pb-1"
+        />
       )}
     </>
   )

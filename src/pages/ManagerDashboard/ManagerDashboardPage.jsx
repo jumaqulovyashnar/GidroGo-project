@@ -516,18 +516,14 @@ export default function ManagerDashboardPage() {
         </div>
 
         {/* Pagination Table Carddan TASHQARIDA */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-500 px-1 pt-1">
-          <div>
-            Jami {filteredOrders.length} ta buyurtmadan {paginatedOrders.length} tasi ko'rsatilmoqda
-          </div>
+        {totalPages > 1 && (
           <TablePagination
             currentPage={currentPage}
             totalPages={totalPages}
             onPageChange={setCurrentPage}
-            totalItems={filteredOrders.length}
-            pageSize={pageSize}
+            className="pt-4 pb-1"
           />
-        </div>
+        )}
       </div>
 
       {/* Bottom 2 Operational Cards (2 qatorda alohida zamonaviy blok ko'rinishida) */}
