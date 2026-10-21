@@ -504,7 +504,7 @@ const AuditLogPage = () => {
                                             </TableCell>
 
                                             {/* 4. Tavsif va sabab */}
-                                            <TableCell className="py-4 px-4 align-middle min-w-[200px]">
+                                            <TableCell className="py-4 px-4 align-middle min-w-50">
                                                 <p className="text-xs text-slate-700 font-medium truncate max-w-sm" title={log.description}>
                                                     {log.description}
                                                 </p>
