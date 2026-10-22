@@ -284,7 +284,7 @@ export default function ManagerOrdersPage() {
 
           {/* Orders Table */}
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm border-collapse">
+            <table className="w-full text-left text-sm border-collapse min-w-[760px] lg:min-w-full">
               <thead>
                 <tr className="bg-slate-50/80 border-b border-slate-200/80 text-slate-500 font-semibold uppercase text-xs tracking-wider">
                   <th className="py-3.5 px-4">Mijoz & Telefon</th>
@@ -308,8 +308,8 @@ export default function ManagerOrdersPage() {
                   </tr>
                 ) : isOrdersError ? (
                   <tr>
-                    <td colSpan={7} className="py-16 text-center text-red-600">
-                      <div className="flex flex-col items-center justify-center gap-2">
+                    <td colSpan={7} className="p-0 py-16 text-center text-red-600">
+                      <div className="sticky left-0 sm:static w-[calc(100vw-2rem)] sm:w-full flex flex-col items-center justify-center gap-2 px-4 whitespace-normal">
                         <AlertCircle className="w-5 h-5 text-red-500" />
                         <span className="text-xs font-semibold">
                           {ordersError?.response?.data?.message || ordersError?.message || "Buyurtmalarni yuklashda xatolik"}
@@ -326,8 +326,10 @@ export default function ManagerOrdersPage() {
                   </tr>
                 ) : paginatedOrders.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-16 text-center text-slate-400">
-                      Hech qanday buyurtma topilmadi
+                    <td colSpan={7} className="p-0 py-16 text-center text-slate-400">
+                      <div className="sticky left-0 sm:static w-[calc(100vw-2rem)] sm:w-full flex flex-col items-center justify-center gap-2 px-4 whitespace-normal">
+                        <span>Hech qanday buyurtma topilmadi</span>
+                      </div>
                     </td>
                   </tr>
                 ) : (

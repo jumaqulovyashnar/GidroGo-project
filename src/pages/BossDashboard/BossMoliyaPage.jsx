@@ -331,7 +331,7 @@ export function BossMoliyaPage() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
+          <table className="w-full text-left text-xs border-collapse min-w-[650px] lg:min-w-full">
             <thead>
               <tr className="bg-slate-50/80 border-b border-slate-200/80 text-slate-500 font-semibold uppercase tracking-wider">
                 <th className="py-3 px-4">Kategoriya / Nomi</th>

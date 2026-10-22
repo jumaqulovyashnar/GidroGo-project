@@ -95,9 +95,9 @@ export default function ManagerCouriersMapPage() {
       )}
 
       {/* Main Map + Couriers List Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 h-[calc(100vh-230px)] min-h-[500px]">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 h-auto lg:h-[calc(100vh-230px)] min-h-[500px]">
         {/* Map Container (9 cols on large screen) */}
-        <div className="lg:col-span-8 xl:col-span-9 h-full rounded-2xl overflow-hidden border border-slate-200 shadow-xs relative bg-white">
+        <div className="lg:col-span-8 xl:col-span-9 h-[380px] sm:h-[450px] lg:h-full rounded-2xl overflow-hidden border border-slate-200 shadow-xs relative bg-white">
           <Suspense
             fallback={
               <div className="w-full h-full flex flex-col items-center justify-center gap-3 bg-white">
@@ -116,7 +116,7 @@ export default function ManagerCouriersMapPage() {
         </div>
 
         {/* Couriers Sidebar Panel (3 cols on large screen) */}
-        <div className="lg:col-span-4 xl:col-span-3 h-full flex flex-col bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        <div className="lg:col-span-4 xl:col-span-3 h-[340px] sm:h-[400px] lg:h-full flex flex-col bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
           <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
               Kuryerlar ro'yxati

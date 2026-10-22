@@ -285,7 +285,7 @@ export default function ManagerOrderDetailPage() {
             </h2>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm border-collapse">
+              <table className="w-full text-left text-sm border-collapse min-w-[500px] lg:min-w-full">
                 <thead>
                   <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase text-xs tracking-wider">
                     <th className="py-3.5 px-4">Mahsulot nomi</th>

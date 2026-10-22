@@ -408,7 +408,7 @@ export default function ManagerAllOrdersPage() {
                   leftSection={<Calendar className="w-3.5 h-3.5 text-slate-400 pointer-events-none" />}
                   rightSection={<ChevronDown className="w-3.5 h-3.5 text-slate-400 pointer-events-none" />}
                   classNames={{
-                    root: "w-36",
+                    root: "w-full sm:w-36",
                     input:
                       "!h-9 !rounded-xl !border-slate-200 !bg-slate-50 hover:!bg-slate-100/80 focus:!bg-white !text-slate-700 !text-xs !font-semibold !cursor-pointer transition-colors focus:!border-blue-500 shadow-2xs",
                     dropdown:
@@ -428,7 +428,7 @@ export default function ManagerAllOrdersPage() {
                   allowDeselect={false}
                   rightSection={<ChevronDown className="w-3.5 h-3.5 text-slate-400 pointer-events-none" />}
                   classNames={{
-                    root: "w-44",
+                    root: "w-full sm:w-44",
                     input:
                       "!h-9 !rounded-xl !border-slate-200 !bg-slate-50 hover:!bg-slate-100/80 focus:!bg-white !text-slate-700 !text-xs !font-semibold !cursor-pointer transition-colors focus:!border-blue-500 shadow-2xs",
                     dropdown:
@@ -443,7 +443,7 @@ export default function ManagerAllOrdersPage() {
 
           {/* Orders Table */}
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm border-collapse">
+            <table className="w-full text-left text-sm border-collapse min-w-[850px] lg:min-w-full">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase text-xs tracking-wider">
                   <th className="py-3.5 px-4">Mijoz & Telefon</th>
@@ -459,18 +459,18 @@ export default function ManagerAllOrdersPage() {
               <tbody className="divide-y divide-slate-100">
                 {isOrdersLoading ? (
                   <tr>
-                    <td colSpan={8} className="py-16 text-center text-slate-400">
-                      <div className="flex items-center justify-center gap-2">
-                        <span className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                    <td colSpan={8} className="p-0 py-16 text-center text-slate-400">
+                      <div className="sticky left-0 sm:static w-[calc(100vw-2rem)] sm:w-full flex items-center justify-center gap-2 px-4 whitespace-normal">
+                        <span className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin shrink-0" />
                         <span>Buyurtmalar yuklanmoqda...</span>
                       </div>
                     </td>
                   </tr>
                 ) : isOrdersError ? (
                   <tr>
-                    <td colSpan={8} className="py-16 text-center text-red-600">
-                      <div className="flex flex-col items-center justify-center gap-2">
-                        <AlertCircle className="w-5 h-5 text-red-500" />
+                    <td colSpan={8} className="p-0 py-16 text-center text-red-600">
+                      <div className="sticky left-0 sm:static w-[calc(100vw-2rem)] sm:w-full flex flex-col items-center justify-center gap-2 px-4 whitespace-normal">
+                        <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />
                         <span className="text-xs font-semibold">
                           {ordersError?.response?.data?.message || ordersError?.message || "Buyurtmalarni yuklashda xatolik"}
                         </span>
@@ -486,8 +486,10 @@ export default function ManagerAllOrdersPage() {
                   </tr>
                 ) : paginatedOrders.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="py-16 text-center text-slate-400">
-                      Hech qanday buyurtma topilmadi
+                    <td colSpan={8} className="p-0 py-16 text-center text-slate-400">
+                      <div className="sticky left-0 sm:static w-[calc(100vw-2rem)] sm:w-full flex items-center justify-center px-4 whitespace-normal">
+                        <span>Hech qanday buyurtma topilmadi</span>
+                      </div>
                     </td>
                   </tr>
                 ) : (

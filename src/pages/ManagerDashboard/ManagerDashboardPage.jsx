@@ -378,8 +378,8 @@ export default function ManagerDashboardPage() {
       <div className="space-y-4">
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex flex-col overflow-hidden">
           {/* Table header & quick filter */}
-          <div className="p-5 sm:p-6 border-b border-slate-100 flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
+          <div className="p-4 sm:p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+            <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
               <h2 className="text-base sm:text-lg font-bold text-slate-900">Bugungi buyurtmalar</h2>
               {/* Props-driven Select for status filtering */}
               <SelectFilter
@@ -390,7 +390,7 @@ export default function ManagerDashboardPage() {
                 }}
                 options={statusOptions}
                 icon={Filter}
-                className="w-48"
+                className="w-44 sm:w-48"
                 ariaLabel="Buyurtma holatini tanlash"
               />
             </div>
@@ -398,7 +398,7 @@ export default function ManagerDashboardPage() {
             <button
               type="button"
               onClick={() => navigate("/manager/barcha-buyurtmalar")}
-              className="text-xs font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors"
+              className="text-xs font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors self-start sm:self-auto"
             >
               <span>Barcha buyurtmalar</span>
               <ChevronRight className="w-3.5 h-3.5" />
@@ -407,7 +407,7 @@ export default function ManagerDashboardPage() {
 
           {/* Table Content (No ID column, clean and readable) */}
           <div className="overflow-x-auto min-h-[320px]">
-            <table className="w-full text-left text-sm border-collapse">
+            <table className="w-full text-left text-sm border-collapse min-w-[760px] lg:min-w-full">
               <thead>
                 <tr className="bg-slate-50/80 border-b border-slate-200/80 text-slate-500 font-semibold uppercase text-xs tracking-wider">
                   <th className="py-3.5 px-4">Mijoz & Aloqa</th>

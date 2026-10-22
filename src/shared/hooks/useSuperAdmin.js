@@ -31,10 +31,34 @@ export const useGrowthStatistics = (params = {}) => {
   })
 }
 
-export const useAuditLogs = (params = {}) => {
+export const useAuditLogs = (params = {}, options = {}) => {
   return useQuery({
     queryKey: ["audit-logs", params],
     queryFn: () => superAdminService.getAuditLogs(params),
+    ...options,
+  })
+}
+
+export const useAuditLogStats = (params = {}, options = {}) => {
+  return useQuery({
+    queryKey: ["audit-log-stats", params],
+    queryFn: () => superAdminService.getAuditLogStats(params),
+    ...options,
+  })
+}
+
+export const useAuditLogFilters = (options = {}) => {
+  return useQuery({
+    queryKey: ["audit-log-filters"],
+    queryFn: () => superAdminService.getAuditLogFilters(),
+    staleTime: 5 * 60 * 1000,
+    ...options,
+  })
+}
+
+export const useExportAuditLogs = () => {
+  return useMutation({
+    mutationFn: (params) => superAdminService.exportAuditLogs(params),
   })
 }
 

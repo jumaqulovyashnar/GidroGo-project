@@ -61,11 +61,44 @@ class SuperAdminService {
     }
   }
 
-  // 7. GET /api/superadmin/audit-log - Audit Log
+  // 7. GET /api/superadmin/audit-logs - Audit Log
   async getAuditLogs(params = {}) {
     try {
-      const response = await api.get("/superadmin/audit-log", { params })
+      const response = await api.get("/superadmin/audit-logs", { params })
       return response.data
+    } catch (error) {
+      throw new Error(handleApiError(error))
+    }
+  }
+
+  // 7a. GET /api/superadmin/audit-logs/stats - Audit Log KPI statistikasi
+  async getAuditLogStats(params = {}) {
+    try {
+      const response = await api.get("/superadmin/audit-logs/stats", { params })
+      return response.data
+    } catch (error) {
+      throw new Error(handleApiError(error))
+    }
+  }
+
+  // 7b. GET /api/superadmin/audit-logs/filters - Audit Log filter dropdownlari uchun parametrlar
+  async getAuditLogFilters() {
+    try {
+      const response = await api.get("/superadmin/audit-logs/filters")
+      return response.data
+    } catch (error) {
+      throw new Error(handleApiError(error))
+    }
+  }
+
+  // 7c. GET /api/superadmin/audit-logs/export - Audit Loglarni CSV/Excel formatida eksport qilish
+  async exportAuditLogs(params = {}) {
+    try {
+      const response = await api.get("/superadmin/audit-logs/export", {
+        params,
+        responseType: "blob",
+      })
+      return response
     } catch (error) {
       throw new Error(handleApiError(error))
     }

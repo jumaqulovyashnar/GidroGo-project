@@ -115,7 +115,7 @@ const TasdiqlashPage = () => {
             Tasdiqlash so'rovlari
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Yangi ferma rahbarlarining tizimga kirish va faollashtirish arizalarini ko'rib chiqish.
+            Faollashtirish arizalarini ko'rib chiqish.
           </p>
         </div>
 
@@ -140,7 +140,7 @@ const TasdiqlashPage = () => {
 
       {/* 2. Metrika Kartochkalari */}
       {isLoadingRequests ? (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[...Array(3)].map((_, i) => (
             <Card
               key={i}
@@ -160,7 +160,7 @@ const TasdiqlashPage = () => {
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {metricCards.map((item, idx) => {
             const Icon = item.icon
             return (
@@ -203,23 +203,23 @@ const TasdiqlashPage = () => {
       )}
 
       {/* 3. Tabs */}
-      <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-2.5 pt-2">
+      <div className="flex flex-row items-center gap-2 sm:gap-2.5 pt-2 w-full sm:w-auto">
         <button
           type="button"
           onClick={() => {
             setActiveTab("barcha")
             setCurrentPage(1)
           }}
-          className={`h-9 sm:h-10 px-3.5 sm:px-4 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer shadow-xs shrink-0 ${
+          className={`h-9 sm:h-10 flex-1 sm:flex-initial px-2.5 sm:px-4 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer shadow-xs min-w-0 ${
             activeTab === "barcha"
               ? "bg-[#2563EB] text-white shadow-blue-500/20"
               : "bg-white text-slate-700 hover:bg-slate-50 border border-slate-200/80"
           }`}
         >
-          <FolderArchive className="size-4" />
-          <span>Barcha arizalar</span>
+          <FolderArchive className="size-4 shrink-0" />
+          <span className="truncate">Barcha arizalar</span>
           <span
-            className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+            className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${
               activeTab === "barcha"
                 ? "bg-white/20 text-white"
                 : "bg-blue-50 text-blue-600"
@@ -235,17 +235,17 @@ const TasdiqlashPage = () => {
             setActiveTab("arxiv")
             setCurrentPage(1)
           }}
-          className={`h-9 sm:h-10 px-3.5 sm:px-4 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer shadow-xs shrink-0 ${
+          className={`h-9 sm:h-10 flex-1 sm:flex-initial px-2.5 sm:px-4 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer shadow-xs min-w-0 ${
             activeTab === "arxiv"
               ? "bg-[#2563EB] text-white shadow-blue-500/20"
               : "bg-white text-slate-700 hover:bg-slate-50 border border-slate-200/80"
           }`}
         >
-          <Archive className="size-4" />
-          <span>Arxivlanganlar</span>
+          <Archive className="size-4 shrink-0" />
+          <span className="truncate">Arxivlanganlar</span>
           <span className="hidden lg:inline text-inherit font-normal">(Tasdiqlangan/Rad etilgan)</span>
           <span
-            className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+            className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${
               activeTab === "arxiv"
                 ? "bg-white/20 text-white"
                 : "bg-slate-100 text-slate-600"
@@ -282,8 +282,8 @@ const TasdiqlashPage = () => {
           <TableBody>
             {isLoadingRequests ? (
               <TableRow>
-                <TableCell colSpan={5} className="px-4 py-14 text-center">
-                  <div className="flex flex-col items-center justify-center gap-2">
+                <TableCell colSpan={5} className="p-0 py-14 text-center">
+                  <div className="sticky left-0 sm:static w-[calc(100vw-2rem)] sm:w-full flex flex-col items-center justify-center gap-2 px-4 whitespace-normal">
                     <Spinner size="md" />
                     <p className="text-xs font-medium text-slate-500">Arizalar yuklanmoqda...</p>
                   </div>
@@ -293,11 +293,11 @@ const TasdiqlashPage = () => {
               <TableRow>
                 <TableCell
                   colSpan={5}
-                  className="px-4 py-12 text-center text-slate-400 text-sm"
+                  className="p-0 py-12 text-center text-slate-400 text-sm"
                 >
-                  <div className="flex flex-col items-center justify-center gap-2">
-                    <Building2 className="size-8 text-slate-300" />
-                    <span>Hozircha arizalar mavjud emas.</span>
+                  <div className="sticky left-0 sm:static w-[calc(100vw-2rem)] sm:w-full flex flex-col items-center justify-center gap-2 px-4 whitespace-normal">
+                    <Building2 className="size-8 text-slate-300 shrink-0" />
+                    <span className="text-xs sm:text-sm">Hozircha arizalar mavjud emas.</span>
                   </div>
                 </TableCell>
               </TableRow>

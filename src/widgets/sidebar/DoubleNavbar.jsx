@@ -1,5 +1,5 @@
 import { useNavigate, useLocation, Link } from "react-router-dom"
-import { LogOut } from "lucide-react"
+import { LogOut, X } from "lucide-react"
 import { useAuth } from "@/provider/AuthProvider"
 import { getSidebarMenu } from "./sidebarConfig"
 import LogoImg from "@/shared/assets/Logo.png"
@@ -11,7 +11,7 @@ const ROLE_TITLES = {
   DRIVER: "Yetkazib beruvchi",
 }
 
-export function DoubleNavbar({ role }) {
+export function DoubleNavbar({ role, onCloseMobile }) {
   const navigate = useNavigate()
   const location = useLocation()
   const { user, logout } = useAuth()
@@ -40,19 +40,20 @@ export function DoubleNavbar({ role }) {
     >
       {/* Yuqori qism: Logo + Boshqaruv sarlavhasi (SEO va A11y ga moslangan) */}
       <div className="flex flex-col min-h-0 flex-1">
-        <header className="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
+        <header className="px-4 py-4 border-b border-slate-100 flex items-center justify-between gap-3">
           <Link
             to={menuItems[0]?.path || "/"}
-            className="flex items-center gap-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 rounded-xl"
+            onClick={() => onCloseMobile?.()}
+            className="flex items-center gap-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 rounded-xl min-w-0"
             title="GidroGo — Bosh sahifa"
           >
             {/* Logo - SEO va tezlik uchun optimallashtirilgan */}
-            <div className="size-11 rounded-full overflow-hidden border border-slate-200/90 bg-white p-1 shrink-0 shadow-2xs group-hover:border-blue-400 transition-colors flex items-center justify-center">
+            <div className="size-10 rounded-full overflow-hidden border border-slate-200/90 bg-white p-1 shrink-0 shadow-2xs group-hover:border-blue-400 transition-colors flex items-center justify-center">
               <img
                 src={LogoImg}
                 alt="GidroGo — Toza Ichimlik Suvi Yetkazib Berish Tizimi"
-                width="44"
-                height="44"
+                width="40"
+                height="40"
                 loading="eager"
                 fetchPriority="high"
                 decoding="async"
@@ -62,7 +63,7 @@ export function DoubleNavbar({ role }) {
 
             {/* Boshqaruv sarlavhasi */}
             <div className="min-w-0">
-              <h1 className="text-base font-bold text-slate-900 tracking-tight truncate leading-tight font-sans group-hover:text-blue-600 transition-colors">
+              <h1 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight truncate leading-tight font-sans group-hover:text-blue-600 transition-colors">
                 {roleTitle}
               </h1>
               <p className="text-[11px] font-semibold text-blue-600 truncate tracking-wide mt-0.5">
@@ -70,6 +71,18 @@ export function DoubleNavbar({ role }) {
               </p>
             </div>
           </Link>
+
+          {/* Mobil ekranlarda yopish (X) tugmasi */}
+          {onCloseMobile && (
+            <button
+              type="button"
+              onClick={onCloseMobile}
+              aria-label="Menyuni yopish"
+              className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
+            >
+              <X className="size-5" />
+            </button>
+          )}
         </header>
 
         {/* Asosiy navigatsiya ro'yxati */}
@@ -94,6 +107,7 @@ export function DoubleNavbar({ role }) {
                 aria-current={isActive ? "page" : undefined}
                 onClick={(event) => {
                   event.preventDefault()
+                  onCloseMobile?.()
                   navigate(item.path)
                 }}
                 className={`group flex items-center gap-3 px-4 py-2.5 rounded-full text-sm font-semibold transition-all cursor-pointer ${
@@ -121,7 +135,10 @@ export function DoubleNavbar({ role }) {
       <footer className="p-4 border-t border-slate-100">
         <button
           type="button"
-          onClick={logout}
+          onClick={() => {
+            onCloseMobile?.()
+            logout()
+          }}
           aria-label="Tizimdan chiqish"
           className="flex items-center gap-2.5 w-full px-3.5 py-2.5 rounded-xl text-sm font-semibold text-rose-600 bg-rose-50/70 hover:bg-rose-100 hover:text-rose-700 border border-rose-100 transition-colors cursor-pointer"
         >

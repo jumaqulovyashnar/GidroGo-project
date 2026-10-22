@@ -86,7 +86,7 @@ export function XodimlarTable({
 
         {/* Asosiy Xodimlar Jadvali (Oraliq masofalar bir xil, tekis taqsimlangan) */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse table-fixed">
+          <table className="w-full text-left border-collapse table-fixed min-w-[720px] lg:min-w-full">
             <colgroup>
               <col className="w-[26%]" />
               <col className="w-[18%]" />
@@ -139,8 +139,8 @@ export function XodimlarTable({
               ) : isError ? (
                 /* 2. Xatolik holati */
                 <tr>
-                  <td colSpan={6} className="py-14 text-center">
-                    <div className="flex flex-col items-center justify-center gap-3 max-w-sm mx-auto">
+                  <td colSpan={6} className="p-0 py-14 text-center">
+                    <div className="sticky left-0 sm:static w-[calc(100vw-2rem)] sm:w-full flex flex-col items-center justify-center gap-3 max-w-sm mx-auto px-4 whitespace-normal">
                       <div className="size-10 rounded-full bg-rose-50 text-rose-500 border border-rose-100 flex items-center justify-center">
                         <AlertCircle className="size-5" />
                       </div>
@@ -169,8 +169,8 @@ export function XodimlarTable({
               ) : totalFilteredCount === 0 ? (
                 /* 3. Bo'sh ro'yxat holati */
                 <tr>
-                  <td colSpan={6} className="py-14 text-center text-slate-400 text-xs">
-                    <div className="flex flex-col items-center justify-center gap-2">
+                  <td colSpan={6} className="p-0 py-14 text-center text-slate-400 text-xs">
+                    <div className="sticky left-0 sm:static w-[calc(100vw-2rem)] sm:w-full flex flex-col items-center justify-center gap-2 px-4 whitespace-normal">
                       <div className="size-10 rounded-full bg-slate-50 text-slate-400 border border-slate-100 flex items-center justify-center">
                         <Search className="size-4" />
                       </div>

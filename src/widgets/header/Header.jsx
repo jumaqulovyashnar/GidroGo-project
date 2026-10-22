@@ -2,9 +2,9 @@ import { useState, useMemo, useEffect } from "react"
 import { useAuth } from "@/provider/AuthProvider"
 import { useSuperAdminProfile } from "@/shared/hooks"
 import { resolveFileUrl } from "@/shared/lib"
-import { User } from "lucide-react"
+import { User, Menu } from "lucide-react"
 
-export function Header() {
+export function Header({ onToggleSidebar }) {
   const { user } = useAuth()
 
   const isSuperAdmin = user?.role === "SUPER_ADMIN" || user?.rawRole === "ROLE_SUPER_ADMIN"
@@ -50,19 +50,29 @@ export function Header() {
   const displayPhone = profile?.phone || user?.phone || ""
 
   return (
-    <header className="h-16 w-full border-b border-slate-200 bg-white px-6 flex items-center justify-between sticky top-0 z-10 shadow-xs">
-      {/* Chap tomon: Foydalanuvchi roli */}
-      <div className="flex items-center gap-3">
-        <h2 className="text-lg font-bold text-black tracking-tight">
+    <header className="h-16 w-full border-b border-slate-200 bg-white px-4 sm:px-6 flex items-center justify-between sticky top-0 z-10 shadow-xs">
+      {/* Chap tomon: Mobil menu tugmasi + Foydalanuvchi roli */}
+      <div className="flex items-center gap-2.5 sm:gap-3">
+        {onToggleSidebar && (
+          <button
+            type="button"
+            onClick={onToggleSidebar}
+            aria-label="Menyuni ochish"
+            className="lg:hidden p-2 -ml-1.5 rounded-xl text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+          >
+            <Menu className="size-5" />
+          </button>
+        )}
+        <h2 className="text-base sm:text-lg font-bold text-black tracking-tight truncate max-w-[160px] sm:max-w-none">
           {displayRole}
         </h2>
       </div>
 
       {/* O'ng tomon: Profil */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3 sm:gap-4">
         {/* Profil ma'lumotlari */}
-        <div className="flex items-center gap-3">
-          <div className="size-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-xs overflow-hidden shrink-0 border border-slate-200/80">
+        <div className="flex items-center gap-2.5 sm:gap-3">
+          <div className="size-9 sm:size-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs sm:text-sm shadow-xs overflow-hidden shrink-0 border border-slate-200/80">
             {avatarUrl && !imageError ? (
               <img
                 src={avatarUrl}
