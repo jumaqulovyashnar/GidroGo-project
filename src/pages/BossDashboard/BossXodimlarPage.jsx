@@ -228,22 +228,22 @@ export function BossXodimlarPage() {
   return (
     <div className="space-y-6 pb-10">
       {/* 1. Sarlavha va Amallar Paneli */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
-            Xodimlar va Dastavkachilar Boshqaruvi
+          <h1 className="text-xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+            Xodimlar boshqaruvi
           </h1>
-          <p className="text-sm sm:text-base text-slate-600 font-medium mt-1.5 max-w-3xl leading-relaxed">
-            Menejer va dastavkachilar ro‘yxati hamda faoliyat monitoringi.
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            Xodimlar ro'yxati va faoliyat monitoringi.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 shrink-0 flex-wrap sm:flex-nowrap">
+        <div className="flex flex-row items-center gap-2 w-full sm:w-auto shrink-0 [&>button]:flex-1 sm:[&>button]:flex-initial">
           <Button
             variant="outline"
             size="sm"
             onClick={handleExportCSV}
-            className="h-9 rounded-xl border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-xs font-semibold gap-1.5 shadow-2xs px-3.5 flex items-center cursor-pointer transition-colors"
+            className="h-9 rounded-xl border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-xs font-semibold gap-1.5 shadow-2xs px-3.5 flex items-center justify-center cursor-pointer transition-colors"
           >
             <Download className="size-3.5 text-slate-500" />
             <span>Eksport CSV</span>
@@ -253,10 +253,10 @@ export function BossXodimlarPage() {
             variant="default"
             size="sm"
             onClick={() => setIsAddModalOpen(true)}
-            className="h-9 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold gap-1.5 shadow-2xs px-3.5 flex items-center shrink-0 cursor-pointer transition-colors whitespace-nowrap"
+            className="h-9 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold gap-1.5 shadow-2xs px-3.5 flex items-center justify-center shrink-0 cursor-pointer transition-colors whitespace-nowrap"
           >
             <Plus className="size-4 stroke-2" />
-            <span>Yangi Xodim Qo'shish</span>
+            <span>Yangi xodim</span>
           </Button>
         </div>
       </div>

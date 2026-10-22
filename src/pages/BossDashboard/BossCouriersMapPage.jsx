@@ -56,11 +56,11 @@ export function BossCouriersMapPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
-            Dastavkachilar Jonli GPS Xaritasi
+          <h1 className="text-xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+            Dastavkachilar jonli xaritasi
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Fermaga biriktirilgan kuryerlarning real vaqtdagi GPS lokatsiyasi va buyurtma yetkazish yo'nalishlari.
+            Kuryerlar lokatsiyasi va marshrut monitoringi.
           </p>
         </div>
 

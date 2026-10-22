@@ -56,11 +56,11 @@ export default function ManagerCouriersMapPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
-            Dastavkachilar Jonli Xaritasi
+          <h1 className="text-xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+            Dastavkachilar jonli xaritasi
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Real vaqtdagi GPS lokatsiyasi, faol kuryerlar va yetkazish marshrutlari monitoringi.
+            Kuryerlar lokatsiyasi va marshrut monitoringi.
           </p>
         </div>
 

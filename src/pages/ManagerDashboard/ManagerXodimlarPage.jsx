@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react"
 import { useNavigate } from "react-router-dom"
 import { Users, Truck, Search, CheckCircle2, Banknote, Clock, ArrowRight } from "lucide-react"
+import { formatDisplayPhone } from "@/shared/lib"
 import {
   useCourierCashBalances,
   useCashHandovers,
@@ -131,11 +132,11 @@ export default function ManagerXodimlarPage() {
       {/* Header Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+          <h1 className="text-xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
             Xodimlar (Dastavkachilar)
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Kuryerlar shtati, transport vositalari, sektorlar va kunlik yetkazish monitoringi.
+            Kuryerlar, transport va yetkazish monitoringi.
           </p>
         </div>
       </div>
@@ -234,7 +235,7 @@ export default function ManagerXodimlarPage() {
       {/* Couriers List Card */}
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex flex-col">
         {/* Table Filters */}
-        <div className="p-5 sm:p-6 border-b border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="p-4 sm:p-6 border-b border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="relative w-full sm:w-80">
             <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
@@ -242,15 +243,15 @@ export default function ManagerXodimlarPage() {
               placeholder="Qidiruv..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 focus:bg-white"
+              className="w-full pl-9 pr-3 py-2 sm:py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 focus:bg-white"
             />
           </div>
 
-          <div className="flex items-center gap-1.5 w-full sm:w-auto">
+          <div className="flex items-center gap-1 sm:gap-1.5 w-full sm:w-auto">
             <button
               type="button"
               onClick={() => setStatusFilter("all")}
-              className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
+              className={`flex-1 sm:flex-initial text-center px-2.5 sm:px-3 py-1.5 sm:py-1 rounded-lg text-xs font-medium transition-colors ${
                 statusFilter === "all" ? "bg-blue-600 text-white shadow-xs" : "bg-slate-100 text-slate-600 hover:text-slate-900"
               }`}
             >
@@ -259,7 +260,7 @@ export default function ManagerXodimlarPage() {
             <button
               type="button"
               onClick={() => setStatusFilter("on_way")}
-              className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
+              className={`flex-1 sm:flex-initial text-center px-2.5 sm:px-3 py-1.5 sm:py-1 rounded-lg text-xs font-medium transition-colors ${
                 statusFilter === "on_way" ? "bg-blue-600 text-white shadow-xs" : "bg-slate-100 text-slate-600 hover:text-slate-900"
               }`}
             >
@@ -268,7 +269,7 @@ export default function ManagerXodimlarPage() {
             <button
               type="button"
               onClick={() => setStatusFilter("free")}
-              className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
+              className={`flex-1 sm:flex-initial text-center px-2.5 sm:px-3 py-1.5 sm:py-1 rounded-lg text-xs font-medium transition-colors ${
                 statusFilter === "free" ? "bg-blue-600 text-white shadow-xs" : "bg-slate-100 text-slate-600 hover:text-slate-900"
               }`}
             >
@@ -278,10 +279,10 @@ export default function ManagerXodimlarPage() {
         </div>
 
         {/* Couriers Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm border-collapse min-w-[760px] lg:min-w-full">
+        <div className="overflow-x-auto w-full">
+          <table className="w-full text-left text-sm border-collapse min-w-[850px] lg:min-w-full">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase text-xs tracking-wider">
+              <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase text-xs tracking-wider whitespace-nowrap">
                 <th className="py-3.5 px-4">Kuryer</th>
                 <th className="py-3.5 px-4">Telefon raqam</th>
                 <th className="py-3.5 px-4">Transport</th>
@@ -294,47 +295,49 @@ export default function ManagerXodimlarPage() {
             <tbody className="divide-y divide-slate-100">
               {filteredCouriers.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-16 text-center text-slate-400">
-                    Kuryerlar topilmadi
+                  <td colSpan={7} className="p-0 py-16 text-center text-slate-400">
+                    <div className="sticky left-0 sm:static w-[calc(100vw-2rem)] sm:w-full flex items-center justify-center px-4 whitespace-normal">
+                      <span>Kuryerlar topilmadi</span>
+                    </div>
                   </td>
                 </tr>
               ) : (
                 filteredCouriers.map((courier) => {
                   const courierCash = getCourierCashBalance(courier.id)
                   return (
-                    <tr key={courier.id} className="hover:bg-slate-50/80 transition-colors min-h-14">
-                      <td className="py-4 px-4">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 font-bold text-xs flex items-center justify-center shrink-0">
+                    <tr key={courier.id} className="hover:bg-slate-50/80 transition-colors h-16 whitespace-nowrap">
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        <div className="flex items-center gap-3">
+                          <div className="size-9 rounded-xl bg-blue-50 text-blue-600 font-bold text-xs flex items-center justify-center shrink-0 border border-blue-100/60 shadow-2xs">
                             {courier.initials}
                           </div>
                           <div>
-                            <div className="font-semibold text-slate-900">
+                            <div className="font-semibold text-slate-900 text-sm whitespace-nowrap">
                               {courier.name}
                             </div>
-                            <div className="text-xs text-slate-400">Dastavkachi xodim</div>
+                            <div className="text-xs text-slate-400 whitespace-nowrap">Dastavkachi xodim</div>
                           </div>
                         </div>
                       </td>
-                      <td className="py-4 px-4 font-mono text-slate-700">
-                        {courier.phone}
+                      <td className="py-3.5 px-4 whitespace-nowrap font-mono text-slate-700 text-xs">
+                        {formatDisplayPhone(courier.phone)}
                       </td>
-                      <td className="py-4 px-4">
+                      <td className="py-3.5 px-4 whitespace-nowrap">
                         {courier.vehicle && courier.vehicle !== "-" ? (
                           <div>
-                            <div className="font-medium text-slate-800">{courier.vehicle}</div>
+                            <div className="font-medium text-slate-800 text-xs">{courier.vehicle}</div>
                             {courier.plate && (
-                              <div className="text-xs text-slate-400 font-mono">{courier.plate}</div>
+                              <div className="text-[11px] text-slate-400 font-mono">{courier.plate}</div>
                             )}
                           </div>
                         ) : (
                           <span className="text-slate-400 text-xs">Biriktirilmagan</span>
                         )}
                       </td>
-                      <td className="py-4 px-4">
-                        <span className="font-semibold text-blue-600">{courier.load}</span>
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        <span className="font-semibold text-blue-600 text-xs">{courier.load}</span>
                       </td>
-                      <td className="py-4 px-4">
+                      <td className="py-3.5 px-4 whitespace-nowrap">
                         <span
                           className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${
                             courier.isOnline
@@ -345,16 +348,16 @@ export default function ManagerXodimlarPage() {
                           {courier.statusText}
                         </span>
                       </td>
-                      <td className="py-4 px-4">
-                        <span className={`font-bold font-mono ${courierCash > 0 ? "text-emerald-700" : "text-slate-500"}`}>
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        <span className={`font-bold font-mono text-xs ${courierCash > 0 ? "text-emerald-700" : "text-slate-500"}`}>
                           {Number(courierCash || 0).toLocaleString()} so'm
                         </span>
                       </td>
-                      <td className="py-4 px-4 text-right">
+                      <td className="py-3.5 px-4 whitespace-nowrap text-right">
                         <button
                           type="button"
                           onClick={() => navigate("/manager/dastavkachilar-xarita")}
-                          className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors cursor-pointer"
+                          className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors cursor-pointer"
                         >
                           Xaritada
                         </button>

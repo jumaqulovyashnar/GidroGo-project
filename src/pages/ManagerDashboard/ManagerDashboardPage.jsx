@@ -18,6 +18,7 @@ export function SelectFilter({
   onChange,
   options = [],
   className = "", 
+  inputClassName = "",
   ariaLabel = "Filter",
   icon: Icon,
 }) {
@@ -33,8 +34,9 @@ export function SelectFilter({
       rightSection={<ChevronDown className="w-3.5 h-3.5 text-slate-400 pointer-events-none" />}
       classNames={{
         root: className || "w-36",
-        input:
-          "!h-9 !rounded-xl !border-slate-200 !bg-white hover:!bg-slate-50 !text-slate-800 !text-xs !font-semibold !cursor-pointer transition-colors focus:!border-blue-500 shadow-2xs",
+        input: inputClassName
+          ? `!rounded-xl !border-slate-200 !bg-white hover:!bg-slate-50 !text-slate-800 !font-semibold !cursor-pointer transition-colors focus:!border-blue-500 shadow-2xs ${inputClassName}`
+          : "!h-9 !rounded-xl !border-slate-200 !bg-white hover:!bg-slate-50 !text-slate-800 !text-xs !font-semibold !cursor-pointer transition-colors focus:!border-blue-500 shadow-2xs",
         dropdown:
           "!rounded-xl !border-slate-200 !shadow-lg !p-1.5 !bg-white z-50",
         option:
@@ -379,26 +381,55 @@ export default function ManagerDashboardPage() {
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex flex-col overflow-hidden">
           {/* Table header & quick filter */}
           <div className="p-4 sm:p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
-            <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
               <h2 className="text-base sm:text-lg font-bold text-slate-900">Bugungi buyurtmalar</h2>
-              {/* Props-driven Select for status filtering */}
-              <SelectFilter
-                value={orderTab}
-                onChange={(val) => {
-                  setOrderTab(val)
-                  setCurrentPage(1)
-                }}
-                options={statusOptions}
-                icon={Filter}
-                className="w-44 sm:w-48"
-                ariaLabel="Buyurtma holatini tanlash"
-              />
+              
+              {/* Mobil (< sm) uchun: Barcha holat va Barcha buyurtmalar bitta flex qatorda */}
+              <div className="flex sm:hidden items-center justify-between gap-3 w-full pt-1.5 pb-0.5">
+                <SelectFilter
+                  value={orderTab}
+                  onChange={(val) => {
+                    setOrderTab(val)
+                    setCurrentPage(1)
+                  }}
+                  options={statusOptions}
+                  icon={Filter}
+                  className="w-36"
+                  inputClassName="!h-8 !text-[11px] !px-2.5"
+                  ariaLabel="Buyurtma holatini tanlash"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => navigate("/manager/barcha-buyurtmalar")}
+                  className="text-[11px] font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors shrink-0 py-1"
+                >
+                  <span>Barcha buyurtmalar</span>
+                  <ChevronRight className="w-3 h-3" />
+                </button>
+              </div>
+
+              {/* Planshet va Desktop (>= sm) uchun filtr */}
+              <div className="hidden sm:block">
+                <SelectFilter
+                  value={orderTab}
+                  onChange={(val) => {
+                    setOrderTab(val)
+                    setCurrentPage(1)
+                  }}
+                  options={statusOptions}
+                  icon={Filter}
+                  className="w-48"
+                  ariaLabel="Buyurtma holatini tanlash"
+                />
+              </div>
             </div>
 
+            {/* Planshet va Desktop (>= sm) uchun o'ng tomondagi havola */}
             <button
               type="button"
               onClick={() => navigate("/manager/barcha-buyurtmalar")}
-              className="text-xs font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors self-start sm:self-auto"
+              className="hidden sm:flex text-xs font-semibold text-blue-600 hover:text-blue-800 items-center gap-1 transition-colors self-start sm:self-auto"
             >
               <span>Barcha buyurtmalar</span>
               <ChevronRight className="w-3.5 h-3.5" />
@@ -422,17 +453,19 @@ export default function ManagerDashboardPage() {
               <tbody className="divide-y divide-slate-100">
                 {isOrdersPending ? (
                   <tr>
-                    <td colSpan={7} className="py-[89px] text-center text-slate-400">
-                      <div className="flex items-center justify-center gap-2">
-                        <span className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                    <td colSpan={7} className="p-0 py-[89px] text-center text-slate-400">
+                      <div className="sticky left-0 sm:static w-[calc(100vw-2rem)] sm:w-full flex items-center justify-center gap-2 px-4 whitespace-normal">
+                        <span className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin shrink-0" />
                         <span>Buyurtmalar yuklanmoqda...</span>
                       </div>
                     </td>
                   </tr>
                 ) : paginatedOrders.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-[89px] text-center text-slate-400">
-                      Hech qanday buyurtma topilmadi
+                    <td colSpan={7} className="p-0 py-[89px] text-center text-slate-400">
+                      <div className="sticky left-0 sm:static w-[calc(100vw-2rem)] sm:w-full flex items-center justify-center px-4 whitespace-normal">
+                        <span>Hech qanday buyurtma topilmadi</span>
+                      </div>
                     </td>
                   </tr>
                 ) : (
@@ -539,7 +572,7 @@ export default function ManagerDashboardPage() {
               <div>
                 <h3 className="text-base font-bold text-slate-900 leading-tight">Dastavkachilar holati</h3>
                 <p className="text-xs text-slate-500 mt-0.5 leading-normal">
-                  Faol kuryerlar, transport vositalari va logistika operatsiyasi monitoringi
+                  Kuryerlar va logistika monitoringi
                 </p>
               </div>
             </div>

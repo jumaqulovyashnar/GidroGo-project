@@ -202,3 +202,21 @@ export function getOrderStatusBadgeClass(status = "") {
   return "bg-slate-50 text-slate-700 border border-slate-200"
 }
 
+/**
+ * Formats a phone number into readable Uzbek format (+998 XX XXX XX XX)
+ * @param {string|null|undefined} raw
+ * @returns {string}
+ */
+export function formatDisplayPhone(raw) {
+  if (!raw || raw === "—" || raw === "-") return "—"
+  const cleaned = String(raw).replace(/\D/g, "")
+  if (cleaned.length === 12 && cleaned.startsWith("998")) {
+    return `+998 ${cleaned.slice(3, 5)} ${cleaned.slice(5, 8)} ${cleaned.slice(8, 10)} ${cleaned.slice(10, 12)}`
+  }
+  if (cleaned.length === 9) {
+    return `+998 ${cleaned.slice(0, 2)} ${cleaned.slice(2, 5)} ${cleaned.slice(5, 7)} ${cleaned.slice(7, 9)}`
+  }
+  return String(raw)
+}
+
+

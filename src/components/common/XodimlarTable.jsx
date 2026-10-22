@@ -8,6 +8,7 @@ import {
   Truck,
 } from "lucide-react"
 import { Card, TablePagination, Button } from "@/shared/ui"
+import { formatDisplayPhone } from "@/shared/lib"
 
 export function XodimlarTable({
   employees,
@@ -33,25 +34,25 @@ export function XodimlarTable({
     <>
       <Card className="border border-slate-200/90 bg-white shadow-xs rounded-2xl overflow-hidden">
         {/* Filtrlash, Qidiruv va Tablar */}
-        <div className="p-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
           {/* Qidiruv inputi */}
-          <div className="relative flex-1 max-w-md">
-            <Search className="size-4.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <div className="relative flex-1 max-w-md w-full">
+            <Search className="size-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               placeholder="Ism yoki telefon bo'yicha qidiruv..."
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="w-full h-11 pl-10.5 pr-4 rounded-xl border border-slate-200 bg-slate-50/50 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white transition-all"
+              className="w-full h-10 sm:h-11 pl-10 pr-4 rounded-xl border border-slate-200 bg-slate-50/50 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white transition-all"
             />
           </div>
 
           {/* Filtrlash tugmalari (Tabs) */}
-          <div className="flex items-center gap-1.5 bg-slate-100/80 p-1.5 rounded-xl self-start md:self-auto">
+          <div className="flex items-center gap-1 sm:gap-1.5 bg-slate-100/80 p-1 sm:p-1.5 rounded-xl w-full sm:w-auto overflow-x-auto no-scrollbar">
             <button
               type="button"
               onClick={() => onTabChange("all")}
-              className={`px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer transition-all ${
+              className={`flex-1 sm:flex-initial px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold cursor-pointer transition-all whitespace-nowrap text-center ${
                 activeTab === "all"
                   ? "bg-white text-blue-600 shadow-2xs font-bold"
                   : "text-slate-600 hover:text-slate-900"
@@ -62,7 +63,7 @@ export function XodimlarTable({
             <button
               type="button"
               onClick={() => onTabChange("couriers")}
-              className={`px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer transition-all ${
+              className={`flex-1 sm:flex-initial px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold cursor-pointer transition-all whitespace-nowrap text-center ${
                 activeTab === "couriers"
                   ? "bg-white text-blue-600 shadow-2xs font-bold"
                   : "text-slate-600 hover:text-slate-900"
@@ -73,7 +74,7 @@ export function XodimlarTable({
             <button
               type="button"
               onClick={() => onTabChange("managers")}
-              className={`px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer transition-all ${
+              className={`flex-1 sm:flex-initial px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold cursor-pointer transition-all whitespace-nowrap text-center ${
                 activeTab === "managers"
                   ? "bg-white text-blue-600 shadow-2xs font-bold"
                   : "text-slate-600 hover:text-slate-900"
@@ -208,9 +209,9 @@ export function XodimlarTable({
                       </td>
 
                       {/* Telefon Raqami */}
-                      <td className="py-4.5 px-6">
+                      <td className="py-4.5 px-6 whitespace-nowrap">
                         <span className="text-sm font-semibold text-slate-800 font-mono tracking-tight block">
-                          {emp.phone}
+                          {formatDisplayPhone(emp.phone)}
                         </span>
                       </td>
 

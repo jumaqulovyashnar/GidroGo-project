@@ -126,10 +126,10 @@ export default function ManagerOrdersPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
-            Buyurtmalar va Taqsimot Markazi
+            Buyurtmalar taqsimoti
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Barcha buyurtmalarni monitoring qilish, kuryerlarga taqsimlash va yetkazish holatini boshqarish.
+            Buyurtmalar va yetkazish monitoringi.
           </p>
         </div>
 
