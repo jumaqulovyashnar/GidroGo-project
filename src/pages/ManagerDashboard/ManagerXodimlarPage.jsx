@@ -283,7 +283,8 @@ export default function ManagerXodimlarPage() {
           <table className="w-full text-left text-sm border-collapse min-w-[850px] lg:min-w-full">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase text-xs tracking-wider whitespace-nowrap">
-                <th className="py-3.5 px-4">Kuryer</th>
+                <th className="py-3.5 pl-4 pr-1 w-14 text-center">Rasm</th>
+                <th className="py-3.5 pl-2 pr-4">Kuryer</th>
                 <th className="py-3.5 px-4">Telefon raqam</th>
                 <th className="py-3.5 px-4">Transport</th>
                 <th className="py-3.5 px-4">Yuk sig'imi</th>
@@ -295,7 +296,7 @@ export default function ManagerXodimlarPage() {
             <tbody className="divide-y divide-slate-100">
               {filteredCouriers.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="p-0 py-16 text-center text-slate-400">
+                  <td colSpan={8} className="p-0 py-16 text-center text-slate-400">
                     <div className="sticky left-0 sm:static w-[calc(100vw-2rem)] sm:w-full flex items-center justify-center px-4 whitespace-normal">
                       <span>Kuryerlar topilmadi</span>
                     </div>
@@ -306,18 +307,19 @@ export default function ManagerXodimlarPage() {
                   const courierCash = getCourierCashBalance(courier.id)
                   return (
                     <tr key={courier.id} className="hover:bg-slate-50/80 transition-colors h-16 whitespace-nowrap">
-                      <td className="py-3.5 px-4 whitespace-nowrap">
-                        <div className="flex items-center gap-3">
-                          <div className="size-9 rounded-xl bg-blue-50 text-blue-600 font-bold text-xs flex items-center justify-center shrink-0 border border-blue-100/60 shadow-2xs">
-                            {courier.initials}
-                          </div>
-                          <div>
-                            <div className="font-semibold text-slate-900 text-sm whitespace-nowrap">
-                              {courier.name}
-                            </div>
-                            <div className="text-xs text-slate-400 whitespace-nowrap">Dastavkachi xodim</div>
-                          </div>
+                      {/* 1. Rasm (Avatar) */}
+                      <td className="py-3.5 pl-4 pr-1 w-14 text-center whitespace-nowrap">
+                        <div className="size-9 rounded-xl bg-blue-50 text-blue-600 font-bold text-xs flex items-center justify-center mx-auto border border-blue-100/60 shadow-2xs">
+                          {courier.initials}
                         </div>
+                      </td>
+
+                      {/* 2. Kuryer ismi va lavozimi */}
+                      <td className="py-3.5 pl-2 pr-4 whitespace-nowrap">
+                        <div className="font-semibold text-slate-900 text-sm whitespace-nowrap">
+                          {courier.name}
+                        </div>
+                        <div className="text-xs text-slate-400 whitespace-nowrap">Dastavkachi xodim</div>
                       </td>
                       <td className="py-3.5 px-4 whitespace-nowrap font-mono text-slate-700 text-xs">
                         {formatDisplayPhone(courier.phone)}
