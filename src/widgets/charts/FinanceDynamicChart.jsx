@@ -105,9 +105,20 @@ export function FinanceDynamicChart({ period = "month" }) {
       axisBorder: { show: false },
       axisTicks: { show: false },
       labels: {
+        rotate: 0,
+        rotateAlways: false,
+        hideOverlappingLabels: true,
+        formatter: (val) => {
+          if (!val) return ""
+          if (typeof val === "string" && val.length === 10 && val.includes("-")) {
+            const parts = val.split("-")
+            return `${parts[2]}.${parts[1]}`
+          }
+          return val
+        },
         style: {
           colors: "#64748b",
-          fontSize: "12px",
+          fontSize: "11px",
           fontWeight: 500,
         },
       },

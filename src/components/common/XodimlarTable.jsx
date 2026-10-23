@@ -48,11 +48,11 @@ export function XodimlarTable({
           </div>
 
           {/* Filtrlash tugmalari (Tabs) */}
-          <div className="flex items-center gap-1 sm:gap-1.5 bg-slate-100/80 p-1 sm:p-1.5 rounded-xl w-full sm:w-auto overflow-x-auto no-scrollbar">
+          <div className="flex items-center gap-1.5 bg-slate-100/80 p-1.5 rounded-xl w-full sm:w-auto overflow-x-auto scrollbar-none">
             <button
               type="button"
               onClick={() => onTabChange("all")}
-              className={`flex-1 sm:flex-initial px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold cursor-pointer transition-all whitespace-nowrap text-center ${
+              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold cursor-pointer transition-all whitespace-nowrap shrink-0 ${
                 activeTab === "all"
                   ? "bg-white text-blue-600 shadow-2xs font-bold"
                   : "text-slate-600 hover:text-slate-900"
@@ -63,7 +63,7 @@ export function XodimlarTable({
             <button
               type="button"
               onClick={() => onTabChange("couriers")}
-              className={`flex-1 sm:flex-initial px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold cursor-pointer transition-all whitespace-nowrap text-center ${
+              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold cursor-pointer transition-all whitespace-nowrap shrink-0 ${
                 activeTab === "couriers"
                   ? "bg-white text-blue-600 shadow-2xs font-bold"
                   : "text-slate-600 hover:text-slate-900"
@@ -74,7 +74,7 @@ export function XodimlarTable({
             <button
               type="button"
               onClick={() => onTabChange("managers")}
-              className={`flex-1 sm:flex-initial px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold cursor-pointer transition-all whitespace-nowrap text-center ${
+              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold cursor-pointer transition-all whitespace-nowrap shrink-0 ${
                 activeTab === "managers"
                   ? "bg-white text-blue-600 shadow-2xs font-bold"
                   : "text-slate-600 hover:text-slate-900"
@@ -85,25 +85,18 @@ export function XodimlarTable({
           </div>
         </div>
 
-        {/* Asosiy Xodimlar Jadvali (Oraliq masofalar bir xil, tekis taqsimlangan) */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse table-fixed min-w-[720px] lg:min-w-full">
-            <colgroup>
-              <col className="w-[26%]" />
-              <col className="w-[18%]" />
-              <col className="w-[18%]" />
-              <col className="w-[15%]" />
-              <col className="w-[11%]" />
-              <col className="w-[12%]" />
-            </colgroup>
+        {/* Asosiy Xodimlar Jadvali */}
+        <div className="overflow-x-auto w-full">
+          <table className="w-full text-left border-collapse min-w-[780px] lg:min-w-full">
             <thead>
-              <tr className="border-b border-slate-100 bg-slate-50/60 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                <th className="py-4.5 px-6 font-bold">Xodim</th>
-                <th className="py-4.5 px-6 font-bold">Telefon Raqami</th>
-                <th className="py-4.5 px-6 font-bold">Roli</th>
-                <th className="py-4.5 px-6 font-bold">Qo'shilgan Sana</th>
-                <th className="py-4.5 px-6 font-bold text-center">Holati</th>
-                <th className="py-4.5 px-6 font-bold text-right">Amallar</th>
+              <tr className="border-b border-slate-100 bg-slate-50/60 text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">
+                <th className="py-4 pl-6 pr-1 w-14 text-center">Rasm</th>
+                <th className="py-4 pl-2 pr-4 font-bold">Xodim</th>
+                <th className="py-4 px-4 font-bold">Telefon Raqami</th>
+                <th className="py-4 px-4 font-bold">Roli</th>
+                <th className="py-4 px-4 font-bold">Qo'shilgan Sana</th>
+                <th className="py-4 px-4 font-bold text-center">Holati</th>
+                <th className="py-4 pr-6 pl-4 font-bold text-right">Amallar</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-sm">
@@ -111,28 +104,28 @@ export function XodimlarTable({
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, idx) => (
                   <tr key={`skeleton-${idx}`} className="animate-pulse">
-                    <td className="py-4.5 px-6">
-                      <div className="flex items-center gap-3.5">
-                        <div className="size-10 rounded-full bg-slate-200 shrink-0" />
-                        <div className="h-4.5 bg-slate-200 rounded w-32" />
-                      </div>
+                    <td className="py-4 pl-6 pr-1 text-center">
+                      <div className="size-9 rounded-xl bg-slate-200 mx-auto" />
                     </td>
-                    <td className="py-4.5 px-6">
+                    <td className="py-4 pl-2 pr-4">
+                      <div className="h-4 bg-slate-200 rounded w-32" />
+                    </td>
+                    <td className="py-4 px-4">
                       <div className="h-4 bg-slate-200 rounded w-28" />
                     </td>
-                    <td className="py-4.5 px-6">
+                    <td className="py-4 px-4">
                       <div className="h-7 bg-slate-200 rounded-xl w-24" />
                     </td>
-                    <td className="py-4.5 px-6">
+                    <td className="py-4 px-4">
                       <div className="h-4 bg-slate-200 rounded w-24" />
                     </td>
-                    <td className="py-4.5 px-6 text-center">
+                    <td className="py-4 px-4 text-center">
                       <div className="h-7 bg-slate-200 rounded-full w-20 mx-auto" />
                     </td>
-                    <td className="py-4.5 px-6 text-right">
+                    <td className="py-4 pr-6 pl-4 text-right">
                       <div className="flex items-center justify-end gap-3">
                         <div className="h-6 w-11 bg-slate-200 rounded-full" />
-                        <div className="size-8.5 bg-slate-200 rounded-xl" />
+                        <div className="size-8 bg-slate-200 rounded-xl" />
                       </div>
                     </td>
                   </tr>
@@ -140,7 +133,7 @@ export function XodimlarTable({
               ) : isError ? (
                 /* 2. Xatolik holati */
                 <tr>
-                  <td colSpan={6} className="p-0 py-14 text-center">
+                  <td colSpan={7} className="p-0 py-14 text-center">
                     <div className="sticky left-0 sm:static w-[calc(100vw-2rem)] sm:w-full flex flex-col items-center justify-center gap-3 max-w-sm mx-auto px-4 whitespace-normal">
                       <div className="size-10 rounded-full bg-rose-50 text-rose-500 border border-rose-100 flex items-center justify-center">
                         <AlertCircle className="size-5" />
@@ -170,7 +163,7 @@ export function XodimlarTable({
               ) : totalFilteredCount === 0 ? (
                 /* 3. Bo'sh ro'yxat holati */
                 <tr>
-                  <td colSpan={6} className="p-0 py-14 text-center text-slate-400 text-xs">
+                  <td colSpan={7} className="p-0 py-14 text-center text-slate-400 text-xs">
                     <div className="sticky left-0 sm:static w-[calc(100vw-2rem)] sm:w-full flex flex-col items-center justify-center gap-2 px-4 whitespace-normal">
                       <div className="size-10 rounded-full bg-slate-50 text-slate-400 border border-slate-100 flex items-center justify-center">
                         <Search className="size-4" />
@@ -191,32 +184,34 @@ export function XodimlarTable({
                   return (
                     <tr
                       key={emp.id}
-                      className="hover:bg-blue-50/30 transition-colors group"
+                      className="hover:bg-blue-50/30 transition-colors group h-16 whitespace-nowrap"
                     >
-                      {/* Xodim */}
-                      <td className="py-4.5 px-6">
+                      {/* Rasm (Avatar) */}
+                      <td className="py-3.5 pl-6 pr-1 text-center whitespace-nowrap w-14">
+                        <div className="size-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center font-bold text-xs text-blue-700 mx-auto shadow-2xs">
+                          {emp.initials}
+                        </div>
+                      </td>
+
+                      {/* Xodim nomi */}
+                      <td className="py-3.5 pl-2 pr-4 whitespace-nowrap">
                         <Link
                           to={`/boss/xodimlar/${emp.id}`}
-                          className="flex items-center gap-3.5 group/link cursor-pointer"
+                          className="font-bold text-sm text-slate-900 group-hover:text-blue-600 transition-colors"
                         >
-                          <div className="size-10 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center font-bold text-sm text-blue-700 shrink-0 group-hover/link:border-blue-300 transition-colors">
-                            {emp.initials}
-                          </div>
-                          <span className="font-bold text-sm text-slate-900 group-hover/link:text-blue-600 block leading-tight truncate transition-colors">
-                            {emp.name}
-                          </span>
+                          {emp.name}
                         </Link>
                       </td>
 
                       {/* Telefon Raqami */}
-                      <td className="py-4.5 px-6 whitespace-nowrap">
+                      <td className="py-3.5 px-4 whitespace-nowrap">
                         <span className="text-sm font-semibold text-slate-800 font-mono tracking-tight block">
                           {formatDisplayPhone(emp.phone)}
                         </span>
                       </td>
 
                       {/* Roli */}
-                      <td className="py-4.5 px-6">
+                      <td className="py-3.5 px-4 whitespace-nowrap">
                         {emp.roleType === "manager" ? (
                           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200/70">
                             <ShieldCheck className="size-4 text-blue-600 shrink-0" />
@@ -231,12 +226,12 @@ export function XodimlarTable({
                       </td>
 
                       {/* Sana */}
-                      <td className="py-4.5 px-6 text-slate-600 font-medium font-mono text-sm">
+                      <td className="py-3.5 px-4 text-slate-600 font-medium font-mono text-sm whitespace-nowrap">
                         {emp.createdAtText}
                       </td>
 
                       {/* Holati */}
-                      <td className="py-4.5 px-6 text-center">
+                      <td className="py-3.5 px-4 text-center whitespace-nowrap">
                         <span
                           className={`inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border whitespace-nowrap ${
                             isBlocked
@@ -254,7 +249,7 @@ export function XodimlarTable({
                       </td>
 
                       {/* Amallar */}
-                      <td className="py-4.5 px-6 text-right">
+                      <td className="py-3.5 pr-6 pl-4 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end gap-3">
                           {/* Switch toggle */}
                           <button

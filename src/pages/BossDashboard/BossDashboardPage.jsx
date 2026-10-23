@@ -112,7 +112,7 @@ export const BossDashboardPage = () => {
           </p>
         </div>
 
-        <div className="shrink-0">
+        <div className="shrink-0 self-start sm:self-auto">
           <Select
             value={date}
             onChange={(val) => setDate(val || "today")}
@@ -122,13 +122,13 @@ export const BossDashboardPage = () => {
             leftSection={<Calendar className="size-4 text-slate-400 pointer-events-none" />}
             rightSection={<ChevronDown className="size-4 text-slate-400 pointer-events-none" />}
             classNames={{
-              root: "w-full sm:w-40",
+              root: "w-36 sm:w-40",
               input:
-                "!h-10 !rounded-xl !border-slate-200 !bg-white hover:!bg-slate-50 !text-slate-700 !text-sm !font-medium !cursor-pointer transition-colors focus:!border-blue-500 shadow-xs",
+                "!h-9 sm:!h-10 !rounded-xl !border-slate-200 !bg-white hover:!bg-slate-50 !text-slate-700 !text-xs sm:!text-sm !font-medium !cursor-pointer transition-colors focus:!border-blue-500 shadow-xs",
               dropdown:
                 "!rounded-[12px] !border-slate-200 !shadow-lg !p-1.5 !bg-white [&_.mantine-ScrollArea-scrollbar]:!hidden",
               option:
-                "!rounded-[8px] !text-sm !font-medium !py-2 !px-3 !cursor-pointer hover:!bg-slate-100 data-[checked=true]:!bg-blue-50 data-[checked=true]:!text-blue-600",
+                "!rounded-[8px] !text-xs sm:!text-sm !font-medium !py-2 !px-3 !cursor-pointer hover:!bg-slate-100 data-[checked=true]:!bg-blue-50 data-[checked=true]:!text-blue-600",
             }}
           />
         </div>
@@ -274,17 +274,20 @@ export const BossDashboardPage = () => {
             <tbody className="divide-y divide-slate-100">
               {isOrdersLoading ? (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-slate-400">
-                    <div className="flex items-center justify-center gap-2">
+                  <td colSpan={6} className="p-0 py-12 text-center text-slate-400">
+                    <div className="sticky left-0 sm:static w-[calc(100vw-2.5rem)] sm:w-full flex flex-col items-center justify-center gap-2 px-4 whitespace-normal">
                       <Spinner size="sm" />
-                      <span>Bugungi buyurtmalar yuklanmoqda...</span>
+                      <span className="text-xs sm:text-sm">Bugungi buyurtmalar yuklanmoqda...</span>
                     </div>
                   </td>
                 </tr>
               ) : todayOrders.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-slate-400">
-                    Bugun hali buyurtmalar tushmadi
+                  <td colSpan={6} className="p-0 py-12 text-center text-slate-400">
+                    <div className="sticky left-0 sm:static w-[calc(100vw-2.5rem)] sm:w-full flex flex-col items-center justify-center gap-2 px-4 whitespace-normal">
+                      <ShoppingBag className="size-8 text-slate-300 shrink-0" />
+                      <span className="text-xs sm:text-sm">Bugun hali buyurtmalar tushmadi</span>
+                    </div>
                   </td>
                 </tr>
               ) : (

@@ -90,26 +90,26 @@ export function BossFermaPage() {
         </div>
 
         {/* O'ng tomon amallar */}
-        <div className="flex items-center gap-2.5 shrink-0 flex-wrap sm:flex-nowrap">
+        <div className="flex flex-row items-center gap-2 w-full sm:w-auto shrink-0 [&>button]:flex-1 sm:[&>button]:flex-initial">
           <Button
             variant="outline"
             size="sm"
             onClick={handleRefresh}
             disabled={isRefreshing}
-            className="h-9 rounded-xl border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-xs font-semibold gap-1.5 shadow-2xs px-3.5 flex items-center cursor-pointer transition-colors"
+            className="h-8.5 sm:h-9 rounded-xl border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-[11px] sm:text-xs font-semibold gap-1.5 shadow-2xs px-2.5 sm:px-3.5 flex items-center justify-center cursor-pointer transition-colors min-w-0"
           >
-            <RefreshCw className={`size-3.5 text-slate-500 ${isRefreshing ? "animate-spin text-blue-600" : ""}`} />
-            <span>Ma'lumotlarni tekshirish</span>
+            <RefreshCw className={`size-3.5 text-slate-500 shrink-0 ${isRefreshing ? "animate-spin text-blue-600" : ""}`} />
+            <span className="truncate">Tekshirish</span>
           </Button>
 
           <Button
             variant="default"
             size="sm"
             onClick={handleDownloadPassport}
-            className="h-9 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold gap-1.5 shadow-2xs px-3.5 flex items-center shrink-0 cursor-pointer transition-colors whitespace-nowrap"
+            className="h-8.5 sm:h-9 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-[11px] sm:text-xs font-semibold gap-1.5 shadow-2xs px-2.5 sm:px-3.5 flex items-center justify-center cursor-pointer transition-colors min-w-0"
           >
-            <FileText className="size-4 stroke-2" />
-            <span>PDF Pasportni yuklab olish</span>
+            <FileText className="size-3.5 sm:size-4 stroke-2 shrink-0" />
+            <span className="truncate">Pasportni yuklash</span>
           </Button>
         </div>
       </div>

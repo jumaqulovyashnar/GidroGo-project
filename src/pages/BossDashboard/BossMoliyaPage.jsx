@@ -330,11 +330,11 @@ export function BossMoliyaPage() {
           </span>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto w-full">
           <table className="w-full text-left text-xs border-collapse min-w-[650px] lg:min-w-full">
             <thead>
-              <tr className="bg-slate-50/80 border-b border-slate-200/80 text-slate-500 font-semibold uppercase tracking-wider">
-                <th className="py-3 px-4">Kategoriya / Nomi</th>
+              <tr className="bg-slate-50/80 border-b border-slate-200/80 text-slate-500 font-semibold uppercase tracking-wider whitespace-nowrap">
+                <th className="py-3 px-4">Kategoriya</th>
                 <th className="py-3 px-4">Turi</th>
                 <th className="py-3 px-4">Izoh</th>
                 <th className="py-3 px-4">Sana</th>
@@ -344,17 +344,20 @@ export function BossMoliyaPage() {
             <tbody className="divide-y divide-slate-100">
               {isTransactionsLoading ? (
                 <tr>
-                  <td colSpan={5} className="py-10 text-center text-slate-400">
-                    <div className="flex items-center justify-center gap-2">
+                  <td colSpan={5} className="p-0 py-10 text-center text-slate-400">
+                    <div className="sticky left-0 sm:static w-[calc(100vw-2.5rem)] sm:w-full flex flex-col items-center justify-center gap-2 px-4 whitespace-normal">
                       <Spinner size="sm" />
-                      <span>Tranzaksiyalar yuklanmoqda...</span>
+                      <span className="text-xs">Tranzaksiyalar yuklanmoqda...</span>
                     </div>
                   </td>
                 </tr>
               ) : transactions.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-10 text-center text-slate-400">
-                    Hozircha xarajatlar kiritilmagan. Yuqoridagi "Xarajat qo'shish" tugmasi orqali yangi xarajat kiritishingiz mumkin.
+                  <td colSpan={5} className="p-0 py-10 text-center text-slate-400">
+                    <div className="sticky left-0 sm:static w-[calc(100vw-2.5rem)] sm:w-full flex flex-col items-center justify-center gap-2 px-4 whitespace-normal">
+                      <Receipt className="size-8 text-slate-300 shrink-0" />
+                      <span className="text-xs">Hozircha xarajatlar kiritilmagan.</span>
+                    </div>
                   </td>
                 </tr>
               ) : (
@@ -376,21 +379,21 @@ export function BossMoliyaPage() {
                   }
 
                   return (
-                    <tr key={t.id || idx} className="hover:bg-slate-50/80 transition-colors">
-                      <td className="py-3.5 px-4 font-bold text-slate-900">
+                    <tr key={t.id || idx} className="hover:bg-slate-50/80 transition-colors whitespace-nowrap">
+                      <td className="py-3.5 px-4 font-bold text-slate-900 whitespace-nowrap">
                         {t.category || t.title || "Operatsion xarajat"}
                       </td>
-                      <td className="py-3.5 px-4">
+                      <td className="py-3.5 px-4 whitespace-nowrap">
                         <span className={`px-2 py-0.5 rounded-full font-semibold text-[11px] ${
                           isExpense ? "bg-rose-50 text-rose-700 border border-rose-200" : "bg-emerald-50 text-emerald-700 border border-emerald-200"
                         }`}>
                           {isExpense ? "Xarajat" : "Tushum"}
                         </span>
                       </td>
-                      <td className="py-3.5 px-4 text-slate-600 max-w-xs truncate">
+                      <td className="py-3.5 px-4 text-slate-600 max-w-xs truncate whitespace-nowrap">
                         {t.note || t.description || "—"}
                       </td>
-                      <td className="py-3.5 px-4 text-slate-500 font-mono text-[11px]">
+                      <td className="py-3.5 px-4 text-slate-500 font-mono text-[11px] whitespace-nowrap">
                         {dateText}
                       </td>
                       <td className={`py-3.5 px-4 text-right font-extrabold whitespace-nowrap ${
