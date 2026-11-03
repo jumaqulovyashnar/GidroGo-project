@@ -8,7 +8,7 @@ import {
   useManagerCouriers,
   useManagerCouriersDailySummary,
 } from "@/shared/hooks"
-import { ConfirmHandoverModal } from "@/components"
+import { ConfirmHandoverModal, ManagerDirectHandoverModal } from "@/components"
 
 export default function ManagerXodimlarPage() {
   const navigate = useNavigate()
@@ -45,6 +45,7 @@ export default function ManagerXodimlarPage() {
     : []
 
   const [selectedHandoverForConfirm, setSelectedHandoverForConfirm] = useState(null)
+  const [selectedCourierForDirectHandover, setSelectedCourierForDirectHandover] = useState(null)
 
   const getCourierCashBalance = (courierId) => {
     const item = cashBalances.find((b) => Number(b.courierId) === Number(courierId))
@@ -356,13 +357,44 @@ export default function ManagerXodimlarPage() {
                         </span>
                       </td>
                       <td className="py-3.5 px-4 whitespace-nowrap text-right">
-                        <button
-                          type="button"
-                          onClick={() => navigate("/manager/dastavkachilar-xarita")}
-                          className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors cursor-pointer"
-                        >
-                          Xaritada
-                        </button>
+                        <div className="flex items-center justify-end gap-1.5">
+                          {(() => {
+                            const courierPendingHandover = pendingHandovers.find(
+                              (h) => Number(h.courierId) === Number(courier.id)
+                            )
+                            if (courierPendingHandover) {
+                              return (
+                                <button
+                                  type="button"
+                                  onClick={() => setSelectedHandoverForConfirm(courierPendingHandover)}
+                                  className="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-amber-500 hover:bg-amber-600 text-white transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
+                                  title="Dastavkachi so'rovini tasdiqlash"
+                                >
+                                  <Clock className="w-3.5 h-3.5" />
+                                  <span>Tasdiqlash</span>
+                                </button>
+                              )
+                            }
+                            return (
+                              <button
+                                type="button"
+                                onClick={() => setSelectedCourierForDirectHandover(courier)}
+                                className="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors cursor-pointer flex items-center gap-1 border border-emerald-200/60"
+                                title="Dastavkachidan naqd pul qabul qilish"
+                              >
+                                <Banknote className="w-3.5 h-3.5" />
+                                <span>Pul qabul qilish</span>
+                              </button>
+                            )
+                          })()}
+                          <button
+                            type="button"
+                            onClick={() => navigate("/manager/dastavkachilar-xarita")}
+                            className="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors cursor-pointer"
+                          >
+                            Xaritada
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   )
@@ -378,6 +410,14 @@ export default function ManagerXodimlarPage() {
         isOpen={Boolean(selectedHandoverForConfirm)}
         onClose={() => setSelectedHandoverForConfirm(null)}
         handover={selectedHandoverForConfirm}
+      />
+
+      {/* Menejer tomonidan to'g'ridan-to'g'ri naqd pul qabul qilish modali */}
+      <ManagerDirectHandoverModal
+        isOpen={Boolean(selectedCourierForDirectHandover)}
+        onClose={() => setSelectedCourierForDirectHandover(null)}
+        courierId={selectedCourierForDirectHandover?.id}
+        courierName={selectedCourierForDirectHandover?.name}
       />
     </div>
   )
