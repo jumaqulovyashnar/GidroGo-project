@@ -16,6 +16,7 @@ export function CreateFermaModal() {
     resetForm,
     imagePreview,
     setImagePreview,
+    selectedFile,
     setSelectedFile,
   } = useFermaModalStore()
 
