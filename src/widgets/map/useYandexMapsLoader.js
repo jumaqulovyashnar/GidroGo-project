@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 
-const DEFAULT_YANDEX_KEY = import.meta.env.VITE_YANDEX_MAPS_KEY
+const DEFAULT_YANDEX_KEY = import.meta.env.VITE_YANDEX_MAPS_KEY || "ea0b27f2-ad1e-4130-9ae6-140841f82a13"
 
 /**
  * useYandexMapsLoader - Custom hook that handles asynchronous loading of the Yandex Maps 2.1 JS SDK.
