@@ -354,32 +354,10 @@ export default function ManagerAllOrdersPage() {
                   {filteredOrders.length} ta topildi
                 </span>
               </div>
-
-              {/* Status Select Filter */}
-              <Select
-                value={activeTab}
-                onChange={(val) => {
-                  setActiveTab(val || "all")
-                  setCurrentPage(1)
-                }}
-                data={statusOptions}
-                allowDeselect={false}
-                leftSection={<Filter className="w-3.5 h-3.5 text-slate-400 pointer-events-none" />}
-                rightSection={<ChevronDown className="w-3.5 h-3.5 text-slate-400 pointer-events-none" />}
-                classNames={{
-                  root: "w-52",
-                  input:
-                    "!h-9 !rounded-xl !border-slate-200 !bg-slate-50 hover:!bg-slate-100/80 focus:!bg-white !text-slate-700 !text-xs !font-semibold !cursor-pointer transition-colors focus:!border-blue-500 shadow-2xs",
-                  dropdown:
-                    "!rounded-xl !border-slate-200 !shadow-lg !p-1.5 !bg-white z-50",
-                  option:
-                    "!rounded-lg !text-xs !font-medium !py-2 !px-3 !cursor-pointer hover:!bg-slate-100 data-[checked=true]:!bg-blue-50 data-[checked=true]:!text-blue-600 data-[checked=true]:!font-semibold",
-                }}
-              />
             </div>
 
             {/* Search and Filters */}
-            <div className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center justify-between">
+            <div className="flex flex-col lg:flex-row gap-2.5 items-stretch lg:items-center justify-between">
               {/* Qisqa Search Input */}
               <div className="relative w-full sm:w-72 md:w-80">
                 <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -395,8 +373,30 @@ export default function ManagerAllOrdersPage() {
                 />
               </div>
 
-              {/* Filters: Vaqt va To'lov */}
+              {/* Filters: Holat, Vaqt va To'lov - barchasi bitta flex qatorda */}
               <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                {/* Status Select Filter */}
+                <Select
+                  value={activeTab}
+                  onChange={(val) => {
+                    setActiveTab(val || "all")
+                    setCurrentPage(1)
+                  }}
+                  data={statusOptions}
+                  allowDeselect={false}
+                  leftSection={<Filter className="w-3.5 h-3.5 text-slate-400 pointer-events-none" />}
+                  rightSection={<ChevronDown className="w-3.5 h-3.5 text-slate-400 pointer-events-none" />}
+                  classNames={{
+                    root: "w-full sm:w-48",
+                    input:
+                      "!h-9 !rounded-xl !border-slate-200 !bg-slate-50 hover:!bg-slate-100/80 focus:!bg-white !text-slate-700 !text-xs !font-semibold !cursor-pointer transition-colors focus:!border-blue-500 shadow-2xs",
+                    dropdown:
+                      "!rounded-xl !border-slate-200 !shadow-lg !p-1.5 !bg-white z-50",
+                    option:
+                      "!rounded-lg !text-xs !font-medium !py-2 !px-3 !cursor-pointer hover:!bg-slate-100 data-[checked=true]:!bg-blue-50 data-[checked=true]:!text-blue-600 data-[checked=true]:!font-semibold",
+                  }}
+                />
+
                 <Select
                   value={timeFilter}
                   onChange={(val) => {
