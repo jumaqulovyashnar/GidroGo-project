@@ -1,12 +1,27 @@
 import { useState, useMemo } from "react"
 import { useNavigate } from "react-router-dom"
-import { Users, Truck, Search, CheckCircle2, Banknote, Clock, ArrowRight } from "lucide-react"
+import {
+  Users,
+  Truck,
+  Search,
+  CheckCircle2,
+  Banknote,
+  Clock,
+  ArrowRight,
+  MessageSquare,
+  Car,
+  Layers,
+  Phone,
+  ShieldCheck,
+} from "lucide-react"
+import { Modal as MantineModal } from "@mantine/core"
 import { formatDisplayPhone } from "@/shared/lib"
 import {
   useCourierCashBalances,
   useCashHandovers,
   useManagerCouriers,
   useManagerCouriersDailySummary,
+  useManagerFeedback,
 } from "@/shared/hooks"
 import { ConfirmHandoverModal, ManagerDirectHandoverModal } from "@/components"
 
@@ -46,6 +61,24 @@ export default function ManagerXodimlarPage() {
 
   const [selectedHandoverForConfirm, setSelectedHandoverForConfirm] = useState(null)
   const [selectedCourierForDirectHandover, setSelectedCourierForDirectHandover] = useState(null)
+  const [selectedCourierForDetail, setSelectedCourierForDetail] = useState(null)
+
+  // Real Feedback API: GET /api/manager/feedback
+  const { data: feedbackRes } = useManagerFeedback()
+  const allFeedback = useMemo(() => {
+    const raw = feedbackRes?.data?.content || feedbackRes?.data || (Array.isArray(feedbackRes) ? feedbackRes : [])
+    return Array.isArray(raw) ? raw : []
+  }, [feedbackRes])
+
+  const selectedCourierReviews = useMemo(() => {
+    if (!selectedCourierForDetail) return []
+    const cName = (selectedCourierForDetail.name || "").toLowerCase()
+    return allFeedback.filter((item) => {
+      const msg = (item.message || "").toLowerCase()
+      const author = (item.authorName || "").toLowerCase()
+      return item.category === "COURIER" || msg.includes(cName) || author.includes(cName)
+    })
+  }, [allFeedback, selectedCourierForDetail])
 
   const getCourierCashBalance = (courierId) => {
     const item = cashBalances.find((b) => Number(b.courierId) === Number(courierId))
@@ -215,9 +248,9 @@ export default function ManagerXodimlarPage() {
 
       {/* Kassa topshirish so'rovlari bildirishnomasi */}
       {pendingHandovers.length > 0 && (
-        <div className="p-4 bg-amber-50/80 border border-amber-200 rounded-2xl flex items-center justify-between text-xs text-amber-900 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+        <div className="p-4 bg-blue-50/80 border border-blue-200 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-blue-900 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
           <div className="flex items-center gap-2">
-            <Clock className="w-4 h-4 text-amber-600 shrink-0" />
+            <Clock className="w-4 h-4 text-blue-600 shrink-0" />
             <span>
               <strong>{pendingHandovers.length} ta</strong> dastavkachidan kassa topshirish so'rovi kutilmoqda!
             </span>
@@ -225,7 +258,7 @@ export default function ManagerXodimlarPage() {
           <button
             type="button"
             onClick={() => setSelectedHandoverForConfirm(pendingHandovers[0])}
-            className="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-xl text-xs flex items-center gap-1.5 shadow-xs cursor-pointer transition-colors"
+            className="w-full sm:w-auto justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs flex items-center gap-1.5 shadow-xs cursor-pointer transition-colors"
           >
             <span>Ko'rib chiqish</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -308,19 +341,21 @@ export default function ManagerXodimlarPage() {
                   const courierCash = getCourierCashBalance(courier.id)
                   return (
                     <tr key={courier.id} className="hover:bg-slate-50/80 transition-colors h-16 whitespace-nowrap">
-                      {/* 1. Rasm (Avatar) */}
                       <td className="py-3.5 pl-4 pr-1 w-14 text-center whitespace-nowrap">
-                        <div className="size-9 rounded-xl bg-blue-50 text-blue-600 font-bold text-xs flex items-center justify-center mx-auto border border-blue-100/60 shadow-2xs">
+                        <div className="size-9 rounded-full bg-blue-50 text-blue-600 font-bold text-xs flex items-center justify-center mx-auto border border-blue-100/60 shadow-2xs">
                           {courier.initials}
                         </div>
                       </td>
 
-                      {/* 2. Kuryer ismi va lavozimi */}
                       <td className="py-3.5 pl-2 pr-4 whitespace-nowrap">
-                        <div className="font-semibold text-slate-900 text-sm whitespace-nowrap">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedCourierForDetail(courier)}
+                          className="font-bold text-slate-900 text-sm whitespace-nowrap hover:text-blue-600 transition-colors cursor-pointer text-left block"
+                        >
                           {courier.name}
-                        </div>
-                        <div className="text-xs text-slate-400 whitespace-nowrap">Dastavkachi xodim</div>
+                        </button>
+                        <div className="text-[11px] text-slate-400 whitespace-nowrap">Dastavkachi xodim</div>
                       </td>
                       <td className="py-3.5 px-4 whitespace-nowrap font-mono text-slate-700 text-xs">
                         {formatDisplayPhone(courier.phone)}
@@ -344,7 +379,7 @@ export default function ManagerXodimlarPage() {
                         <span
                           className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${
                             courier.isOnline
-                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                              ? "bg-blue-50 text-blue-700 border border-blue-200"
                               : "bg-slate-100 text-slate-600 border border-slate-200"
                           }`}
                         >
@@ -352,7 +387,7 @@ export default function ManagerXodimlarPage() {
                         </span>
                       </td>
                       <td className="py-3.5 px-4 whitespace-nowrap">
-                        <span className={`font-bold font-mono text-xs ${courierCash > 0 ? "text-emerald-700" : "text-slate-500"}`}>
+                        <span className={`font-bold font-mono text-xs ${courierCash > 0 ? "text-blue-600" : "text-slate-500"}`}>
                           {Number(courierCash || 0).toLocaleString()} so'm
                         </span>
                       </td>
@@ -367,7 +402,7 @@ export default function ManagerXodimlarPage() {
                                 <button
                                   type="button"
                                   onClick={() => setSelectedHandoverForConfirm(courierPendingHandover)}
-                                  className="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-amber-500 hover:bg-amber-600 text-white transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
+                                  className="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
                                   title="Dastavkachi so'rovini tasdiqlash"
                                 >
                                   <Clock className="w-3.5 h-3.5" />
@@ -379,10 +414,10 @@ export default function ManagerXodimlarPage() {
                               <button
                                 type="button"
                                 onClick={() => setSelectedCourierForDirectHandover(courier)}
-                                className="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors cursor-pointer flex items-center gap-1 border border-emerald-200/60"
+                                className="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer flex items-center gap-1 border border-slate-200"
                                 title="Dastavkachidan naqd pul qabul qilish"
                               >
-                                <Banknote className="w-3.5 h-3.5" />
+                                <Banknote className="w-3.5 h-3.5 text-blue-600" />
                                 <span>Pul qabul qilish</span>
                               </button>
                             )
@@ -419,6 +454,144 @@ export default function ManagerXodimlarPage() {
         courierId={selectedCourierForDirectHandover?.id}
         courierName={selectedCourierForDirectHandover?.name}
       />
+
+      {/* Dastavkachi Tafsiloti va Sharhlar Modali */}
+      <MantineModal
+        opened={Boolean(selectedCourierForDetail)}
+        onClose={() => setSelectedCourierForDetail(null)}
+        title={
+          <div className="flex items-center gap-2.5">
+            <div className="size-9 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100">
+              <Truck className="size-4.5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 leading-tight">
+                Dastavkachi Tafsiloti va Sharhlar
+              </h3>
+              <p className="text-[11px] text-slate-500">
+                Transport ma'lumotlari, kassa va mijozlar fikrlari
+              </p>
+            </div>
+          </div>
+        }
+        size="560px"
+        centered
+        radius="xl"
+      >
+        {selectedCourierForDetail && (
+          <div className="space-y-4 pt-1">
+            <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-slate-900 text-sm">
+                    {selectedCourierForDetail.name}
+                  </span>
+                  <span
+                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                      selectedCourierForDetail.isOnline
+                        ? "bg-blue-50 text-blue-700 border border-blue-200"
+                        : "bg-slate-200 text-slate-600"
+                    }`}
+                  >
+                    {selectedCourierForDetail.statusText}
+                  </span>
+                </div>
+                <div className="text-xs text-slate-500 font-mono mt-1">
+                  {formatDisplayPhone(selectedCourierForDetail.phone)}
+                </div>
+              </div>
+
+              <div className="text-right">
+                <span className="text-[11px] text-slate-400 block font-medium">Kassa balansi</span>
+                <span className="text-sm font-bold font-mono text-blue-600">
+                  {Number(getCourierCashBalance(selectedCourierForDetail.id)).toLocaleString()} so'm
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2.5 text-xs">
+              <div className="p-3 bg-slate-50/70 rounded-xl border border-slate-100">
+                <span className="text-[10px] uppercase font-semibold text-slate-400">Transport</span>
+                <p className="font-bold text-slate-800 mt-0.5">
+                  {selectedCourierForDetail.vehicle && selectedCourierForDetail.vehicle !== "-"
+                    ? selectedCourierForDetail.vehicle
+                    : "Biriktirilmagan"}
+                </p>
+              </div>
+
+              <div className="p-3 bg-slate-50/70 rounded-xl border border-slate-100">
+                <span className="text-[10px] uppercase font-semibold text-slate-400">Mashina Raqami</span>
+                <p className="font-mono font-bold text-slate-800 mt-0.5">
+                  {selectedCourierForDetail.plate || "—"}
+                </p>
+              </div>
+
+              <div className="p-3 bg-slate-50/70 rounded-xl border border-slate-100">
+                <span className="text-[10px] uppercase font-semibold text-slate-400">Yuk Sig'imi</span>
+                <p className="font-bold text-blue-600 mt-0.5">
+                  {selectedCourierForDetail.load || "50 dona"}
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-2 border-t border-slate-100 pt-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
+                  <MessageSquare className="size-4 text-blue-600" />
+                  <span>Dastavkachiga Berilgan Sharhlar</span>
+                </div>
+                <span className="text-[11px] font-semibold text-slate-500">
+                  {selectedCourierReviews.length} ta fikr
+                </span>
+              </div>
+
+              {selectedCourierReviews.length === 0 ? (
+                <div className="p-6 text-center text-slate-400 text-xs bg-slate-50/50 rounded-xl border border-slate-100">
+                  <p className="font-medium text-slate-600">Hozircha sharhlar yo'q</p>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    Mijozlar buyurtma yakunida sharh qoldirganda bu yerda ko'rinadi
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                  {selectedCourierReviews.map((fb) => (
+                    <div
+                      key={fb.id}
+                      className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-xs space-y-1"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-slate-900">
+                          {fb.authorName || "Mijoz"}
+                        </span>
+                        <span className="text-[10px] text-slate-400 font-mono">
+                          {fb.createdAt ? new Date(fb.createdAt).toLocaleDateString("uz-UZ") : ""}
+                        </span>
+                      </div>
+                      <p className="text-slate-700 leading-relaxed">{fb.message}</p>
+                      {fb.managerNote && (
+                        <div className="p-2 bg-blue-50/70 rounded-lg text-[11px] text-blue-900 border border-blue-100 mt-1">
+                          <strong className="font-semibold">Menejer javobi:</strong> {fb.managerNote}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Yopish tugmasi */}
+            <div className="pt-2 border-t border-slate-100 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setSelectedCourierForDetail(null)}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors cursor-pointer"
+              >
+                Yopish
+              </button>
+            </div>
+          </div>
+        )}
+      </MantineModal>
     </div>
   )
 }

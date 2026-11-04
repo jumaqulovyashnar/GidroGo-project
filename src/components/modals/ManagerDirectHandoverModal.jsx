@@ -1,3 +1,4 @@
+import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -22,6 +23,7 @@ export function ManagerDirectHandoverModal({
   onClose,
   courierId,
   courierName = "Dastavkachi",
+  initialAmount = "",
 }) {
   const { mutate: directHandover, isPending } = useDirectCashHandover()
 
@@ -33,7 +35,7 @@ export function ManagerDirectHandoverModal({
   } = useForm({
     resolver: zodResolver(directHandoverSchema),
     defaultValues: {
-      amount: "",
+      amount: initialAmount ? String(initialAmount) : "",
       note: "",
     },
     mode: "onBlur",
@@ -67,7 +69,7 @@ export function ManagerDirectHandoverModal({
       onClose={handleClose}
       title={
         <div className="flex items-center gap-2">
-          <div className="size-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+          <div className="size-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
             <Banknote className="size-4.5" />
           </div>
           <div>
@@ -90,7 +92,6 @@ export function ManagerDirectHandoverModal({
           <p className="text-sm font-bold text-slate-900">{courierName}</p>
         </div>
 
-        {/* Summa (amount) */}
         <div>
           <label className="block text-xs font-semibold text-slate-700 mb-1.5">
             Topshirilgan summa (so'm) <span className="text-rose-500">*</span>
@@ -107,7 +108,7 @@ export function ManagerDirectHandoverModal({
                 "w-full h-10 px-3 rounded-xl border text-sm font-bold text-slate-900 focus:outline-none transition-all disabled:bg-slate-50 disabled:cursor-not-allowed",
                 errors.amount
                   ? "border-rose-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10"
-                  : "border-slate-200 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                  : "border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/10"
               )}
             />
           </div>
@@ -116,7 +117,6 @@ export function ManagerDirectHandoverModal({
           )}
         </div>
 
-        {/* Izoh (note) */}
         <div>
           <label className="block text-xs font-semibold text-slate-700 mb-1.5">
             Izoh / Izoh matni <span className="text-slate-400 font-normal">(ixtiyoriy)</span>
@@ -130,7 +130,7 @@ export function ManagerDirectHandoverModal({
               "w-full p-2.5 rounded-xl border text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none disabled:bg-slate-50 disabled:cursor-not-allowed resize-none transition-all",
               errors.note
                 ? "border-rose-400 focus:border-rose-500"
-                : "border-slate-200 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                : "border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/10"
             )}
           />
           {errors.note && (
@@ -138,7 +138,6 @@ export function ManagerDirectHandoverModal({
           )}
         </div>
 
-        {/* Buttons */}
         <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
           <button
             type="button"
@@ -151,7 +150,7 @@ export function ManagerDirectHandoverModal({
           <button
             type="submit"
             disabled={isPending}
-            className="px-5 py-2 rounded-xl text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition-all flex items-center gap-1.5 shadow-xs disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            className="px-5 py-2 rounded-xl text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-all flex items-center gap-1.5 shadow-xs disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             {isPending ? (
               <>

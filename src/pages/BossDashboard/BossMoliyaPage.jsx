@@ -1,18 +1,19 @@
 import { useState, lazy, Suspense } from "react"
 import { Link } from "react-router-dom"
 import { Select } from "@mantine/core"
-import { CreditCard, Receipt, Landmark, ShoppingBag, Download, Plus, ChevronRight, Calendar, ChevronDown, HandCoins, ArrowDownToLine, Wallet, Users, AlertCircle } from "lucide-react"
+import { CreditCard, Receipt, Landmark, ShoppingBag, Download, Plus, ChevronRight, Calendar, ChevronDown, HandCoins, ArrowDownToLine, Wallet, Users, AlertCircle, Clock, ArrowRight } from "lucide-react"
 import { toast } from "sonner"
 import { Card, Button, Spinner } from "@/shared/ui"
 import {
   useBossFinanceSummary,
   useBossOrders,
   useBossCashSummary,
+  useBossCashHandovers,
   useBossCreateExpense,
   useBossTransactions,
 } from "@/shared/hooks"
 import { exportToCsv } from "@/shared/lib"
-import { AddExpenseModal } from "@/components"
+import { AddExpenseModal, ConfirmHandoverModal } from "@/components"
 
 const FinanceDynamicChart = lazy(() => import("@/widgets").then((m) => ({ default: m.FinanceDynamicChart })))
 
@@ -42,6 +43,14 @@ export function BossMoliyaPage() {
   const { data: ordersRes } = useBossOrders({ all: true })
   const { data: cashSummaryRes } = useBossCashSummary()
   const { data: transactionsRes, isLoading: isTransactionsLoading } = useBossTransactions()
+
+  const { data: bossHandoversRes } = useBossCashHandovers({ status: "PENDING" })
+  const pendingHandovers = Array.isArray(bossHandoversRes?.data)
+    ? bossHandoversRes.data
+    : Array.isArray(bossHandoversRes)
+    ? bossHandoversRes
+    : []
+  const [selectedHandoverForConfirm, setSelectedHandoverForConfirm] = useState(null)
 
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false)
   const { mutate: createExpense, isPending: isCreatingExpense } = useBossCreateExpense()
@@ -202,7 +211,6 @@ export function BossMoliyaPage() {
 
   return (
     <div className="space-y-6 pb-10">
-      {/* 1. Breadcrumb */}
       <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">
         <Link
           to="/boss"
@@ -214,7 +222,6 @@ export function BossMoliyaPage() {
         <span className="text-slate-800">MOLIYA VA FOYDA TAHLILI</span>
       </div>
 
-      {/* 2. Sarlavha, Davr Tanlov Tugmalari va Amallar */}
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
@@ -225,7 +232,6 @@ export function BossMoliyaPage() {
           </p>
         </div>
 
-        {/* O'ng tomon: Davr tugmalari + Action tugmalari */}
         <div className="flex flex-wrap items-center gap-2.5">
           <Select
             value={activePeriod}
@@ -266,7 +272,25 @@ export function BossMoliyaPage() {
         </div>
       </div>
 
-      {/* Error state banner */}
+      {pendingHandovers.length > 0 && (
+        <div className="p-4 bg-amber-50/80 border border-amber-200 rounded-2xl flex items-center justify-between text-xs text-amber-900 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+          <div className="flex items-center gap-2">
+            <Clock className="w-4 h-4 text-amber-600 shrink-0" />
+            <span>
+              <strong>{pendingHandovers.length} ta</strong> dastavkachidan kassa topshirish so'rovi kutilmoqda!
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setSelectedHandoverForConfirm(pendingHandovers[0])}
+            className="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-xl text-xs flex items-center gap-1.5 shadow-xs cursor-pointer transition-colors"
+          >
+            <span>Ko'rib chiqish</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
       {isFinanceError && (
         <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-center justify-between text-xs text-red-700">
           <div className="flex items-center gap-2">
@@ -283,12 +307,12 @@ export function BossMoliyaPage() {
         </div>
       )}
 
-      {/* 3. Top 4 ta Moliyaviy KPI Kartalari (100% Real API) */}
+      {/* Moliyaviy ko'rsatkichlar kartalari */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
         {topMetrics.map(renderMetricCard)}
       </div>
  
-      {/* 4. Kassa va Inkassatsiya Monitoringi (GET /api/boss/cash/summary) */}
+      {/* Kassa va inkassatsiya hisoboti */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
@@ -306,7 +330,7 @@ export function BossMoliyaPage() {
         </div>
       </div>
 
-      {/* 5. Asosiy Daromad va Xarajatlar Dinamikasi Grafigi */}
+      {/* Daromad va xarajatlar dinamikasi grafigi */}
       <Suspense
         fallback={
           <div className="h-72 bg-white rounded-2xl border border-slate-200 p-6 flex flex-col items-center justify-center gap-2">
@@ -318,7 +342,7 @@ export function BossMoliyaPage() {
         <FinanceDynamicChart period={periodParam} />
       </Suspense>
 
-      {/* 6. Oxirgi Xarajatlar va Tranzaksiyalar Jadvali */}
+      {/* Xarajatlar va tranzaksiyalar jadvali */}
       <Card className="border border-slate-200/90 bg-white shadow-xs rounded-2xl overflow-hidden">
         <div className="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
@@ -410,12 +434,17 @@ export function BossMoliyaPage() {
         </div>
       </Card>
 
-      {/* 6. Xarajat qo'shish Modali */}
       <AddExpenseModal
         opened={isExpenseModalOpen}
         onClose={() => setIsExpenseModalOpen(false)}
         onAddExpense={handleAddExpense}
         isSubmitting={isCreatingExpense}
+      />
+
+      <ConfirmHandoverModal
+        isOpen={Boolean(selectedHandoverForConfirm)}
+        onClose={() => setSelectedHandoverForConfirm(null)}
+        handover={selectedHandoverForConfirm}
       />
     </div>
   )

@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from "react"
 import { useParams, Link, useNavigate } from "react-router-dom"
 import {
-  User, Phone,
+  User,
+  Phone,
   ShieldCheck,
   Calendar,
   Building2,
@@ -9,9 +10,12 @@ import {
   Briefcase,
   Hash,
   Trash2,
+  Car,
+  Pencil,
+  MessageSquare,
 } from "lucide-react"
 import { toast } from "sonner"
-import { Card, Switch, Button, DeleteXodimModal } from "@/shared/ui"
+import { Card, Switch, DeleteXodimModal } from "@/shared/ui"
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -20,7 +24,8 @@ import {
   BreadcrumbSeparator,
   BreadcrumbPage,
 } from "@/shared/ui/breadcrumb"
-import { useStaff, useStaffDetail } from "@/shared/hooks"
+import { useStaff, useStaffDetail, useManagerFeedback } from "@/shared/hooks"
+import { EditVehicleModal } from "@/components"
 
 export function BossXodimDetailPage() {
   const { id } = useParams()
@@ -28,26 +33,21 @@ export function BossXodimDetailPage() {
   const {
     data,
     isLoading: isListLoading,
-    isError,
-    refetch,
     updateStaffStatus,
     isUpdatingStatus,
     deleteStaff,
     isDeleting,
   } = useStaff()
 
-  // Real API: GET /api/boss/staff/{id}
   const { data: staffDetailRes, isLoading: isDetailLoading } = useStaffDetail(id)
   const isLoading = isDetailLoading && isListLoading
 
-  // Xodimlar ro'yxati (fallback sifatida)
   const rawList = useMemo(() => {
     if (Array.isArray(data?.data)) return data.data
     if (Array.isArray(data)) return data
     return []
   }, [data])
 
-  // Joriy xodim ma'lumotlari (Direct API or fallback)
   const employee = useMemo(() => {
     if (staffDetailRes?.data) return staffDetailRes.data
     if (staffDetailRes && typeof staffDetailRes === "object" && !Array.isArray(staffDetailRes) && staffDetailRes.id) return staffDetailRes
@@ -61,7 +61,6 @@ export function BossXodimDetailPage() {
 
   const isActive = !isBlocked
 
-  // Holatni Switch orqali o'zgartirish
   const handleStatusChange = (val) => {
     if (!employee) return
     const nextStatus = val ? "ACTIVE" : "BLOCKED"
@@ -83,8 +82,8 @@ export function BossXodimDetailPage() {
     )
   }
 
-  // Xodimni o'chirish: DELETE /api/boss/staff/{id} (Double request protected, modal orqali)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false)
 
   const handleDeleteEmployee = () => {
     if (isDeleting || !employee) return
@@ -101,51 +100,45 @@ export function BossXodimDetailPage() {
     })
   }
 
-  // Sana formatlash (kun.oy.yil, soat:daqiqa)
+  const { data: feedbackRes } = useManagerFeedback()
+  const allFeedback = useMemo(() => {
+    const raw = feedbackRes?.data?.content || feedbackRes?.data || (Array.isArray(feedbackRes) ? feedbackRes : [])
+    return Array.isArray(raw) ? raw : []
+  }, [feedbackRes])
+
+  const courierFeedback = useMemo(() => {
+    if (!employee) return []
+    const empName = (employee.fullName || employee.name || "").toLowerCase()
+    return allFeedback.filter((item) => {
+      const msg = (item.message || "").toLowerCase()
+      const author = (item.authorName || "").toLowerCase()
+      return item.category === "COURIER" || msg.includes(empName) || author.includes(empName)
+    })
+  }, [allFeedback, employee])
+
   const formattedDate = useMemo(() => {
     if (!employee?.createdAt) return "Mavjud emas"
     try {
-      const d = new Date(employee.createdAt)
-      const day = String(d.getDate()).padStart(2, "0")
-      const month = String(d.getMonth() + 1).padStart(2, "0")
-      const year = d.getFullYear()
-      const hours = String(d.getHours()).padStart(2, "0")
-      const minutes = String(d.getMinutes()).padStart(2, "0")
-      return `${day}.${month}.${year}, ${hours}:${minutes}`
+      return new Date(employee.createdAt).toLocaleDateString("uz-UZ", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
     } catch {
-      return employee.createdAt
+      return String(employee.createdAt)
     }
-  }, [employee])
+  }, [employee?.createdAt])
 
   if (isLoading) {
     return (
-      <div className="max-w-7xl mx-auto py-20 flex flex-col items-center justify-center gap-4 bg-white border border-slate-200/80 rounded-2xl animate-pulse">
-        <div className="size-10 rounded-full border-2 border-slate-200 border-t-blue-600 animate-spin" />
-        <p className="text-sm font-medium text-slate-500">Xodim ma'lumotlari yuklanmoqda...</p>
+      <div className="flex flex-col items-center justify-center min-h-[350px] gap-3 text-slate-500">
+        <div className="size-8 rounded-full border-2 border-blue-600 border-t-transparent animate-spin" />
+        <p className="text-sm font-medium">Xodim ma'lumotlari yuklanmoqda...</p>
       </div>
     )
   }
 
-  if (isError) {
-    return (
-      <div className="max-w-7xl mx-auto py-16 px-6 text-center bg-white border border-rose-200 rounded-2xl space-y-4">
-        <div className="size-14 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center mx-auto border border-rose-100">
-          <User className="size-7" />
-        </div>
-        <div className="space-y-1">
-          <h2 className="text-lg font-bold text-slate-900">Xatolik yuz berdi</h2>
-          <p className="text-sm text-slate-500 max-w-md mx-auto">
-            Xodim ma'lumotlarini yuklashda xatolik yuz berdi. Iltimos qayta urinib ko'ring.
-          </p>
-        </div>
-        <Button variant="outline" size="sm" onClick={() => refetch()} className="cursor-pointer">
-          Qayta urinish
-        </Button>
-      </div>
-    )
-  }
-
-  if (!employee) {
+  if (!employee && !isLoading) {
     return (
       <div className="max-w-7xl mx-auto py-16 px-6 text-center bg-white border border-slate-200 rounded-2xl space-y-4">
         <div className="size-14 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
@@ -172,48 +165,44 @@ export function BossXodimDetailPage() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-10">
-      {/* 0. Breadcrumb Navigatsiyasi */}
-      <div>
-        <Breadcrumb className="mb-2">
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink
-                className="capitalize decoration-blue-500 text-slate-500 hover:text-blue-600 text-xs sm:text-sm"
-                render={<Link to="/boss" />}
-              >
-                Bosh sahifa
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbLink
-                className="capitalize decoration-blue-500 text-slate-500 hover:text-blue-600 text-xs sm:text-sm"
-                render={<Link to="/boss/xodimlar" />}
-              >
-                Xodimlar
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage className="capitalize text-blue-600 font-semibold text-xs sm:text-sm">
-                {employee.fullName || employee.name}
-              </BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-      </div>
+      <Breadcrumb className="mb-2">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink
+              className="capitalize decoration-blue-500 text-slate-500 hover:text-blue-600 text-xs sm:text-sm"
+              render={<Link to="/boss" />}
+            >
+              Bosh sahifa
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink
+              className="capitalize decoration-blue-500 text-slate-500 hover:text-blue-600 text-xs sm:text-sm"
+              render={<Link to="/boss/xodimlar" />}
+            >
+              Xodimlar
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage className="capitalize text-blue-600 font-semibold text-xs sm:text-sm">
+              {employee.fullName || employee.name}
+            </BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
 
-      {/* 1. Header Blok: Sarlavha */}
       <div className="pb-1">
         <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
           {employee.fullName || employee.name}
         </h1>
         <p className="text-sm text-slate-500 mt-1">
-          Xodimning to'liq profili, tizimdagi faoliyati va shaxsiy ma'lumotlari.
+          Xodimning to'liq profili, tizimdagi faoliyati, transporti va mijozlar sharhlari.
         </p>
       </div>
 
-      {/* 2. Asosiy Profil Kartasi */}
+      {/* Profil asosiy kartasi */}
       <Card className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-7 shadow-xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100">
           <div>
@@ -232,6 +221,18 @@ export function BossXodimDetailPage() {
               {employee.shiftType && (
                 <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-800 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full">
                   <span>Smena: {employee.shiftType}</span>
+                </span>
+              )}
+              {!isManager && (
+                <span
+                  className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full border ${
+                    employee.online
+                      ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                      : "bg-slate-100 text-slate-600 border-slate-200"
+                  }`}
+                >
+                  <span className={`size-2 rounded-full ${employee.online ? "bg-emerald-500" : "bg-slate-400"}`} />
+                  <span>{employee.online ? "Liniyada (Online)" : "Oflayn"}</span>
                 </span>
               )}
             </div>
@@ -258,7 +259,6 @@ export function BossXodimDetailPage() {
           </div>
         </div>
 
-        {/* Pastki qism: Ro'yxatdan o'tgan sana va Switch holat */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-5 text-xs sm:text-sm text-slate-600">
           <div className="flex items-center gap-2">
             <Calendar className="size-4 text-slate-400" />
@@ -277,8 +277,7 @@ export function BossXodimDetailPage() {
               onCheckedChange={handleStatusChange}
             />
             <span
-              className={`text-xs font-bold select-none ${isActive ? "text-blue-600" : "text-rose-500"
-                }`}
+              className={`text-xs font-bold select-none ${isActive ? "text-blue-600" : "text-rose-500"}`}
             >
               {isUpdatingStatus ? "O'zgarmoqda..." : isActive ? "Faol" : "Bloklangan"}
             </span>
@@ -286,13 +285,12 @@ export function BossXodimDetailPage() {
         </div>
       </Card>
 
-      {/* 3. 4 ta Parametr Kartochkasi (Soxta badge va izohlarsiz, toza qiymatlar) */}
+      {/* Parametrlar */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Karta 1: Xodim ID */}
         <Card className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex flex-col justify-between h-28 hover:border-slate-300 transition-all">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-              Xodim ID (id)
+              Xodim ID
             </span>
             <div className="size-8 rounded-xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center shrink-0">
               <Hash className="size-4 text-blue-600" />
@@ -303,11 +301,10 @@ export function BossXodimDetailPage() {
           </div>
         </Card>
 
-        {/* Karta 2: Telefon Raqami */}
         <Card className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex flex-col justify-between h-28 hover:border-slate-300 transition-all">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-              Telefon Raqami (phone)
+              Telefon Raqami
             </span>
             <div className="size-8 rounded-xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center shrink-0">
               <Phone className="size-4 text-blue-600" />
@@ -318,11 +315,10 @@ export function BossXodimDetailPage() {
           </div>
         </Card>
 
-        {/* Karta 3: Tizimdagi Roli */}
         <Card className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex flex-col justify-between h-28 hover:border-slate-300 transition-all">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-              Tizimdagi Roli (role)
+              Tizimdagi Roli
             </span>
             <div className="size-8 rounded-xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center shrink-0">
               <ShieldCheck className="size-4 text-blue-600" />
@@ -333,11 +329,10 @@ export function BossXodimDetailPage() {
           </div>
         </Card>
 
-        {/* Karta 4: Biriktirilgan Ferma */}
         <Card className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex flex-col justify-between h-28 hover:border-slate-300 transition-all">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-              Biriktirilgan Ferma (farmId)
+              Biriktirilgan Ferma
             </span>
             <div className="size-8 rounded-xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center shrink-0">
               <Building2 className="size-4 text-blue-600" />
@@ -349,13 +344,118 @@ export function BossXodimDetailPage() {
         </Card>
       </div>
 
-      {/* Xodimni o'chirish tasdiqlash Modali */}
+      {/* Transport ma'lumotlari (faqat COURIER uchun) */}
+      {!isManager && (
+        <Card className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-xs">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3.5 mb-4">
+            <div className="flex items-center gap-2">
+              <Car className="size-5 text-blue-600" />
+              <h3 className="text-base font-bold text-slate-900">
+                Transport va Avtomobil Ma'lumotlari
+              </h3>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsVehicleModalOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-600 text-xs font-bold transition-colors cursor-pointer"
+            >
+              <Pencil className="size-3.5" />
+              <span>Tahrirlash</span>
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+            <div className="p-4 bg-slate-50/70 rounded-xl border border-slate-100">
+              <span className="text-[11px] font-semibold text-slate-400 uppercase">Transport Rusumi</span>
+              <p className="text-sm font-bold text-slate-900 mt-1">
+                {employee.vehicleModel || "Biriktirilmagan"}
+              </p>
+            </div>
+
+            <div className="p-4 bg-slate-50/70 rounded-xl border border-slate-100">
+              <span className="text-[11px] font-semibold text-slate-400 uppercase">Mashina Davlat Raqami</span>
+              <p className="text-sm font-mono font-bold text-slate-900 mt-1">
+                {employee.vehiclePlateNumber || "—"}
+              </p>
+            </div>
+
+            <div className="p-4 bg-slate-50/70 rounded-xl border border-slate-100">
+              <span className="text-[11px] font-semibold text-slate-400 uppercase">Yuk Sig'imi</span>
+              <p className="text-sm font-bold text-blue-600 mt-1">
+                {employee.maxCapacity ? `${employee.maxCapacity} ta idish` : "50 ta idish"}
+              </p>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {/* Sharhlar va Fikrlar */}
+      {!isManager && (
+        <Card className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-xs space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div className="flex items-center gap-2">
+              <MessageSquare className="size-5 text-blue-600" />
+              <h3 className="text-base font-bold text-slate-900">
+                Dastavkachiga Berilgan Sharhlar va Fikrlar
+              </h3>
+            </div>
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700">
+              {courierFeedback.length} ta fikr
+            </span>
+          </div>
+
+          {courierFeedback.length === 0 ? (
+            <div className="py-8 text-center text-slate-400 text-xs">
+              <p className="font-medium text-slate-600">Hozircha sharhlar mavjud emas</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Mijozlar buyurtmani qabul qilib olgach qoldirgan izohlari shu yerda ko'rinadi
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {courierFeedback.map((fb) => (
+                <div
+                  key={fb.id}
+                  className="p-3.5 bg-slate-50 rounded-xl border border-slate-100 space-y-1.5 text-xs"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-slate-900">
+                      {fb.authorName || "Mijoz"}
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-mono">
+                      {fb.createdAt ? new Date(fb.createdAt).toLocaleDateString("uz-UZ") : ""}
+                    </span>
+                  </div>
+                  <p className="text-slate-700 leading-relaxed">{fb.message}</p>
+                  {fb.managerNote && (
+                    <div className="p-2 bg-blue-50/60 rounded-lg border border-blue-100 text-[11px] text-blue-900 mt-1">
+                      <strong className="font-semibold">Menejer javobi:</strong> {fb.managerNote}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+      )}
+
       <DeleteXodimModal
         opened={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         employee={employee}
         onConfirm={handleConfirmDelete}
         isPending={isDeleting}
+      />
+
+      <EditVehicleModal
+        opened={isVehicleModalOpen}
+        onClose={() => setIsVehicleModalOpen(false)}
+        staffId={employee?.id}
+        currentVehicle={{
+          vehicleModel: employee?.vehicleModel,
+          vehiclePlateNumber: employee?.vehiclePlateNumber,
+          maxCapacity: employee?.maxCapacity,
+        }}
       />
     </div>
   )

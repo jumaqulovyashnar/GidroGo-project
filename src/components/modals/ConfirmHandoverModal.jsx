@@ -3,7 +3,8 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { Modal as MantineModal } from "@mantine/core"
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react"
-import { useConfirmCashHandover, useRejectCashHandover } from "@/shared/hooks"
+import { useConfirmCashHandover, useRejectCashHandover, useBossConfirmHandover, useBossRejectHandover } from "@/shared/hooks"
+import { useAuth } from "@/provider/AuthProvider"
 import { cn, AMOUNT_REGEX } from "@/shared/lib"
 
 const handoverSchema = z
@@ -36,9 +37,17 @@ const handoverSchema = z
   })
 
 function ConfirmHandoverModalContent({ isOpen, onClose, handover }) {
-  const { mutate: confirmHandover, isPending: isConfirming } = useConfirmCashHandover()
-  const { mutate: rejectHandover, isPending: isRejecting } = useRejectCashHandover()
-  const isPending = isConfirming || isRejecting
+  const { user } = useAuth()
+  const isBoss = user?.role === "BOSS" || user?.rawRole === "ROLE_BOSS"
+
+  const { mutate: confirmManager, isPending: isConfirmingManager } = useConfirmCashHandover()
+  const { mutate: rejectManager, isPending: isRejectingManager } = useRejectCashHandover()
+  const { mutate: confirmBoss, isPending: isConfirmingBoss } = useBossConfirmHandover()
+  const { mutate: rejectBoss, isPending: isRejectingBoss } = useBossRejectHandover()
+
+  const confirmHandover = isBoss ? confirmBoss : confirmManager
+  const rejectHandover = isBoss ? rejectBoss : rejectManager
+  const isPending = isConfirmingManager || isRejectingManager || isConfirmingBoss || isRejectingBoss
 
   const {
     register,
@@ -101,14 +110,7 @@ function ConfirmHandoverModalContent({ isOpen, onClose, handover }) {
       onClose={handleClose}
       title={
         <div className="flex items-center gap-2">
-          <div
-            className={cn(
-              "size-8 rounded-lg flex items-center justify-center",
-              actionType === "confirm"
-                ? "bg-emerald-50 text-emerald-600"
-                : "bg-rose-50 text-rose-600"
-            )}
-          >
+          <div className="size-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
             {actionType === "confirm" ? (
               <CheckCircle2 className="size-4.5" />
             ) : (
@@ -134,7 +136,6 @@ function ConfirmHandoverModalContent({ isOpen, onClose, handover }) {
       }}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {/* Switch tab */}
         <div className="grid grid-cols-2 gap-1 p-1 bg-slate-100 rounded-xl">
           <button
             type="button"
@@ -143,7 +144,7 @@ function ConfirmHandoverModalContent({ isOpen, onClose, handover }) {
             className={cn(
               "py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer",
               actionType === "confirm"
-                ? "bg-white text-emerald-700 shadow-xs"
+                ? "bg-white text-blue-600 shadow-xs font-bold"
                 : "text-slate-600 hover:text-slate-900"
             )}
           >
@@ -156,7 +157,7 @@ function ConfirmHandoverModalContent({ isOpen, onClose, handover }) {
             className={cn(
               "py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer",
               actionType === "reject"
-                ? "bg-white text-rose-700 shadow-xs"
+                ? "bg-white text-blue-600 shadow-xs font-bold"
                 : "text-slate-600 hover:text-slate-900"
             )}
           >
@@ -199,7 +200,7 @@ function ConfirmHandoverModalContent({ isOpen, onClose, handover }) {
                   "w-full h-10 px-3 rounded-xl border text-sm font-bold text-slate-900 focus:outline-none transition-all disabled:bg-slate-50",
                   errors.confirmedAmount
                     ? "border-rose-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10"
-                    : "border-slate-200 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                    : "border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/10"
                 )}
               />
               {errors.confirmedAmount && (
@@ -217,7 +218,7 @@ function ConfirmHandoverModalContent({ isOpen, onClose, handover }) {
                 disabled={isPending}
                 {...register("note")}
                 placeholder="Tasdiqlash izohi..."
-                className="w-full p-2.5 rounded-xl border border-slate-200 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 resize-none disabled:bg-slate-50"
+                className="w-full p-2.5 rounded-xl border border-slate-200 text-xs text-slate-800 focus:outline-none focus:border-blue-500 resize-none disabled:bg-slate-50"
               />
               {errors.note && (
                 <p className="text-xs text-rose-500 font-medium mt-1">{errors.note.message}</p>
@@ -259,12 +260,7 @@ function ConfirmHandoverModalContent({ isOpen, onClose, handover }) {
           <button
             type="submit"
             disabled={isPending}
-            className={cn(
-              "px-5 py-2 rounded-xl text-xs font-semibold text-white transition-all flex items-center gap-1.5 shadow-xs disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer",
-              actionType === "confirm"
-                ? "bg-emerald-600 hover:bg-emerald-700"
-                : "bg-rose-600 hover:bg-rose-700"
-            )}
+            className="px-5 py-2 rounded-xl text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-all flex items-center gap-1.5 shadow-xs disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             {isPending ? (
               <>

@@ -33,9 +33,8 @@ export function XodimlarTable({
   return (
     <>
       <Card className="border border-slate-200/90 bg-white shadow-xs rounded-2xl overflow-hidden">
-        {/* Filtrlash, Qidiruv va Tablar */}
+        {/* Qidiruv va tab filtrlari */}
         <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
-          {/* Qidiruv inputi */}
           <div className="relative flex-1 max-w-md w-full">
             <Search className="size-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
@@ -47,7 +46,6 @@ export function XodimlarTable({
             />
           </div>
 
-          {/* Filtrlash tugmalari (Tabs) */}
           <div className="flex items-center gap-1.5 bg-slate-100/80 p-1.5 rounded-xl w-full sm:w-auto overflow-x-auto scrollbar-none">
             <button
               type="button"
@@ -85,7 +83,7 @@ export function XodimlarTable({
           </div>
         </div>
 
-        {/* Asosiy Xodimlar Jadvali */}
+        {/* Xodimlar ro'yxati jadvali */}
         <div className="overflow-x-auto w-full">
           <table className="w-full text-left border-collapse min-w-[780px] lg:min-w-full">
             <thead>
@@ -100,7 +98,6 @@ export function XodimlarTable({
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-sm">
-              {/* 1. Yuklanish holati */}
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, idx) => (
                   <tr key={`skeleton-${idx}`} className="animate-pulse">
@@ -131,7 +128,6 @@ export function XodimlarTable({
                   </tr>
                 ))
               ) : isError ? (
-                /* 2. Xatolik holati */
                 <tr>
                   <td colSpan={7} className="p-0 py-14 text-center">
                     <div className="sticky left-0 sm:static w-[calc(100vw-2rem)] sm:w-full flex flex-col items-center justify-center gap-3 max-w-sm mx-auto px-4 whitespace-normal">
@@ -161,7 +157,6 @@ export function XodimlarTable({
                   </td>
                 </tr>
               ) : totalFilteredCount === 0 ? (
-                /* 3. Bo'sh ro'yxat holati */
                 <tr>
                   <td colSpan={7} className="p-0 py-14 text-center text-slate-400 text-xs">
                     <div className="sticky left-0 sm:static w-[calc(100vw-2rem)] sm:w-full flex flex-col items-center justify-center gap-2 px-4 whitespace-normal">
@@ -177,7 +172,6 @@ export function XodimlarTable({
                   </td>
                 </tr>
               ) : (
-                /* 4. Ma'lumotlar ro'yxati */
                 paginatedEmployees.map((emp) => {
                   const isBlocked = emp.status === "blocked"
 
@@ -186,31 +180,40 @@ export function XodimlarTable({
                       key={emp.id}
                       className="hover:bg-blue-50/30 transition-colors group h-16 whitespace-nowrap"
                     >
-                      {/* Rasm (Avatar) */}
                       <td className="py-3.5 pl-6 pr-1 text-center whitespace-nowrap w-14">
                         <div className="size-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center font-bold text-xs text-blue-700 mx-auto shadow-2xs">
                           {emp.initials}
                         </div>
                       </td>
 
-                      {/* Xodim nomi */}
                       <td className="py-3.5 pl-2 pr-4 whitespace-nowrap">
                         <Link
                           to={`/boss/xodimlar/${emp.id}`}
-                          className="font-bold text-sm text-slate-900 group-hover:text-blue-600 transition-colors"
+                          className="font-bold text-sm text-slate-900 group-hover:text-blue-600 transition-colors block leading-tight"
                         >
                           {emp.name}
                         </Link>
+                        {emp.roleType === "courier" && (emp.vehicleModel || emp.vehiclePlateNumber) && (
+                          <div className="text-[11px] text-slate-500 font-medium flex items-center gap-1.5 mt-1">
+                            <span className="text-slate-700 font-semibold">{emp.vehicleModel || "Avto"}</span>
+                            {emp.vehiclePlateNumber && (
+                              <span className="px-1.5 py-0.5 rounded bg-slate-100 font-mono text-[10px] text-slate-700 border border-slate-200">
+                                {emp.vehiclePlateNumber}
+                              </span>
+                            )}
+                            {emp.maxCapacity ? (
+                              <span className="text-blue-600 text-[10px] font-semibold">({emp.maxCapacity} dona)</span>
+                            ) : null}
+                          </div>
+                        )}
                       </td>
 
-                      {/* Telefon Raqami */}
                       <td className="py-3.5 px-4 whitespace-nowrap">
                         <span className="text-sm font-semibold text-slate-800 font-mono tracking-tight block">
                           {formatDisplayPhone(emp.phone)}
                         </span>
                       </td>
 
-                      {/* Roli */}
                       <td className="py-3.5 px-4 whitespace-nowrap">
                         {emp.roleType === "manager" ? (
                           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200/70">
@@ -225,12 +228,10 @@ export function XodimlarTable({
                         )}
                       </td>
 
-                      {/* Sana */}
                       <td className="py-3.5 px-4 text-slate-600 font-medium font-mono text-sm whitespace-nowrap">
                         {emp.createdAtText}
                       </td>
 
-                      {/* Holati */}
                       <td className="py-3.5 px-4 text-center whitespace-nowrap">
                         <span
                           className={`inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border whitespace-nowrap ${
@@ -248,10 +249,8 @@ export function XodimlarTable({
                         </span>
                       </td>
 
-                      {/* Amallar */}
                       <td className="py-3.5 pr-6 pl-4 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end gap-3">
-                          {/* Switch toggle */}
                           <button
                             type="button"
                             role="switch"
@@ -275,7 +274,6 @@ export function XodimlarTable({
                             />
                           </button>
 
-                          {/* Delete button (DELETE /api/boss/staff/{id}) */}
                           <button
                             type="button"
                             disabled={isDeleting}
@@ -296,7 +294,6 @@ export function XodimlarTable({
         </div>
       </Card>
 
-      {/* Jadval Pagination */}
       {!isLoading && !isError && totalPages > 1 && (
         <TablePagination
           currentPage={currentPage}

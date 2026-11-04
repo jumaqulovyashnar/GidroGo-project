@@ -1,7 +1,6 @@
 import { api, handleApiError } from "@/shared";
 
 class BossXodimlarService {
-  // 1. GET /api/boss/staff - Fermaning barcha xodimlari ro'yxati
   async getXodim() {
     try {
       const response = await api.get("/boss/staff");
@@ -11,8 +10,6 @@ class BossXodimlarService {
     }
   }
 
-  // 2. POST /api/boss/staff - Yangi Manager yoki Dastavkachi yaratish
-  // OpenAPI Schema: StaffCreateRequest { fullName, phone, password, role, shiftType }
   async createXodim(payload) {
     try {
       const cleanPayload = {
@@ -21,6 +18,11 @@ class BossXodimlarService {
         password: payload.password?.trim(),
         role: payload.role,
         ...(payload.shiftType ? { shiftType: payload.shiftType } : {}),
+        ...(payload.vehicleModel?.trim() ? { vehicleModel: payload.vehicleModel.trim() } : {}),
+        ...(payload.vehiclePlateNumber?.trim() ? { vehiclePlateNumber: payload.vehiclePlateNumber.trim() } : {}),
+        ...(payload.maxCapacity !== undefined && payload.maxCapacity !== ""
+          ? { maxCapacity: Number(payload.maxCapacity) }
+          : {}),
       };
       const response = await api.post("/boss/staff", cleanPayload);
       return response.data;
@@ -29,8 +31,6 @@ class BossXodimlarService {
     }
   }
 
-  // 3. PATCH /api/boss/staff/{id}/status - Xodim holatini faol/bloklangan qilish
-  // OpenAPI Schema: StaffStatusUpdateRequest { status }
   async updateStaffStatus(id, status) {
     try {
       const payload = typeof status === "object" ? { status: status.status } : { status };
@@ -41,7 +41,6 @@ class BossXodimlarService {
     }
   }
 
-  // 4. GET /api/boss/staff/summary - Xodimlar va dastavkachilar monitoringi statistikasi (kartochkalar uchun)
   async getStaffSummary() {
     try {
       const response = await api.get("/boss/staff/summary");
@@ -51,7 +50,6 @@ class BossXodimlarService {
     }
   }
 
-  // 5. DELETE /api/boss/staff/{id} - Xodimni o'chirish (Kassa balansi 0 dan katta bo'lsa 409 CASH_BALANCE_NOT_ZERO)
   async deleteStaff(id) {
     try {
       const response = await api.delete(`/boss/staff/${id}`);
@@ -61,10 +59,25 @@ class BossXodimlarService {
     }
   }
 
-  // 6. GET /api/boss/staff/{id} - Xodim ma'lumotini to'g'ridan-to'g'ri ID orqali olish
   async getStaffById(id) {
     try {
       const response = await api.get(`/boss/staff/${id}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  }
+
+  async updateStaffVehicle(id, payload) {
+    try {
+      const cleanPayload = {
+        ...(payload.vehicleModel?.trim() ? { vehicleModel: payload.vehicleModel.trim() } : {}),
+        ...(payload.vehiclePlateNumber?.trim() ? { vehiclePlateNumber: payload.vehiclePlateNumber.trim() } : {}),
+        ...(payload.maxCapacity !== undefined && payload.maxCapacity !== ""
+          ? { maxCapacity: Number(payload.maxCapacity) }
+          : {}),
+      };
+      const response = await api.put(`/boss/staff/${id}/vehicle`, cleanPayload);
       return response.data;
     } catch (error) {
       throw new Error(handleApiError(error));

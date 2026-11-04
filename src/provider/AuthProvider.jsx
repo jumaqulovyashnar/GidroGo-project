@@ -193,10 +193,22 @@ export const AuthProvider = ({ children }) => {
 
 export const useAuth = () => {
   const context = useContext(AuthContext)
-  if (!context) {
-    throw new Error("useAuth must be used within AuthProvider")
+  if (context) return context
+
+  const user = useUserStore.getState()?.userInfo
+  const userToken = useUserStore.getState()?.userToken
+  const token = userToken?.accessToken || null
+  return {
+    user,
+    token,
+    isAuthenticated: Boolean(token && user),
+    isInitializing: false,
+    login: async () => ({ success: false }),
+    logout: () => {
+      useUserStore.getState()?.actions?.clearUserInfoAndToken()
+    },
+    refetchUser: async () => {},
   }
-  return context
 }
 
 export default AuthProvider

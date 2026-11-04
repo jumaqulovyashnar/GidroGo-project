@@ -29,5 +29,9 @@ export { managerCashService } from "./manager.cash.service"
 export { courierCashService } from "./courier.cash.service"
 export { bossCashService } from "./boss.cash.service"
 
+// Feedback & Notifications Services
+export { feedbackService } from "./feedback.service"
+export { notificationService } from "./notification.service"
+
 // Client API Services
 export { clientService } from "./client.service"

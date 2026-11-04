@@ -2,7 +2,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import bossXodimlarService from "@/services/boss.xodimlar.service";
 
-// 4. GET /api/boss/staff/summary - Xodimlar monitoringi statistikasi
 export const useStaffSummary = (options = {}) => {
   return useQuery({
     queryKey: ["staff-summary"],
@@ -13,7 +12,6 @@ export const useStaffSummary = (options = {}) => {
   });
 };
 
-// 6. GET /api/boss/staff/{id} - Xodim ma'lumotini to'g'ridan-to'g'ri ID orqali olish
 export const useStaffDetail = (id, options = {}) => {
   return useQuery({
     queryKey: ["staff-detail", id],
@@ -25,17 +23,31 @@ export const useStaffDetail = (id, options = {}) => {
   });
 };
 
+export const useUpdateStaffVehicle = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, ...payload }) => bossXodimlarService.updateStaffVehicle(id, payload),
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ["staff"] });
+      queryClient.invalidateQueries({ queryKey: ["staff-detail"] });
+      toast.success(res?.message || "Transport ma'lumotlari muvaffaqiyatli saqlandi!");
+    },
+    onError: (err) => {
+      toast.error(err?.message || "Transport ma'lumotlarini yangilashda xatolik yuz berdi");
+    },
+  });
+};
+
 export const useStaff = () => {
   const queryClient = useQueryClient();
 
-  // 1. GET /api/boss/staff (Faqat 1 marta va kerak bo'lganda ishlaydi)
   const staff = useQuery({
     queryKey: ["staff"],
     queryFn: () => bossXodimlarService.getXodim(),
-    refetchOnWindowFocus: false, // Oyna aktiv bo'lganda ortiqcha qayta so'rov yubormaslik
+    refetchOnWindowFocus: false,
   });
 
-  // 2. POST /api/boss/staff
   const createStaff = useMutation({
     mutationFn: (payload) => bossXodimlarService.createXodim(payload),
     onSuccess: (res) => {
@@ -48,7 +60,6 @@ export const useStaff = () => {
     },
   });
 
-  // 3. PATCH /api/boss/staff/{id}/status
   const updateStaffStatus = useMutation({
     mutationFn: ({ id, status }) =>
       bossXodimlarService.updateStaffStatus(id, status),
@@ -62,7 +73,6 @@ export const useStaff = () => {
     },
   });
 
-  // 5. DELETE /api/boss/staff/{id}
   const deleteStaff = useMutation({
     mutationFn: (id) => bossXodimlarService.deleteStaff(id),
     onSuccess: (res) => {
@@ -81,15 +91,12 @@ export const useStaff = () => {
     isError: staff.isError,
     error: staff.error,
     refetch: staff.refetch,
-    // Yaratish
     createStaff: createStaff.mutate,
     createStaffAsync: createStaff.mutateAsync,
     isCreating: createStaff.isPending,
-    // Statusni yangilash
     updateStaffStatus: updateStaffStatus.mutate,
     updateStaffStatusAsync: updateStaffStatus.mutateAsync,
     isUpdatingStatus: updateStaffStatus.isPending,
-    // O'chirish
     deleteStaff: deleteStaff.mutate,
     deleteStaffAsync: deleteStaff.mutateAsync,
     isDeleting: deleteStaff.isPending,
@@ -97,4 +104,3 @@ export const useStaff = () => {
 };
 
 export default useStaff;
-

@@ -92,7 +92,7 @@ export function AdjustBottleBalanceModal({
       onClose={handleClose}
       title={
         <div className="flex items-center gap-2">
-          <div className="size-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+          <div className="size-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
             <Droplet className="size-4 stroke-2" />
           </div>
           <div>
@@ -113,13 +113,11 @@ export function AdjustBottleBalanceModal({
       }}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-2">
-        {/* Mahsulot ma'lumoti */}
         <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between text-xs">
           <span className="text-slate-500 font-medium">Mahsulot:</span>
           <span className="font-bold text-slate-900">{productName}</span>
         </div>
 
-        {/* Amal turi (+ Qabul qilindi yoki - Berildi) */}
         <div>
           <label className="block text-xs font-semibold text-slate-700 mb-1.5">
             Amal turi
@@ -132,12 +130,12 @@ export function AdjustBottleBalanceModal({
               className={cn(
                 "flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border text-xs font-bold transition-all cursor-pointer",
                 deltaType === "add"
-                  ? "bg-emerald-50 border-emerald-300 text-emerald-700 shadow-2xs"
+                  ? "bg-blue-600 text-white border-blue-600 shadow-2xs"
                   : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
               )}
             >
               <Plus className="size-3.5 stroke-[2.5]" />
-              <span>Idish qaytarildi (+)</span>
+              <span>Idish qaytarildi</span>
             </button>
 
             <button
@@ -147,12 +145,12 @@ export function AdjustBottleBalanceModal({
               className={cn(
                 "flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border text-xs font-bold transition-all cursor-pointer",
                 deltaType === "subtract"
-                  ? "bg-rose-50 border-rose-300 text-rose-700 shadow-2xs"
+                  ? "bg-blue-600 text-white border-blue-600 shadow-2xs"
                   : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
               )}
             >
               <Minus className="size-3.5 stroke-[2.5]" />
-              <span>Idish berildi (-)</span>
+              <span>Idish berildi</span>
             </button>
           </div>
         </div>
