@@ -1,6 +1,8 @@
+import { useState } from "react"
 import { useNavigate, useLocation, Link } from "react-router-dom"
 import { LogOut, X } from "lucide-react"
 import { useAuth } from "@/provider/AuthProvider"
+import { LogoutConfirmModal } from "@/components/modals"
 import { getSidebarMenu } from "./sidebarConfig"
 import LogoImg from "@/shared/assets/Logo.png"
 
@@ -15,6 +17,7 @@ export function DoubleNavbar({ role, onCloseMobile }) {
   const navigate = useNavigate()
   const location = useLocation()
   const { user, logout } = useAuth()
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false)
 
   // Foydalanuvchi roli: 1) prop 'role', 2) URL prefiksi, 3) user?.role, 4) default 'SUPER_ADMIN'
   const currentRole = (
@@ -135,17 +138,25 @@ export function DoubleNavbar({ role, onCloseMobile }) {
       <footer className="p-4 border-t border-slate-100">
         <button
           type="button"
-          onClick={() => {
-            onCloseMobile?.()
-            logout()
-          }}
+          onClick={() => setIsLogoutModalOpen(true)}
           aria-label="Tizimdan chiqish"
-          className="flex items-center gap-2.5 w-full px-3.5 py-2.5 rounded-xl text-sm font-semibold text-rose-600 bg-rose-50/70 hover:bg-rose-100 hover:text-rose-700 border border-rose-100 transition-colors cursor-pointer"
+          className="flex items-center gap-2.5 w-full px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 hover:text-slate-900 border border-slate-200 transition-colors cursor-pointer"
         >
-          <LogOut className="size-4 stroke-[1.75]" />
+          <LogOut className="size-4 stroke-[1.75] text-slate-500" />
           <span>Chiqish</span>
         </button>
       </footer>
+
+      {/* Chiqishni tasdiqlash modali */}
+      <LogoutConfirmModal
+        opened={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        onConfirm={() => {
+          setIsLogoutModalOpen(false)
+          onCloseMobile?.()
+          logout()
+        }}
+      />
     </nav>
   )
 }
