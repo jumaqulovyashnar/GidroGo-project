@@ -333,12 +333,10 @@ export const BossDashboardPage = () => {
                       </td>
                       <td className="py-3.5 px-4">
                         <span
-                          className={`px-2 py-0.5 rounded-full font-semibold text-[11px] ${
-                            isDone
-                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                              : isDelivering
-                              ? "bg-blue-50 text-blue-700 border border-blue-200"
-                              : "bg-amber-50 text-amber-700 border border-amber-200"
+                          className={`px-2 py-0.5 rounded-full font-semibold text-[11px] border ${
+                            isDone || isDelivering
+                              ? "bg-blue-50 text-blue-700 border-blue-200"
+                              : "bg-slate-100 text-slate-700 border-slate-200"
                           }`}
                         >
                           {statusLabel}

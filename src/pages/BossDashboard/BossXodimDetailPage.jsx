@@ -219,7 +219,7 @@ export function BossXodimDetailPage() {
                 <span>{roleName}</span>
               </span>
               {employee.shiftType && (
-                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-800 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full">
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 bg-slate-100 border border-slate-200 px-3 py-1 rounded-full">
                   <span>Smena: {employee.shiftType}</span>
                 </span>
               )}
@@ -227,11 +227,11 @@ export function BossXodimDetailPage() {
                 <span
                   className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full border ${
                     employee.online
-                      ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                      ? "bg-blue-50 text-blue-700 border-blue-200"
                       : "bg-slate-100 text-slate-600 border-slate-200"
                   }`}
                 >
-                  <span className={`size-2 rounded-full ${employee.online ? "bg-emerald-500" : "bg-slate-400"}`} />
+                  <span className={`size-2 rounded-full ${employee.online ? "bg-blue-600" : "bg-slate-400"}`} />
                   <span>{employee.online ? "Liniyada (Online)" : "Oflayn"}</span>
                 </span>
               )}
